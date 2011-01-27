@@ -1,5 +1,5 @@
 // Adding state to a new generic object using State
-X = State(
+var X = State.object(
 	// Object definition
 	{
 		methodOne: function() {
@@ -10,7 +10,7 @@ X = State(
 		}
 	},
 	
-	// State definition
+	// State definitions
 	// Three progressively more complex ways to define a state:
 	{
 		// 1. Simple: methods only
@@ -48,7 +48,7 @@ X = State(
 		],
 		
 		// 3. Complex (StateDefinition): named sections for any or all of methods, events, rules ...?
-		Finished: State.define({
+		Finished: State({
 			methods: {
 				methodOne: function() {
 					return 'Finished.methodOne';
@@ -72,8 +72,42 @@ X = State(
 					Ready: function() { return false; }
 				},
 				allowEnteringFrom: {
-					Ready: function() { return true; }
+					// TODO: support multiples with comma-delimited keys
+					'Preparing, Ready': function() { return true; }
 				}
+			},
+			states: {
+				CleaningUp: {
+					methodTwo: function() {
+						return 'Finished.CleaningUp.methodTwo';
+					}
+				},
+				Terminated: State({
+					methods: {
+						methodOne: function() {
+							return 'Finished.Terminated.methodOne';
+						},
+						methodTwo: function() {
+							return 'Finished.Terminated.methodTwo';
+						}
+					},
+					rules: {
+						allowLeavingTo: {
+							// TODO: support wildcard
+							'*': function() { return false; }
+						},
+						allowEnteringFrom: {
+							'*': function() { return false; },
+							CleaningUp: function() { return true; },
+							
+							// TODO: support dot-as-parent syntax
+							'.Preparing': function() { return true; }
+						}
+					},
+					states: {
+						// et cetera
+					}
+				})
 			}
 		})
 	},
@@ -81,6 +115,7 @@ X = State(
 	// initial state selector
 	'Preparing'
 );
+console.log(X);
 
 // Adding arbitrary state to an existing generic object using State.Controller
 //
