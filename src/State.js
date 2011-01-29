@@ -1,7 +1,7 @@
-//( function($) {
+( function( $, undefined ) {
 
 var State = $.extend( true,
-	function State( parent, definition ) {
+	function State( parent, name, definition ) {
 		/*
 		 * If invoked directly, use this function as shorthand for the
 		 * State.Definition constructor.
@@ -19,28 +19,29 @@ var State = $.extend( true,
 			childStates = {};
 		
 		$.each( [ 'enter', 'leave', 'enterChildState', 'leaveChildState' ], function( i, type ) {
-			eventListeners[type] = new State.Event.Collection();
+			eventListeners[type] = new State.Event.Collection( state, type );
 		});
 		
 		$.extend( this, {
-			name: function() {
+			name: name || '',
+			getName: function() {
 				return name || '';
 			},
 			parent: function() {
 				return parent;
 			},
-			method: function(name) {
-				return definition.methods[name];
+			method: function( methodName ) {
+				return definition.methods[ methodName ];
 			},
-			hasMethod: function(name) {
-				return name in definition.methods;
+			hasMethod: function( methodName ) {
+				return methodName in definition.methods;
 			},
-			addMethod: function( name, fn ) {
-				return ( methods[name] = fn );
+			addMethod: function( methodName, fn ) {
+				return ( methods[ methodName ] = fn );
 			},
-			removeMethod: function(name) {
-				var fn = methods[name];
-				delete methods[name];
+			removeMethod: function( methodName ) {
+				var fn = methods[ methodName ];
+				delete methods[ methodName ];
 				return fn;
 			},
 			addEventListener: function( type, fn ) {
@@ -56,19 +57,19 @@ var State = $.extend( true,
 			},
 			triggerEvents: function( type ) {
 				if ( eventListeners[type] ) {
-					$.each( eventListeners[type], function( id, fn ) {
-						var event = new State.Event( state, type );
-						fn.apply( state, [ event ] );
-					});
+					return eventListeners[type].trigger();
 				} else {
 					throw new State.EventError('Invalid event type');
 				}
 			},
 			addState: function( stateName, stateDefinition ) {
-				this[ stateName ] = childStates[ stateName ] = new State( this, stateDefinition );
+				this[ stateName ] = childStates[ stateName ] = new State( this, stateName, stateDefinition );
 			},
 			removeState: function() {
 				throw new State.Error('Not implemented');
+			},
+			rule: function( ruleName ) {
+				return definition.rules ? definition.rules[ ruleName ] : undefined;
 			}
 		});
 		
@@ -84,17 +85,6 @@ var State = $.extend( true,
 			});
 		}
 		
-		if ( definition.rules ) {
-			$.each( definition.rules, function( ruleName, ruleStates ) {
-				if ( ruleStates ) {
-					$.each( ruleStates, function( stateName, fn ) {
-						// something to rework the allow_() functions
-						// StateController.change()
-					});
-				}
-			});
-		}
-		
 		if ( definition.states ) {
 			$.each( definition.states, function( stateName, stateDefinition ) {
 				state.addState( stateName, stateDefinition );
@@ -103,26 +93,49 @@ var State = $.extend( true,
 	}, {
 		prototype: {
 			controller: function() {
-				return this.parent() instanceof State ? this.parent().controller() : this.parent();
-			}
+				var parent = this.parent();
+				return parent instanceof State ? parent.controller() : parent;
+			},
 			toString: function() {
-				return this.name;
+				return ( this.parent() instanceof State ? this.parent().toString() + '.' : '' ) + this.getName();
 			},
 			select: function() {
-				return this.controller.change( this.name ) ? this : false;
+				return this.controller().changeState( this ) ? this : false;
+			},
+			isSelected: function() {
+				return this.controller().currentState() === this;
 			},
 			allowLeavingTo: function( toState ) {
 				return true;
 			},
 			allowEnteringFrom: function( fromState ) {
 				return true;
+			},
+			evaluateRule: function( ruleName, testState ) {
+				var	state = this,
+					rule = this.rule( ruleName );
+				if ( rule ) {
+					var result;
+					$.each( rule, function( selector, value ) {
+						// TODO: support wildcard
+						$.each( selector.split(','), function( i, expr ) {
+							if ( state.controller().getState( $.trim(expr), state ) === testState ) {
+								result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );
+								return false; 
+							}
+						});
+						return ( result === undefined );
+					});
+					return result;
+				}
+				return true;
 			}
 		},
 		
 		object: function() {
 			var controller = State.Controller.apply( this, arguments );
-			controller.owner.state = controller;
-			return controller.owner;
+			controller.owner().state = controller;
+			return controller.owner();
 		},
 		
 		define: function( map ) {
@@ -136,14 +149,13 @@ var State = $.extend( true,
 					return new StateDefinition( map );
 				}
 				
-				var mapIsShorthand = $.isArray( map );
-				if ( !mapIsShorthand && $.isPlainObject( map ) ) {
-					$.each( this.constructor.members, function(i,key) {
-						return mapIsShorthand = !( key in map && !$.isFunction( map[key] ) );
+				var isShort = $.isArray( map );
+				if ( !isShort && $.isPlainObject( map ) ) {
+					$.each( this.constructor.members, function( i, key ) {
+						return isShort = !( key in map && !$.isFunction( map[key] ) );
 					});
 				}
-				
-				$.extend( true, this, mapIsShorthand ? this.constructor.create( map ) : map );
+				$.extend( true, this, isShort ? this.constructor.create( map ) : map );
 			}, {
 				members: ['methods','events','rules','states'],
 				blankMap: function() {
@@ -157,7 +169,7 @@ var State = $.extend( true,
 						map.methods = shorthand;
 					} else if ( $.isArray( shorthand ) ) {
 						$.each( this.members, function(i,key) {
-							return i < shorthand.length && map[key] = shorthand[i];
+							return i < shorthand.length && ( map[key] = shorthand[i] );
 						});
 					} else {
 						throw new State.DefinitionError();
@@ -182,16 +194,31 @@ var State = $.extend( true,
 					return new State.Controller( owner, map, initialState );
 				}
 				
+				// Pseudoverloads: [ (map,initialState), (owner,map), (map), () ]
+				if ( arguments.length < 2 || typeof map === 'string' ) {
+					initialState = map;
+					map = owner;
+					owner = this;
+				}
+				
 				var	controller = this,
 					defaultState = new State(this);
 				
 				$.extend( this, {
-					owner: owner,
+					owner: function() {
+						return owner;
+					},
+					defaultState: function() {
+						return defaultState;
+					},
+					currentState: function() {
+						return currentState;
+					},
 					addState: function( name, definition ) {
 						if ( !( definition instanceof State.Definition ) ) {
 							definition = new State.Definition( definition );
 						}
-						var state = ( controller[ name ] = new State( controller, definition ) );
+						var state = ( controller[ name ] = new State( controller, name, definition ) );
 						if ( definition.methods.length ) {
 							$.each( definition.methods, function( methodName, fn ) {
 								if ( !defaultState.hasMethod( methodName ) ) {
@@ -213,57 +240,19 @@ var State = $.extend( true,
 						}
 						return state;
 					},
-//					old_addState: function( name, methods, events, rules, states ) {
-//						if ( methods instanceof State.Definition ) {
-//							rules = methods.rules;
-//							events = methods.events;
-//							methods = methods.methods;
-//							states = methods.states;
-//						}
-//						var state = ( controller[ name ] =
-//							new State( controller, name, methods, events, rules, states ) );
-//						if ( methods ) {
-//							$.each( methods, function( methodName, fn ) {
-//								if (
-//									!controller.__default__.hasMethod( methodName )
-//										&&
-//									(
-//										!owner[ methodName ]
-//											||
-//										typeof owner[ methodName ] === 'function'
-//									)
-//								){
-//									controller.__default__.addMethod( methodName, owner[ methodName ] );
-//									owner[ methodName ] = function() {
-//										var method = controller.getMethod( methodName );
-//										return method.apply( owner, arguments );
-//									};
-//								}
-//							});
-//						}
-//						return state;
-//					},
 					removeState: function( name ) {
 						throw new Error('State.Controller.removeState not implemented yet');
 					},
-					getState: function() {
-						return currentState;
-					},
-					getDefaultState: function() {
-						return defaultState;
-					},
-					getMethod: function( methodName ) {
-						return this.getState().getMethod( methodName ) || defaultState.getMethod( methodName );
-					},
-					change: function( toState ) {
-						if ( !( toState instanceof State && toState.controller === this ) ) {
-							toState =( toState ? this[ toState ] : this.__default__ );
-							if ( !toState ) {
-								throw new Error('Invalid state');
-							}
+					changeState: function( toState ) {
+						if ( !( toState instanceof State ) ) {
+							toState = toState ? this.getState( toState ) : defaultState;
 						}
-						if ( currentState.allowLeavingTo( toState ) ) {
-							if ( toState.allowEnteringFrom( currentState ) ) {
+						if ( !( toState && toState.controller() === this ) ) {
+							throw new Error('Invalid state');
+						}
+						if ( currentState.evaluateRule( 'allowLeavingTo', toState ) ) {
+							if ( toState.evaluateRule( 'allowEnteringFrom', currentState ) ) {
+								// TODO: walk up to common ancestor and then down to 'toState', triggering events along the way
 								currentState.triggerEvents('leave');
 								currentState = toState;
 								currentState.triggerEvents('enter');
@@ -279,6 +268,19 @@ var State = $.extend( true,
 					}
 				});
 				
+				// For convenience expose terse alias set if implemented as an agent
+				if ( owner !== this ) {
+					$.extend( this, {
+						current: this.currentState,
+						add: this.addState,
+						remove: this.removeState,
+						change: this.changeState,
+						is: this.isInState,
+						get: this.getState,
+						method: this.getMethod
+					});
+				}
+				
 				if ( map ) {
 					var set = map instanceof State.Definition.Set ? map : new State.Definition.Set( map );
 					$.each( set, function( stateName, definition ) {
@@ -286,20 +288,55 @@ var State = $.extend( true,
 					});
 				}
 				
-				var currentState = this[ initialState ] || this.__default__;
+				var currentState = this.getState( initialState ) || this.defaultState();
 			}, {
 				prototype: {
 					toString: function() {
 						return this.getState().toString();
 					},
 					__default__: {},
-					is: function( stateName ) {
+					isInState: function( stateName ) {
 						var	state = this.getState(),
-							name = state.name || '';
+							name = state.getName() || '';
 						if ( stateName === undefined ) {
 							return name;
 						}
 						return ( name === stateName ) ? state : false;
+					},
+					getMethod: function( methodName ) {
+						return this.getState().getMethod( methodName ) || this.defaultState().getMethod( methodName );
+					},
+					getState: function( expr, context ) {
+						if ( expr === undefined ) {
+							return this.currentState();
+						} else if ( typeof expr === 'string' ) {
+							if ( !expr ) {
+								return context || this.defaultState();
+							}
+							if ( expr.charAt(0) == '.' ) {
+								if ( !context ) {
+									context = this.currentState();
+								}
+								expr = expr.substr(1);
+							}
+							if ( expr.charAt( expr.length - 1 ) == '.' ) {
+								expr = expr.substr( 0, expr.length - 1 );
+							}
+							var	locus = context || this,
+								parts = expr.split('.');
+							$.each( parts, function( i, name ) {
+								if ( name === '' ) {
+									locus = locus.parent();
+								} else if ( locus[name] instanceof State ) {
+									locus = locus[name];
+								} else {
+									throw new State.Error('Invalid state expression');
+								}
+							});
+							return locus instanceof State.Controller ? locus.defaultState() : locus;
+						} else {
+							throw new State.Error('Invalid state expression');
+						}
 					}
 				}
 			}
@@ -319,7 +356,7 @@ var State = $.extend( true,
 					}
 				},
 				Collection: $.extend( true,
-					function StateEventCollection() {
+					function StateEventCollection( state, type ) {
 						var	items = {},
 							length = 0;
 						
@@ -352,6 +389,11 @@ var State = $.extend( true,
 								} else {
 									return false;
 								}
+							},
+							trigger: function() {
+								$.each( items, function( id, fn ) {
+									fn.apply( state, [ new State.Event( state, type ) ] );
+								});
 							}
 						});
 					}, {
@@ -377,19 +419,18 @@ var State = $.extend( true,
 			function StateEventError( message ) {
 				this.message = message;
 			}, {
-				prototype: State.Error
+				prototype: this.Error
 			}
 		),
 		DefinitionError: $.extend( true,
 			function StateDefinitionError( message ) {
 				this.message = message;
 			}, {
-				prototype: State.Error
+				prototype: this.Error
 			}
 		)
 	}
 );
+$.State = window.State = State;
 
-//$.State = State;
-//
-//})(jQuery);
+})(jQuery);

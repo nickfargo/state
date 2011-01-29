@@ -69,7 +69,10 @@ var X = State.object(
 			rules: {
 				allowLeavingTo: {
 					Preparing: function() { return false; },
-					Ready: function() { return false; }
+					Ready: function() { return false; },
+					
+					// "." references current state ('Finished')
+					'.CleaningUp': true
 				},
 				allowEnteringFrom: {
 					// TODO: support multiples with comma-delimited keys
@@ -93,15 +96,30 @@ var X = State.object(
 					},
 					rules: {
 						allowLeavingTo: {
+							// empty string references the controller's default state
+							'': function(state) {
+								// "this" references current state ('Finished.Terminated')
+								// "state" references state to which controller is being changed ('')
+								console.warn( 'Denying exit from ' + this.toString() + ' to ' + state.toString() );
+								return false;
+							},
 							// TODO: support wildcard
-							'*': function() { return false; }
+							'*': true
 						},
 						allowEnteringFrom: {
-							'*': function() { return false; },
-							CleaningUp: function() { return true; },
+							// TODO: support dot syntax
+							'..CleaningUp': function() { return true; },
+							'...Preparing': function() { return true; },
 							
-							// TODO: support dot-as-parent syntax
-							'.Preparing': function() { return true; }
+							// "." references current state ('Finished.Terminated')
+							
+							// ".." references parent default state ('Finished')
+							'..': true,
+							
+							// ".*" references any child state of parent state
+							'.*': function() { return false; }
+							
+							// ".**" references any descendant state of parent state
 						}
 					},
 					states: {
