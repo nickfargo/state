@@ -141,14 +141,28 @@ function TestObject( initialState ) {
 }
 
 test( "Object creation", function() {
-	var x = new TestObject();
-	ok( x.state instanceof State.Controller );
+	var x = new TestObject(),
+		arr;
+	ok( x.state instanceof State.Controller, "StateController created" );
+	ok( x.state.Preparing instanceof State, "State 'Preparing' created" );
+	ok( x.state.Preparing.hasMethod('methodOne'), "Method 'methodOne' in state 'Preparing' created" );
+	ok( x.state.is('Preparing'), "In state 'Preparing'" );
+	equal( x.methodOne(), 'Preparing.methodOne', "methodOne() on TestObject returns proper method for state 'Preparing'" );
+	ok( x.state.Ready instanceof State );
+	ok( x.state.Ready.hasMethod('methodTwo') );
+	arr = x.state.Ready.getEventListeners('enter');
+	equal( arr.length, 1, arr.keys() );
+	arr = x.state.Ready.getEventListeners('leave');
+	equal( arr.length, 2, arr.keys() );
+	console.log(x);
+	debugger;
 });
 
 test( "Null state transition", function() {
 	var x = new TestObject();
 	ok( ( x.state.change( x.state.current() ), x.state.is('Preparing') ), "StateController.change() to current state" );
 	ok( x.state.current() === x.state.current().select(), "State.select() on current state" );
+	console.log(x);
 });
 
 test( "Simple state transitions", function() {
@@ -156,20 +170,23 @@ test( "Simple state transitions", function() {
 	ok( x.state.change('Ready'), "Change to state 'Ready'" );
 	ok( x.state.change('Finished'), "Change to state 'Finished'" );
 	ok( x.state.change(), "Change to default state" );
+	console.log(x);
 });
 
 test( "State transitions from parent state into child state", function() {
 	var x = new TestObject(''), result;
-	ok( x.state.is(''), "Initialized to default state OK" );
+	ok( x.state.is(''), "Initialized to default state" );
 	ok( result = x.state.change('Finished'), "Changed to state 'Finished' " + result.toString() );
-	ok( x.state.change('.CleaningUp'), "Changed to child state 'CleaningUp' using relative selector syntax OK" );
+	ok( x.state.change('.CleaningUp'), "Changed to child state 'CleaningUp' using relative selector syntax" );
+	console.log(x);
 });
 
 test( "State transitions from one child state sibling to another", function() {
 	var x = new TestObject('Finished');
-	ok( x.state.is('Finished'), "Initialized to state 'Finished' OK" );
-	ok( x.state.change('Finished').change('.CleaningUp'), "Null state transition chained to change to child state OK" );
-	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax OK" );
+	ok( x.state.is('Finished'), "Initialized to state 'Finished'" );
+	ok( x.state.change('Finished').change('.CleaningUp'), "Null state transition chained to change to child state" );
+	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax" );
+	console.log(x);
 });
 
 })(jQuery);
