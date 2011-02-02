@@ -153,8 +153,7 @@ var State = $.extend( true,
 					return new StateDefinition( map );
 				}
 				
-				map = this.constructor.expand( map );
-				$.extend( true, this, map );
+				$.extend( true, this, this.constructor.expand( map ) );
 			}, {
 				members: [ 'methods', 'events', 'rules', 'states' ],
 				blankMap: function() {
@@ -165,7 +164,7 @@ var State = $.extend( true,
 				isComplex: function( map ) {
 					var result;
 					$.each( this.members, function( i, key ) {
-						return result = ( key in map && !$.isFunction( map[key] ) );
+						return !( result = ( key in map && !$.isFunction( map[key] ) ) );
 					});
 					return result;
 				},
@@ -175,8 +174,10 @@ var State = $.extend( true,
 						$.each( this.members, function(i,key) {
 							return i < map.length && ( result[key] = map[i] );
 						});
-					} else if ( $.isPlainObject( map ) {
-						if ( !this.isComplex( map ) ) {
+					} else if ( $.isPlainObject( map ) ) {
+						if ( this.isComplex( map ) ) {
+							result = map;
+						} else {
 							result.methods = map;
 						}
 					} else {
@@ -190,6 +191,11 @@ var State = $.extend( true,
 							if ( !$.isArray(value) ) {
 								throw new State.DefinitionError();
 							}
+						});
+					}
+					if ( result.states ) {
+						$.each( result.states, function( name, map ) {
+							result.states[name] = State.Definition(map);
 						});
 					}
 					return result;
