@@ -16,17 +16,17 @@ var State = $.extend( true,
 		
 		var	state = this,
 			eventListeners = {},
-			childStates = {};
+			childStates = {},
+			getName = function() { return name || ''; };
+		getName.toString = getName;
 		
 		$.each( [ 'enter', 'leave', 'enterChildState', 'leaveChildState' ], function( i, type ) {
 			eventListeners[type] = new State.Event.Collection( state, type );
 		});
 		
 		$.extend( this, {
-			name: name || '',
-			getName: function() {
-				return name || '';
-			},
+			name: getName,
+//			name: $.extend( getName, { toString: getName } ),
 			parent: function() {
 				return parent;
 			},
@@ -97,7 +97,7 @@ var State = $.extend( true,
 				return parent instanceof State ? parent.controller() : parent;
 			},
 			toString: function() {
-				return ( this.parent() instanceof State ? this.parent().toString() + '.' : '' ) + this.getName();
+				return ( this.parent() instanceof State ? this.parent().toString() + '.' : '' ) + this.name();
 			},
 			select: function() {
 				return this.controller().changeState( this ) ? this : false;
@@ -113,22 +113,21 @@ var State = $.extend( true,
 			},
 			evaluateRule: function( ruleName, testState ) {
 				var	state = this,
-					rule = this.rule( ruleName );
+					rule = this.rule( ruleName ),
+					result;
 				if ( rule ) {
-					var result;
 					$.each( rule, function( selector, value ) {
 						// TODO: support wildcard
 						$.each( selector.split(','), function( i, expr ) {
-							if ( state.controller().getState( $.trim(expr), state ) === testState ) {
+							if ( state.controller().getState( $.trim(expr) ) === testState ) {
 								result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );
 								return false; 
 							}
 						});
 						return ( result === undefined );
 					});
-					return result;
 				}
-				return true;
+				return ( result === undefined ) || result;
 			}
 		},
 		
@@ -268,7 +267,7 @@ var State = $.extend( true,
 					}
 				});
 				
-				// For convenience expose terse alias set if implemented as an agent
+				// For convenience, if implemented as an agent, expose a set of terse aliases
 				if ( owner !== this ) {
 					$.extend( this, {
 						current: this.currentState,
@@ -297,7 +296,7 @@ var State = $.extend( true,
 					__default__: {},
 					isInState: function( stateName ) {
 						var	state = this.getState(),
-							name = state.getName() || '';
+							name = state.name() || '';
 						if ( stateName === undefined ) {
 							return name;
 						}
@@ -353,6 +352,9 @@ var State = $.extend( true,
 				prototype: {
 					toString: function() {
 						return 'StateEvent';
+					},
+					log: function(text) {
+						console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
 					}
 				},
 				Collection: $.extend( true,

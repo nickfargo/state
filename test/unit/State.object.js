@@ -1,21 +1,20 @@
-var testObject;
+( function( $, undefined ) {
 
 module( "State.object" );
 
-test( "Object creation", function() {
-
-	var x = testObject = State.object(
-		// Object definition
-		{
-			methodOne: function() {
-				return 'methodOne';
-			},
-			methodTwo: function() {
-				return 'methodTwo';
-			}
+function TestObject( initialState ) {
+	$.extend( this, {
+		methodOne: function() {
+			return 'methodOne';
 		},
+		methodTwo: function() {
+			return 'methodTwo';
+		}
+	});
+	
+	// State definitions
+	State.object( this,
 		
-		// State definitions
 		// Three progressively more complex ways to define a state:
 		{
 			// 1. Simple: methods only
@@ -37,16 +36,16 @@ test( "Object creation", function() {
 				{
 					// event with one listener declared
 					enter: function(event) {
-						console.log( event.name + '.' + event.type + ' ' + event );
+						event.log();
 					},
 					
 					// event with multiple listeners declared
 					leave: [
 						function(event) {
-							console.log( event.name + '.' + event.type + ' 1 ' + event );
+							event.log('1');
 						},
 						function(event) {
-							console.log( event.name + '.' + event.type + ' 2 ' + event );
+							event.log('2');
 						}
 					]
 				}
@@ -64,7 +63,7 @@ test( "Object creation", function() {
 				},
 				events: {
 					enter: function(event) {
-						console.log( event.name + '.' + event.type + ' ' + event );
+						event.log();
 					},
 					leave: [
 						function(event) {},
@@ -76,7 +75,7 @@ test( "Object creation", function() {
 						Preparing: function() { return false; },
 						Ready: function() { return false; },
 						
-						// "." references current state ('Finished')
+						// leading "." references current state ('Finished.')
 						'.CleaningUp': true
 					},
 					allowEnteringFrom: {
@@ -112,7 +111,6 @@ test( "Object creation", function() {
 								'*': true
 							},
 							allowEnteringFrom: {
-								// TODO: support dot syntax
 								'..CleaningUp': function() { return true; },
 								'...Preparing': function() { return true; },
 								
@@ -120,6 +118,8 @@ test( "Object creation", function() {
 								
 								// ".." references parent default state ('Finished')
 								'..': true,
+								
+								// "..." references root default state ('' == controller().defaultState())
 								
 								// ".*" references any child state of parent state
 								'.*': function() { return false; }
@@ -136,26 +136,40 @@ test( "Object creation", function() {
 		},
 		
 		// initial state selector
-		'Preparing'
+		initialState === undefined ? 'Preparing' : initialState
 	);
-	
-	// test integrity
-	ok( x instanceof State );
-	
+}
+
+test( "Object creation", function() {
+	var x = new TestObject();
+	ok( x.state instanceof State.Controller );
 });
 
-
 test( "Null state transition", function() {
-	var x = testObject;
-	ok( x.state.change('Preparing') instanceof State );
+	var x = new TestObject();
+	ok( ( x.state.change( x.state.current() ), x.state.is('Preparing') ), "StateController.change() to current state" );
+	ok( x.state.current() === x.state.current().select(), "State.select() on current state" );
 });
 
 test( "Simple state transitions", function() {
-	var x = testObject;
-	ok( x.state.change('Ready') );
-	ok( x.state.change('Finished') );
+	var x = new TestObject();
+	ok( x.state.change('Ready'), "Change to state 'Ready'" );
+	ok( x.state.change('Finished'), "Change to state 'Finished'" );
+	ok( x.state.change(), "Change to default state" );
 });
 
 test( "State transitions from parent state into child state", function() {
-	
+	var x = new TestObject(''), result;
+	ok( x.state.is(''), "Initialized to default state OK" );
+	ok( result = x.state.change('Finished'), "Changed to state 'Finished' " + result.toString() );
+	ok( x.state.change('.CleaningUp'), "Changed to child state 'CleaningUp' using relative selector syntax OK" );
 });
+
+test( "State transitions from one child state sibling to another", function() {
+	var x = new TestObject('Finished');
+	ok( x.state.is('Finished'), "Initialized to state 'Finished' OK" );
+	ok( x.state.change('Finished').change('.CleaningUp'), "Null state transition chained to change to child state OK" );
+	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax OK" );
+});
+
+})(jQuery);
