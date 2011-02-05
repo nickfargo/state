@@ -20,22 +20,15 @@ var State = $.extend( true,
 			rules = {},
 			childStates = {},
 			getName;
-//			getName = function() { return name || ''; },
-//			getParent = function() { return parent; };
-		
-//		getName.toString = getName;
-//		getParent.toString = function() { return parent instanceof State ? parent.name() : parent.constructor.name };
 		
 		$.extend( this, {
-//			name: getName,
 			name: ( getName = function() { return name || ''; } ).toString = getName,
-//			parent: getParent,
 			parent: function() { return parent; },
 			method: function( methodName ) {
 				return methods[ methodName ];
 			},
 			hasMethod: function( methodName ) {
-				return name in methods;
+				return methodName in methods;
 			},
 			addMethod: function( methodName, fn ) {
 				return methods[ methodName ] = fn;
