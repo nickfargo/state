@@ -89,7 +89,7 @@ function TestObject( initialState ) {
 							return 'Finished.CleaningUp.methodTwo';
 						}
 					},
-					Terminated: State({
+					Terminated: {
 						methods: {
 							methodOne: function() {
 								return 'Finished.Terminated.methodOne';
@@ -130,7 +130,7 @@ function TestObject( initialState ) {
 						states: {
 							// et cetera
 						}
-					})
+					}
 				}
 			})
 		},
@@ -141,6 +141,8 @@ function TestObject( initialState ) {
 }
 
 test( "Object creation", function() {
+//console.log( 'Starting Test "Object creation"' );
+//debugger;
 	var x = new TestObject(),
 		arr;
 	ok( x.state instanceof State.Controller, "StateController created" );
@@ -153,19 +155,20 @@ test( "Object creation", function() {
 	arr = x.state.Ready.getEventListeners('enter');
 	equal( arr.length, 1, arr.keys() );
 	arr = x.state.Ready.getEventListeners('leave');
-	equal( arr.length, 2, arr.keys() );
+	equal( arr.length(), 2, arr.keys() );
 	console.log(x);
-	debugger;
 });
 
 test( "Null state transition", function() {
+//console.log( 'Starting Test "Null state transition"' );
 	var x = new TestObject();
-	ok( ( x.state.change( x.state.current() ), x.state.is('Preparing') ), "StateController.change() to current state" );
+	x.state.change( x.state.current() );
+	ok( x.state.is('Preparing'), "StateController.change() to current state" );
 	ok( x.state.current() === x.state.current().select(), "State.select() on current state" );
-	console.log(x);
 });
 
 test( "Simple state transitions", function() {
+//console.log( 'Starting Test "Simple state transitions"' );
 	var x = new TestObject();
 	ok( x.state.change('Ready'), "Change to state 'Ready'" );
 	ok( x.state.change('Finished'), "Change to state 'Finished'" );

@@ -15,86 +15,130 @@ var State = $.extend( true,
 		}
 		
 		var	state = this,
-			eventListeners = {},
+			methods = {},
+			events = {},
+			rules = {},
 			childStates = {},
-			getName = function() { return name || ''; },
-			getParent = function() { return parent };
+			getName;
+//			getName = function() { return name || ''; },
+//			getParent = function() { return parent; };
 		
-		getName.toString = getName;
-		getParent.toString = function() { return parent instanceof State ? parent.name() : parent.constructor.name };
-		
-		$.each( [ 'enter', 'leave', 'enterChildState', 'leaveChildState' ], function( i, type ) {
-			eventListeners[type] = new State.Event.Collection( state, type );
-		});
+//		getName.toString = getName;
+//		getParent.toString = function() { return parent instanceof State ? parent.name() : parent.constructor.name };
 		
 		$.extend( this, {
-			name: getName,
-			parent: getParent,
+//			name: getName,
+			name: ( getName = function() { return name || ''; } ).toString = getName,
+//			parent: getParent,
+			parent: function() { return parent; },
 			method: function( methodName ) {
-				return definition.methods[ methodName ];
+				return methods[ methodName ];
 			},
 			hasMethod: function( methodName ) {
-				return definition.methods && methodName in definition.methods;
+				return name in methods;
 			},
 			addMethod: function( methodName, fn ) {
-				return ( definition.methods[ methodName ] = fn );
+				return methods[ methodName ] = fn;
 			},
 			removeMethod: function( methodName ) {
-				var fn = definition.methods[ methodName ];
-				delete definition.methods[ methodName ];
+				var fn = methods[ methodName ];
+				delete methods[ methodName ];
 				return fn;
 			},
-			addEventListener: function( type, fn ) {
-				var e = eventListeners[type];
+			addEventListener: function( eventType, fn ) {
+				var e = events[ eventType ];
 				if ( !e ) {
 					throw new State.EventError('Invalid event type');
 				}
 				return e.add(fn);
 			},
-			removeEventListener: function( type, id ) {
-				return eventListeners[type].remove(id);
+			removeEventListener: function( eventType, id ) {
+				return events[ eventType ].remove(id);
 			},
-			getEventListener: function( type, id ) {
-				return eventListeners[type].get(id);
+			getEventListener: function( eventType, id ) {
+				return events[ eventType ].get(id);
 			},
-			getEventListeners: function( type ) {
-				return eventListeners[type];
+			getEventListeners: function( eventType ) {
+				return events[ eventType ];
 			},
-			triggerEvents: function( type ) {
-				if ( eventListeners[type] ) {
-					return eventListeners[type].trigger();
+			triggerEvents: function( eventType ) {
+				if ( events[ eventType ] ) {
+					return events[ eventType ].trigger();
 				} else {
 					throw new State.EventError('Invalid event type');
 				}
+			},
+			rule: function( ruleName ) {
+				return definition.rules ? definition.rules[ ruleName ] : undefined;
 			},
 			addState: function( stateName, stateDefinition ) {
 				this[ stateName ] = childStates[ stateName ] = new State( this, stateName, stateDefinition );
 			},
 			removeState: function() {
 				throw new State.Error('Not implemented');
+			}
+		});
+		$.extend( this, {
+			methods: methods,
+			events: events,
+			rules: rules,
+			states: childStates
+		});
+		
+		$.each( [ 'enter', 'leave', 'enterChildState', 'leaveChildState' ], function( i, eventType ) {
+			events[ eventType ] = new State.Event.Collection( state, eventType );
+		});
+		$.each({
+			methods: function( methodName, fn ) {
+				state.addMethod( methodName, fn );
 			},
-			rule: function( ruleName ) {
-				return definition.rules ? definition.rules[ ruleName ] : undefined;
+			events: function( eventType, fn ) {
+				if ( fn instanceof Array ) {
+					$.each( fn, function( i, fn ) {
+						state.addEventListener( eventType, fn );
+					});
+				} else {
+					state.addEventListener( eventType, fn );
+				}
+			},
+			rules: function( ruleName, rule ) {
+				rules[ ruleName ] = rule;
+			},
+			states: function( stateName, stateDefinition ) {
+				state.addState( stateName, stateDefinition );
+			}
+		}, function( i, fn ) {
+			if ( definition[i] ) {
+				$.each( definition[i], fn );
 			}
 		});
 		
-		if ( definition.events ) {
-			$.each( definition.events, function( type, fn ) {
-				if ( fn instanceof Array ) {
-					$.each( fn, function( i, fn ) {
-						state.addEventListener( type, fn );
-					});
-				} else {
-					state.addEventListener( type, fn );
-				}
-			});
-		}
-		
-		if ( definition.states ) {
-			$.each( definition.states, function( stateName, stateDefinition ) {
-				state.addState( stateName, stateDefinition );
-			});
-		}
+//		if ( definition.methods ) {
+//			$.each( definition.methods, function( methodName, fn ) {
+//				state.addMethod( methodName, fn );
+//			});
+//		}
+//		if ( definition.events ) {
+//			$.each( definition.events, function( eventType, fn ) {
+//				if ( fn instanceof Array ) {
+//					$.each( fn, function( i, fn ) {
+//						state.addEventListener( eventType, fn );
+//					});
+//				} else {
+//					state.addEventListener( eventType, fn );
+//				}
+//			});
+//		}
+//		if ( definition.rules ) {
+//			$.each( definition.rules, function( ruleName, rule ) {
+//				rules[ ruleName ] = rule;
+//			});
+//		}
+//		if ( definition.states ) {
+//			$.each( definition.states, function( stateName, stateDefinition ) {
+//				state.addState( stateName, stateDefinition );
+//			});
+//		}
 	}, {
 		prototype: {
 			controller: function() {
@@ -153,13 +197,19 @@ var State = $.extend( true,
 					return new StateDefinition( map );
 				}
 				
-				$.extend( true, this, this.constructor.expand( map ) );
+				////////////////////////////////////////////////
+//				if ( map === undefined ) debugger;
+//				if ( map instanceof State.Definition ) debugger;
+				////////////////////////////////////////////////
+				
+				$.extend( true, this, map instanceof State.Definition ? map : this.constructor.expand( map ) );
 			}, {
 				members: [ 'methods', 'events', 'rules', 'states' ],
 				blankMap: function() {
 					var map = {};
 					$.each( this.members, function(i,key) { map[key] = null; } );
-					return ( this.blankMap = function() { return map; } )();
+					return map;
+//					return ( this.blankMap = function() { return map; } )();
 				},
 				isComplex: function( map ) {
 					var result;
@@ -175,13 +225,14 @@ var State = $.extend( true,
 							return i < map.length && ( result[key] = map[i] );
 						});
 					} else if ( $.isPlainObject( map ) ) {
-						if ( this.isComplex( map ) ) {
-							result = map;
-						} else {
-							result.methods = map;
-						}
-					} else {
-						throw new State.DefinitionError();
+//						if ( this.isComplex( map ) ) {
+////							result = map;
+//							$.extend( result, map );
+//						} else {
+////							result.methods = map;
+//							$.extend( result.methods, map );
+//						}
+						$.extend( this.isComplex(map) ? result : ( result.methods = {} ), map );
 					}
 					if ( result.events ) {
 						$.each( result.events, function( type, value ) {
@@ -189,13 +240,15 @@ var State = $.extend( true,
 								result.events[type] = value = [value];
 							}
 							if ( !$.isArray(value) ) {
+								debugger;
 								throw new State.DefinitionError();
 							}
 						});
 					}
 					if ( result.states ) {
 						$.each( result.states, function( name, map ) {
-							result.states[name] = State.Definition(map);
+							result.states[name] = map instanceof State.Definition ? map : State.Definition(map);
+//							result.states[name] = State.Definition(map);
 						});
 					}
 					return result;
@@ -209,6 +262,7 @@ var State = $.extend( true,
 							return i < shorthand.length && ( map[key] = shorthand[i] );
 						});
 					} else {
+						debugger;
 						throw new State.DefinitionError();
 					}
 					return map;
@@ -249,6 +303,7 @@ var State = $.extend( true,
 						return defaultState;
 					},
 					currentState: function() {
+console.log( 'currentState: '+currentState );
 						return currentState;
 					},
 					addState: function( name, definition ) {
@@ -281,6 +336,7 @@ var State = $.extend( true,
 						throw new Error('State.Controller.removeState not implemented yet');
 					},
 					changeState: function( toState ) {
+console.log( 'changeState: toState='+toState );
 						if ( !( toState instanceof State ) ) {
 							toState = toState ? this.getState( toState ) : defaultState;
 						}
@@ -333,6 +389,7 @@ var State = $.extend( true,
 					},
 					__default__: {},
 					isInState: function( stateName ) {
+console.log( 'isInState: stateName=' + stateName );
 						var	state = this.getState(),
 							name = state.name() || '';
 						if ( stateName === undefined ) {
@@ -341,9 +398,11 @@ var State = $.extend( true,
 						return ( name === stateName ) ? state : false;
 					},
 					getMethod: function( methodName ) {
-						return this.getState().getMethod( methodName ) || this.defaultState().getMethod( methodName );
+						return this.currentState().method( methodName ) || this.defaultState().getMethod( methodName );
 					},
 					getState: function( expr, context ) {
+console.log( 'getState: expr=' + expr + ' context=' + context );
+						
 						if ( expr === undefined ) {
 							return this.currentState();
 						} else if ( typeof expr === 'string' ) {
@@ -367,12 +426,12 @@ var State = $.extend( true,
 								} else if ( locus[name] instanceof State ) {
 									locus = locus[name];
 								} else {
-									throw new State.Error('Invalid state expression');
+									throw new State.Error('Invalid state expression: locus='+locus+' name='+name+' context='+context+' expr='+expr);
 								}
 							});
 							return locus instanceof State.Controller ? locus.defaultState() : locus;
 						} else {
-							throw new State.Error('Invalid state expression');
+							throw new State.Error('Invalid state expressionuuuuu');
 						}
 					}
 				}
