@@ -130,6 +130,10 @@ var State = $.extend( true,
 			isSelected: function() {
 				return this.controller().currentState() === this;
 			},
+			isAncestorOf: function( state ) {
+				var parent = state.parent();
+				return parent instanceof State ? ( this === parent || this.isAncestorOf( parent ) ) : false;
+			},
 			allowLeavingTo: function( toState ) {
 				return true;
 			},
@@ -144,6 +148,8 @@ var State = $.extend( true,
 					$.each( rule, function( selector, value ) {
 						// TODO: support wildcard
 						$.each( selector.split(','), function( i, expr ) {
+							expr = $.trim( expr );
+//							if ( testState.match( expr, state ) )
 							if ( state.controller().getState( $.trim(expr), state ) === testState ) {
 								result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );
 								return false; 
@@ -153,6 +159,28 @@ var State = $.extend( true,
 					});
 				}
 				return ( result === undefined ) || result;
+			},
+			match: function( expr, testState ) {
+				var	parts = expr.split('.'),
+					locus = ( parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
+					result;
+				
+				$.each( parts, function( i, name ) {
+					if ( name === '' ) {
+						locus = locus.parent();
+					} else if ( name == '*' ) {
+						result = ( locus === testState.parent() );
+						return false;
+					} else if ( name == '**' ) {
+						result = locus.isAncestorOf( testState );
+						return false;
+					} else if ( locus[ name ] instanceof State ) {
+						locus = locus[ name ];
+					} else {
+						throw new State.Error('State.match() Invalid state expression: locus='+locus+' name='+name+' expr='+expr);
+					}
+				});
+				return result !== undefined ? result : ( locus === testState ? testState : false );
 			}
 		},
 		
@@ -202,7 +230,6 @@ var State = $.extend( true,
 								result.events[type] = value = [value];
 							}
 							if ( !$.isArray(value) ) {
-								debugger;
 								throw new State.DefinitionError();
 							}
 						});
@@ -223,7 +250,6 @@ var State = $.extend( true,
 							return i < shorthand.length && ( map[key] = shorthand[i] );
 						});
 					} else {
-						debugger;
 						throw new State.DefinitionError();
 					}
 					return map;
@@ -355,16 +381,14 @@ var State = $.extend( true,
 						return this.currentState() === state ? state : false;
 					},
 					getMethod: function( methodName ) {
-						return this.currentState().method( methodName ) || this.defaultState().method( methodName );
-//						return this.currentState().method( methodName ); // <- try this, should be == to above
+						return this.currentState().method( methodName );
 					},
 					getParentMethod: function( methodName ) {
 						var currentParent = this.currentState().parent()
 						return this.currentState().parent().getMethod( methodName );
 					},
 					getState: function( expr, context ) {
-						var	locus = this.defaultState(),
-							parts;
+						var	locus = this.defaultState();
 						if ( expr === undefined ) {
 							return this.currentState();
 						} else if ( typeof expr === 'string' ) {
@@ -381,8 +405,7 @@ var State = $.extend( true,
 							if ( expr.charAt( expr.length - 1 ) == '.' ) {
 								expr = expr.substr( 0, expr.length - 1 );
 							}
-							parts = expr.split('.');
-							$.each( parts, function( i, name ) {
+							$.each( expr.split('.'), function( i, name ) {
 								if ( name === '' ) {
 									locus = locus.parent();
 								} else if ( locus[name] instanceof State ) {
@@ -395,6 +418,9 @@ var State = $.extend( true,
 						} else {
 							throw new State.Error('Invalid state expression');
 						}
+					},
+					match: function( expr, testState ) {
+						return this.defaultState().match( expr, testState );
 					}
 				}
 			}

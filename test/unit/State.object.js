@@ -214,11 +214,36 @@ test( "Method resolutions", function() {
 	equal( x.methodThree(1,2), 'Finished.Terminated.methodThree : Finished.methodThree uno=1 dos=2' );
 });
 
-test( "Rules", function() {
+test( "Rules", function() { return;
 	var x = new TestObject('Finished');
 	ok( !x.state.change('Preparing') );
 	ok( !x.state.change('Ready') );
 	ok( x.state.change('.Terminated') );
+	ok( !x.state.change('') );
+});
+
+test( "State.match", function() {
+	var x = new TestObject();
+	ok( x.state.match( 'Finished.*', x.state.Finished.CleaningUp ) );
+	ok( x.state.match( 'Finished.*', x.state.Finished.Terminated ) );
+	ok( !x.state.match( 'Finished.*', x.state.Preparing ) );
+	ok( !x.state.match( 'Finished.*', x.state.Finished ) );
+	ok( x.state.Finished.match( '.Terminated', x.state.Finished.Terminated ) );
+	ok( x.state.Finished.match( '.*', x.state.Finished.CleaningUp ) );
+	ok( x.state.Finished.match( '.*', x.state.Finished.Terminated ) );
+	ok( x.state.match( '*', x.state.Finished ) );
+	ok( !x.state.match( '*', x.state.Finished.Terminated ) );
+	ok( x.state.match( '**', x.state.Finished.Terminated ) );
+	ok( x.state.Finished.match( '.*', x.state.Finished.Terminated ) );
+	ok( x.state.Finished.match( '.**', x.state.Finished.Terminated ) );
+});
+
+test( "State.isAncestorOf", function() {
+	var x = new TestObject();
+	ok( x.state.defaultState().isAncestorOf( x.state.Preparing ) );
+	ok( x.state.defaultState().isAncestorOf( x.state.Finished.CleaningUp ) );
+	ok( x.state.Finished.isAncestorOf( x.state.Finished.CleaningUp ) );
+	ok( !x.state.Finished.isAncestorOf( x.state.Ready ) );
 });
 
 })(jQuery);
