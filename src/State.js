@@ -158,11 +158,8 @@ var State = $.extend( true,
 					result;
 				if ( rule ) {
 					$.each( rule, function( selector, value ) {
-						// TODO: support wildcard
 						$.each( selector.split(','), function( i, expr ) {
-							expr = $.trim( expr );
-//							if ( testState.match( expr, state ) )
-							if ( state.controller().getState( $.trim(expr), state ) === testState ) {
+							if ( testState.match( $.trim( expr ), state ) ) {
 								result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );
 								return false; 
 							}
@@ -191,7 +188,6 @@ var State = $.extend( true,
 						return false;
 					} else {
 						return result = false;
-//						throw new State.Error('State.match() Invalid state expression: locus='+locus+' name='+name+' expr='+expr);
 					}
 				});
 				return result !== undefined ?
@@ -296,7 +292,8 @@ var State = $.extend( true,
 				}
 				
 				var	controller = this,
-					defaultState = new State(this);
+					defaultState = new State(this),
+					currentState = defaultState;
 				
 				$.extend( this, {
 					owner: function() {
@@ -384,7 +381,7 @@ var State = $.extend( true,
 					});
 				}
 				
-				var currentState = this.getState( initialState ) || this.defaultState();
+				currentState = this.getState( initialState ) || this.defaultState();
 			}, {
 				prototype: {
 					toString: function() {
@@ -402,39 +399,13 @@ var State = $.extend( true,
 						return this.currentState().parent().getMethod( methodName );
 					},
 					getState: function( expr, context ) {
-						var	locus = this.defaultState();
 						if ( expr === undefined ) {
 							return this.currentState();
-						} else if ( typeof expr === 'string' ) {
-							if ( !expr ) {
-								return context || this.defaultState();
-							}
-							if ( expr.charAt(0) == '.' ) {
-								if ( !context ) {
-									context = this.currentState();
-								}
-								locus = context;
-								expr = expr.substr(1);
-							}
-							if ( expr.charAt( expr.length - 1 ) == '.' ) {
-								expr = expr.substr( 0, expr.length - 1 );
-							}
-							$.each( expr.split('.'), function( i, name ) {
-								if ( name === '' ) {
-									locus = locus.parent();
-								} else if ( locus[name] instanceof State ) {
-									locus = locus[name];
-								} else {
-									throw new State.Error('Invalid state expression: locus='+locus+' name='+name+' context='+context+' expr='+expr);
-								}
-							});
-							return locus instanceof State.Controller ? locus.defaultState() : locus;
-						} else {
-							throw new State.Error('Invalid state expression');
 						}
+						return context ? context.match( expr ) : this.match( expr );
 					},
 					match: function( expr, testState ) {
-						return this.defaultState().match( expr, testState );
+						return this.currentState().match( expr, testState );
 					}
 				}
 			}
