@@ -2,10 +2,8 @@
 
 module( "State.Definition" );
 
-var def;
-
 test( "Simple: methods only", function() {
-	def = State.Definition({
+	var def = State.Definition({
 		methodOne: function() { return 'methodOne'; },
 		methodTwo: function() { return 'methodTwo'; }
 	});
@@ -15,7 +13,7 @@ test( "Simple: methods only", function() {
 });
 
 test( "Compound: array", function() {
-	def = State.Definition([
+	var def = State.Definition([
 		{
 			methodOne: function() { return 'methodOne'; },
 			methodTwo: function() { return 'methodTwo'; }
@@ -46,7 +44,7 @@ test( "Compound: array", function() {
 });
 
 test( "Complex: map", function() {
-	def = State.Definition({
+	var def = State.Definition({
 		methods: {
 			methodOne: function() { return 'methodOne'; },
 			methodTwo: function() { return 'methodTwo'; }
@@ -167,7 +165,5 @@ test( "Complex: map", function() {
 	ok( def.states.ComplexChildState.states.DeepChildState.states.VeryDeepChildState.methods, "VeryDeepChildState.methods exists" );
 	equals( def.states.ComplexChildState.states.DeepChildState.states.VeryDeepChildState.methods.methodOne(), 'VeryDeepChildState.methodOne', "VeryDeepChildState.methodOne" );
 });
-
-delete def;
 
 })(jQuery);

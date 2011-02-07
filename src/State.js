@@ -18,7 +18,7 @@ var State = $.extend( true,
 			methods = {},
 			events = {},
 			rules = {},
-			childStates = {},
+			childStates = [],
 			getName;
 		
 		$.extend( this, {
@@ -75,10 +75,22 @@ var State = $.extend( true,
 				return definition.rules ? definition.rules[ ruleName ] : undefined;
 			},
 			addState: function( stateName, stateDefinition ) {
-				this[ stateName ] = childStates[ stateName ] = new State( this, stateName, stateDefinition );
+				var state = this[ stateName ] = new State( this, stateName, stateDefinition )
+				childStates.push( state );
+				return state;
 			},
 			removeState: function() {
 				throw new State.Error('Not implemented');
+			},
+			childStates: function() {
+				return childStates.slice(0);
+			},
+			descendantStates: function() {
+				var result = [];
+				for ( var i in childStates ) {
+					result = result.concat( childStates[i], childStates[i].descendantStates() );
+				}
+				return result;
 			}
 		});
 		$.extend( this, {
@@ -160,6 +172,7 @@ var State = $.extend( true,
 				}
 				return ( result === undefined ) || result;
 			},
+			
 			match: function( expr, testState ) {
 				var	parts = expr.split('.'),
 					locus = ( parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
@@ -168,19 +181,22 @@ var State = $.extend( true,
 				$.each( parts, function( i, name ) {
 					if ( name === '' ) {
 						locus = locus.parent();
-					} else if ( name == '*' ) {
-						result = ( locus === testState.parent() );
-						return false;
-					} else if ( name == '**' ) {
-						result = locus.isAncestorOf( testState );
-						return false;
 					} else if ( locus[ name ] instanceof State ) {
 						locus = locus[ name ];
+					} else if ( name == '*' ) {
+						result = testState ? locus === testState.parent() : locus.childStates();
+						return false;
+					} else if ( name == '**' ) {
+						result = testState ? locus.isAncestorOf( testState ) : locus.descendantStates();
+						return false;
 					} else {
-						throw new State.Error('State.match() Invalid state expression: locus='+locus+' name='+name+' expr='+expr);
+						return result = false;
+//						throw new State.Error('State.match() Invalid state expression: locus='+locus+' name='+name+' expr='+expr);
 					}
 				});
-				return result !== undefined ? result : ( locus === testState ? testState : false );
+				return result !== undefined ?
+					result : testState ?
+						( locus === testState ? testState : false ) : locus;
 			}
 		},
 		
@@ -297,9 +313,7 @@ var State = $.extend( true,
 							definition = new State.Definition( definition );
 						}
 						
-						var	state =
-							controller[ name ] =
-							defaultState[ name ] = new State( defaultState, name, definition );
+						var	state = controller[ name ] = defaultState.addState( name, definition );
 						
 						if ( definition.methods ) {
 							$.each( definition.methods, function( methodName, fn ) {
