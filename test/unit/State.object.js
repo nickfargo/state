@@ -79,7 +79,6 @@ function TestObject( initialState ) {
 						'.CleaningUp': true
 					},
 					allowEnteringFrom: {
-						// TODO: support multiples with comma-delimited keys
 						'Preparing, Ready': function(state) {
 							console.log( 'Finished.allowEnteringFrom ' + state );
 							return true;
@@ -99,20 +98,19 @@ function TestObject( initialState ) {
 							},
 							methodThree: function( uno, dos ) {
 								var result = 'Finished.Terminated.methodThree';
-								result += ' : ' + this.state.current().parent().method('methodThree')( uno, dos );
+								result += ' : ' + this.state.parent('methodThree')( uno, dos );
 								return result;
 							}
 						},
 						rules: {
 							allowLeavingTo: {
 								// empty string references the controller's default state
-								'': function(state) {
+								'': function( state ) {
 									// "this" references current state ('Finished.Terminated')
 									// "state" references state to which controller is being changed ('')
 									console.warn( 'Denying exit from ' + this.toString() + ' to ' + state.toString() );
 									return false;
 								},
-								// TODO: support wildcard
 								'*': true
 							},
 							allowEnteringFrom: {
@@ -121,15 +119,16 @@ function TestObject( initialState ) {
 								
 								// "." references current state ('Finished.Terminated')
 								
-								// ".." references parent default state ('Finished')
+								// ".." references parent state ('Finished')
 								'..': true,
 								
 								// "..." references root default state ('' == controller().defaultState())
 								
 								// ".*" references any child state of parent state
-								'.*': function() { return false; }
+								'.*': function() { return false; },
 								
 								// ".**" references any descendant state of parent state
+								'.**': function() { return true; }
 							}
 						},
 						states: {
@@ -214,7 +213,7 @@ test( "Method resolutions", function() {
 	equal( x.methodThree(1,2), 'Finished.Terminated.methodThree : Finished.methodThree uno=1 dos=2' );
 });
 
-test( "Rules", function() { return;
+test( "Rules", function() {
 	var x = new TestObject('Finished');
 	ok( !x.state.change('Preparing') );
 	ok( !x.state.change('Ready') );

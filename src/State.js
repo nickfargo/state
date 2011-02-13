@@ -159,7 +159,7 @@ var State = $.extend( true,
 				if ( rule ) {
 					$.each( rule, function( selector, value ) {
 						$.each( selector.split(','), function( i, expr ) {
-							if ( testState.match( $.trim( expr ), state ) ) {
+							if ( state.match( $.trim( expr ), testState ) ) {
 								result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );
 								return false; 
 							}
@@ -172,27 +172,33 @@ var State = $.extend( true,
 			
 			match: function( expr, testState ) {
 				var	parts = expr.split('.'),
-					locus = ( parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
+					locus = ( parts.length && parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
 					result;
 				
-				$.each( parts, function( i, name ) {
-					if ( name === '' ) {
-						locus = locus.parent();
-					} else if ( locus[ name ] instanceof State ) {
-						locus = locus[ name ];
-					} else if ( name == '*' ) {
-						result = testState ? locus === testState.parent() : locus.childStates();
-						return false;
-					} else if ( name == '**' ) {
-						result = testState ? locus.isAncestorOf( testState ) : locus.descendantStates();
-						return false;
-					} else {
-						return result = false;
-					}
-				});
-				return result !== undefined ?
-					result : testState ?
-						( locus === testState ? testState : false ) : locus;
+				if ( parts.length ) {
+					$.each( parts, function( i, name ) {
+						if ( name === '' ) {
+							locus = locus.parent();
+						} else if ( locus[ name ] instanceof State ) {
+							locus = locus[ name ];
+						} else if ( name == '*' ) {
+							result = testState ? locus === testState.parent() : locus.childStates();
+							return false;
+						} else if ( name == '**' ) {
+							result = testState ? locus.isAncestorOf( testState ) : locus.descendantStates();
+							return false;
+						} else {
+							return result = false;
+						}
+					});
+					return (
+						result !== undefined ? result :
+						!testState || locus === testState ? locus :
+						false
+					);
+				} else {
+					return locus;
+				}
 			}
 		},
 		
@@ -210,14 +216,14 @@ var State = $.extend( true,
 		Definition: $.extend( true,
 			function StateDefinition( map ) {
 				if ( !( this instanceof State.Definition ) ) {
-					return new StateDefinition( map );
+					return new State.Definition( map );
 				}
-				$.extend( true, this, map instanceof State.Definition ? map : this.constructor.expand( map ) );
+				$.extend( true, this, map instanceof State.Definition ? map : State.Definition.expand( map ) );
 			}, {
 				members: [ 'methods', 'events', 'rules', 'states' ],
 				blankMap: function() {
 					var map = {};
-					$.each( this.members, function(i,key) { map[key] = null; } );
+					$.each( this.members, function( i, key ) { map[key] = null; } );
 					return map;
 				},
 				isComplex: function( map ) {
@@ -385,7 +391,16 @@ var State = $.extend( true,
 			}, {
 				prototype: {
 					toString: function() {
-						return this.getState().toString();
+						return this.currentState().toString();
+					},
+					match: function( expr, testState ) {
+						return this.currentState().match( expr, testState );
+					},
+					getState: function( expr, context ) {
+						if ( expr === undefined ) {
+							return this.currentState();
+						}
+						return context ? context.match( expr ) : this.match( expr );
 					},
 					isInState: function( expr, context ) {
 						var state = this.getState( expr, context );
@@ -394,18 +409,9 @@ var State = $.extend( true,
 					getMethod: function( methodName ) {
 						return this.currentState().method( methodName );
 					},
-					getParentMethod: function( methodName ) {
-						var currentParent = this.currentState().parent()
-						return this.currentState().parent().getMethod( methodName );
-					},
-					getState: function( expr, context ) {
-						if ( expr === undefined ) {
-							return this.currentState();
-						}
-						return context ? context.match( expr ) : this.match( expr );
-					},
-					match: function( expr, testState ) {
-						return this.currentState().match( expr, testState );
+					parent: function( methodName ) {
+						var parent = this.currentState().parent();
+						return methodName ? parent.method( methodName ) : parent;
 					}
 				}
 			}
