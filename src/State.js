@@ -169,7 +169,6 @@ var State = $.extend( true,
 				}
 				return ( result === undefined ) || result;
 			},
-			
 			match: function( expr, testState ) {
 				var	parts = expr.split('.'),
 					locus = ( parts.length && parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
@@ -403,8 +402,9 @@ var State = $.extend( true,
 						return context ? context.match( expr ) : this.match( expr );
 					},
 					isInState: function( expr, context ) {
-						var state = this.getState( expr, context );
-						return this.currentState() === state ? state : false;
+						var	state = this.getState( expr, context ),
+							currentState = this.currentState();
+						return state === currentState || state.isAncestorOf( currentState ) ? state : false;
 					},
 					getMethod: function( methodName ) {
 						return this.currentState().method( methodName );
