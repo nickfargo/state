@@ -19,7 +19,7 @@ var State = $.extend( true,
 			substates = [],
 			getName;
 		
-		// deprivatize these for now
+		// deprivatize these for now to allow visibility to inspectors
 		$.extend( this, {
 			methods: methods,
 			events: events,

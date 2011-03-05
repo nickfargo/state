@@ -3,7 +3,13 @@ State.Transition = $.extend( true,
 		
 	}, {
 		prototype: $.extend( true, new State(), {
+			start: function() {
+				
+			},
 			abort: function() {
+				
+			},
+			finish: function() {
 				
 			}
 		}),
