@@ -1,5 +1,5 @@
 State.Event = $.extend( true,
-	function StateEvent( state, type ) {
+	function StateEvent ( state, type ) {
 		$.extend( this, {
 			target: state,
 			name: state.name,
@@ -7,47 +7,47 @@ State.Event = $.extend( true,
 		});
 	}, {
 		prototype: {
-			toString: function() {
+			toString: function () {
 				return 'StateEvent';
 			},
-			log: function(text) {
+			log: function (text) {
 				console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
 			}
 		},
 		Collection: $.extend( true,
-			function StateEventCollection( state, type ) {
+			function StateEventCollection ( state, type ) {
 				var	items = {},
 					length = 0,
-					getLength = ( getLength = function() { return length; } ).toString = getLength;
+					getLength = ( getLength = function () { return length; } ).toString = getLength;
 					
 				$.extend( this, {
 					length: getLength,
-					get: function(id) {
+					get: function (id) {
 						return items[id];
 					},
-					key: function( listener ) {
+					key: function ( listener ) {
 						var result;
-						$.each( items, function( id, fn ) {
+						$.each( items, function ( id, fn ) {
 							result = ( fn === listener ? id : undefined );
 							return result === undefined;
 						});
 						return result;
 					},
-					keys: function() {
+					keys: function () {
 						var result = [];
-						result.toString = function() { return '[' + result.join() + ']'; };
-						$.each( items, function(key) {
+						result.toString = function () { return '[' + result.join() + ']'; };
+						$.each( items, function (key) {
 							result.push(key);
 						});
 						return result;
 					},
-					add: function(fn) {
+					add: function (fn) {
 						var id = this.guid();
 						items[id] = fn;
 						length++;
 						return id;
 					},
-					remove: function(id) {
+					remove: function (id) {
 						var fn = items[id];
 						if ( fn ) {
 							delete items[id];
@@ -56,7 +56,7 @@ State.Event = $.extend( true,
 						}
 						return false;
 					},
-					empty: function() {
+					empty: function () {
 						if ( length ) {
 							for ( var i in items ) {
 								delete items[i];
@@ -67,8 +67,8 @@ State.Event = $.extend( true,
 							return false;
 						}
 					},
-					trigger: function() {
-						$.each( items, function( id, fn ) {
+					trigger: function () {
+						$.each( items, function ( id, fn ) {
 							fn.apply( state, [ new State.Event( state, type ) ] );
 						});
 					}
@@ -76,7 +76,7 @@ State.Event = $.extend( true,
 			}, {
 				__guid__: 0,
 				prototype: {
-					guid: function() {
+					guid: function () {
 						return ( ++this.constructor.__guid__ ).toString();
 					}
 				}

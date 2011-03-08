@@ -1,5 +1,5 @@
 State.Error = $.extend( true,
-	function StateError( message ) {
+	function StateError ( message ) {
 		this.name = "StateError";
 		this.message = message;
 	}, {
@@ -8,7 +8,7 @@ State.Error = $.extend( true,
 );
 
 State.EventError = $.extend( true,
-	function StateEventError( message ) {
+	function StateEventError ( message ) {
 		this.name = "StateEventError";
 		this.message = message;
 	}, {
@@ -17,7 +17,7 @@ State.EventError = $.extend( true,
 );
 
 State.DefinitionError = $.extend( true,
-	function StateDefinitionError( message ) {
+	function StateDefinitionError ( message ) {
 		this.name = "StateDefinitionError";
 		this.message = message;
 	}, {

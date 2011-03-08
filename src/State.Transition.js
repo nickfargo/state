@@ -1,21 +1,21 @@
 State.Transition = $.extend( true,
-	function StateTransition( fromState, toState ) {
+	function StateTransition ( fromState, toState ) {
 		
 	}, {
 		prototype: $.extend( true, new State(), {
-			start: function() {
+			start: function () {
 				
 			},
-			abort: function() {
+			abort: function () {
 				
 			},
-			finish: function() {
+			finish: function () {
 				
 			}
 		}),
 		
 		Definition: $.extend( true,
-			function StateTransitionDefinition( map ) {
+			function StateTransitionDefinition ( map ) {
 				
 			}, {
 				
