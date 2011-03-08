@@ -1,7 +1,7 @@
 ( function( $, undefined ) {
 
 var State = $.extend( true,
-	function State( superstate, name, definition ) {
+	function State ( superstate, name, definition ) {
 		/*
 		 * If invoked directly, use this function as shorthand for the
 		 * State.Definition constructor.
@@ -31,9 +31,9 @@ var State = $.extend( true,
 
 		$.extend( this, {
 			// this idiom allows us to keep the actual `name` string protected inside the closure of the constructor while exposing its value both in the accessor `this.name` and when viewing `this.name` in the inspector
-			name: ( getName = function() { return name || ''; } ).toString = getName,
-			superstate: function() { return superstate; },
-			method: function( methodName ) {
+			name: ( getName = function () { return name || ''; } ).toString = getName,
+			superstate: function () { return superstate; },
+			method: function ( methodName ) {
 				return (
 					methods[ methodName ]
 						||
@@ -42,56 +42,56 @@ var State = $.extend( true,
 					undefined
 				);
 			},
-			hasMethod: function( methodName, deep ) {
+			hasMethod: function ( methodName, deep ) {
 				return (
 					methodName in methods
 						||
 					deep && superstate instanceof State && superstate.hasMethod( methodName, deep )
 				);
 			},
-			addMethod: function( methodName, fn ) {
+			addMethod: function ( methodName, fn ) {
 				return methods[ methodName ] = fn;
 			},
-			removeMethod: function( methodName ) {
+			removeMethod: function ( methodName ) {
 				var fn = methods[ methodName ];
 				delete methods[ methodName ];
 				return fn;
 			},
-			addEventListener: function( eventType, fn ) {
+			addEventListener: function ( eventType, fn ) {
 				var e = events[ eventType ];
 				if ( !e ) {
 					throw new State.EventError('Invalid event type');
 				}
 				return e.add(fn);
 			},
-			removeEventListener: function( eventType, id ) {
+			removeEventListener: function ( eventType, id ) {
 				return events[ eventType ].remove(id);
 			},
-			getEventListener: function( eventType, id ) {
+			getEventListener: function ( eventType, id ) {
 				return events[ eventType ].get(id);
 			},
-			getEventListeners: function( eventType ) {
+			getEventListeners: function ( eventType ) {
 				return events[ eventType ];
 			},
-			triggerEvents: function( eventType ) {
+			triggerEvents: function ( eventType ) {
 				if ( events[ eventType ] ) {
 					return events[ eventType ].trigger();
 				} else {
 					throw new State.EventError('Invalid event type');
 				}
 			},
-			rule: function( ruleName ) {
+			rule: function ( ruleName ) {
 				return definition.rules ? definition.rules[ ruleName ] : undefined;
 			},
-			addState: function( stateName, stateDefinition ) {
+			addState: function ( stateName, stateDefinition ) {
 				var state = this[ stateName ] = new State( this, stateName, stateDefinition )
 				substates.push( state );
 				return state;
 			},
-			removeState: function() {
+			removeState: function () {
 				throw new State.Error('Not implemented');
 			},
-			substates: function( deep ) {
+			substates: function ( deep ) {
 				if ( deep ) {
 					var result = [];
 					for ( var i in substates ) {
@@ -104,65 +104,65 @@ var State = $.extend( true,
 			}
 		});
 		
-		$.each( [ 'enter', 'leave', 'enterSubstate', 'leaveSubstate' ], function( i, eventType ) {
+		$.each( [ 'enter', 'leave', 'enterSubstate', 'leaveSubstate' ], function ( i, eventType ) {
 			events[ eventType ] = new State.Event.Collection( state, eventType );
 		});
 		$.each({
-			methods: function( methodName, fn ) {
+			methods: function ( methodName, fn ) {
 				state.addMethod( methodName, fn );
 			},
-			events: function( eventType, fn ) {
+			events: function ( eventType, fn ) {
 				if ( fn instanceof Array ) {
-					$.each( fn, function( i, fn ) {
+					$.each( fn, function ( i, fn ) {
 						state.addEventListener( eventType, fn );
 					});
 				} else {
 					state.addEventListener( eventType, fn );
 				}
 			},
-			rules: function( ruleName, rule ) {
+			rules: function ( ruleName, rule ) {
 				rules[ ruleName ] = rule;
 			},
-			states: function( stateName, stateDefinition ) {
+			states: function ( stateName, stateDefinition ) {
 				state.addState( stateName, stateDefinition );
 			}
-		}, function( i, fn ) {
+		}, function ( i, fn ) {
 			if ( definition[i] ) {
 				$.each( definition[i], fn );
 			}
 		});
 	}, {
 		prototype: {
-			controller: function() {
+			controller: function () {
 				var superstate = this.superstate();
 				return superstate instanceof State ? superstate.controller() : superstate;
 			},
-			toString: function() {
+			toString: function () {
 				return ( this.superstate() instanceof State ? this.superstate().toString() + '.' : '' ) + this.name();
 			},
-			select: function() {
+			select: function () {
 				return this.controller().changeState( this ) ? this : false;
 			},
-			isSelected: function() {
+			isSelected: function () {
 				return this.controller().currentState() === this;
 			},
-			isAncestorOf: function( state ) {
+			isSuperstateOf: function ( state ) {
 				var superstate = state.superstate();
-				return superstate instanceof State ? ( this === superstate || this.isAncestorOf( superstate ) ) : false;
+				return superstate instanceof State ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
 			},
-			allowLeavingTo: function( toState ) {
+			allowLeavingTo: function ( toState ) {
 				return true;
 			},
-			allowEnteringFrom: function( fromState ) {
+			allowEnteringFrom: function ( fromState ) {
 				return true;
 			},
-			evaluateRule: function( ruleName, testState ) {
+			evaluateRule: function ( ruleName, testState ) {
 				var	state = this,
 					rule = this.rule( ruleName ),
 					result;
 				if ( rule ) {
-					$.each( rule, function( selector, value ) {
-						$.each( selector.split(','), function( i, expr ) {
+					$.each( rule, function ( selector, value ) {
+						$.each( selector.split(','), function ( i, expr ) {
 							if ( state.match( $.trim( expr ), testState ) ) {
 								result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );
 								return false; 
@@ -173,13 +173,13 @@ var State = $.extend( true,
 				}
 				return ( result === undefined ) || result;
 			},
-			match: function( expr, testState ) {
+			match: function ( expr, testState ) {
 				var	parts = expr.split('.'),
 					locus = ( parts.length && parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
 					result;
 				
 				if ( parts.length ) {
-					$.each( parts, function( i, name ) {
+					$.each( parts, function ( i, name ) {
 						if ( name === '' ) {
 							locus = locus.superstate();
 						} else if ( locus[ name ] instanceof State ) {
@@ -188,7 +188,7 @@ var State = $.extend( true,
 							result = testState ? locus === testState.superstate() : locus.substates();
 							return false;
 						} else if ( name == '**' ) {
-							result = testState ? locus.isAncestorOf( testState ) : locus.substates( true );
+							result = testState ? locus.isSuperstateOf( testState ) : locus.substates( true );
 							return false;
 						} else {
 							return result = false;
@@ -205,13 +205,13 @@ var State = $.extend( true,
 			}
 		},
 		
-		object: function() {
+		object: function () {
 			var controller = State.Controller.apply( this, arguments );
 			controller.owner().state = controller;
 			return controller.owner();
 		},
 		
-		define: function( map ) {
+		define: function ( map ) {
 			console.warn('State.define : marked for deprecation, use State.Definition() instead');
 			return new State.Definition( map );
 		}
@@ -220,38 +220,40 @@ var State = $.extend( true,
 
 
 State.Definition = $.extend( true,
-	function StateDefinition( map ) {
+	function StateDefinition ( map ) {
 		if ( !( this instanceof State.Definition ) ) {
 			return new State.Definition( map );
 		}
 		$.extend( true, this, map instanceof State.Definition ? map : State.Definition.expand( map ) );
 	}, {
 		members: [ 'methods', 'events', 'rules', 'states' ],
-		blankMap: function() {
+		blankMap: function () {
 			var map = {};
-			$.each( this.members, function( i, key ) { map[key] = null; } );
+			$.each( this.members, function ( i, key ) {
+				map[key] = null;
+			});
 			return map;
 		},
-		isComplex: function( map ) {
+		isComplex: function ( map ) {
 			var result;
-			$.each( this.members, function( i, key ) {
+			$.each( this.members, function ( i, key ) {
 				return !( result = ( key in map && !$.isFunction( map[key] ) ) );
 			});
 			return result;
 		},
-		expand: function( map ) {
+		expand: function ( map ) {
 			var result = this.blankMap();
 			if ( $.isArray( map ) ) {
-				$.each( this.members, function(i,key) {
+				$.each( this.members, function ( i, key ) {
 					return i < map.length && ( result[key] = map[i] );
 				});
 			} else if ( $.isPlainObject( map ) ) {
-				$.extend( this.isComplex(map) ? result : ( result.methods = {} ), map );
+				$.extend( this.isComplex( map ) ? result : ( result.methods = {} ), map );
 			}
 			if ( result.events ) {
-				$.each( result.events, function( type, value ) {
+				$.each( result.events, function ( type, value ) {
 					if ( typeof value === 'function' ) {
-						result.events[type] = value = [value];
+						result.events[type] = value = [ value ];
 					}
 					if ( !$.isArray(value) ) {
 						throw new State.DefinitionError();
@@ -259,18 +261,18 @@ State.Definition = $.extend( true,
 				});
 			}
 			if ( result.states ) {
-				$.each( result.states, function( name, map ) {
+				$.each( result.states, function ( name, map ) {
 					result.states[name] = map instanceof State.Definition ? map : State.Definition(map);
 				});
 			}
 			return result;
 		},
-		create: function( shorthand ) {
+		create: function ( shorthand ) {
 			var map = this.blankMap();
 			if ( $.isPlainObject( shorthand ) ) {
 				map.methods = shorthand;
 			} else if ( $.isArray( shorthand ) ) {
-				$.each( this.members, function(i,key) {
+				$.each( this.members, function ( i, key ) {
 					return i < shorthand.length && ( map[key] = shorthand[i] );
 				});
 			} else {
@@ -279,8 +281,8 @@ State.Definition = $.extend( true,
 			return map;
 		},
 		
-		Set: function StateDefinitionSet( map ) {
-			$.each( map, function( name, definition ) {
+		Set: function StateDefinitionSet ( map ) {
+			$.each( map, function ( name, definition ) {
 				if ( !( definition instanceof State.Definition ) ) {
 					map[name] = State.Definition( definition );
 				}
@@ -292,7 +294,7 @@ State.Definition = $.extend( true,
 
 
 State.Controller = $.extend( true,
-	function StateController( owner, map, initialState ) {
+	function StateController ( owner, map, initialState ) {
 		if ( !( this instanceof State.Controller ) ) {
 			return new State.Controller( owner, map, initialState );
 		}
@@ -309,16 +311,16 @@ State.Controller = $.extend( true,
 			currentState = defaultState;
 		
 		$.extend( this, {
-			owner: function() {
+			owner: function () {
 				return owner;
 			},
-			defaultState: function() {
+			defaultState: function () {
 				return defaultState;
 			},
-			currentState: function() {
+			currentState: function () {
 				return currentState;
 			},
-			addState: function( name, definition ) {
+			addState: function ( name, definition ) {
 				if ( !( definition instanceof State.Definition ) ) {
 					definition = new State.Definition( definition );
 				}
@@ -326,12 +328,12 @@ State.Controller = $.extend( true,
 				var	state = controller[ name ] = defaultState.addState( name, definition );
 				
 				if ( definition.methods ) {
-					$.each( definition.methods, function( methodName, fn ) {
+					$.each( definition.methods, function ( methodName, fn ) {
 						if ( !defaultState.hasMethod( methodName ) ) {
 							if ( owner[ methodName ] !== undefined ) {
 								defaultState.addMethod( methodName, owner[ methodName ] );
 							}
-							owner[ methodName ] = function() {
+							owner[ methodName ] = function () {
 								var method = controller.getMethod( methodName );
 								if ( method ) {
 									return method.apply( owner, arguments );
@@ -346,10 +348,10 @@ State.Controller = $.extend( true,
 				}
 				return state;
 			},
-			removeState: function( name ) {
+			removeState: function ( name ) {
 				throw new Error('State.Controller.removeState not implemented yet');
 			},
-			changeState: function( toState ) {
+			changeState: function ( toState ) {
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
@@ -389,7 +391,7 @@ State.Controller = $.extend( true,
 		
 		if ( map ) {
 			var defs = map instanceof State.Definition.Set ? map : new State.Definition.Set( map );
-			$.each( defs, function( stateName, definition ) {
+			$.each( defs, function ( stateName, definition ) {
 				controller.addState( stateName, definition );
 			});
 		}
@@ -397,27 +399,27 @@ State.Controller = $.extend( true,
 		currentState = this.getState( initialState ) || this.defaultState();
 	}, {
 		prototype: {
-			toString: function() {
+			toString: function () {
 				return this.currentState().toString();
 			},
-			match: function( expr, testState ) {
+			match: function ( expr, testState ) {
 				return this.currentState().match( expr, testState );
 			},
-			getState: function( expr, context ) {
+			getState: function ( expr, context ) {
 				if ( expr === undefined ) {
 					return this.currentState();
 				}
 				return context ? context.match( expr ) : this.match( expr );
 			},
-			isInState: function( expr, context ) {
+			isInState: function ( expr, context ) {
 				var	state = this.getState( expr, context ),
 					currentState = this.currentState();
-				return state === currentState || state.isAncestorOf( currentState ) ? state : false;
+				return state === currentState || state.isSuperstateOf( currentState ) ? state : false;
 			},
-			getMethod: function( methodName ) {
+			getMethod: function ( methodName ) {
 				return this.currentState().method( methodName );
 			},
-			superstate: function( methodName ) {
+			superstate: function ( methodName ) {
 				var superstate = this.currentState().superstate();
 				return methodName ? superstate.method( methodName ) : superstate;
 			}
@@ -427,7 +429,7 @@ State.Controller = $.extend( true,
 
 
 State.Event = $.extend( true,
-	function StateEvent( state, type ) {
+	function StateEvent ( state, type ) {
 		$.extend( this, {
 			target: state,
 			name: state.name,
@@ -435,47 +437,47 @@ State.Event = $.extend( true,
 		});
 	}, {
 		prototype: {
-			toString: function() {
+			toString: function () {
 				return 'StateEvent';
 			},
-			log: function(text) {
+			log: function (text) {
 				console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
 			}
 		},
 		Collection: $.extend( true,
-			function StateEventCollection( state, type ) {
+			function StateEventCollection ( state, type ) {
 				var	items = {},
 					length = 0,
-					getLength = ( getLength = function() { return length; } ).toString = getLength;
+					getLength = ( getLength = function () { return length; } ).toString = getLength;
 					
 				$.extend( this, {
 					length: getLength,
-					get: function(id) {
+					get: function (id) {
 						return items[id];
 					},
-					key: function( listener ) {
+					key: function ( listener ) {
 						var result;
-						$.each( items, function( id, fn ) {
+						$.each( items, function ( id, fn ) {
 							result = ( fn === listener ? id : undefined );
 							return result === undefined;
 						});
 						return result;
 					},
-					keys: function() {
+					keys: function () {
 						var result = [];
-						result.toString = function() { return '[' + result.join() + ']'; };
-						$.each( items, function(key) {
+						result.toString = function () { return '[' + result.join() + ']'; };
+						$.each( items, function (key) {
 							result.push(key);
 						});
 						return result;
 					},
-					add: function(fn) {
+					add: function (fn) {
 						var id = this.guid();
 						items[id] = fn;
 						length++;
 						return id;
 					},
-					remove: function(id) {
+					remove: function (id) {
 						var fn = items[id];
 						if ( fn ) {
 							delete items[id];
@@ -484,9 +486,9 @@ State.Event = $.extend( true,
 						}
 						return false;
 					},
-					empty: function() {
+					empty: function () {
 						if ( length ) {
-							for( var i in items ) {
+							for ( var i in items ) {
 								delete items[i];
 							}
 							length = 0;
@@ -495,8 +497,8 @@ State.Event = $.extend( true,
 							return false;
 						}
 					},
-					trigger: function() {
-						$.each( items, function( id, fn ) {
+					trigger: function () {
+						$.each( items, function ( id, fn ) {
 							fn.apply( state, [ new State.Event( state, type ) ] );
 						});
 					}
@@ -504,7 +506,7 @@ State.Event = $.extend( true,
 			}, {
 				__guid__: 0,
 				prototype: {
-					guid: function() {
+					guid: function () {
 						return ( ++this.constructor.__guid__ ).toString();
 					}
 				}
@@ -515,23 +517,23 @@ State.Event = $.extend( true,
 
 
 State.Transition = $.extend( true,
-	function StateTransition( fromState, toState ) {
+	function StateTransition ( fromState, toState ) {
 		
 	}, {
 		prototype: $.extend( true, new State(), {
-			start: function() {
+			start: function () {
 				
 			},
-			abort: function() {
+			abort: function () {
 				
 			},
-			finish: function() {
+			finish: function () {
 				
 			}
 		}),
 		
 		Definition: $.extend( true,
-			function StateTransitionDefinition( map ) {
+			function StateTransitionDefinition ( map ) {
 				
 			}, {
 				
@@ -542,7 +544,7 @@ State.Transition = $.extend( true,
 
 
 State.Error = $.extend( true,
-	function StateError( message ) {
+	function StateError ( message ) {
 		this.name = "StateError";
 		this.message = message;
 	}, {
@@ -551,7 +553,7 @@ State.Error = $.extend( true,
 );
 
 State.EventError = $.extend( true,
-	function StateEventError( message ) {
+	function StateEventError ( message ) {
 		this.name = "StateEventError";
 		this.message = message;
 	}, {
@@ -560,7 +562,7 @@ State.EventError = $.extend( true,
 );
 
 State.DefinitionError = $.extend( true,
-	function StateDefinitionError( message ) {
+	function StateDefinitionError ( message ) {
 		this.name = "StateDefinitionError";
 		this.message = message;
 	}, {

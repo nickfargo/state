@@ -30,12 +30,12 @@ test( "match()", function() {
 	strictEqual( x.state.match( 'Finished.*', x.state.Finished.Terminated ), true );
 });
 
-test( "isAncestorOf()", function() {
+test( "isSuperstateOf()", function() {
 	var x = new TestObject[0]();
-	ok( x.state.defaultState().isAncestorOf( x.state.Preparing ) );
-	ok( x.state.defaultState().isAncestorOf( x.state.Finished.CleaningUp ) );
-	ok( x.state.Finished.isAncestorOf( x.state.Finished.CleaningUp ) );
-	ok( !x.state.Finished.isAncestorOf( x.state.Ready ) );
+	ok( x.state.defaultState().isSuperstateOf( x.state.Preparing ) );
+	ok( x.state.defaultState().isSuperstateOf( x.state.Finished.CleaningUp ) );
+	ok( x.state.Finished.isSuperstateOf( x.state.Finished.CleaningUp ) );
+	ok( !x.state.Finished.isSuperstateOf( x.state.Ready ) );
 });
 
 test( "substates()", function() {
