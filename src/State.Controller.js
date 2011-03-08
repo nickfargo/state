@@ -119,14 +119,14 @@ State.Controller = $.extend( true,
 			isInState: function( expr, context ) {
 				var	state = this.getState( expr, context ),
 					currentState = this.currentState();
-				return state === currentState || state.isAncestorOf( currentState ) ? state : false;
+				return state === currentState || state.isSuperstateOf( currentState ) ? state : false;
 			},
 			getMethod: function( methodName ) {
 				return this.currentState().method( methodName );
 			},
-			parent: function( methodName ) {
-				var parent = this.currentState().parent();
-				return methodName ? parent.method( methodName ) : parent;
+			superstate: function( methodName ) {
+				var superstate = this.currentState().superstate();
+				return methodName ? superstate.method( methodName ) : superstate;
 			}
 		}
 	}

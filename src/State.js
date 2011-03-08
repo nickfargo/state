@@ -1,5 +1,5 @@
 var State = $.extend( true,
-	function State( parent, name, definition ) {
+	function State( superstate, name, definition ) {
 		/*
 		 * If invoked directly, use this function as shorthand for the
 		 * State.Definition constructor.
@@ -24,17 +24,18 @@ var State = $.extend( true,
 			methods: methods,
 			events: events,
 			rules: rules,
-			states: substates
+			substates: substates
 		});
 
 		$.extend( this, {
+			// this idiom allows us to keep the actual `name` string protected inside the closure of the constructor while exposing its value both in the accessor `this.name` and when viewing `this.name` in the inspector
 			name: ( getName = function() { return name || ''; } ).toString = getName,
-			parent: function() { return parent; },
+			superstate: function() { return superstate; },
 			method: function( methodName ) {
 				return (
 					methods[ methodName ]
 						||
-					( parent instanceof State && parent.method( methodName ) )
+					( superstate instanceof State && superstate.method( methodName ) )
 						||
 					undefined
 				);
@@ -43,7 +44,7 @@ var State = $.extend( true,
 				return (
 					methodName in methods
 						||
-					deep && parent instanceof State && parent.hasMethod( methodName, deep )
+					deep && superstate instanceof State && superstate.hasMethod( methodName, deep )
 				);
 			},
 			addMethod: function( methodName, fn ) {
@@ -88,15 +89,16 @@ var State = $.extend( true,
 			removeState: function() {
 				throw new State.Error('Not implemented');
 			},
-			substates: function() {
-				return substates.slice(0);
-			},
-			descendantStates: function() {
-				var result = [];
-				for ( var i in substates ) {
-					result = result.concat( substates[i], substates[i].descendantStates() );
+			substates: function( deep ) {
+				if ( deep ) {
+					var result = [];
+					for ( var i in substates ) {
+						result = result.concat( substates[i], substates[i].substates( true ) );
+					}
+					return result;
+				} else {
+					return substates.slice(0);
 				}
-				return result;
 			}
 		});
 		
@@ -130,11 +132,11 @@ var State = $.extend( true,
 	}, {
 		prototype: {
 			controller: function() {
-				var parent = this.parent();
-				return parent instanceof State ? parent.controller() : parent;
+				var superstate = this.superstate();
+				return superstate instanceof State ? superstate.controller() : superstate;
 			},
 			toString: function() {
-				return ( this.parent() instanceof State ? this.parent().toString() + '.' : '' ) + this.name();
+				return ( this.superstate() instanceof State ? this.superstate().toString() + '.' : '' ) + this.name();
 			},
 			select: function() {
 				return this.controller().changeState( this ) ? this : false;
@@ -142,9 +144,9 @@ var State = $.extend( true,
 			isSelected: function() {
 				return this.controller().currentState() === this;
 			},
-			isAncestorOf: function( state ) {
-				var parent = state.parent();
-				return parent instanceof State ? ( this === parent || this.isAncestorOf( parent ) ) : false;
+			isSuperstateOf: function( state ) {
+				var superstate = state.superstate();
+				return superstate instanceof State ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
 			},
 			allowLeavingTo: function( toState ) {
 				return true;
@@ -177,14 +179,14 @@ var State = $.extend( true,
 				if ( parts.length ) {
 					$.each( parts, function( i, name ) {
 						if ( name === '' ) {
-							locus = locus.parent();
+							locus = locus.superstate();
 						} else if ( locus[ name ] instanceof State ) {
 							locus = locus[ name ];
 						} else if ( name == '*' ) {
-							result = testState ? locus === testState.parent() : locus.substates();
+							result = testState ? locus === testState.superstate() : locus.substates();
 							return false;
 						} else if ( name == '**' ) {
-							result = testState ? locus.isAncestorOf( testState ) : locus.descendantStates();
+							result = testState ? locus.isSuperstateOf( testState ) : locus.substates( true );
 							return false;
 						} else {
 							return result = false;

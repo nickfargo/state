@@ -97,7 +97,7 @@ window.TestObject = [
 								},
 								methodThree: function( uno, dos ) {
 									var result = 'Finished.Terminated.methodThree';
-									result += ' : ' + this.state.parent('methodThree')( uno, dos );
+									result += ' : ' + this.state.superstate('methodThree')( uno, dos );
 									return result;
 								}
 							},

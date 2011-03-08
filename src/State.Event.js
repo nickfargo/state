@@ -58,7 +58,7 @@ State.Event = $.extend( true,
 					},
 					empty: function() {
 						if ( length ) {
-							for( var i in items ) {
+							for ( var i in items ) {
 								delete items[i];
 							}
 							length = 0;

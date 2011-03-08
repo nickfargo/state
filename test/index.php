@@ -1,3 +1,7 @@
+<?php
+require '../build/combine.php';
+?>
+
 <!DOCTYPE html>
 <html>
 	<head>
@@ -9,14 +13,7 @@
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.js"></script>
 		
 		<!-- includes -->
-		<script src="../src/pre.js"></script>
-		<script src="../src/State.js"></script>
-		<script src="../src/State.Definition.js"></script>
-		<script src="../src/State.Controller.js"></script>
-		<script src="../src/State.Event.js"></script>
-		<script src="../src/State.Transition.js"></script>
-		<script src="../src/State.Error.js"></script>
-		<script src="../src/post.js"></script>
+		<script src="../state.js"></script>
 		
 		<!-- tests -->
 		<script src="qunit.js"></script>

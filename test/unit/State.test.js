@@ -38,9 +38,9 @@ test( "isAncestorOf()", function() {
 	ok( !x.state.Finished.isAncestorOf( x.state.Ready ) );
 });
 
-test( "descendantStates()", function() {
+test( "substates()", function() {
 	var	x = new TestObject[0](),
-		states = x.state.defaultState().descendantStates();
+		states = x.state.defaultState().substates( true );
 	ok( ( console.log( states ), states.length == 5 ) );
 });
 
