@@ -1,33 +1,33 @@
-( function( $, undefined ) {
+( function ( $, undefined ) {
 
 module( "State.Definition" );
 
-test( "Simple: methods only", function() {
+test( "Simple: methods only", function () {
 	var def = State.Definition({
-		methodOne: function() { return 'methodOne'; },
-		methodTwo: function() { return 'methodTwo'; }
+		methodOne: function () { return 'methodOne'; },
+		methodTwo: function () { return 'methodTwo'; }
 	});
 	ok( def instanceof State.Definition );
 	equals( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
 	equals( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
 });
 
-test( "Compound: array", function() {
+test( "Compound: array", function () {
 	var def = State.Definition([
 		{
-			methodOne: function() { return 'methodOne'; },
-			methodTwo: function() { return 'methodTwo'; }
+			methodOne: function () { return 'methodOne'; },
+			methodTwo: function () { return 'methodTwo'; }
 		},
 		{
-			enter: function() { return 'enter'; },
+			enter: function () { return 'enter'; },
 			leave: [
-				function() { return 'leave 0'; },
-				function() { return 'leave 1'; }
+				function () { return 'leave 0'; },
+				function () { return 'leave 1'; }
 			]
 		},
 		{
 			allowLeavingTo: {
-				'': function() { return 'allowLeavingTo ""'; }
+				'': function () { return 'allowLeavingTo ""'; }
 			}
 		}
 	]);
@@ -43,47 +43,47 @@ test( "Compound: array", function() {
 	equals( def.rules.allowLeavingTo[''](), 'allowLeavingTo ""', "Rule allowLeavingTo['']");
 });
 
-test( "Complex: map", function() {
+test( "Complex: map", function () {
 	var def = State.Definition({
 		methods: {
-			methodOne: function() { return 'methodOne'; },
-			methodTwo: function() { return 'methodTwo'; }
+			methodOne: function () { return 'methodOne'; },
+			methodTwo: function () { return 'methodTwo'; }
 		},
 		events: {
-			enter: function() { return 'enter'; },
+			enter: function () { return 'enter'; },
 			leave: [
-				function() { return 'leave 0'; },
-				function() { return 'leave 1'; }
+				function () { return 'leave 0'; },
+				function () { return 'leave 1'; }
 			]
 		},
 		rules: {
 			allowLeavingTo: {
-				'': function() { return 'allowLeavingTo ""'; }
+				'': function () { return 'allowLeavingTo ""'; }
 			}
 		},
 		states: {
 			SimpleChildState: {
-				methodOne: function() { return 'SimpleChildState.methodOne'; }
+				methodOne: function () { return 'SimpleChildState.methodOne'; }
 			},
 			CompoundChildState: [
 				{
-					methodOne: function() { return 'CompoundChildState.methodOne'; },
-					methodTwo: function() { return 'CompoundChildState.methodTwo'; }
+					methodOne: function () { return 'CompoundChildState.methodOne'; },
+					methodTwo: function () { return 'CompoundChildState.methodTwo'; }
 				},
 				{
-					enter: function() { return 'enter'; },
+					enter: function () { return 'enter'; },
 					leave: [
-						function() { return 'leave 0'; },
-						function() { return 'leave 1'; }
+						function () { return 'leave 0'; },
+						function () { return 'leave 1'; }
 					]
 				},
 				{
 					allowLeavingTo: {
 						'': true,
-						'.': function() { return true; }
+						'.': function () { return true; }
 					},
 					allowEnteringFrom: {
-						'.SimpleChildState': function() { return 'CompoundChildState.allowEnteringFrom ".SimpleChildState"'; }
+						'.SimpleChildState': function () { return 'CompoundChildState.allowEnteringFrom ".SimpleChildState"'; }
 					}
 				}
 			],
@@ -100,12 +100,12 @@ test( "Complex: map", function() {
 				states: {
 					DeepChildState: {
 						methods: {
-							methodOne: function() { return 'DeepChildState.methodOne'; }
+							methodOne: function () { return 'DeepChildState.methodOne'; }
 						},
 						states: {
 							VeryDeepChildState: {
 								methods: {
-									methodOne: function() { return 'VeryDeepChildState.methodOne'; }
+									methodOne: function () { return 'VeryDeepChildState.methodOne'; }
 								}
 							}
 						}
@@ -113,7 +113,7 @@ test( "Complex: map", function() {
 					DeepEmptyChildState: {
 					},
 					DeepSimpleChildState: {
-						methodOne: function() { return 'DeepSimpleChildState.methodOne'; }
+						methodOne: function () { return 'DeepSimpleChildState.methodOne'; }
 					}
 				}
 			}

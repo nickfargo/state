@@ -1,8 +1,8 @@
-( function( $, undefined ) {
+( function ( $, undefined ) {
 
 module( "State.Controller" );
 
-test( "isInState()", function() {
+test( "isInState()", function () {
 	
 });
 

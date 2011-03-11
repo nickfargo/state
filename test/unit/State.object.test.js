@@ -1,9 +1,9 @@
-( function( $, undefined ) {
+( function ( $, undefined ) {
 
 module( "State.object" );
 
-test( "Object creation", function() {
-	var x = new TestObject[0](),
+test( "Object creation", function () {
+	var x = new TestObject(),
 		arr;
 	ok( x.state instanceof State.Controller, "StateController created" );
 	
@@ -21,35 +21,35 @@ test( "Object creation", function() {
 	equal( arr.length(), 2, arr.keys() );
 });
 
-test( "Null state transition", function() {
-	var x = new TestObject[0]();
+test( "Null state change", function () {
+	var x = new TestObject();
 	ok( x.state.change( x.state.current() ).is('Preparing'), "StateController.change() to current state" );
 	ok( x.state.current() === x.state.current().select(), "State.select() on current state" );
 });
 
-test( "Simple state transitions", function() {
-	var x = new TestObject[0]();
+test( "Simple state change", function () {
+	var x = new TestObject();
 	ok( x.state.change('Ready'), "Change to state 'Ready'" );
 	ok( x.state.change('Finished'), "Change to state 'Finished'" );
 	ok( x.state.change(), "Change to default state" );
 });
 
-test( "State transitions from parent state into child state", function() {
-	var x = new TestObject[0](''), result;
+test( "State changes from parent state into child state", function () {
+	var x = new TestObject(''), result;
 	ok( x.state.is(''), "Initialized to default state" );
 	ok( result = x.state.change('Finished'), "Changed to state 'Finished' " + result.toString() );
 	ok( x.state.change('.CleaningUp'), "Changed to child state 'CleaningUp' using relative selector syntax" );
 });
 
-test( "State transitions from one child state sibling to another", function() {
-	var x = new TestObject[0]('Finished');
+test( "State changes from one child state sibling to another", function () {
+	var x = new TestObject('Finished');
 	ok( x.state.is('Finished'), "Initialized to state 'Finished'" );
-	ok( x.state.change('Finished').change('.CleaningUp'), "Null state transition chained to change to child state" );
+	ok( x.state.change('Finished').change('.CleaningUp'), "Null state change chained to change to child state" );
 	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax" );
 });
 
-test( "Method resolutions", function() {
-	var x = new TestObject[0]('');
+test( "Method resolutions", function () {
+	var x = new TestObject('');
 	equal( x.methodOne(), 'methodOne' );
 	equal( x.methodTwo(), 'methodTwo' );
 	ok( x.state.change('Preparing'), "State 'Preparing'" );
@@ -71,12 +71,12 @@ test( "Method resolutions", function() {
 	equal( x.methodThree(1,2), 'Finished.Terminated.methodThree : Finished.methodThree uno=1 dos=2' );
 });
 
-test( "Rules", function() {
-	var x = new TestObject[0]('Finished');
+test( "Rules", function () {
+	var x = new TestObject('Finished');
 	ok( !x.state.change('Preparing') );
 	ok( !x.state.change('Ready') );
 	ok( x.state.change('.Terminated') );
 	ok( !x.state.change('') );
 });
 
-})(jQuery);
+})( jQuery );

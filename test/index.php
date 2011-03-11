@@ -10,10 +10,10 @@ require '../build/combine.php';
 		<link rel="stylesheet" media="screen" href="qunit.css" />
 		
 		<!-- libs -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.js"></script>
 		
 		<!-- includes -->
-		<script src="../state.js"></script>
+		<script src="../state.min.js"></script>
 		
 		<!-- tests -->
 		<script src="qunit.js"></script>

@@ -1,10 +1,10 @@
-( function( $, undefined ) {
+( function ( $, undefined ) {
 
 module( "State" );
 
 
 test( "match()", function() {
-	var x = new TestObject[0]();
+	var x = new TestObject();
 	ok( x.state.match( 'Finished.*', x.state.Finished.CleaningUp ) );
 	ok( x.state.match( 'Finished.*', x.state.Finished.Terminated ) );
 	ok( !x.state.match( 'Finished.*', x.state.Preparing ) );
@@ -31,7 +31,7 @@ test( "match()", function() {
 });
 
 test( "isSuperstateOf()", function() {
-	var x = new TestObject[0]();
+	var x = new TestObject();
 	ok( x.state.defaultState().isSuperstateOf( x.state.Preparing ) );
 	ok( x.state.defaultState().isSuperstateOf( x.state.Finished.CleaningUp ) );
 	ok( x.state.Finished.isSuperstateOf( x.state.Finished.CleaningUp ) );
@@ -39,9 +39,9 @@ test( "isSuperstateOf()", function() {
 });
 
 test( "substates()", function() {
-	var	x = new TestObject[0](),
+	var	x = new TestObject(),
 		states = x.state.defaultState().substates( true );
 	ok( ( console.log( states ), states.length == 5 ) );
 });
 
-})(jQuery);
+})( jQuery );

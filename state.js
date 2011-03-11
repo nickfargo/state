@@ -1,4 +1,4 @@
-( function( $, undefined ) {
+( function ( $, undefined ) {
 
 var State = $.extend( true,
 	function State ( superstate, name, definition ) {
@@ -104,7 +104,7 @@ var State = $.extend( true,
 			}
 		});
 		
-		$.each( [ 'enter', 'leave', 'enterSubstate', 'leaveSubstate' ], function ( i, eventType ) {
+		$.each( [ 'enter', 'leave', 'capture', 'bubble' ], function ( i, eventType ) {
 			events[ eventType ] = new State.Event.Collection( state, eventType );
 		});
 		$.each({
@@ -360,7 +360,7 @@ State.Controller = $.extend( true,
 				}
 				if ( currentState.evaluateRule( 'allowLeavingTo', toState ) ) {
 					if ( toState.evaluateRule( 'allowEnteringFrom', currentState ) ) {
-						// TODO: walk up to common ancestor and then down to 'toState', triggering events along the way
+						// TODO: walk up to common ancestor and then down to 'toState', triggering bubble/capture events along the way
 						currentState.triggerEvents('leave');
 						currentState = toState;
 						currentState.triggerEvents('enter');

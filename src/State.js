@@ -102,7 +102,7 @@ var State = $.extend( true,
 			}
 		});
 		
-		$.each( [ 'enter', 'leave', 'enterSubstate', 'leaveSubstate' ], function ( i, eventType ) {
+		$.each( [ 'enter', 'leave', 'capture', 'bubble' ], function ( i, eventType ) {
 			events[ eventType ] = new State.Event.Collection( state, eventType );
 		});
 		$.each({
