@@ -36,8 +36,11 @@ Our `polyglot` is now language-aware and ready to use. It can be placed into any
 	polyglot.state.change('English');
 	polyglot.greet(); // Hello!
 
+	// The state change and method call can be chained together
 	polyglot.state.change('Spanish').greet(); // ¡Hola!
 
+	// Changing to a substate
 	polyglot.state.change('English.American').greet(); // Howdy!
 
+	// Changing back to the default state using the empty string key
 	polyglot.state.change('').greet(); // :)
