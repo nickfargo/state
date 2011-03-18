@@ -8,8 +8,8 @@ The object's basic form might look like this:
 	var polyglot = {
 		greet: function() { return ':)'; }
 	}
-With State.js, the object's multilingual behavior can then be added in the form of language states, like so:
-	State( polyglot, 'language', {
+Using State.js, the object's multilingual behavior can then be added in the form of language states, like so:
+	State( polyglot, {
 		French: {
 			greet: function() { return 'Bonjour !'; }
 		},
@@ -27,7 +27,7 @@ With State.js, the object's multilingual behavior can then be added in the form 
 			}
 		}
 	});
-Now our `polyglot` is ready to use. It can be placed into any of the language states we've defined, and calls to `polyglot.greet()` will return the proper expression.
+Our `polyglot` is now language-aware and ready to use. It can be placed into any of the language states we've defined, and in each case calls to `polyglot.greet()` will return the appropriate expression.
 	polyglot.greet(); // :)
 
 	polyglot.state.change('French');
