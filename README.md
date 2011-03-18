@@ -38,7 +38,8 @@ Our `polyglot` is now language-aware and ready to use. It can be placed into any
 	polyglot.state.change('French');
 	polyglot.greet(); // Bonjour !
 
-	polyglot.state.change('English');
+	// Using a direct reference to the state
+	polyglot.state.English.select();
 	polyglot.greet(); // Hello!
 
 	// The state change and method call can be chained together
