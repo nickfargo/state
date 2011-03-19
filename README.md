@@ -5,12 +5,12 @@
 ### Synopsis
 Let's consider an object that outputs a simple greeting, and is able to do so in several languages — a typical example of a state machine.
 
-The object's basic form might look like this:
+The basic form might look like this plain JavaScript object:
 	var polyglot = {
 		greet: function() { return ':)'; }
 	}
 ### Adding state
-Using State.js, the object's multilingual behavior can then be added in the form of language states, like so:
+State.js, our `polyglot`'s multilingual behavior can then be added as distinct language states, like so:
 	State( polyglot, {
 		French: {
 			greet: function() { return 'Bonjour !'; }
@@ -32,17 +32,17 @@ Using State.js, the object's multilingual behavior can then be added in the form
 Note the concise definitions for the first two language states, while the more complex `English` state expands this syntax to define both a method and a substate.
 
 ### Putting states to work
-Our `polyglot` is now language-aware and ready to use. It can be placed into any of the language states we've defined, and in each case calls to `polyglot.greet()` will return the appropriate expression.
+Our `polyglot` is now language-aware and ready to use. It can be placed into any of the language states we've defined, and calls to `polyglot.greet()` will return the appropriate expression in each case.
 	polyglot.greet(); // :)
 
 	polyglot.state.change('French');
 	polyglot.greet(); // Bonjour !
 
-	// Using a direct reference to the state
+	// Using a direct reference
 	polyglot.state.English.select();
 	polyglot.greet(); // Hello!
 
-	// The state change and method call can be chained together
+	// The method call can be chained to the end of change()
 	polyglot.state.change('Spanish').greet(); // ¡Hola!
 
 	// Changing to a substate
