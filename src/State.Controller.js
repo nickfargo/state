@@ -12,7 +12,9 @@ State.Controller = $.extend( true,
 		}
 		
 		var	controller = this,
-			defaultState = new State( this ),
+			defaultState = $.extend( new State(), {
+				controller: function() { return controller; }
+			}),
 			currentState = defaultState;
 		
 		$.extend( this, {
@@ -33,7 +35,7 @@ State.Controller = $.extend( true,
 				var	state = controller[ name ] = defaultState.addState( name, definition );
 				
 				if ( definition.methods ) {
-					$.each( definition.methods, function ( methodName, fn ) {
+					for ( var methodName in definition.methods ) {
 						if ( !defaultState.hasMethod( methodName ) ) {
 							if ( owner[ methodName ] !== undefined ) {
 								defaultState.addMethod( methodName, owner[ methodName ] );
@@ -49,7 +51,7 @@ State.Controller = $.extend( true,
 								}
 							};
 						}
-					});
+					}
 				}
 				return state;
 			},

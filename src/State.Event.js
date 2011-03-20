@@ -22,32 +22,31 @@ State.Event = $.extend( true,
 					
 				$.extend( this, {
 					length: getLength,
-					get: function (id) {
+					get: function ( id ) {
 						return items[id];
 					},
 					key: function ( listener ) {
-						var result;
-						$.each( items, function ( id, fn ) {
-							result = ( fn === listener ? id : undefined );
-							return result === undefined;
-						});
-						return result;
+						for ( var i in items ) {
+							if ( items[i] === listener ) {
+								return i;
+							}
+						}
 					},
 					keys: function () {
 						var result = [];
 						result.toString = function () { return '[' + result.join() + ']'; };
-						$.each( items, function (key) {
-							result.push(key);
-						});
+						for ( var i in items ) {
+							result.push( items[i] );
+						}
 						return result;
 					},
-					add: function (fn) {
+					add: function ( fn ) {
 						var id = this.guid();
 						items[id] = fn;
 						length++;
 						return id;
 					},
-					remove: function (id) {
+					remove: function ( id ) {
 						var fn = items[id];
 						if ( fn ) {
 							delete items[id];
@@ -67,10 +66,10 @@ State.Event = $.extend( true,
 							return false;
 						}
 					},
-					trigger: function () {
-						$.each( items, function ( id, fn ) {
-							fn.apply( state, [ new State.Event( state, type ) ] );
-						});
+					trigger: function ( data ) {
+						for ( var i in items ) {
+							items[i].apply( state, [ $.extend( new State.Event( state, type ), data ) ] );
+						}
 					}
 				});
 			}, {

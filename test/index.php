@@ -13,7 +13,7 @@ require '../build/combine.php';
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.js"></script>
 		
 		<!-- includes -->
-		<script src="../state.min.js"></script>
+		<script src="../state.js"></script>
 		
 		<!-- tests -->
 		<script src="qunit.js"></script>
