@@ -130,21 +130,34 @@ var State = $.extend( true,
 		});
 	}, {
 		prototype: {
+			toString: function () {
+				return ( this.superstate() ? this.superstate() + '.' : '' ) + this.name();
+			},
 			controller: function () {
 				return this.superstate().controller();
 			},
-			toString: function () {
-				return ( this.superstate() ? this.superstate() + '.' : '' ) + this.name();
+			depth: function () {
+				for ( var count = 0, state = this; state.superstate(); count++, state = state.superstate() );
+				return count;
+			},
+			common: function ( other ) {
+				var state;
+				for ( ( this.depth() > other.depth() ) ? ( state = other, other = this ) : ( state = this );
+						state; state = state.superstate() ) {
+					if ( state === other || state.isSuperstateOf( other ) ) {
+						return state;
+					}
+				}
+			},
+			isSuperstateOf: function ( state ) {
+				var superstate = state.superstate();
+				return superstate ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
 			},
 			select: function () {
 				return this.controller().changeState( this ) ? this : false;
 			},
 			isSelected: function () {
 				return this.controller().currentState() === this;
-			},
-			isSuperstateOf: function ( state ) {
-				var superstate = state.superstate();
-				return superstate ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
 			},
 			// deprecated
 			allowLeavingTo: function ( toState ) {

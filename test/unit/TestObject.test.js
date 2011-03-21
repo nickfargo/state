@@ -78,7 +78,7 @@ window.TestObject = function TestObject ( initialState ) {
 					},
 					allowEnteringFrom: {
 						'Preparing, Ready': function ( state ) {
-							console.log( 'Finished.allowEnteringFrom ' + state );
+							console && console.log( 'Finished.allowEnteringFrom ' + state );
 							return true;
 						}
 					}
@@ -106,7 +106,7 @@ window.TestObject = function TestObject ( initialState ) {
 								'': function ( state ) {
 									// "this" references current state ('Finished.Terminated')
 									// "state" references state to which controller is being changed ('')
-									console.warn( 'Denying exit from ' + this.toString() + ' to ' + state.toString() );
+									console && console.log( 'Denying exit from ' + this + ' to ' + state );
 									return false;
 								},
 								'*': true

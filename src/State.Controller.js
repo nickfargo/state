@@ -58,7 +58,7 @@ State.Controller = $.extend( true,
 			removeState: function ( name ) {
 				throw new Error('State.Controller.removeState not implemented yet');
 			},
-			changeState: function ( toState ) {
+			changeState: function ( toState, success, fail ) {
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
@@ -71,13 +71,16 @@ State.Controller = $.extend( true,
 						currentState.triggerEvents('leave');
 						currentState = toState;
 						currentState.triggerEvents('enter');
+						typeof success === 'function' && success.call( this );
 						return this;
 					} else {
-						console.warn( toState + '.allowEnteringFrom(' + currentState + ') denied' );
+						console && console.log( toState + '.allowEnteringFrom(' + currentState + ') denied' );
+						typeof fail === 'function' && fail.call( this );
 						return false;
 					}
 				} else {
-					console.warn( currentState + '.allowLeavingTo(' + toState + ') denied' );
+					console && console.log( currentState + '.allowLeavingTo(' + toState + ') denied' );
+					typeof fail === 'function' && fail.call( this );
 					return false;
 				}
 			}
@@ -87,10 +90,8 @@ State.Controller = $.extend( true,
 		if ( owner !== this ) {
 			$.extend( this, {
 				current: this.currentState,
-				// add: this.addState,
 				add: function () { return this.addState.apply( this, arguments ) ? this : false; },
 				remove: this.removeState,
-				// change: this.changeState,
 				change: function () { return this.changeState.apply( this, arguments ) ? this.owner() : false; },
 				is: this.isInState,
 				get: this.getState,
@@ -130,7 +131,7 @@ State.Controller = $.extend( true,
 			},
 			superstate: function ( methodName ) {
 				var superstate = this.currentState().superstate();
-				return methodName ? superstate.method( methodName ) : superstate;
+				return methodName === undefined ? superstate : superstate.method( methodName );
 			}
 		}
 	}

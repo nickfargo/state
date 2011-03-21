@@ -132,21 +132,34 @@ var State = $.extend( true,
 		});
 	}, {
 		prototype: {
+			toString: function () {
+				return ( this.superstate() ? this.superstate() + '.' : '' ) + this.name();
+			},
 			controller: function () {
 				return this.superstate().controller();
 			},
-			toString: function () {
-				return ( this.superstate() ? this.superstate() + '.' : '' ) + this.name();
+			depth: function () {
+				for ( var count = 0, state = this; state.superstate(); count++, state = state.superstate() );
+				return count;
+			},
+			common: function ( other ) {
+				var state;
+				for ( ( this.depth() > other.depth() ) ? ( state = other, other = this ) : ( state = this );
+						state; state = state.superstate() ) {
+					if ( state === other || state.isSuperstateOf( other ) ) {
+						return state;
+					}
+				}
+			},
+			isSuperstateOf: function ( state ) {
+				var superstate = state.superstate();
+				return superstate ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
 			},
 			select: function () {
 				return this.controller().changeState( this ) ? this : false;
 			},
 			isSelected: function () {
 				return this.controller().currentState() === this;
-			},
-			isSuperstateOf: function ( state ) {
-				var superstate = state.superstate();
-				return superstate ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
 			},
 			// deprecated
 			allowLeavingTo: function ( toState ) {
@@ -353,7 +366,7 @@ State.Controller = $.extend( true,
 			removeState: function ( name ) {
 				throw new Error('State.Controller.removeState not implemented yet');
 			},
-			changeState: function ( toState ) {
+			changeState: function ( toState, success, fail ) {
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
@@ -366,13 +379,16 @@ State.Controller = $.extend( true,
 						currentState.triggerEvents('leave');
 						currentState = toState;
 						currentState.triggerEvents('enter');
+						typeof success === 'function' && success.call( this );
 						return this;
 					} else {
-						console.warn( toState + '.allowEnteringFrom(' + currentState + ') denied' );
+						console && console.log( toState + '.allowEnteringFrom(' + currentState + ') denied' );
+						typeof fail === 'function' && fail.call( this );
 						return false;
 					}
 				} else {
-					console.warn( currentState + '.allowLeavingTo(' + toState + ') denied' );
+					console && console.log( currentState + '.allowLeavingTo(' + toState + ') denied' );
+					typeof fail === 'function' && fail.call( this );
 					return false;
 				}
 			}
@@ -382,10 +398,8 @@ State.Controller = $.extend( true,
 		if ( owner !== this ) {
 			$.extend( this, {
 				current: this.currentState,
-				// add: this.addState,
 				add: function () { return this.addState.apply( this, arguments ) ? this : false; },
 				remove: this.removeState,
-				// change: this.changeState,
 				change: function () { return this.changeState.apply( this, arguments ) ? this.owner() : false; },
 				is: this.isInState,
 				get: this.getState,
@@ -425,7 +439,10 @@ State.Controller = $.extend( true,
 			},
 			superstate: function ( methodName ) {
 				var superstate = this.currentState().superstate();
-				return methodName ? superstate.method( methodName ) : superstate;
+				return methodName === undefined ? superstate : superstate.method( methodName );
+			},
+			superstateInCommonBetween: function ( a, b ) {
+				
 			}
 		}
 	}

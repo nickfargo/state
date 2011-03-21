@@ -44,4 +44,21 @@ test( "substates()", function() {
 	ok( ( console.log( states ), states.length == 5 ) );
 });
 
+test( "depth()", function() {
+	var x = new TestObject();
+	equal( x.state.defaultState().depth(), 0 );
+	equal( x.state.Finished.Terminated.depth(), 2 );
+});
+
+test( "common()", function () {
+	var x = new TestObject();
+	equal( x.state.Finished.Terminated.common( x.state.Finished ), x.state.Finished );
+	equal( x.state.Finished.Terminated.common( x.state.Finished.CleaningUp ), x.state.Finished );
+	equal( x.state.Finished.Terminated.common( x.state.Ready ), x.state.defaultState() );
+	equal( x.state.defaultState().common( x.state.defaultState() ), x.state.defaultState() );
+	equal( x.state.Ready.common( x.state.Finished.Terminated ), x.state.defaultState() );
+	equal( x.state.Preparing.common( x.state.Preparing ), x.state.Preparing );
+	equal( x.state.Finished.common( x.state.Finished.CleaningUp ), x.state.Finished );
+});
+
 })( jQuery );
