@@ -23,7 +23,7 @@ test( "Object creation", function () {
 
 test( "Null state change", function () {
 	var x = new TestObject();
-	ok( x.state.change( x.state.current() ).is('Preparing'), "StateController.change() to current state" );
+	ok( x.state.change( x.state.current() ).state.is('Preparing'), "StateController.change() to current state" );
 	ok( x.state.current() === x.state.current().select(), "State.select() on current state" );
 });
 
@@ -44,7 +44,7 @@ test( "State changes from parent state into child state", function () {
 test( "State changes from one child state sibling to another", function () {
 	var x = new TestObject('Finished');
 	ok( x.state.is('Finished'), "Initialized to state 'Finished'" );
-	ok( x.state.change('Finished').change('.CleaningUp'), "Null state change chained to change to child state" );
+	ok( x.state.change('Finished').state.change('.CleaningUp'), "Null state change chained to change to child state" );
 	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax" );
 });
 
@@ -62,10 +62,10 @@ test( "Method resolutions", function () {
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'methodTwo' );
 	equal( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' );
-	ok( x.state.change('.CleaningUp').is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
+	ok( x.state.change('.CleaningUp').state.is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'Finished.CleaningUp.methodTwo' );
-	ok( x.state.change('..Terminated').is('Finished.Terminated'), "State 'Finished.Terminated'" );
+	ok( x.state.change('..Terminated').state.is('Finished.Terminated'), "State 'Finished.Terminated'" );
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'Finished.Terminated.methodTwo' );
 	equal( x.methodThree(1,2), 'Finished.Terminated.methodThree : Finished.methodThree uno=1 dos=2' );

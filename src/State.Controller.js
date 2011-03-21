@@ -71,7 +71,7 @@ State.Controller = $.extend( true,
 						currentState.triggerEvents('leave');
 						currentState = toState;
 						currentState.triggerEvents('enter');
-						return controller;
+						return this;
 					} else {
 						console.warn( toState + '.allowEnteringFrom(' + currentState + ') denied' );
 						return false;
@@ -87,9 +87,11 @@ State.Controller = $.extend( true,
 		if ( owner !== this ) {
 			$.extend( this, {
 				current: this.currentState,
-				add: this.addState,
+				// add: this.addState,
+				add: function () { return this.addState.apply( this, arguments ) ? this : false; },
 				remove: this.removeState,
-				change: this.changeState,
+				// change: this.changeState,
+				change: function () { return this.changeState.apply( this, arguments ) ? this.owner() : false; },
 				is: this.isInState,
 				get: this.getState,
 				method: this.getMethod
