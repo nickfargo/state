@@ -21,4 +21,12 @@ test( "changeState()", function () {
 	callback = undefined;
 });
 
+test( "changeState() bubble/capture", function () {
+	var out = '', x = new TestObject('Preparing');
+	x.state.Preparing.addEventListener( 'bubble', function () { out += "fee"; console.log( "Preparing.bubble" ); } );
+	x.state.Finished.addEventListener( 'capture', function () { out += "fi"; console.log( "Finished.capture" ); } );
+	x.state.Finished.CleaningUp.addEventListener( 'capture', function () { out += "fo"; console.log( "Finished.CleaningUp.capture" ); } );
+	equal( ( x.state.change( 'Finished.CleaningUp' ), out ), "feefifo" );
+});
+
 })( jQuery );

@@ -59,6 +59,7 @@ State.Controller = $.extend( true,
 				throw new Error('State.Controller.removeState not implemented yet');
 			},
 			changeState: function ( toState, success, fail ) {
+				var state, common, data, pathToState = [];
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
@@ -67,10 +68,20 @@ State.Controller = $.extend( true,
 				}
 				if ( currentState.evaluateRule( 'allowLeavingTo', toState ) ) {
 					if ( toState.evaluateRule( 'allowEnteringFrom', currentState ) ) {
-						// TODO: walk up to common ancestor and then down to 'toState', triggering bubble/capture events along the way
-						currentState.triggerEvents('leave');
+						// walk up to common ancestor, triggering bubble events along the way
+						data = { origin: currentState, destination: toState };
+						currentState.triggerEvents( 'leave', data );
+						common = currentState.common( toState );
+						for ( state = currentState; state != common; state = state.superstate() ) {
+							state.triggerEvents( 'bubble', data );
+						}
+						// walk down to toState, triggering capture events along the way
+						for ( state = toState; state != common; pathToState.push( state ), state = state.superstate() );
+						while ( pathToState.length ) {
+							pathToState.pop().triggerEvents( 'capture', data );
+						}
 						currentState = toState;
-						currentState.triggerEvents('enter');
+						currentState.triggerEvents( 'enter', data );
 						typeof success === 'function' && success.call( this );
 						return this;
 					} else {
