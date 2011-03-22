@@ -11,7 +11,7 @@ window.TestObject = function TestObject ( initialState ) {
 	});
 
 	// State definitions
-	State.object( this,
+	State( this,
 
 		// Three progressively more complex ways to define a state:
 		{

@@ -35,13 +35,13 @@ State.Definition = $.extend( true,
 						result.events[type] = value = [ value ];
 					}
 					if ( !$.isArray(value) ) {
-						throw new State.DefinitionError();
+						throw new Error();
 					}
 				});
 			}
 			if ( result.states ) {
 				$.each( result.states, function ( name, map ) {
-					result.states[name] = map instanceof State.Definition ? map : State.Definition(map);
+					result.states[name] = map instanceof State.Definition ? map : State.Definition( map );
 				});
 			}
 			return result;
@@ -55,7 +55,7 @@ State.Definition = $.extend( true,
 					return i < shorthand.length && ( map[key] = shorthand[i] );
 				});
 			} else {
-				throw new State.DefinitionError();
+				throw new Error();
 			}
 			return map;
 		},

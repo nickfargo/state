@@ -47,7 +47,7 @@ State.Controller = $.extend( true,
 								} else if ( defaultState[ methodName ] ) {
 									return defaultState[ methodName ];
 								} else {
-									throw new State.Error('Invalid method call for current state');
+									throw new Error( "Invalid method call for current state" );
 								}
 							};
 						}
@@ -56,7 +56,7 @@ State.Controller = $.extend( true,
 				return state;
 			},
 			removeState: function ( name ) {
-				throw new Error('State.Controller.removeState not implemented yet');
+				throw new Error( "State.Controller.removeState not implemented yet" );
 			},
 			changeState: function ( toState, success, fail ) {
 				var state, common, data, pathToState = [];
@@ -64,7 +64,7 @@ State.Controller = $.extend( true,
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
 				if ( !( toState && toState.controller() === this ) ) {
-					throw new Error('Invalid state');
+					throw new Error( "Invalid state" );
 				}
 				if ( currentState.evaluateRule( 'allowLeavingTo', toState ) ) {
 					if ( toState.evaluateRule( 'allowEnteringFrom', currentState ) ) {
@@ -144,6 +144,12 @@ State.Controller = $.extend( true,
 				var superstate = this.currentState().superstate();
 				return methodName === undefined ? superstate : superstate.method( methodName );
 			}
+		},
+		
+		forObject: function () {
+			var controller = State.Controller.apply( this, arguments );
+			controller.owner().state = controller;
+			return controller.owner();
 		}
 	}
 );

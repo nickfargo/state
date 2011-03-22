@@ -6,7 +6,7 @@ var State = $.extend( true,
 			// ( Object ) => State.Definition( map )
 			// ( Object, Object ) => State.Controller( owner, map )
 			// ( Object, Object, String ) => State.Controller( owner, map, initialState )
-			return State.Definition.apply( this, arguments );
+			return ( arguments.length < 2 ? State.Definition : State.Controller.forObject ).apply( this, arguments );
 		}
 		
 		if ( !( definition instanceof State.Definition ) ) {
@@ -59,7 +59,7 @@ var State = $.extend( true,
 			addEventListener: function ( eventType, fn ) {
 				var e = events[ eventType ];
 				if ( !e ) {
-					throw new State.EventError('Invalid event type');
+					throw new Error( "Invalid event type" );
 				}
 				return e.add(fn);
 			},
@@ -76,7 +76,7 @@ var State = $.extend( true,
 				if ( events[ eventType ] ) {
 					return events[ eventType ].trigger( data );
 				} else {
-					throw new State.EventError('Invalid event type');
+					throw new Error( "Invalid event type" );
 				}
 			},
 			rule: function ( ruleName ) {
@@ -88,7 +88,7 @@ var State = $.extend( true,
 				return state;
 			},
 			removeState: function () {
-				throw new State.Error('Not implemented');
+				throw new Error( "Not implemented" );
 			},
 			substates: function ( deep ) {
 				if ( deep ) {
@@ -145,7 +145,8 @@ var State = $.extend( true,
 			common: function ( other ) {
 				var state;
 				for ( ( this.depth() > other.depth() ) ? ( state = other, other = this ) : ( state = this );
-						state; state = state.superstate() ) {
+						state;
+						state = state.superstate() ) {
 					if ( state === other || state.isSuperstateOf( other ) ) {
 						return state;
 					}
@@ -216,17 +217,6 @@ var State = $.extend( true,
 					return locus;
 				}
 			}
-		},
-		
-		object: function () {
-			var controller = State.Controller.apply( this, arguments );
-			controller.owner().state = controller;
-			return controller.owner();
-		},
-		
-		define: function ( map ) {
-			console.warn('State.define : marked for deprecation, use State.Definition() instead');
-			return new State.Definition( map );
 		}
 	}
 );
@@ -269,13 +259,13 @@ State.Definition = $.extend( true,
 						result.events[type] = value = [ value ];
 					}
 					if ( !$.isArray(value) ) {
-						throw new State.DefinitionError();
+						throw new Error();
 					}
 				});
 			}
 			if ( result.states ) {
 				$.each( result.states, function ( name, map ) {
-					result.states[name] = map instanceof State.Definition ? map : State.Definition(map);
+					result.states[name] = map instanceof State.Definition ? map : State.Definition( map );
 				});
 			}
 			return result;
@@ -289,7 +279,7 @@ State.Definition = $.extend( true,
 					return i < shorthand.length && ( map[key] = shorthand[i] );
 				});
 			} else {
-				throw new State.DefinitionError();
+				throw new Error();
 			}
 			return map;
 		},
@@ -355,7 +345,7 @@ State.Controller = $.extend( true,
 								} else if ( defaultState[ methodName ] ) {
 									return defaultState[ methodName ];
 								} else {
-									throw new State.Error('Invalid method call for current state');
+									throw new Error( "Invalid method call for current state" );
 								}
 							};
 						}
@@ -364,7 +354,7 @@ State.Controller = $.extend( true,
 				return state;
 			},
 			removeState: function ( name ) {
-				throw new Error('State.Controller.removeState not implemented yet');
+				throw new Error( "State.Controller.removeState not implemented yet" );
 			},
 			changeState: function ( toState, success, fail ) {
 				var state, common, data, pathToState = [];
@@ -372,7 +362,7 @@ State.Controller = $.extend( true,
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
 				if ( !( toState && toState.controller() === this ) ) {
-					throw new Error('Invalid state');
+					throw new Error( "Invalid state" );
 				}
 				if ( currentState.evaluateRule( 'allowLeavingTo', toState ) ) {
 					if ( toState.evaluateRule( 'allowEnteringFrom', currentState ) ) {
@@ -452,6 +442,12 @@ State.Controller = $.extend( true,
 				var superstate = this.currentState().superstate();
 				return methodName === undefined ? superstate : superstate.method( methodName );
 			}
+		},
+		
+		forObject: function () {
+			var controller = State.Controller.apply( this, arguments );
+			controller.owner().state = controller;
+			return controller.owner();
 		}
 	}
 );
@@ -467,10 +463,10 @@ State.Event = $.extend( true,
 	}, {
 		prototype: {
 			toString: function () {
-				return 'StateEvent';
+				return 'StateEvent (' + this.type + ') ' + this.name;
 			},
 			log: function (text) {
-				console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
+				console && console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
 			}
 		},
 		Collection: $.extend( true,
@@ -567,34 +563,6 @@ State.Transition = $.extend( true,
 				
 			}
 		)
-	}
-);
-
-
-State.Error = $.extend( true,
-	function StateError ( message ) {
-		this.name = "StateError";
-		this.message = message;
-	}, {
-		prototype: { __proto__: Error.prototype }
-	}
-);
-
-State.EventError = $.extend( true,
-	function StateEventError ( message ) {
-		this.name = "StateEventError";
-		this.message = message;
-	}, {
-		prototype: { __proto__: State.Error.prototype }
-	}
-);
-
-State.DefinitionError = $.extend( true,
-	function StateDefinitionError ( message ) {
-		this.name = "StateDefinitionError";
-		this.message = message;
-	}, {
-		prototype: { __proto__: State.Error.prototype }
 	}
 );
 

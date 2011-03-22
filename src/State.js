@@ -4,7 +4,7 @@ var State = $.extend( true,
 			// ( Object ) => State.Definition( map )
 			// ( Object, Object ) => State.Controller( owner, map )
 			// ( Object, Object, String ) => State.Controller( owner, map, initialState )
-			return State.Definition.apply( this, arguments );
+			return ( arguments.length < 2 ? State.Definition : State.Controller.forObject ).apply( this, arguments );
 		}
 		
 		if ( !( definition instanceof State.Definition ) ) {
@@ -57,7 +57,7 @@ var State = $.extend( true,
 			addEventListener: function ( eventType, fn ) {
 				var e = events[ eventType ];
 				if ( !e ) {
-					throw new State.EventError('Invalid event type');
+					throw new Error( "Invalid event type" );
 				}
 				return e.add(fn);
 			},
@@ -74,7 +74,7 @@ var State = $.extend( true,
 				if ( events[ eventType ] ) {
 					return events[ eventType ].trigger( data );
 				} else {
-					throw new State.EventError('Invalid event type');
+					throw new Error( "Invalid event type" );
 				}
 			},
 			rule: function ( ruleName ) {
@@ -86,7 +86,7 @@ var State = $.extend( true,
 				return state;
 			},
 			removeState: function () {
-				throw new State.Error('Not implemented');
+				throw new Error( "Not implemented" );
 			},
 			substates: function ( deep ) {
 				if ( deep ) {
@@ -143,7 +143,8 @@ var State = $.extend( true,
 			common: function ( other ) {
 				var state;
 				for ( ( this.depth() > other.depth() ) ? ( state = other, other = this ) : ( state = this );
-						state; state = state.superstate() ) {
+						state;
+						state = state.superstate() ) {
 					if ( state === other || state.isSuperstateOf( other ) ) {
 						return state;
 					}
@@ -214,17 +215,6 @@ var State = $.extend( true,
 					return locus;
 				}
 			}
-		},
-		
-		object: function () {
-			var controller = State.Controller.apply( this, arguments );
-			controller.owner().state = controller;
-			return controller.owner();
-		},
-		
-		define: function ( map ) {
-			console.warn('State.define : marked for deprecation, use State.Definition() instead');
-			return new State.Definition( map );
 		}
 	}
 );

@@ -8,10 +8,10 @@ State.Event = $.extend( true,
 	}, {
 		prototype: {
 			toString: function () {
-				return 'StateEvent';
+				return 'StateEvent (' + this.type + ') ' + this.name;
 			},
 			log: function (text) {
-				console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
+				console && console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
 			}
 		},
 		Collection: $.extend( true,
