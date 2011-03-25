@@ -27,7 +27,7 @@ var State = $.extend( true,
 		});
 
 		$.extend( this, {
-			// this idiom allows us to keep the actual `name` string protected inside the closure of the constructor while exposing its value both in the accessor `this.name` and when viewing `this.name` in the inspector
+			// this idiom keeps the value readonly while exposing it directly on the accessor function
 			name: ( getName = function () { return name || ''; } ).toString = getName,
 			superstate: function () { return superstate; },
 			method: function ( methodName ) {
@@ -101,6 +101,7 @@ var State = $.extend( true,
 			}
 		});
 		
+		// Create an event collection for each supported event type
 		$.each( [ 'enter', 'leave', 'capture', 'bubble' ], function ( i, eventType ) {
 			events[ eventType ] = new State.Event.Collection( state, eventType );
 		});
@@ -109,7 +110,7 @@ var State = $.extend( true,
 				state.addMethod( methodName, fn );
 			},
 			events: function ( eventType, fn ) {
-				if ( fn instanceof Array ) {
+				if ( $.isArray( fn ) ) {
 					$.each( fn, function ( i, fn ) {
 						state.addEventListener( eventType, fn );
 					});

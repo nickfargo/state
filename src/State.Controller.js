@@ -1,15 +1,13 @@
 State.Controller = $.extend( true,
-	function StateController ( owner, map, initialState ) {
+	function StateController ( owner, name, map, initialState ) {
 		if ( !( this instanceof State.Controller ) ) {
-			return new State.Controller( owner, map, initialState );
+			return new State.Controller( owner, name, map, initialState );
 		}
-		
-		// Pseudoverloads: [ (map,initialState), (owner,map), (map), () ]
-		if ( arguments.length < 2 || typeof map === 'string' ) {
-			initialState = map;
-			map = owner;
-			owner = this;
-		}
+		var args = this.constructor.overload( arguments, this.constructor.overloadMap );
+		owner = args.owner;
+		name = args.name;
+		map = args.map;
+		initialState = args.initialState;
 		
 		var	controller = this,
 			defaultState = $.extend( new State(), {
@@ -27,12 +25,12 @@ State.Controller = $.extend( true,
 			currentState: function () {
 				return currentState;
 			},
-			addState: function ( name, definition ) {
+			addState: function ( stateName, definition ) {
 				if ( !( definition instanceof State.Definition ) ) {
 					definition = new State.Definition( definition );
 				}
 				
-				var	state = controller[ name ] = defaultState.addState( name, definition );
+				var	state = controller[ stateName ] = defaultState.addState( stateName, definition );
 				
 				if ( definition.methods ) {
 					for ( var methodName in definition.methods ) {
@@ -41,13 +39,11 @@ State.Controller = $.extend( true,
 								defaultState.addMethod( methodName, owner[ methodName ] );
 							}
 							owner[ methodName ] = function () {
-								var method = controller.getMethod( methodName );
-								if ( method ) {
-									return method.apply( owner, arguments );
-								} else if ( defaultState[ methodName ] ) {
-									return defaultState[ methodName ];
-								} else {
-									throw new Error( "Invalid method call for current state" );
+								try {
+									return controller.getMethod( methodName ).apply( owner, arguments );
+								} catch ( ex ) {
+									ex.message = "Invalid method call for current state";
+									throw ex;
 								}
 							};
 						}
@@ -55,7 +51,7 @@ State.Controller = $.extend( true,
 				}
 				return state;
 			},
-			removeState: function ( name ) {
+			removeState: function ( stateName ) {
 				throw new Error( "State.Controller.removeState not implemented yet" );
 			},
 			changeState: function ( toState, success, fail ) {
@@ -119,6 +115,34 @@ State.Controller = $.extend( true,
 		
 		currentState = this.getState( initialState ) || this.defaultState();
 	}, {
+		overloadMap: {
+			'object,string,object,string' : 'owner,name,map,initialState',
+			'object,string,object' : 'owner,name,map',
+			'object,object,string' : 'owner,map,initialState',
+			'string,object,string' : 'name,map,initialState',
+			'object,object' : 'owner,map',
+			'string,object' : 'name,map',
+			'object,string' : 'map,initialState',
+			'object' : 'map',
+			'string' : 'name'
+		},
+		overload: function ( args, map ) {
+			var	i,
+				types = [],
+				names,
+				result = {};
+			for ( i in args ) {
+				if ( args[i] === undefined ) { break; }
+				types.push( typeof args[i] );
+			}
+			if ( types.length && ( ( types = types.join() ) in map ) ) {
+				names = map[ types ].split(',');
+				for ( i in names ) {
+					result[ names[i] ] = args[i];
+				}
+			}
+			return result;
+		},
 		prototype: {
 			toString: function () {
 				return this.currentState().toString();
@@ -147,7 +171,7 @@ State.Controller = $.extend( true,
 		},
 		
 		forObject: function () {
-			var controller = State.Controller.apply( this, arguments );
+			var controller = State.Controller.apply( null, arguments );
 			controller.owner().state = controller;
 			return controller.owner();
 		}

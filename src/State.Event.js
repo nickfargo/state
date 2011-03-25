@@ -10,7 +10,7 @@ State.Event = $.extend( true,
 			toString: function () {
 				return 'StateEvent (' + this.type + ') ' + this.name;
 			},
-			log: function (text) {
+			log: function ( text ) {
 				console && console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
 			}
 		},
