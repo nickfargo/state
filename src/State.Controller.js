@@ -29,27 +29,7 @@ State.Controller = $.extend( true,
 				if ( !( definition instanceof State.Definition ) ) {
 					definition = new State.Definition( definition );
 				}
-				
-				var	state = controller[ stateName ] = defaultState.addState( stateName, definition );
-				
-				if ( definition.methods ) {
-					for ( var methodName in definition.methods ) {
-						if ( !defaultState.hasMethod( methodName ) ) {
-							if ( owner[ methodName ] !== undefined ) {
-								defaultState.addMethod( methodName, owner[ methodName ] );
-							}
-							owner[ methodName ] = function () {
-								try {
-									return controller.getMethod( methodName ).apply( owner, arguments );
-								} catch ( ex ) {
-									ex.message = "Invalid method call for current state";
-									throw ex;
-								}
-							};
-						}
-					}
-				}
-				return state;
+				return ( controller[ stateName ] = defaultState.addState( stateName, definition ) );
 			},
 			removeState: function ( stateName ) {
 				throw new Error( "State.Controller.removeState not implemented yet" );

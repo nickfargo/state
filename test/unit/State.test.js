@@ -61,4 +61,11 @@ test( "common()", function () {
 	equal( x.state.Finished.common( x.state.Finished.CleaningUp ), x.state.Finished );
 });
 
+test( "removeState()", function () {
+	// test simple removal
+	// test removal of 'Finished' with substates
+	// test removal of 'Finished' while inside a substate
+	// test forced bubbling with removal of 'Finished' while inside 'Terminated'
+});
+
 })( jQuery );

@@ -27,7 +27,7 @@ var State = $.extend( true,
 		});
 
 		$.extend( this, {
-			// this idiom keeps the value readonly while exposing it directly on the accessor function
+			// this idiom keeps the value readonly while exposing it directly on the accessor function, useful for inspectors
 			name: ( getName = function () { return name || ''; } ).toString = getName,
 			superstate: function () { return superstate; },
 			method: function ( methodName ) {
@@ -47,7 +47,19 @@ var State = $.extend( true,
 				);
 			},
 			addMethod: function ( methodName, fn ) {
-				return methods[ methodName ] = fn;
+				var	controller = this.controller(),
+					defaultState = controller.defaultState(),
+					owner = controller.owner();
+				if ( !this.hasMethod( methodName, true ) ) {
+					if ( superstate && owner[ methodName ] !== undefined ) {
+						defaultState.addMethod( methodName, owner[ methodName ] );
+					}
+					owner[ methodName ] = function () {
+						var method = controller.getMethod( methodName );
+						return method ? method.apply( owner, arguments ) : undefined;
+					}
+				}
+				return ( methods[ methodName ] = fn );
 			},
 			removeMethod: function ( methodName ) {
 				var fn = methods[ methodName ];
@@ -59,13 +71,13 @@ var State = $.extend( true,
 				if ( !e ) {
 					throw new Error( "Invalid event type" );
 				}
-				return e.add(fn);
+				return e.add( fn );
 			},
 			removeEventListener: function ( eventType, id ) {
-				return events[ eventType ].remove(id);
+				return events[ eventType ].remove( id );
 			},
 			getEventListener: function ( eventType, id ) {
-				return events[ eventType ].get(id);
+				return events[ eventType ].get( id );
 			},
 			getEventListeners: function ( eventType ) {
 				return events[ eventType ];
@@ -81,12 +93,26 @@ var State = $.extend( true,
 				return definition.rules ? definition.rules[ ruleName ] : undefined;
 			},
 			addState: function ( stateName, stateDefinition ) {
-				var state = this[ stateName ] = new State( this, stateName, stateDefinition )
-				substates.push( state );
-				return state;
+				var	substate = this[ stateName ] = new State( this, stateName, stateDefinition );
+				substates.push( substate );
+				return substate;
 			},
-			removeState: function () {
-				throw new Error( "Not implemented" );
+			removeState: function ( stateName ) {
+				// throw new Error( "Not implemented" );
+				
+				var	substate = substates[ stateName ],
+					controller,
+					current;
+				if ( substate ) {
+					controller = this.controller();
+					current = controller.currentState();
+					// if controller is inside `substate`, eject to `this`
+					if ( controller.isInState( substate ) ) {
+						controller.changeState( this, { forced: true } );
+					}
+					delete substates[ stateName ];
+					return substate;
+				}
 			},
 			substates: function ( deep ) {
 				if ( deep ) {
@@ -96,7 +122,7 @@ var State = $.extend( true,
 					}
 					return result;
 				} else {
-					return substates.slice(0);
+					return substates.slice();
 				}
 			}
 		});

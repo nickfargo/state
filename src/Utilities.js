@@ -1,4 +1,19 @@
 var Utilities = {
+	slice: function ( a, n ) {
+		return Array.prototype.slice.apply( a, n );
+	},
+	extend: function ( target ) {
+		return target;
+	},
+	each: function ( collection, fn ) {
+		return collection;
+	},
+	isArray: function ( obj ) {
+		return false;
+	},
+	isFunction: function ( obj ) {
+		return false;
+	},
 	resolveOverloads: function ( args, map ) {
 		var	i,
 			types = [],
@@ -16,4 +31,5 @@ var Utilities = {
 		}
 		return result;
 	}
-}
+};
+$ || ( $ = Utilities );
