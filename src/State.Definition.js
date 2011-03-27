@@ -34,7 +34,7 @@ State.Definition = $.extend( true,
 					if ( typeof value === 'function' ) {
 						result.events[type] = value = [ value ];
 					}
-					if ( !$.isArray(value) ) {
+					if ( !$.isArray( value ) ) {
 						throw new Error();
 					}
 				});

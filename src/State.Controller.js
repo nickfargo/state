@@ -3,7 +3,7 @@ State.Controller = $.extend( true,
 		if ( !( this instanceof State.Controller ) ) {
 			return new State.Controller( owner, name, map, initialState );
 		}
-		var args = this.constructor.overload( arguments, this.constructor.overloadMap );
+		var args = Utilities.resolveOverloads( arguments, this.constructor.overloads );
 		owner = args.owner;
 		name = args.name;
 		map = args.map;
@@ -54,40 +54,40 @@ State.Controller = $.extend( true,
 			removeState: function ( stateName ) {
 				throw new Error( "State.Controller.removeState not implemented yet" );
 			},
-			changeState: function ( toState, success, fail ) {
-				var state, common, data, pathToState = [];
+			changeState: function ( toState, options ) {
+				var transition, state, common, data, pathToState = [];
+				options || ( options = {} );
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
 				if ( !( toState && toState.controller() === this ) ) {
 					throw new Error( "Invalid state" );
 				}
-				if ( currentState.evaluateRule( 'allowLeavingTo', toState ) ) {
-					if ( toState.evaluateRule( 'allowEnteringFrom', currentState ) ) {
-						// walk up to common ancestor, triggering bubble events along the way
-						data = { origin: currentState, destination: toState };
-						currentState.triggerEvents( 'leave', data );
-						common = currentState.common( toState );
-						for ( state = currentState; state != common; state = state.superstate() ) {
-							state.triggerEvents( 'bubble', data );
-						}
-						// walk down to toState, triggering capture events along the way
-						for ( state = toState; state != common; pathToState.push( state ), state = state.superstate() );
-						while ( pathToState.length ) {
-							pathToState.pop().triggerEvents( 'capture', data );
-						}
-						currentState = toState;
-						currentState.triggerEvents( 'enter', data );
-						typeof success === 'function' && success.call( this );
-						return this;
-					} else {
-						console && console.log( toState + '.allowEnteringFrom(' + currentState + ') denied' );
-						typeof fail === 'function' && fail.call( this );
-						return false;
+				if ( options.forced ||
+						currentState.evaluateRule( 'allowLeavingTo', toState ) &&
+						toState.evaluateRule( 'allowEnteringFrom', currentState )
+				) {
+					// lookup transition for currentState/toState pairing, if none then create a default transition
+					// transition = new State.Transition( currentState, toState );
+					
+					// walk up to common ancestor, triggering bubble events along the way
+					data = { origin: currentState, destination: toState, forced: !!options.forced };
+					currentState.triggerEvents( 'leave', data );
+					common = currentState.common( toState );
+					for ( state = currentState; state != common; state = state.superstate() ) {
+						state.triggerEvents( 'bubble', data );
 					}
+					// walk down to toState, triggering capture events along the way
+					for ( state = toState; state != common; pathToState.push( state ), state = state.superstate() );
+					while ( pathToState.length ) {
+						pathToState.pop().triggerEvents( 'capture', data );
+					}
+					currentState = toState;
+					currentState.triggerEvents( 'enter', data );
+					options.success && typeof options.success === 'function' && options.success.call( this );
+					return this;
 				} else {
-					console && console.log( currentState + '.allowLeavingTo(' + toState + ') denied' );
-					typeof fail === 'function' && fail.call( this );
+					options.fail && typeof options.fail === 'function' && options.fail.call( this );
 					return false;
 				}
 			}
@@ -115,7 +115,7 @@ State.Controller = $.extend( true,
 		
 		currentState = this.getState( initialState ) || this.defaultState();
 	}, {
-		overloadMap: {
+		overloads: {
 			'object,string,object,string' : 'owner,name,map,initialState',
 			'object,string,object' : 'owner,name,map',
 			'object,object,string' : 'owner,map,initialState',
@@ -125,23 +125,6 @@ State.Controller = $.extend( true,
 			'object,string' : 'map,initialState',
 			'object' : 'map',
 			'string' : 'name'
-		},
-		overload: function ( args, map ) {
-			var	i,
-				types = [],
-				names,
-				result = {};
-			for ( i in args ) {
-				if ( args[i] === undefined ) { break; }
-				types.push( typeof args[i] );
-			}
-			if ( types.length && ( ( types = types.join() ) in map ) ) {
-				names = map[ types ].split(',');
-				for ( i in names ) {
-					result[ names[i] ] = args[i];
-				}
-			}
-			return result;
 		},
 		prototype: {
 			toString: function () {

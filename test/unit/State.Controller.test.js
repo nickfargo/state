@@ -11,13 +11,27 @@ test( "changeState()", function () {
 	var callback;
 	
 	// This state change attempt should succeed, so the `success` callback in `changeState()` should be called
-	strictEqual( ( x.state.change( 'Preparing', function () { callback = true; }, function () { callback = false; } ), callback ), true, "Callback success" );
+	strictEqual( ( x.state.change(
+		'Preparing', {
+			success: function () { callback = true; }
+		}), callback ), true, "Callback to success function" );
 	callback = undefined;
 	
 	// This state change attempt should fail since Terminated disallows further state changes,
 	// so the `fail` callback in `changeState()` should be called
 	x.state.change( 'Finished.Terminated' );
-	strictEqual( ( x.state.change( 'Preparing', function () {}, function () { callback = false; } ), callback ), false, "Callback fail" );
+	strictEqual( ( x.state.change(
+		'Preparing', {
+			fail: function () { callback = false; }
+		}), callback ), false, "Callback to fail function" );
+	callback = undefined;
+	
+	// This state change attempt should succeed; it is the same as above except `forced`
+	strictEqual( ( x.state.change(
+		'Preparing', {
+			forced: true,
+			success: function () { callback = true; }
+		}), callback ), true, "Callback to success function");
 	callback = undefined;
 });
 
