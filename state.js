@@ -375,7 +375,8 @@ State.Controller = $.extend( true,
 			defaultState = $.extend( new State(), {
 				controller: function() { return controller; }
 			}),
-			currentState = defaultState;
+			currentState = defaultState,
+			transition;
 		
 		$.extend( this, {
 			owner: function () {
@@ -387,6 +388,9 @@ State.Controller = $.extend( true,
 			currentState: function () {
 				return currentState;
 			},
+			transition: function () {
+				return transition;
+			},
 			addState: function ( stateName, definition ) {
 				if ( !( definition instanceof State.Definition ) ) {
 					definition = new State.Definition( definition );
@@ -397,7 +401,7 @@ State.Controller = $.extend( true,
 				throw new Error( "State.Controller.removeState not implemented yet" );
 			},
 			changeState: function ( toState, options ) {
-				var transition, state, common, data, pathToState = [];
+				var source, transition, state, common, data;
 				options || ( options = {} );
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
@@ -405,28 +409,43 @@ State.Controller = $.extend( true,
 				if ( !( toState && toState.controller() === this ) ) {
 					throw new Error( "Invalid state" );
 				}
+				
 				if ( options.forced ||
 						currentState.evaluateRule( 'allowLeavingTo', toState ) &&
 						toState.evaluateRule( 'allowEnteringFrom', currentState )
 				) {
 					// lookup transition for currentState/toState pairing, if none then create a default transition
-					// transition = new State.Transition( currentState, toState );
+					source = currentState;
+					currentState = transition = new State.Transition( source, toState );
+					common = source.common( toState );
+					data = { transition: transition, forced: !!options.forced };
 					
 					// walk up to common ancestor, triggering bubble events along the way
-					data = { origin: currentState, destination: toState, forced: !!options.forced };
-					currentState.triggerEvents( 'leave', data );
-					common = currentState.common( toState );
-					for ( state = currentState; state != common; state = state.superstate() ) {
+					source.triggerEvents( 'leave', data );
+					for ( state = source; state != common; state = state.superstate() ) {
+						transition.attachTo( state.superstate() );
 						state.triggerEvents( 'bubble', data );
 					}
-					// walk down to toState, triggering capture events along the way
-					for ( state = toState; state != common; pathToState.push( state ), state = state.superstate() );
-					while ( pathToState.length ) {
-						pathToState.pop().triggerEvents( 'capture', data );
-					}
-					currentState = toState;
-					currentState.triggerEvents( 'enter', data );
-					options.success && typeof options.success === 'function' && options.success.call( this );
+					
+					// initiate transition, with closure to be executed upon completion
+					transition.start( function () {
+						var pathToState = [];
+						
+						// trace path from `toState` up to `common`, then walk down, triggering capture events along the way
+						for ( state = toState; state != common; pathToState.push( state ), state = state.superstate() );
+						while ( pathToState.length ) {
+							transition.attachTo( state = pathToState.pop() );
+							state.triggerEvents( 'capture', data );
+						}
+					
+						currentState = toState;
+						currentState.triggerEvents( 'enter', data );
+						transition.destroy();
+					
+						options.success && typeof options.success === 'function' && options.success.call( this );
+						return this;
+					});
+					
 					return this;
 				} else {
 					options.fail && typeof options.fail === 'function' && options.fail.call( this );
@@ -592,18 +611,51 @@ State.Event = $.extend( true,
 
 
 State.Transition = $.extend( true,
-	function StateTransition ( fromState, toState ) {
+	function StateTransition ( source, destination, action ) {
+		var	superstate = source,
+		 	controller = ( controller = source.controller() ) === destination.controller() ? controller : undefined,
+			callback,
+			aborted;
 		
-	}, {
-		prototype: $.extend( true, new State(), {
-			start: function () {
-				
+		$.extend( this, {
+			superstate: function () {
+				return superstate;
+			},
+			attachTo: function ( state ) {
+				superstate = state;
+			},
+			controller: function () {
+				return controller;
+			},
+			origin: function () {
+				return source instanceof State.Transition ? source.origin() : source;
+			},
+			source: function () {
+				return source;
+			},
+			destination: function () {
+				return destination;
+			},
+			start: function ( fn ) {
+				callback = fn;
+				action ? action() : this.finish();
 			},
 			abort: function () {
-				
+				aborted = true;
 			},
 			finish: function () {
-				
+				aborted || callback.apply( controller );
+			},
+			destroy: function () {
+				source instanceof State.Transition && source.destroy();
+				destination = superstate = controller = undefined;
+			}
+		});
+	}, {
+		prototype: $.extend( true, new State(), {
+			depth: function () {
+				for ( var count = 0, t = this; t.source() instanceof State.Transition; count++, t = t.source() );
+				return count;
 			}
 		}),
 		
