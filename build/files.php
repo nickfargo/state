@@ -1,6 +1,6 @@
 <?php
 $files = array(
-	'Utilities',
+	'Util',
 	'State',
 	'State.Definition',
 	'State.Controller',

@@ -1,4 +1,4 @@
-var Utilities = {
+var Util = {
 	slice: function ( a, n ) {
 		return Array.prototype.slice.apply( a, n );
 	},
@@ -32,4 +32,4 @@ var Utilities = {
 		return result;
 	}
 };
-$ || ( $ = Utilities );
+$ || ( $ = Util );

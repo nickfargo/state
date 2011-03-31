@@ -1,6 +1,6 @@
 ( function ( $, undefined ) {
 
-var Utilities = {
+var Util = {
 	slice: function ( a, n ) {
 		return Array.prototype.slice.apply( a, n );
 	},
@@ -34,7 +34,7 @@ var Utilities = {
 		return result;
 	}
 };
-$ || ( $ = Utilities );
+$ || ( $ = Util );
 
 
 var State = $.extend( true,
@@ -51,6 +51,7 @@ var State = $.extend( true,
 		}
 		
 		var	state = this,
+			destroyed = false,
 			methods = {},
 			events = {},
 			rules = {},
@@ -70,20 +71,10 @@ var State = $.extend( true,
 			name: ( getName = function () { return name || ''; } ).toString = getName,
 			superstate: function () { return superstate; },
 			method: function ( methodName ) {
-				return (
-					methods[ methodName ]
-						||
-					( superstate && superstate.method( methodName ) )
-						||
-					undefined
-				);
+				return methods[ methodName ] || ( superstate && superstate.method( methodName ) ) || undefined;
 			},
 			hasMethod: function ( methodName, deep ) {
-				return (
-					methodName in methods
-						||
-					deep && superstate && superstate.hasMethod( methodName, deep )
-				);
+				return methodName in methods || ( deep && superstate && superstate.hasMethod( methodName, deep ) );
 			},
 			addMethod: function ( methodName, fn ) {
 				var	controller = this.controller(),
@@ -122,11 +113,11 @@ var State = $.extend( true,
 				return events[ eventType ];
 			},
 			triggerEvents: function ( eventType, data ) {
-				if ( events[ eventType ] ) {
-					return events[ eventType ].trigger( data );
-				} else {
+				var e = events[ eventType ];
+				if ( !e ) {
 					throw new Error( "Invalid event type" );
 				}
+				return e.trigger( data );
 			},
 			rule: function ( ruleName ) {
 				return definition.rules ? definition.rules[ ruleName ] : undefined;
@@ -163,6 +154,27 @@ var State = $.extend( true,
 				} else {
 					return substates.slice();
 				}
+			},
+			destroy: function () {
+				var	controller = this.controller(),
+					transition = controller.transition(),
+					origin,
+					destination;
+				if ( transition ) {
+					origin = transition.origin();
+					destination = transition.destination();
+					if (
+						this === origin || this.isSuperstateOf( origin )
+							||
+						this === destination || this.isSuperstateOf( destination )
+					) {
+						// TODO: defer destroy() until transition finish()
+					}
+				}	
+				for ( var i in substates ) {
+					substates[i].destroy();
+				}
+				destroyed = true;
 			}
 		});
 		
@@ -365,7 +377,7 @@ State.Controller = $.extend( true,
 		if ( !( this instanceof State.Controller ) ) {
 			return new State.Controller( owner, name, map, initialState );
 		}
-		var args = Utilities.resolveOverloads( arguments, this.constructor.overloads );
+		var args = Util.resolveOverloads( arguments, this.constructor.overloads );
 		owner = args.owner;
 		name = args.name;
 		map = args.map;
@@ -411,9 +423,11 @@ State.Controller = $.extend( true,
 				}
 				
 				if ( options.forced ||
-						currentState.evaluateRule( 'allowLeavingTo', toState ) &&
+						( transition ? transition.origin() : currentState ).evaluateRule( 'allowLeavingTo', toState ) &&
 						toState.evaluateRule( 'allowEnteringFrom', currentState )
 				) {
+					transition && transition.abort();
+					
 					// lookup transition for currentState/toState pairing, if none then create a default transition
 					source = currentState;
 					currentState = transition = new State.Transition( source, toState );
@@ -432,29 +446,30 @@ State.Controller = $.extend( true,
 						var pathToState = [];
 						
 						// trace path from `toState` up to `common`, then walk down, triggering capture events along the way
-						for ( state = toState; state != common; pathToState.push( state ), state = state.superstate() );
-						while ( pathToState.length ) {
+						for ( state = toState; state !== common; pathToState.push( state ), state = state.superstate() );
+						while ( pathToState.length || ( pathToState = undefined ) ) {
 							transition.attachTo( state = pathToState.pop() );
 							state.triggerEvents( 'capture', data );
 						}
-					
+						
 						currentState = toState;
 						currentState.triggerEvents( 'enter', data );
 						transition.destroy();
-					
-						options.success && typeof options.success === 'function' && options.success.call( this );
+						transition = null;
+						
+						typeof options.success === 'function' && options.success.call( this );
 						return this;
 					});
 					
 					return this;
 				} else {
-					options.fail && typeof options.fail === 'function' && options.fail.call( this );
+					typeof options.fail === 'function' && options.fail.call( this );
 					return false;
 				}
 			}
 		});
 		
-		// For convenience, if implemented as an agent, expose a set of terse aliases
+		// For convenience and semantic brevity, if implemented as an agent, expose a set aliases for selected methods
 		if ( owner !== this ) {
 			$.extend( this, {
 				current: this.currentState,
@@ -618,37 +633,31 @@ State.Transition = $.extend( true,
 			aborted;
 		
 		$.extend( this, {
-			superstate: function () {
-				return superstate;
-			},
+			superstate: function () { return superstate; },
 			attachTo: function ( state ) {
 				superstate = state;
 			},
-			controller: function () {
-				return controller;
-			},
+			controller: function () { return controller; },
 			origin: function () {
 				return source instanceof State.Transition ? source.origin() : source;
 			},
-			source: function () {
-				return source;
-			},
-			destination: function () {
-				return destination;
-			},
+			source: function () { return source; },
+			destination: function () { return destination; },
 			start: function ( fn ) {
 				callback = fn;
-				action ? action() : this.finish();
+				typeof action === 'function' ? action.apply( this, Util.slice( arguments, -1 ) ) : this.finish();
 			},
 			abort: function () {
 				aborted = true;
+				return this;
 			},
 			finish: function () {
 				aborted || callback.apply( controller );
+				// TODO: check for deferred state destroy() calls
 			},
 			destroy: function () {
 				source instanceof State.Transition && source.destroy();
-				destination = superstate = controller = undefined;
+				destination = superstate = controller = null;
 			}
 		});
 	}, {

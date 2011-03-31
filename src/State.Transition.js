@@ -6,37 +6,31 @@ State.Transition = $.extend( true,
 			aborted;
 		
 		$.extend( this, {
-			superstate: function () {
-				return superstate;
-			},
+			superstate: function () { return superstate; },
 			attachTo: function ( state ) {
 				superstate = state;
 			},
-			controller: function () {
-				return controller;
-			},
+			controller: function () { return controller; },
 			origin: function () {
 				return source instanceof State.Transition ? source.origin() : source;
 			},
-			source: function () {
-				return source;
-			},
-			destination: function () {
-				return destination;
-			},
+			source: function () { return source; },
+			destination: function () { return destination; },
 			start: function ( fn ) {
 				callback = fn;
-				action ? action() : this.finish();
+				typeof action === 'function' ? action.apply( this, Util.slice( arguments, -1 ) ) : this.finish();
 			},
 			abort: function () {
 				aborted = true;
+				return this;
 			},
 			finish: function () {
 				aborted || callback.apply( controller );
+				// TODO: check for deferred state destroy() calls
 			},
 			destroy: function () {
 				source instanceof State.Transition && source.destroy();
-				destination = superstate = controller = undefined;
+				destination = superstate = controller = null;
 			}
 		});
 	}, {

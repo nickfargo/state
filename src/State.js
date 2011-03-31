@@ -12,6 +12,7 @@ var State = $.extend( true,
 		}
 		
 		var	state = this,
+			destroyed = false,
 			methods = {},
 			events = {},
 			rules = {},
@@ -31,20 +32,10 @@ var State = $.extend( true,
 			name: ( getName = function () { return name || ''; } ).toString = getName,
 			superstate: function () { return superstate; },
 			method: function ( methodName ) {
-				return (
-					methods[ methodName ]
-						||
-					( superstate && superstate.method( methodName ) )
-						||
-					undefined
-				);
+				return methods[ methodName ] || ( superstate && superstate.method( methodName ) ) || undefined;
 			},
 			hasMethod: function ( methodName, deep ) {
-				return (
-					methodName in methods
-						||
-					deep && superstate && superstate.hasMethod( methodName, deep )
-				);
+				return methodName in methods || ( deep && superstate && superstate.hasMethod( methodName, deep ) );
 			},
 			addMethod: function ( methodName, fn ) {
 				var	controller = this.controller(),
@@ -83,11 +74,11 @@ var State = $.extend( true,
 				return events[ eventType ];
 			},
 			triggerEvents: function ( eventType, data ) {
-				if ( events[ eventType ] ) {
-					return events[ eventType ].trigger( data );
-				} else {
+				var e = events[ eventType ];
+				if ( !e ) {
 					throw new Error( "Invalid event type" );
 				}
+				return e.trigger( data );
 			},
 			rule: function ( ruleName ) {
 				return definition.rules ? definition.rules[ ruleName ] : undefined;
@@ -124,6 +115,27 @@ var State = $.extend( true,
 				} else {
 					return substates.slice();
 				}
+			},
+			destroy: function () {
+				var	controller = this.controller(),
+					transition = controller.transition(),
+					origin,
+					destination;
+				if ( transition ) {
+					origin = transition.origin();
+					destination = transition.destination();
+					if (
+						this === origin || this.isSuperstateOf( origin )
+							||
+						this === destination || this.isSuperstateOf( destination )
+					) {
+						// TODO: defer destroy() until transition finish()
+					}
+				}	
+				for ( var i in substates ) {
+					substates[i].destroy();
+				}
+				destroyed = true;
 			}
 		});
 		

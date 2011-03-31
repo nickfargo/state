@@ -3,7 +3,7 @@ State.Controller = $.extend( true,
 		if ( !( this instanceof State.Controller ) ) {
 			return new State.Controller( owner, name, map, initialState );
 		}
-		var args = Utilities.resolveOverloads( arguments, this.constructor.overloads );
+		var args = Util.resolveOverloads( arguments, this.constructor.overloads );
 		owner = args.owner;
 		name = args.name;
 		map = args.map;
@@ -49,9 +49,11 @@ State.Controller = $.extend( true,
 				}
 				
 				if ( options.forced ||
-						currentState.evaluateRule( 'allowLeavingTo', toState ) &&
+						( transition ? transition.origin() : currentState ).evaluateRule( 'allowLeavingTo', toState ) &&
 						toState.evaluateRule( 'allowEnteringFrom', currentState )
 				) {
+					transition && transition.abort();
+					
 					// lookup transition for currentState/toState pairing, if none then create a default transition
 					source = currentState;
 					currentState = transition = new State.Transition( source, toState );
@@ -70,29 +72,30 @@ State.Controller = $.extend( true,
 						var pathToState = [];
 						
 						// trace path from `toState` up to `common`, then walk down, triggering capture events along the way
-						for ( state = toState; state != common; pathToState.push( state ), state = state.superstate() );
-						while ( pathToState.length ) {
+						for ( state = toState; state !== common; pathToState.push( state ), state = state.superstate() );
+						while ( pathToState.length || ( pathToState = undefined ) ) {
 							transition.attachTo( state = pathToState.pop() );
 							state.triggerEvents( 'capture', data );
 						}
-					
+						
 						currentState = toState;
 						currentState.triggerEvents( 'enter', data );
 						transition.destroy();
-					
-						options.success && typeof options.success === 'function' && options.success.call( this );
+						transition = null;
+						
+						typeof options.success === 'function' && options.success.call( this );
 						return this;
 					});
 					
 					return this;
 				} else {
-					options.fail && typeof options.fail === 'function' && options.fail.call( this );
+					typeof options.fail === 'function' && options.fail.call( this );
 					return false;
 				}
 			}
 		});
 		
-		// For convenience, if implemented as an agent, expose a set of terse aliases
+		// For convenience and semantic brevity, if implemented as an agent, expose a set aliases for selected methods
 		if ( owner !== this ) {
 			$.extend( this, {
 				current: this.currentState,
