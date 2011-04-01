@@ -5,7 +5,9 @@ State.Controller = $.extend( true,
 		}
 		var args = Util.resolveOverloads( arguments, this.constructor.overloads );
 		owner = args.owner;
+		// console.log( args.owner + ', ' + owner + ' | ' + ( args.owner === owner ) );
 		name = args.name;
+		// console.log( args.name + ', ' + name + ' | ' + ( args.name === name ) );
 		map = args.map;
 		initialState = args.initialState;
 		
@@ -14,7 +16,12 @@ State.Controller = $.extend( true,
 				controller: function() { return controller; }
 			}),
 			currentState = defaultState,
+			substates = defaultState.substates(),
 			transition;
+		
+		// for ( var i in substates ) {
+		// 	this[i] = substates[i];
+		// }
 		
 		$.extend( this, {
 			owner: function () {
@@ -40,13 +47,15 @@ State.Controller = $.extend( true,
 			},
 			changeState: function ( toState, options ) {
 				var source, transition, state, common, data;
-				options || ( options = {} );
+				
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
 				if ( !( toState && toState.controller() === this ) ) {
 					throw new Error( "Invalid state" );
 				}
+				
+				options || ( options = {} );
 				
 				if ( options.forced ||
 						( transition ? transition.origin() : currentState ).evaluateRule( 'allowLeavingTo', toState ) &&
@@ -67,16 +76,18 @@ State.Controller = $.extend( true,
 						state.triggerEvents( 'bubble', data );
 					}
 					
-					// initiate transition, with closure to be executed upon completion
+					// initiate transition and return asynchronously,
+					// with the provided closure to be executed upon completion
 					transition.start( function () {
 						var pathToState = [];
 						
-						// trace path from `toState` up to `common`, then walk down, triggering capture events along the way
+						// trace path from `toState` up to `common`, then walk down it, triggering capture events along the way
 						for ( state = toState; state !== common; pathToState.push( state ), state = state.superstate() );
-						while ( pathToState.length || ( pathToState = undefined ) ) {
+						while ( pathToState.length ) {
 							transition.attachTo( state = pathToState.pop() );
 							state.triggerEvents( 'capture', data );
 						}
+						pathToState = null;
 						
 						currentState = toState;
 						currentState.triggerEvents( 'enter', data );
@@ -95,7 +106,7 @@ State.Controller = $.extend( true,
 			}
 		});
 		
-		// For convenience and semantic brevity, if implemented as an agent, expose a set aliases for selected methods
+		// For convenience and semantic brevity, if implemented as an agent, expose a set of aliases for selected methods
 		if ( owner !== this ) {
 			$.extend( this, {
 				current: this.currentState,

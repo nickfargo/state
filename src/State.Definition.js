@@ -1,7 +1,9 @@
 State.Definition = $.extend( true,
 	function StateDefinition ( map ) {
 		if ( !( this instanceof State.Definition ) ) {
-			return new State.Definition( map );
+			var wtf = new State.Definition( map );
+			// debugger;
+			return wtf;
 		}
 		$.extend( true, this, map instanceof State.Definition ? map : State.Definition.expand( map ) );
 	}, {
@@ -27,7 +29,14 @@ State.Definition = $.extend( true,
 					return i < map.length && ( result[key] = map[i] );
 				});
 			} else if ( $.isPlainObject( map ) ) {
-				$.extend( this.isComplex( map ) ? result : ( result.methods = {} ), map );
+				if ( this.isComplex( map ) ) {
+					$.extend( result, map );
+				} else {
+					for ( var key in map ) {
+						var m = /^_*[A-Z]/.test( key ) ? 'states' : 'methods';
+						( result[m] || ( result[m] = {} ) )[key] = map[key];
+					}
+				}
 			}
 			if ( result.events ) {
 				$.each( result.events, function ( type, value ) {

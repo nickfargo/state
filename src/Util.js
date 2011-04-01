@@ -1,6 +1,6 @@
 var Util = {
-	slice: function ( a, n ) {
-		return Array.prototype.slice.apply( a, n );
+	slice: function ( array, begin, end ) {
+		return Array.prototype.slice.call( array, begin, end );
 	},
 	extend: function ( target ) {
 		return target;
@@ -19,6 +19,7 @@ var Util = {
 			types = [],
 			names,
 			result = {};
+		args = this.slice( args );
 		for ( i in args ) {
 			if ( args[i] === undefined ) { break; }
 			types.push( typeof args[i] );

@@ -8,7 +8,9 @@ var State = $.extend( true,
 		}
 		
 		if ( !( definition instanceof State.Definition ) ) {
-			definition = State.Definition( definition );
+			var wtf = State.Definition( definition );
+			// debugger;
+			definition = wtf;
 		}
 		
 		var	state = this,
@@ -28,7 +30,7 @@ var State = $.extend( true,
 		});
 
 		$.extend( this, {
-			// this idiom keeps the value readonly while exposing it directly on the accessor function, useful for inspectors
+			// directly expose the value while keeping it readonly (a convenience for the inspector)
 			name: ( getName = function () { return name || ''; } ).toString = getName,
 			superstate: function () { return superstate; },
 			method: function ( methodName ) {
@@ -130,12 +132,14 @@ var State = $.extend( true,
 						this === destination || this.isSuperstateOf( destination )
 					) {
 						// TODO: defer destroy() until transition finish()
+						return false;
 					}
-				}	
+				}
 				for ( var i in substates ) {
 					substates[i].destroy();
 				}
 				destroyed = true;
+				
 			}
 		});
 		

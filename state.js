@@ -1,8 +1,8 @@
 ( function ( $, undefined ) {
 
 var Util = {
-	slice: function ( a, n ) {
-		return Array.prototype.slice.apply( a, n );
+	slice: function ( array, begin, end ) {
+		return Array.prototype.slice.call( array, begin, end );
 	},
 	extend: function ( target ) {
 		return target;
@@ -21,6 +21,7 @@ var Util = {
 			types = [],
 			names,
 			result = {};
+		args = this.slice( args );
 		for ( i in args ) {
 			if ( args[i] === undefined ) { break; }
 			types.push( typeof args[i] );
@@ -47,7 +48,9 @@ var State = $.extend( true,
 		}
 		
 		if ( !( definition instanceof State.Definition ) ) {
-			definition = State.Definition( definition );
+			var wtf = State.Definition( definition );
+			// debugger;
+			definition = wtf;
 		}
 		
 		var	state = this,
@@ -67,7 +70,7 @@ var State = $.extend( true,
 		});
 
 		$.extend( this, {
-			// this idiom keeps the value readonly while exposing it directly on the accessor function, useful for inspectors
+			// directly expose the value while keeping it readonly (a convenience for the inspector)
 			name: ( getName = function () { return name || ''; } ).toString = getName,
 			superstate: function () { return superstate; },
 			method: function ( methodName ) {
@@ -169,12 +172,14 @@ var State = $.extend( true,
 						this === destination || this.isSuperstateOf( destination )
 					) {
 						// TODO: defer destroy() until transition finish()
+						return false;
 					}
-				}	
+				}
 				for ( var i in substates ) {
 					substates[i].destroy();
 				}
 				destroyed = true;
+				
 			}
 		});
 		
@@ -301,7 +306,9 @@ var State = $.extend( true,
 State.Definition = $.extend( true,
 	function StateDefinition ( map ) {
 		if ( !( this instanceof State.Definition ) ) {
-			return new State.Definition( map );
+			var wtf = new State.Definition( map );
+			// debugger;
+			return wtf;
 		}
 		$.extend( true, this, map instanceof State.Definition ? map : State.Definition.expand( map ) );
 	}, {
@@ -327,7 +334,14 @@ State.Definition = $.extend( true,
 					return i < map.length && ( result[key] = map[i] );
 				});
 			} else if ( $.isPlainObject( map ) ) {
-				$.extend( this.isComplex( map ) ? result : ( result.methods = {} ), map );
+				if ( this.isComplex( map ) ) {
+					$.extend( result, map );
+				} else {
+					for ( var key in map ) {
+						var m = /^_*[A-Z]/.test( key ) ? 'states' : 'methods';
+						( result[m] || ( result[m] = {} ) )[key] = map[key];
+					}
+				}
 			}
 			if ( result.events ) {
 				$.each( result.events, function ( type, value ) {
@@ -379,7 +393,9 @@ State.Controller = $.extend( true,
 		}
 		var args = Util.resolveOverloads( arguments, this.constructor.overloads );
 		owner = args.owner;
+		// console.log( args.owner + ', ' + owner + ' | ' + ( args.owner === owner ) );
 		name = args.name;
+		// console.log( args.name + ', ' + name + ' | ' + ( args.name === name ) );
 		map = args.map;
 		initialState = args.initialState;
 		
@@ -388,7 +404,12 @@ State.Controller = $.extend( true,
 				controller: function() { return controller; }
 			}),
 			currentState = defaultState,
+			substates = defaultState.substates(),
 			transition;
+		
+		// for ( var i in substates ) {
+		// 	this[i] = substates[i];
+		// }
 		
 		$.extend( this, {
 			owner: function () {
@@ -414,13 +435,15 @@ State.Controller = $.extend( true,
 			},
 			changeState: function ( toState, options ) {
 				var source, transition, state, common, data;
-				options || ( options = {} );
+				
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
 				}
 				if ( !( toState && toState.controller() === this ) ) {
 					throw new Error( "Invalid state" );
 				}
+				
+				options || ( options = {} );
 				
 				if ( options.forced ||
 						( transition ? transition.origin() : currentState ).evaluateRule( 'allowLeavingTo', toState ) &&
@@ -441,16 +464,18 @@ State.Controller = $.extend( true,
 						state.triggerEvents( 'bubble', data );
 					}
 					
-					// initiate transition, with closure to be executed upon completion
+					// initiate transition and return asynchronously,
+					// with the provided closure to be executed upon completion
 					transition.start( function () {
 						var pathToState = [];
 						
-						// trace path from `toState` up to `common`, then walk down, triggering capture events along the way
+						// trace path from `toState` up to `common`, then walk down it, triggering capture events along the way
 						for ( state = toState; state !== common; pathToState.push( state ), state = state.superstate() );
-						while ( pathToState.length || ( pathToState = undefined ) ) {
+						while ( pathToState.length ) {
 							transition.attachTo( state = pathToState.pop() );
 							state.triggerEvents( 'capture', data );
 						}
+						pathToState = null;
 						
 						currentState = toState;
 						currentState.triggerEvents( 'enter', data );
@@ -469,7 +494,7 @@ State.Controller = $.extend( true,
 			}
 		});
 		
-		// For convenience and semantic brevity, if implemented as an agent, expose a set aliases for selected methods
+		// For convenience and semantic brevity, if implemented as an agent, expose a set of aliases for selected methods
 		if ( owner !== this ) {
 			$.extend( this, {
 				current: this.currentState,
@@ -627,15 +652,16 @@ State.Event = $.extend( true,
 
 State.Transition = $.extend( true,
 	function StateTransition ( source, destination, action ) {
-		var	superstate = source,
+		var	transition = this,
+			attachment = source,
 		 	controller = ( controller = source.controller() ) === destination.controller() ? controller : undefined,
 			callback,
 			aborted;
 		
 		$.extend( this, {
-			superstate: function () { return superstate; },
+			superstate: function () { return attachment; },
 			attachTo: function ( state ) {
-				superstate = state;
+				attachment = state;
 			},
 			controller: function () { return controller; },
 			origin: function () {
@@ -643,21 +669,25 @@ State.Transition = $.extend( true,
 			},
 			source: function () { return source; },
 			destination: function () { return destination; },
+			aborted: function () { return aborted; },
 			start: function ( fn ) {
+				aborted = false;
 				callback = fn;
-				typeof action === 'function' ? action.apply( this, Util.slice( arguments, -1 ) ) : this.finish();
+				typeof action === 'function' ? action.apply( this, Util.slice( arguments, 0, -1 ) ) : this.finish();
 			},
 			abort: function () {
 				aborted = true;
+				callback = null;
 				return this;
 			},
 			finish: function () {
 				aborted || callback.apply( controller );
 				// TODO: check for deferred state destroy() calls
+				this.destroy();
 			},
 			destroy: function () {
 				source instanceof State.Transition && source.destroy();
-				destination = superstate = controller = null;
+				destination = attachment = controller = null;
 			}
 		});
 	}, {
