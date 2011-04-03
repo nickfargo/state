@@ -1,27 +1,18 @@
 State.Controller = $.extend( true,
-	function StateController ( owner, name, map, initialState ) {
+	function StateController ( owner, name, definition, initialState ) {
 		if ( !( this instanceof State.Controller ) ) {
-			return new State.Controller( owner, name, map, initialState );
+			return new State.Controller( owner, name, definition, initialState );
 		}
 		var args = Util.resolveOverloads( arguments, this.constructor.overloads );
 		owner = args.owner;
-		// console.log( args.owner + ', ' + owner + ' | ' + ( args.owner === owner ) );
-		name = args.name;
-		// console.log( args.name + ', ' + name + ' | ' + ( args.name === name ) );
-		map = args.map;
+		name = args.name || 'state';
+		definition = args.definition instanceof State.Definition ? args.definition : State.Definition( args.definition );
 		initialState = args.initialState;
 		
 		var	controller = this,
-			defaultState = $.extend( new State(), {
-				controller: function() { return controller; }
-			}),
-			currentState = defaultState,
-			substates = defaultState.substates(),
+			defaultState,
+			currentState,
 			transition;
-		
-		// for ( var i in substates ) {
-		// 	this[i] = substates[i];
-		// }
 		
 		$.extend( this, {
 			owner: function () {
@@ -31,16 +22,13 @@ State.Controller = $.extend( true,
 				return defaultState;
 			},
 			currentState: function () {
-				return currentState;
+				return currentState || defaultState;
 			},
 			transition: function () {
 				return transition;
 			},
-			addState: function ( stateName, definition ) {
-				if ( !( definition instanceof State.Definition ) ) {
-					definition = new State.Definition( definition );
-				}
-				return ( controller[ stateName ] = defaultState.addState( stateName, definition ) );
+			addState: function ( stateName, stateDefinition ) {
+				return defaultState.addState( stateName, stateDefinition );
 			},
 			removeState: function ( stateName ) {
 				throw new Error( "State.Controller.removeState not implemented yet" );
@@ -119,24 +107,26 @@ State.Controller = $.extend( true,
 			});
 		}
 		
-		if ( map ) {
-			var defs = map instanceof State.Definition.Set ? map : new State.Definition.Set( map );
-			$.each( defs, function ( stateName, definition ) {
-				controller.addState( stateName, definition );
-			});
+		// if owner already has a StateController of the same name in its prototype chain, merge its defaultState.definition() into `definition`
+		if ( owner[ name ] && !owner.hasOwnProperty( name ) ) {
+			definition = $.extend( true, definition, owner[ name ].defaultState().definition() );
 		}
 		
-		currentState = this.getState( initialState ) || this.defaultState();
+		( defaultState = $.extend( new State(), {
+			controller: function() { return controller; }
+		}) ).build( definition );
+		
+		currentState = this.getState( initialState ) || defaultState;
 	}, {
 		overloads: {
-			'object,string,object,string' : 'owner,name,map,initialState',
-			'object,string,object' : 'owner,name,map',
-			'object,object,string' : 'owner,map,initialState',
-			'string,object,string' : 'name,map,initialState',
-			'object,object' : 'owner,map',
-			'string,object' : 'name,map',
-			'object,string' : 'map,initialState',
-			'object' : 'map',
+			'object,string,object,string' : 'owner,name,definition,initialState',
+			'object,string,object' : 'owner,name,definition',
+			'object,object,string' : 'owner,definition,initialState',
+			'string,object,string' : 'name,definition,initialState',
+			'object,object' : 'owner,definition',
+			'string,object' : 'name,definition',
+			'object,string' : 'definition,initialState',
+			'object' : 'definition',
 			'string' : 'name'
 		},
 		prototype: {

@@ -1,9 +1,7 @@
 State.Definition = $.extend( true,
 	function StateDefinition ( map ) {
 		if ( !( this instanceof State.Definition ) ) {
-			var wtf = new State.Definition( map );
-			// debugger;
-			return wtf;
+			return new State.Definition( map );
 		}
 		$.extend( true, this, map instanceof State.Definition ? map : State.Definition.expand( map ) );
 	}, {

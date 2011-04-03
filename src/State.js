@@ -7,12 +7,6 @@ var State = $.extend( true,
 			return ( arguments.length < 2 ? State.Definition : State.Controller.forObject ).apply( this, arguments );
 		}
 		
-		if ( !( definition instanceof State.Definition ) ) {
-			var wtf = State.Definition( definition );
-			// debugger;
-			definition = wtf;
-		}
-		
 		var	state = this,
 			destroyed = false,
 			methods = {},
@@ -30,9 +24,43 @@ var State = $.extend( true,
 		});
 
 		$.extend( this, {
+			superstate: function () { return superstate; },
 			// directly expose the value while keeping it readonly (a convenience for the inspector)
 			name: ( getName = function () { return name || ''; } ).toString = getName,
-			superstate: function () { return superstate; },
+			definition: function () { return definition; },
+			build: function ( definitionOverride ) {
+				definition = definitionOverride || definition;
+				definition instanceof State.Definition || ( definition = State.Definition( definition ) );
+				// TODO: (???) destroy()
+				$.each(
+					{
+						methods: function ( methodName, fn ) {
+							state.addMethod( methodName, fn );
+						},
+						events: function ( eventType, fn ) {
+							if ( $.isArray( fn ) ) {
+								$.each( fn, function ( i, fn ) {
+									state.addEventListener( eventType, fn );
+								});
+							} else {
+								state.addEventListener( eventType, fn );
+							}
+						},
+						rules: function ( ruleName, rule ) {
+							rules[ ruleName ] = rule;
+						},
+						states: function ( stateName, stateDefinition ) {
+							state.addState( stateName, stateDefinition );
+						}
+					},
+					function ( i, fn ) {
+						if ( definition[i] ) {
+							$.each( definition[i], fn );
+						}
+					}
+				);
+				return this;
+			},
 			method: function ( methodName ) {
 				return methods[ methodName ] || ( superstate && superstate.method( methodName ) ) || undefined;
 			},
@@ -86,7 +114,9 @@ var State = $.extend( true,
 				return definition.rules ? definition.rules[ ruleName ] : undefined;
 			},
 			addState: function ( stateName, stateDefinition ) {
-				var	substate = this[ stateName ] = new State( this, stateName, stateDefinition );
+				var	substate = this[ stateName ] = new State( this, stateName, stateDefinition ),
+					controller = this.controller();
+				controller && controller.defaultState() === this && ( controller[ stateName ] = substate );
 				substates.push( substate );
 				return substate;
 			},
@@ -147,30 +177,10 @@ var State = $.extend( true,
 		$.each( [ 'enter', 'leave', 'capture', 'bubble' ], function ( i, eventType ) {
 			events[ eventType ] = new State.Event.Collection( state, eventType );
 		});
-		$.each({
-			methods: function ( methodName, fn ) {
-				state.addMethod( methodName, fn );
-			},
-			events: function ( eventType, fn ) {
-				if ( $.isArray( fn ) ) {
-					$.each( fn, function ( i, fn ) {
-						state.addEventListener( eventType, fn );
-					});
-				} else {
-					state.addEventListener( eventType, fn );
-				}
-			},
-			rules: function ( ruleName, rule ) {
-				rules[ ruleName ] = rule;
-			},
-			states: function ( stateName, stateDefinition ) {
-				state.addState( stateName, stateDefinition );
-			}
-		}, function ( i, fn ) {
-			if ( definition[i] ) {
-				$.each( definition[i], fn );
-			}
-		});
+		
+		// If no superstate, then assume this is a default state being created by a StateController,
+		// which will call build() itself after overriding controller()
+		superstate && this.build();
 	}, {
 		prototype: {
 			toString: function () {
