@@ -137,10 +137,7 @@ State.Controller = $.extend( true,
 				return this.currentState().match( expr, testState );
 			},
 			getState: function ( expr, context ) {
-				if ( expr === undefined ) {
-					return this.currentState();
-				}
-				return context ? context.match( expr ) : this.match( expr );
+				return expr === undefined ? this.currentState() : ( context || this ).match( expr );
 			},
 			isInState: function ( expr, context ) {
 				var	state = this.getState( expr, context ),
