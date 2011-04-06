@@ -108,9 +108,9 @@ State.Controller = $.extend( true,
 		}
 		
 		// if owner already has a StateController of the same name in its prototype chain, merge its defaultState.definition() into `definition`
-		if ( owner[ name ] && !owner.hasOwnProperty( name ) ) {
-			definition = $.extend( true, definition, owner[ name ].defaultState().definition() );
-		}
+		// if ( owner[ name ] && !owner.hasOwnProperty( name ) ) {
+		// 	definition = $.extend( true, definition, owner[ name ].defaultState().definition() );
+		// }
 		
 		( defaultState = $.extend( new State(), {
 			controller: function() { return controller; }

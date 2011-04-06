@@ -53,7 +53,7 @@ var State = $.extend( true,
 			events = {},
 			rules = {},
 			substates = [],
-			getName;
+			getName, getFullName;
 		
 		// deprivatize these for now to allow visibility to inspectors
 		$.extend( this, {
@@ -65,8 +65,42 @@ var State = $.extend( true,
 
 		$.extend( this, {
 			superstate: function () { return superstate; },
-			// directly expose the value while keeping it readonly (a convenience for the inspector)
+			hierarchy: function () { //// untested
+				for ( var result = [], s = this, ss = s.superstate(); s = ss && ss = s.superstate(); ss && result.unshift( s.name() || '' ) );
+				return result;
+			},
+			protostate: function () { //// untested
+				var	hierarchy = this.hierarchy(),
+					controller = this.controller(),
+					controllerName = controller.name(),
+					owner = controller.owner()
+					proto = owner,
+					s, ps;
+				
+				function iterateProto () {
+					proto = proto.__proto__ || proto.constructor.prototype,
+					ps = proto && proto.hasOwnProperty( controllerName ) && proto[ controllerName ] instanceof State.Controller ?
+						proto[ controllerName ] :
+						undefined;
+				}
+				
+				for ( iterateProto(); ps; iterateProto() ) {
+					for ( s in hierarchy ) {
+						if ( !( ps = ps[s] ) ) {
+							break;
+						}
+					}
+					if ( ps ) {
+						return ps;
+					}
+				}
+			},
+			// directly expose the value while keeping it readonly (a convenience for Chrome inspector)
 			name: ( getName = function () { return name || ''; } ).toString = getName,
+			fullName: ( getFullName = function () { //// untested
+				var h = this.hierarchy();
+				return h && h.join('.') || '';
+			} ).toString = getFullName,
 			definition: function () { return definition; },
 			build: function ( definitionOverride ) {
 				definition = definitionOverride || definition;
@@ -101,11 +135,35 @@ var State = $.extend( true,
 				);
 				return this;
 			},
-			method: function ( methodName ) {
-				return methods[ methodName ] || ( superstate && superstate.method( methodName ) ) || undefined;
+			
+			// TODO: add argument `controller`
+			method: function ( methodName, deep ) {
+				var protostate;
+				
+				deep === undefined && ( deep = true );
+				return methods[ methodName ] || ( deep && superstate && superstate.method( methodName, true ) ) || undefined;
+				
+				return methods[ methodName ] || (
+					deep && (
+						( protostate = this.protostate() ) && protostate.method( methodName, false )
+							||
+						superstate && superstate.method( methodName, true )
+					)
+				);
 			},
+			// TODO: default `deep` to true, or add method `hasOwnMethod()`
 			hasMethod: function ( methodName, deep ) {
+				var protostate;
+				
 				return methodName in methods || ( deep && superstate && superstate.hasMethod( methodName, deep ) );
+				
+				return methodName in methods || (
+					deep && (
+						( protostate = this.protostate() ) && protostate.hasMethod( methodName )
+							||
+						superstate && superstate.hasMethod( methodName, true )
+					)
+				);
 			},
 			addMethod: function ( methodName, fn ) {
 				var	controller = this.controller(),
@@ -169,7 +227,7 @@ var State = $.extend( true,
 				if ( substate ) {
 					controller = this.controller();
 					current = controller.currentState();
-					// if controller is inside `substate`, eject to `this`
+					// evacuate before removing
 					if ( controller.isInState( substate ) ) {
 						controller.changeState( this, { forced: true } );
 					}
@@ -253,14 +311,6 @@ var State = $.extend( true,
 			isSelected: function () {
 				return this.controller().currentState() === this;
 			},
-			// deprecated
-			allowLeavingTo: function ( toState ) {
-				return true;
-			},
-			// deprecated
-			allowEnteringFrom: function ( fromState ) {
-				return true;
-			},
 			evaluateRule: function ( ruleName, testState ) {
 				var	state = this,
 					rule = this.rule( ruleName ),
@@ -280,20 +330,20 @@ var State = $.extend( true,
 			},
 			match: function ( expr, testState ) {
 				var	parts = expr.split('.'),
-					locus = ( parts.length && parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
+					cursor = ( parts.length && parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
 					result;
 				
 				if ( parts.length ) {
 					$.each( parts, function ( i, name ) {
 						if ( name === '' ) {
-							locus = locus.superstate();
-						} else if ( locus[ name ] instanceof State ) {
-							locus = locus[ name ];
+							cursor = cursor.superstate();
+						} else if ( cursor[ name ] instanceof State ) {
+							cursor = cursor[ name ];
 						} else if ( name == '*' ) {
-							result = testState ? locus === testState.superstate() : locus.substates();
+							result = testState ? cursor === testState.superstate() : cursor.substates();
 							return false;
 						} else if ( name == '**' ) {
-							result = testState ? locus.isSuperstateOf( testState ) : locus.substates( true );
+							result = testState ? cursor.isSuperstateOf( testState ) : cursor.substates( true );
 							return false;
 						} else {
 							return result = false;
@@ -301,11 +351,11 @@ var State = $.extend( true,
 					});
 					return (
 						result !== undefined ? result :
-						!testState || locus === testState ? locus :
+						!testState || cursor === testState ? cursor :
 						false
 					);
 				} else {
-					return locus;
+					return cursor;
 				}
 			}
 		}
@@ -504,9 +554,9 @@ State.Controller = $.extend( true,
 		}
 		
 		// if owner already has a StateController of the same name in its prototype chain, merge its defaultState.definition() into `definition`
-		if ( owner[ name ] && !owner.hasOwnProperty( name ) ) {
-			definition = $.extend( true, definition, owner[ name ].defaultState().definition() );
-		}
+		// if ( owner[ name ] && !owner.hasOwnProperty( name ) ) {
+		// 	definition = $.extend( true, definition, owner[ name ].defaultState().definition() );
+		// }
 		
 		( defaultState = $.extend( new State(), {
 			controller: function() { return controller; }
@@ -704,7 +754,7 @@ State.Transition = $.extend( true,
 );
 
 
-$.State = window.State = State;
+this.State = State;
 
 })(jQuery);
 
