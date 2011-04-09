@@ -33,12 +33,12 @@ window.TestObject = function TestObject ( initialState ) {
 				// [1]: events
 				{
 					// event with one listener declared
-					enter: function ( event ) {
+					arrive: function ( event ) {
 						event.log();
 					},
 
 					// event with multiple listeners declared
-					leave: [
+					depart: [
 						function ( event ) {
 							event.log('1');
 						},
@@ -60,25 +60,25 @@ window.TestObject = function TestObject ( initialState ) {
 					}
 				},
 				events: {
-					enter: function ( event ) {
+					arrive: function ( event ) {
 						event.log();
 					},
-					leave: [
+					depart: [
 						function ( event ) {},
 						function ( event ) {}
 					]
 				},
 				rules: {
-					allowLeavingTo: {
+					allowDepartureTo: {
 						Preparing: function () { return false; },
 						Ready: function () { return false; },
 
 						// leading "." references current state ('Finished.')
 						'.CleaningUp': true
 					},
-					allowEnteringFrom: {
+					allowArrivalFrom: {
 						'Preparing, Ready': function ( state ) {
-							console && console.log( 'Finished.allowEnteringFrom ' + state );
+							console && console.log( 'Finished.allowArrivalFrom ' + state );
 							return true;
 						}
 					}
@@ -101,17 +101,17 @@ window.TestObject = function TestObject ( initialState ) {
 							}
 						},
 						rules: {
-							allowLeavingTo: {
+							allowDepartureTo: {
 								// empty string references the controller's default state
 								'': function ( state ) {
 									// "this" references current state ('Finished.Terminated')
 									// "state" references state to which controller is being changed ('')
-									console && console.log( 'Denying exit from ' + this + ' to ' + state );
+									console && console.log( 'Denying departure from ' + this + ' to ' + state );
 									return false;
 								},
 								'*': true
 							},
-							allowEnteringFrom: {
+							allowArrivalFrom: {
 								'..CleaningUp': function () { return true; },
 								'...Preparing': function () { return true; },
 

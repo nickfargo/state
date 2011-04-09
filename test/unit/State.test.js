@@ -40,7 +40,7 @@ test( "isSuperstateOf()", function() {
 
 test( "substates()", function() {
 	var	x = new TestObject(),
-		states = x.state.defaultState().substates( true );
+		states = x.state.defaultState().substateCollection( true );
 	ok( ( console.log( states ), states.length == 5 ) );
 });
 

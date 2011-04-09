@@ -12,12 +12,14 @@ State.Controller = $.extend( true,
 		var	controller = this,
 			defaultState,
 			currentState,
-			transition;
+			transition,
+			getName;
 		
 		$.extend( this, {
 			owner: function () {
 				return owner;
 			},
+			name: ( getName = function () { return name; } ).toString = getName,
 			defaultState: function () {
 				return defaultState;
 			},
@@ -34,7 +36,7 @@ State.Controller = $.extend( true,
 				throw new Error( "State.Controller.removeState not implemented yet" );
 			},
 			changeState: function ( toState, options ) {
-				var source, transition, state, common, data;
+				var source, transition, origin, state, common, data;
 				
 				if ( !( toState instanceof State ) ) {
 					toState = toState ? this.getState( toState ) : defaultState;
@@ -44,10 +46,10 @@ State.Controller = $.extend( true,
 				}
 				
 				options || ( options = {} );
-				
+				origin = transition ? transition.origin() : currentState;
 				if ( options.forced ||
-						( transition ? transition.origin() : currentState ).evaluateRule( 'allowLeavingTo', toState ) &&
-						toState.evaluateRule( 'allowEnteringFrom', currentState )
+						origin.evaluateRule( 'allowDepartureTo', toState ) &&
+						toState.evaluateRule( 'allowArrivalFrom', origin )
 				) {
 					transition && transition.abort();
 					
@@ -57,28 +59,26 @@ State.Controller = $.extend( true,
 					common = source.common( toState );
 					data = { transition: transition, forced: !!options.forced };
 					
-					// walk up to common ancestor, triggering bubble events along the way
-					source.triggerEvents( 'leave', data );
+					// walk up to common ancestor, bubbling 'exit' events along the way
+					source.triggerEvents( 'depart', data );
 					for ( state = source; state != common; state = state.superstate() ) {
 						transition.attachTo( state.superstate() );
-						state.triggerEvents( 'bubble', data );
+						state.triggerEvents( 'exit', data );
 					}
 					
-					// initiate transition and return asynchronously,
-					// with the provided closure to be executed upon completion
+					// initiate transition and return asynchronously, with the provided closure to be executed upon completion
 					transition.start( function () {
 						var pathToState = [];
 						
-						// trace path from `toState` up to `common`, then walk down it, triggering capture events along the way
+						// trace path from `toState` up to `common`, then walk down it, capturing 'enter' events along the way
 						for ( state = toState; state !== common; pathToState.push( state ), state = state.superstate() );
 						while ( pathToState.length ) {
 							transition.attachTo( state = pathToState.pop() );
-							state.triggerEvents( 'capture', data );
+							state.triggerEvents( 'enter', data );
 						}
-						pathToState = null;
 						
 						currentState = toState;
-						currentState.triggerEvents( 'enter', data );
+						currentState.triggerEvents( 'arrive', data );
 						transition.destroy();
 						transition = null;
 						
@@ -88,7 +88,7 @@ State.Controller = $.extend( true,
 					
 					return this;
 				} else {
-					typeof options.fail === 'function' && options.fail.call( this );
+					typeof options.failure === 'function' && options.failure.call( this );
 					return false;
 				}
 			}
@@ -106,11 +106,6 @@ State.Controller = $.extend( true,
 				method: this.getMethod
 			});
 		}
-		
-		// if owner already has a StateController of the same name in its prototype chain, merge its defaultState.definition() into `definition`
-		// if ( owner[ name ] && !owner.hasOwnProperty( name ) ) {
-		// 	definition = $.extend( true, definition, owner[ name ].defaultState().definition() );
-		// }
 		
 		( defaultState = $.extend( new State(), {
 			controller: function() { return controller; }

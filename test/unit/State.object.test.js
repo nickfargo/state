@@ -8,16 +8,16 @@ test( "Object creation", function () {
 	ok( x.state instanceof State.Controller, "StateController created" );
 	
 	ok( x.state.Preparing instanceof State, "State 'Preparing' created" );
-	ok( x.state.Preparing.hasMethod('methodOne'), "Method 'methodOne' in state 'Preparing' created" );
+	ok( x.state.Preparing.method( 'methodOne', false, false ), "Method 'methodOne' in state 'Preparing' created" );
 	ok( x.state.is('Preparing'), "In state 'Preparing'" );
 	equal( x.methodOne(), 'Preparing.methodOne', "methodOne() on TestObject returns proper method for state 'Preparing'" );
 	
 	ok( x.state.Ready instanceof State );
-	ok( !x.state.Ready.hasMethod('methodOne') );
-	ok( x.state.Ready.hasMethod('methodTwo') );
-	arr = x.state.Ready.getEventListeners('enter');
+	ok( !x.state.Ready.method( 'methodOne', false, false ) );
+	ok( x.state.Ready.method( 'methodTwo', false, false ) );
+	arr = x.state.Ready.getEventListeners('arrive');
 	equal( arr.length, 1, arr.keys() );
-	arr = x.state.Ready.getEventListeners('leave');
+	arr = x.state.Ready.getEventListeners('depart');
 	equal( arr.length(), 2, arr.keys() );
 });
 

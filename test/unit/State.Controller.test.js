@@ -22,7 +22,7 @@ test( "changeState()", function () {
 	x.state.change( 'Finished.Terminated' );
 	strictEqual( ( x.state.change(
 		'Preparing', {
-			fail: function () { callback = false; }
+			failure: function () { callback = false; }
 		}), callback ), false, "Callback to fail function" );
 	callback = undefined;
 	
@@ -37,9 +37,9 @@ test( "changeState()", function () {
 
 test( "changeState() bubble/capture", function () {
 	var out = '', x = new TestObject('Preparing');
-	x.state.Preparing.addEventListener( 'bubble', function () { out += "fee"; console.log( "Preparing.bubble" ); } );
-	x.state.Finished.addEventListener( 'capture', function () { out += "fi"; console.log( "Finished.capture" ); } );
-	x.state.Finished.CleaningUp.addEventListener( 'capture', function () { out += "fo"; console.log( "Finished.CleaningUp.capture" ); } );
+	x.state.Preparing.addEventListener( 'exit', function () { out += "fee"; console.log( "Preparing.exit" ); } );
+	x.state.Finished.addEventListener( 'enter', function () { out += "fi"; console.log( "Finished.enter" ); } );
+	x.state.Finished.CleaningUp.addEventListener( 'enter', function () { out += "fo"; console.log( "Finished.CleaningUp.enter" ); } );
 	equal( ( x.state.change( 'Finished.CleaningUp' ), out ), "feefifo" );
 });
 
