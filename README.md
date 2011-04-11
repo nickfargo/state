@@ -2,7 +2,6 @@
 
 ## Examples
 
-### Example 1. Simplest case ever:
 	function Animal () {
 		this.move = function () {};
 		State( this, {
