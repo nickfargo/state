@@ -1,6 +1,8 @@
 # State.js
 
-## Examples
+## Usage
+
+### Example 1
 
 	function Animal () {
 		this.move = function () {};
