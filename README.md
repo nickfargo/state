@@ -4,12 +4,14 @@
 
 ### Example 0
 
+```javascript
 	function Animal () {
 		this.move = function () {};
 	}
 	var animal = new Animal();
 
 	animal.move(); // undefined
+```
 
 ### Example 1: States
 
