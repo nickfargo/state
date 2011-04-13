@@ -5,5 +5,6 @@ $files = array(
 	'State.Definition',
 	'State.Controller',
 	'State.Event',
+	'State.Proxy',
 	'State.Transition'
 );

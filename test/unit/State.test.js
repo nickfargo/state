@@ -30,6 +30,18 @@ test( "match()", function() {
 	strictEqual( x.state.match( 'Finished.*', x.state.Finished.Terminated ), true );
 });
 
+test( "isIn()", function () {
+	var x = new TestObject();
+	ok( x.state.Preparing.isIn( x.state.defaultState() ) );
+	ok( x.state.Finished.CleaningUp.isIn( x.state.defaultState() ) );
+	ok( x.state.Finished.CleaningUp.isIn( x.state.Finished ) );
+	ok( !x.state.Finished.CleaningUp.isIn( x.state.Preparing ) );
+	ok( x.state.Finished.isIn( x.state.Finished ) );
+	ok( !x.state.Finished.isIn( x.state.Finished.CleaningUp ) );
+	ok( !x.state.Finished.isIn( 'Finished.CleaningUp' ) );
+	ok( x.state.Finished.CleaningUp.isIn( '.' ) );
+});
+
 test( "isSuperstateOf()", function() {
 	var x = new TestObject();
 	ok( x.state.defaultState().isSuperstateOf( x.state.Preparing ) );

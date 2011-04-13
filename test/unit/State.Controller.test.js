@@ -37,9 +37,9 @@ test( "changeState()", function () {
 
 test( "changeState() bubble/capture", function () {
 	var out = '', x = new TestObject('Preparing');
-	x.state.Preparing.addEventListener( 'exit', function () { out += "fee"; console.log( "Preparing.exit" ); } );
-	x.state.Finished.addEventListener( 'enter', function () { out += "fi"; console.log( "Finished.enter" ); } );
-	x.state.Finished.CleaningUp.addEventListener( 'enter', function () { out += "fo"; console.log( "Finished.CleaningUp.enter" ); } );
+	x.state.Preparing.addEvent( 'exit', function () { out += "fee"; console.log( "Preparing.exit" ); } );
+	x.state.Finished.addEvent( 'enter', function () { out += "fi"; console.log( "Finished.enter" ); } );
+	x.state.Finished.CleaningUp.addEvent( 'enter', function () { out += "fo"; console.log( "Finished.CleaningUp.enter" ); } );
 	equal( ( x.state.change( 'Finished.CleaningUp' ), out ), "feefifo" );
 });
 

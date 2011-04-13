@@ -12,9 +12,8 @@ var State = $.extend( true,
 			methods = {},
 			events = {},
 			rules = {},
-			// substates = [], // TODO: {}
 			substates = {},
-			getName, getFullName;
+			getName;
 		
 		// deprivatize these for now to allow visibility to inspectors
 		$.extend( this, {
@@ -25,10 +24,14 @@ var State = $.extend( true,
 		});
 
 		$.extend( this, {
+			/**
+			 * Returns the **superstate**
+			 */
 			superstate: function () { return superstate; },
 			
 			/**
-			 * Returns an object array of this state's superstate chain, starting after the default state and ending at `this`.
+			 * Returns an object array of this state's superstate chain, starting after the default state
+			 * and ending at `this`.
 			 * 
 			 * @param byName:Boolean  Returns a string array of the states' names, rather than references
 			 */
@@ -38,23 +41,31 @@ var State = $.extend( true,
 			},
 			
 			/**
-			 * Returns the **protostate**, the state analogous to `this` found in the next object in the owner's prototype chain that
-			 * has one. A state inherits from both its protostate and superstate, *in that order*.
+			 * Returns the **protostate**, the state analogous to `this` found in the next object in the
+			 * owner's prototype chain that has one. A state inherits from both its protostate and
+			 * superstate, *in that order*.
 			 * 
-			 * If the owner does not share an analogous `StateController` with its prototype, or if no protostate can be found in the
-			 * hierarchy of the prototype's state controller, then the search is iterated up the prototype chain.
+			 * If the owner does not share an analogous `StateController` with its prototype, or if no
+			 * protostate can be found in the hierarchy of the prototype's state controller, then the
+			 * search is iterated up the prototype chain.
 			 * 
-			 * Points of fact:
-			 * (1) A state and its protostate will always share an identical name and identical derivation pattern.
-			 * (2) The individual superstates of both a state and its protostate will also adhere to point (1).
+			 * Notes:
+			 * (1) A state and its protostate will always share an identical name and identical
+			 * derivation pattern.
+			 * (2) The individual superstates of both a state and its protostate will also adhere to
+			 * point (1).
 			 */
-			protostate: function () { //// untested
+			protostate: function () { //// TODO: needs more unit tests
 				var	derivation = this.derivation( true ),
 					controller = this.controller(),
 					controllerName = controller.name(),
 					owner = controller.owner(),
 					proto = owner,
 					s, ps;
+				
+				if ( !controllerName ) {
+					debugger;
+				}
 				
 				function iterateProto () {
 					proto = proto.__proto__ || proto.constructor.prototype,
@@ -78,11 +89,6 @@ var State = $.extend( true,
 			// directly expose the value while keeping it readonly (a convenience for viewing in Chrome inspector)
 			name: ( getName = function () { return name || ''; } ).toString = getName,
 			
-			fullName: ( getFullName = function () {
-				var d = this.derivation();
-				return d && d.join('.') || '';
-			} ).toString = getFullName,
-			
 			definition: function () { return definition; },
 			
 			build: function ( definitionOverride ) {
@@ -97,35 +103,36 @@ var State = $.extend( true,
 						events: function ( eventType, fn ) {
 							if ( $.isArray( fn ) ) {
 								$.each( fn, function ( i, fn ) {
-									state.addEventListener( eventType, fn );
+									state.addEvent( eventType, fn );
 								});
 							} else {
-								state.addEventListener( eventType, fn );
+								state.addEvent( eventType, fn );
 							}
 						},
 						rules: function ( ruleName, rule ) {
-							rules[ ruleName ] = rule;
+							state.addRule( ruleName, rule );
 						},
 						states: function ( stateName, stateDefinition ) {
 							state.addState( stateName, stateDefinition );
 						}
 					},
 					function ( i, fn ) {
-						if ( definition[i] ) {
-							$.each( definition[i], fn );
-						}
+						definition[i] && $.each( definition[i], fn );
 					}
 				);
 				return this;
 			},
 			
-			// TODO: add argument `controller`
+			/**
+			 * Retrieves the named method held on this state. If no method is found, step through this state's
+			 * protostate chain to find one. If no method is found there, step up the superstate hierarchy
+			 * and repeat the search.
+			 */
 			method: function ( methodName, viaSuper, viaProto ) {
 				var protostate;
 				
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
-				// return methods[ methodName ] || ( deep && superstate && superstate.method( methodName, true ) ) || undefined;
 				
 				return (
 					methods[ methodName ]
@@ -133,63 +140,53 @@ var State = $.extend( true,
 					viaProto && ( protostate = this.protostate() ) && protostate.method( methodName, false, true )
 						||
 					viaSuper && superstate && superstate.method( methodName, true, viaProto )
+						||
+					undefined
 				);
 			},
 			
-			// // TODO: default `deep` to true, or add method `hasOwnMethod()`
-			// hasMethod: function ( methodName, viaSuper, viaProto ) {
-			// 	var protostate;
-			// 	return (
-			// 		methodName in methods
-			// 			||
-			// 		viaProto && ( protostate = this.protostate() ) && protostate.hasMethod( methodName, false, true )
-			// 			||
-			// 		viaSuper && superstate && superstate.hasMethod( methodName, true, viaProto )
-			// 	);
-			// },
-			// hasMethod_OLD: function ( methodName, deep ) {
-			// 	return methodName in methods || ( deep && superstate && superstate.hasMethod_OLD( methodName, true ) );
-			// },
-			
+			/**
+			 * Adds a method to this state, callable from the context of the owner.
+			 */
 			addMethod: function ( methodName, fn ) {
 				var	controller = this.controller(),
 					defaultState = controller.defaultState(),
 					owner = controller.owner();
-				// if ( !this.hasMethod( methodName, true ) != !this.hasMethod_OLD( methodName, true ) ) {
-				// 	debugger;
-				// }
 				if ( !this.method( methodName, true, false ) ) {
 					if ( superstate && owner[ methodName ] !== undefined ) {
 						defaultState.addMethod( methodName, owner[ methodName ] );
 					}
-					owner[ methodName ] = function () {
-						var method = controller.getMethod( methodName );
-						return method ? method.apply( owner, arguments ) : undefined;
-					}
+					owner[ methodName ] = State.delegate( owner, methodName, controller );
 				}
 				return ( methods[ methodName ] = fn );
 			},
+			
 			removeMethod: function ( methodName ) {
 				var fn = methods[ methodName ];
 				delete methods[ methodName ];
 				return fn;
 			},
-			addEventListener: function ( eventType, fn ) {
+			
+			addEvent: function ( eventType, fn ) {
 				var e = events[ eventType ];
 				if ( !e ) {
 					throw new Error( "Invalid event type" );
 				}
 				return e.add( fn );
 			},
-			removeEventListener: function ( eventType, id ) {
+			
+			removeEvent: function ( eventType, id ) {
 				return events[ eventType ].remove( id );
 			},
-			getEventListener: function ( eventType, id ) {
+			
+			getEvent: function ( eventType, id ) {
 				return events[ eventType ].get( id );
 			},
-			getEventListeners: function ( eventType ) {
+			
+			getEvents: function ( eventType ) {
 				return events[ eventType ];
 			},
+			
 			triggerEvents: function ( eventType, data ) {
 				var e = events[ eventType ];
 				if ( !e ) {
@@ -199,9 +196,27 @@ var State = $.extend( true,
 			},
 			
 			rule: function ( ruleName ) {
-				return definition.rules ? definition.rules[ ruleName ] : undefined;
+				var protostate;
+				return (
+					definition && definition.rules && definition.rules[ ruleName ]
+						||
+					( protostate = this.protostate() ) && protostate.rule( ruleName )
+					 	||
+					undefined
+				);
 			},
 			
+			addRule: function ( ruleName, rule ) {
+				rules[ ruleName ] = rule;
+			},
+			
+			removeRule: function ( ruleName, ruleKey ) {
+				throw new Error( "Not implemented" );
+			},
+			
+			/**
+			 * Creates and adds a substate.
+			 */
 			addState: function ( stateName, stateDefinition ) {
 				var	substate,
 					controller = this.controller();
@@ -211,6 +226,9 @@ var State = $.extend( true,
 				return substate;
 			},
 			
+			/**
+			 * 
+			 */
 			removeState: function ( stateName ) {
 				// throw new Error( "Not implemented" );
 				
@@ -229,11 +247,21 @@ var State = $.extend( true,
 				}
 			},
 			
-			substate: function ( stateName ) { //// untested
+			/**
+			 * 
+			 */
+			substate: function ( stateName, viaProto ) { //// untested
 				var protostate;
-				return substates[ stateName ] || ( ( protostate = this.protostate() ) ? protostate.substate( stateName ) : undefined );
+				viaProto === undefined && ( viaProto = true );
+				return (
+					substates[ stateName ] ||
+					viaProto && ( ( protostate = this.protostate() ) ? protostate.substate( stateName ) : undefined )
+				);
 			},
 			
+			/**
+			 * Returns an `Array` of this state's substates.
+			 */
 			// TODO: rewrite to consider protostates
 			substateCollection: function ( deep ) { //// untested
 				var result = [], i;
@@ -244,6 +272,9 @@ var State = $.extend( true,
 				return result;
 			},
 			
+			/**
+			 * 
+			 */
 			destroy: function () {
 				var	controller = this.controller(),
 					transition = controller.transition(),
@@ -279,16 +310,28 @@ var State = $.extend( true,
 		superstate && this.build();
 	}, {
 		prototype: {
+			/**
+			 * Returns this state's fully qualified name.
+			 */
 			toString: function () {
 				return this.derivation( true ).join('.');
 			},
 			controller: function () {
 				return this.superstate().controller();
 			},
+			
+			/**
+			 * Returns the number of superstates this state has. The root default state returns `0`, its
+			 * immediate substates return `1`, etc.
+			 */
 			depth: function () {
 				for ( var count = 0, state = this; state.superstate(); count++, state = state.superstate() );
 				return count;
 			},
+			
+			/**
+			 * Returns the state that is the nearest superstate, or the state itself, of both `this` and `other`.
+			 */
 			common: function ( other ) {
 				var state;
 				for ( ( this.depth() > other.depth() ) ? ( state = other, other = this ) : ( state = this );
@@ -299,14 +342,37 @@ var State = $.extend( true,
 					}
 				}
 			},
+			
+			/**
+			 * Determines whether `this` is or is a substate of `state`.
+			 */
+			isIn: function ( state ) { //// untested
+				state instanceof State || ( state = this.match( state ) );
+				return ( state === this || state.isSuperstateOf( this ) );
+			},
+			
+			/**
+			 * Determines whether `this` is a superstate of `state`.
+			 */
 			isSuperstateOf: function ( state ) {
-				var superstate = state.superstate();
-				return superstate ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
+				var superstate;
+				state instanceof State || ( state = this.match( state ) );
+				return ( superstate = state.superstate() ) ? ( this === superstate || this.isSuperstateOf( superstate ) ) : false;
 			},
+			
+			/**
+			 * Determines whether `this` is a state analogous to `state` on any object in the prototype
+			 * chain of `state`'s owner.
+			 */
 			isProtostateOf: function ( state ) { //// untested
-				var protostate = state.protostate();
-				return protostate ? ( this === protostate || this.isProtostateOf( protostate ) ) : false;
+				var protostate;
+				state instanceof State || ( state = this.match( state ) );
+				return ( protostate = state.protostate() ) ? ( this === protostate || this.isProtostateOf( protostate ) ) : false;
 			},
+			
+			/**
+			 * Determines whether `this` directly possesses a method named `methodName`.
+			 */
 			hasOwnMethod: function ( methodName ) {
 				return !!this.method( methodName, false, false );
 			},
@@ -316,6 +382,11 @@ var State = $.extend( true,
 			isSelected: function () {
 				return this.controller().currentState() === this;
 			},
+			
+			/**
+			 * Returns the Boolean result of the rule function at `ruleName` defined on this state, as
+			 * evaluated against `testState`, or `true` if no rule exists.
+			 */
 			evaluateRule: function ( ruleName, testState ) {
 				var	state = this,
 					rule = this.rule( ruleName ),
@@ -334,8 +405,13 @@ var State = $.extend( true,
 				return ( result === undefined ) || result;
 			},
 			
-			// Match a string expression `expr` with the state or states it represents.
-			// Returns the matched state, the set of matched states, or a boolean indicating whether `testState` is included in the matched set.
+			/**
+			 * Matches a string expression `expr` with the state or states it represents, evaluated in the
+			 * context of `this`.
+			 * 
+			 * Returns the matched state, the set of matched states, or a Boolean indicated whether
+			 * `testState` is included in the matched set.
+			 */
 			match: function ( expr, testState ) {
 				var	parts = expr.split('.'),
 					cursor = ( parts.length && parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
@@ -346,7 +422,6 @@ var State = $.extend( true,
 					$.each( parts, function ( i, name ) {
 						if ( name === '' ) {
 							cursor = cursor.superstate();
-						// } else if ( cursor[ name ] instanceof State ) {
 						} else if ( cursorSubstate = cursor.substate( name ) ) {
 							cursor = cursorSubstate;
 						} else if ( name == '*' ) {
@@ -368,6 +443,17 @@ var State = $.extend( true,
 					return cursor;
 				}
 			}
+		},
+		
+		/**
+		 * Returns a function that will forward calls to a certain method on an owner to the
+		 * appropriate controller.
+		 */
+		delegate: function ( owner, methodName, controller ) {
+			return function () {
+				var method = controller.getMethod( methodName );
+				return method ? method.apply( owner, arguments ) : undefined;
+			};
 		}
 	}
 );

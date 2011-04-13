@@ -2,19 +2,16 @@
 
 window.TestObject = function TestObject ( initialState ) {
 	$.extend( this, {
-		methodOne: function () {
-			return 'methodOne';
-		},
-		methodTwo: function () {
-			return 'methodTwo';
-		}
+		methodOne: function () { return 'methodOne'; }
 	});
-
+	
 	// State definitions
 	State( this,
-
-		// Three progressively more complex ways to define a state:
 		{
+			methodTwo: function () { return 'methodTwo'; },
+			
+			// Three progressively more complex ways to define a state:
+			
 			// 1. Simple: methods only
 			Preparing: {
 				methodOne: function () {

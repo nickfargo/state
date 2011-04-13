@@ -15,9 +15,9 @@ test( "Object creation", function () {
 	ok( x.state.Ready instanceof State );
 	ok( !x.state.Ready.method( 'methodOne', false, false ) );
 	ok( x.state.Ready.method( 'methodTwo', false, false ) );
-	arr = x.state.Ready.getEventListeners('arrive');
+	arr = x.state.Ready.getEvents('arrive');
 	equal( arr.length, 1, arr.keys() );
-	arr = x.state.Ready.getEventListeners('depart');
+	arr = x.state.Ready.getEvents('depart');
 	equal( arr.length(), 2, arr.keys() );
 });
 
