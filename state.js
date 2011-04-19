@@ -217,10 +217,13 @@ var State = $.extend( true,
 					defaultState = controller.defaultState(),
 					owner = controller.owner();
 				if ( !this.method( methodName, true, false ) ) {
-					if ( superstate && owner[ methodName ] !== undefined ) {
-						defaultState.addMethod( methodName, owner[ methodName ] );
-					}
-					owner[ methodName ] = State.delegate( owner, methodName, controller );
+					
+					// TODO need tighter conditionals here
+					this !== defaultState && !defaultState.method( methodName, false, false ) &&
+						owner[ methodName ] !== undefined && !owner[ methodName ].isDelegate &&
+							defaultState.addMethod( methodName, owner[ methodName ] );
+					
+					( owner[ methodName ] = State.delegate( owner, methodName, controller ) ).isDelegate = true;
 				}
 				return ( methods[ methodName ] = fn );
 			},
@@ -380,8 +383,13 @@ var State = $.extend( true,
 			toString: function () {
 				return this.derivation( true ).join('.');
 			},
+			
 			controller: function () {
 				return this.superstate().controller();
+			},
+			
+			owner: function () {
+				return this.controller().owner();
 			},
 			
 			/**
@@ -619,8 +627,6 @@ State.Controller = $.extend( true,
 		definition = args.definition instanceof State.Definition ? args.definition : State.Definition( args.definition );
 		initialState = args.initialState;
 		
-		// console && console.log( owner + "StateController.name() = '"+name+"'" );
-		
 		$.extend( this, {
 			owner: function () {
 				return owner;
@@ -648,7 +654,7 @@ State.Controller = $.extend( true,
 			 */
 			// TODO: (?) Move to private, since this should only ever be used by `changeState()`
 			createProxy: function ( protostate ) { //// untested
-				var	derivation, state, next; name;
+				var	derivation, state, next, name;
 				function iterate () {
 					return state.substate( ( name = derivation.shift() ), false );
 					// return state[ ( name = derivation.shift() ) ];
@@ -825,7 +831,7 @@ State.Controller = $.extend( true,
 		},
 		
 		forObject: function () {
-			var controller = State.Controller.apply( null, arguments );
+			var controller = State.Controller.apply( undefined, arguments );
 			controller.owner()[ controller.name() ] = controller;
 			return controller.owner();
 		}

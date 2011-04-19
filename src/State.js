@@ -153,10 +153,10 @@ var State = $.extend( true,
 					defaultState = controller.defaultState(),
 					owner = controller.owner();
 				if ( !this.method( methodName, true, false ) ) {
-					if ( superstate && owner[ methodName ] !== undefined ) {
-						defaultState.addMethod( methodName, owner[ methodName ] );
-					}
-					owner[ methodName ] = State.delegate( owner, methodName, controller );
+					this !== defaultState && !defaultState.method( methodName, false, false ) &&
+						owner[ methodName ] !== undefined && !owner[ methodName ].isDelegate &&
+							defaultState.addMethod( methodName, owner[ methodName ] );
+					( owner[ methodName ] = State.delegate( owner, methodName, controller ) ).isDelegate = true;
 				}
 				return ( methods[ methodName ] = fn );
 			},
@@ -296,7 +296,6 @@ var State = $.extend( true,
 					substates[i].destroy();
 				}
 				destroyed = true;
-				
 			}
 		});
 		
@@ -316,8 +315,13 @@ var State = $.extend( true,
 			toString: function () {
 				return this.derivation( true ).join('.');
 			},
+			
 			controller: function () {
 				return this.superstate().controller();
+			},
+			
+			owner: function () {
+				return this.controller().owner();
 			},
 			
 			/**
@@ -409,7 +413,7 @@ var State = $.extend( true,
 			 * Matches a string expression `expr` with the state or states it represents, evaluated in the
 			 * context of `this`.
 			 * 
-			 * Returns the matched state, the set of matched states, or a Boolean indicated whether
+			 * Returns the matched state, the set of matched states, or a Boolean indicating whether
 			 * `testState` is included in the matched set.
 			 */
 			match: function ( expr, testState ) {

@@ -13,8 +13,6 @@ State.Controller = $.extend( true,
 		definition = args.definition instanceof State.Definition ? args.definition : State.Definition( args.definition );
 		initialState = args.initialState;
 		
-		// console && console.log( owner + "StateController.name() = '"+name+"'" );
-		
 		$.extend( this, {
 			owner: function () {
 				return owner;
@@ -42,7 +40,7 @@ State.Controller = $.extend( true,
 			 */
 			// TODO: (?) Move to private, since this should only ever be used by `changeState()`
 			createProxy: function ( protostate ) { //// untested
-				var	derivation, state, next; name;
+				var	derivation, state, next, name;
 				function iterate () {
 					return state.substate( ( name = derivation.shift() ), false );
 					// return state[ ( name = derivation.shift() ) ];
@@ -219,7 +217,7 @@ State.Controller = $.extend( true,
 		},
 		
 		forObject: function () {
-			var controller = State.Controller.apply( null, arguments );
+			var controller = State.Controller.apply( undefined, arguments );
 			controller.owner()[ controller.name() ] = controller;
 			return controller.owner();
 		}
