@@ -1,13 +1,10 @@
 var State = $.extend( true,
 	function State ( superstate, name, definition ) {
 		if ( !( this instanceof State ) ) {
-			// ( Object ) => State.Definition( map )
-			// ( Object, Object ) => State.Controller( owner, map )
-			// ( Object, Object, String ) => State.Controller( owner, map, initialState )
 			return ( arguments.length < 2 ? State.Definition : State.Controller.forObject ).apply( this, arguments );
 		}
 		
-		var	state = this,
+		var	self = this,
 			destroyed = false,
 			methods = {},
 			events = {},
@@ -36,7 +33,10 @@ var State = $.extend( true,
 			 * @param byName:Boolean  Returns a string array of the states' names, rather than references
 			 */
 			derivation: function ( byName ) {
-				for ( var result = [], s, ss = this; ( s = ss ) && ( ss = s.superstate() ); ss && result.unshift( byName ? s.name() || '' : s ) );
+				for ( var result = [], s, ss = this;
+						( s = ss ) && ( ss = s.superstate() );
+						ss && result.unshift( byName ? s.name() || '' : s )
+					);
 				return result;
 			},
 			
@@ -60,28 +60,26 @@ var State = $.extend( true,
 					controller = this.controller(),
 					controllerName = controller.name(),
 					owner = controller.owner(),
-					proto = owner,
-					s, ps;
+					prototype = owner,
+					state, protostate;
 				
-				if ( !controllerName ) {
-					debugger;
-				}
-				
-				function iterateProto () {
-					proto = proto.__proto__ || proto.constructor.prototype,
-					ps = proto && proto.hasOwnProperty( controllerName ) && proto[ controllerName ] instanceof State.Controller ?
-						proto[ controllerName ].defaultState() :
+				function iterate () {
+					prototype = prototype.__proto__ || prototype.constructor.prototype;
+					protostate = prototype &&
+							prototype.hasOwnProperty( controllerName ) &&
+							prototype[ controllerName ] instanceof State.Controller ?
+						prototype[ controllerName ].defaultState() :
 						undefined;
 				}
 				
-				for ( iterateProto(); ps; iterateProto() ) {
-					for ( s in derivation ) {
-						if ( !( ps = ps[ derivation[s] ] ) ) {
+				for ( iterate(); protostate; iterate() ) {
+					for ( state in derivation ) {
+						if ( !( protostate = protostate[ derivation[ state ] ] ) ) {
 							break;
 						}
 					}
-					if ( ps ) {
-						return ps;
+					if ( protostate ) {
+						return protostate;
 					}
 				}
 			},
@@ -98,22 +96,22 @@ var State = $.extend( true,
 				$.each(
 					{
 						methods: function ( methodName, fn ) {
-							state.addMethod( methodName, fn );
+							self.addMethod( methodName, fn );
 						},
 						events: function ( eventType, fn ) {
 							if ( $.isArray( fn ) ) {
 								$.each( fn, function ( i, fn ) {
-									state.addEvent( eventType, fn );
+									self.addEvent( eventType, fn );
 								});
 							} else {
-								state.addEvent( eventType, fn );
+								self.addEvent( eventType, fn );
 							}
 						},
 						rules: function ( ruleName, rule ) {
-							state.addRule( ruleName, rule );
+							self.addRule( ruleName, rule );
 						},
 						states: function ( stateName, stateDefinition ) {
-							state.addState( stateName, stateDefinition );
+							self.addState( stateName, stateDefinition );
 						}
 					},
 					function ( i, fn ) {
@@ -143,6 +141,31 @@ var State = $.extend( true,
 						||
 					undefined
 				);
+				
+				return this.methodAndContext( methodName, viaSuper, viaProto ).method;
+			},
+			
+			/**
+			 * Returns the product of `method()` along with its context, i.e. the State that will be
+			 * referenced by `this` within the function.
+			 */
+			methodAndContext: function ( methodName, viaSuper, viaProto ) {
+				var	protostate,
+					result = {};
+				
+				viaSuper === undefined && ( viaSuper = true );
+				viaProto === undefined && ( viaProto = true );
+				
+				return (
+					( result.method = methods[ methodName ] ) && ( result.context = this, result )
+						||
+					viaProto && ( protostate = this.protostate() ) &&
+							( result = protostate.methodAndContext( methodName, false, true ) ) && ( result.context = this, result )
+						||
+					viaSuper && superstate && superstate.methodAndContext( methodName, true, viaProto )
+						||
+					undefined
+				);
 			},
 			
 			/**
@@ -151,12 +174,18 @@ var State = $.extend( true,
 			addMethod: function ( methodName, fn ) {
 				var	controller = this.controller(),
 					defaultState = controller.defaultState(),
-					owner = controller.owner();
+					owner = controller.owner(),
+					ownerMethod;
 				if ( !this.method( methodName, true, false ) ) {
-					this !== defaultState && !defaultState.method( methodName, false, false ) &&
-						owner[ methodName ] !== undefined && !owner[ methodName ].isDelegate &&
-							defaultState.addMethod( methodName, owner[ methodName ] );
-					( owner[ methodName ] = State.delegate( owner, methodName, controller ) ).isDelegate = true;
+					if ( this !== defaultState &&
+						!defaultState.method( methodName, false, false ) &&
+						( ownerMethod = owner[ methodName ] ) !== undefined &&
+						!ownerMethod.isDelegate
+					) {
+						ownerMethod.callAsOwner = true;
+						defaultState.addMethod( methodName, ownerMethod );
+					}
+					owner[ methodName ] = State.delegate( methodName, controller );
 				}
 				return ( methods[ methodName ] = fn );
 			},
@@ -301,7 +330,7 @@ var State = $.extend( true,
 		
 		// Create an event collection for each supported event type
 		$.each( [ 'enter', 'exit', 'arrive', 'depart' ], function ( i, eventType ) {
-			events[ eventType ] = new State.Event.Collection( state, eventType );
+			events[ eventType ] = new State.Event.Collection( self, eventType );
 		});
 		
 		// If no superstate, then assume this is a default state being created by a StateController,
@@ -335,6 +364,7 @@ var State = $.extend( true,
 			
 			/**
 			 * Returns the state that is the nearest superstate, or the state itself, of both `this` and `other`.
+			 * Used to establish a common domain between any two states in a hierarchy.
 			 */
 			common: function ( other ) {
 				var state;
@@ -380,11 +410,15 @@ var State = $.extend( true,
 			hasOwnMethod: function ( methodName ) {
 				return !!this.method( methodName, false, false );
 			},
+			
 			select: function () {
-				return this.controller().changeState( this ) ? this : false;
+				return this.controller().changeState( this ) && this;
 			},
 			isSelected: function () {
 				return this.controller().currentState() === this;
+			},
+			change: function ( state ) {
+				return this.controller().changeState( state ) && state;
 			},
 			
 			/**
@@ -450,14 +484,32 @@ var State = $.extend( true,
 		},
 		
 		/**
-		 * Returns a function that will forward calls to a certain method on an owner to the
-		 * appropriate controller.
+		 * Returns a function that forwards a `methodName` call to `controller`, which will itself then
+		 * forward the call on to the appropriate implementation in the state hierarchy as determined by
+		 * the controller's current state. If the forwarded method is on the default state and was originally
+		 * a method of the controller's owner, then it will be executed in its original context; Otherwise,
+		 * it will be executed in the context of the state to which the selected method implementation
+		 * belongs, or if the implementation resides in a protostate, the context will be the corresponding
+		 * `StateProxy` within `controller`.
+		 * 
+		 * The result of this is that, for a method defined in a state, `this` refers to the state in which
+		 * it is defined (or a proxy state pointing to the protostate in which the method is defined), while
+		 * methods originally defined on the owner object itself will still have `this` set to the owner.
+		 * 
+		 * @see State.addMethod
 		 */
-		delegate: function ( owner, methodName, controller ) {
-			return function () {
-				var method = controller.getMethod( methodName );
-				return method ? method.apply( owner, arguments ) : undefined;
-			};
+		delegate: function ( methodName, controller ) {
+			function delegate () {
+				var	data = controller.currentState().methodAndContext( methodName );
+				if ( data ) {
+					if ( data.context === controller.defaultState() && data.method.callAsOwner ) {
+						data.context = controller.owner();
+					}
+					return data.method.apply( data.context, arguments );
+				}
+			}
+			delegate.isDelegate = true;
+			return delegate;
 		}
 	}
 );

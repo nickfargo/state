@@ -23,3 +23,4 @@
 // THE SOFTWARE.
 
 ( function ( $, undefined ) {
+"use strict";

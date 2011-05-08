@@ -47,7 +47,7 @@ window.TestObject = function TestObject ( initialState ) {
 			],
 
 			// 3. Complex (StateDefinition): named sections
-			Finished: State({
+			Finished: {
 				methods: {
 					methodOne: function () {
 						return 'Finished.methodOne';
@@ -93,7 +93,7 @@ window.TestObject = function TestObject ( initialState ) {
 							},
 							methodThree: function ( uno, dos ) {
 								var result = 'Finished.Terminated.methodThree';
-								result += ' : ' + this.state.superstate('methodThree')( uno, dos );
+								result += ' : ' + this.superstate().method('methodThree')( uno, dos );
 								return result;
 							}
 						},
@@ -131,7 +131,7 @@ window.TestObject = function TestObject ( initialState ) {
 						}
 					}
 				}
-			})
+			}
 		},
 
 		// initial state selector

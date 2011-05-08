@@ -1,3 +1,3 @@
 this.State = State;
 
-})(jQuery);
+})( jQuery );

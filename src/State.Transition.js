@@ -1,9 +1,8 @@
 State.Transition = $.extend( true,
-	function StateTransition ( source, destination, action ) {
+	function StateTransition ( source, destination, action, callback ) {
 		var	transition = this,
 			attachment = source,
 		 	controller = ( controller = source.controller() ) === destination.controller() ? controller : undefined,
-			callback,
 			aborted;
 		
 		$.extend( this, {
@@ -17,19 +16,22 @@ State.Transition = $.extend( true,
 			},
 			source: function () { return source; },
 			destination: function () { return destination; },
+			setCallback: function ( fn ) { callback = fn; },
 			aborted: function () { return aborted; },
-			start: function ( fn ) {
+			start: function () {
 				aborted = false;
-				callback = fn;
-				typeof action === 'function' ? action.apply( this, Util.slice( arguments, 0, -1 ) ) : this.finish();
+				typeof action === 'function' ? action.apply( this, arguments ) : this.end();
 			},
 			abort: function () {
 				aborted = true;
 				callback = null;
 				return this;
 			},
-			finish: function () {
-				aborted || callback.apply( controller );
+			end: function ( delay ) {
+				if ( delay ) {
+					return setTimeout( function () { transition.end(); }, delay );
+				}
+				aborted || callback && callback.apply( controller );
 				// TODO: check for deferred state destroy() calls
 				this.destroy();
 			},
