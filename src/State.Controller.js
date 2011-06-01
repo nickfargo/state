@@ -1,35 +1,29 @@
-State.Controller = $.extend( true,
+State.Controller = extend( true,
 	function StateController ( owner, name, definition, initialState ) {
 		if ( !( this instanceof State.Controller ) ) {
 			return new State.Controller( owner, name, definition, initialState );
 		}
 		
+		// # Locals
 		var	defaultState, currentState, transition, getName,
 			self = this,
-			args = Util.resolveOverloads( arguments, this.constructor.overloads );
+			args = resolveOverloads( arguments, this.constructor.overloads );
 		
 		function setCurrentState ( value ) { return currentState = value; }
 		function setTransition ( value ) { return transition = value; }
 		
+		// # Overload argument rewrites
 		owner = args.owner;
 		name = args.name || 'state';
 		definition = args.definition instanceof State.Definition ? args.definition : State.Definition( args.definition );
 		initialState = args.initialState;
 		
-		$.extend( this, {
-			owner: function () {
-				return owner;
-			},
+		extend( this, {
+			owner: function () { return owner; },
 			name: ( getName = function () { return name; } ).toString = getName,
-			defaultState: function () {
-				return defaultState;
-			},
-			currentState: function () {
-				return currentState || defaultState;
-			},
-			transition: function () {
-				return transition;
-			},
+			defaultState: function () { return defaultState; },
+			currentState: function () { return currentState || defaultState; },
+			transition: function () { return transition; },
 			addState: function ( stateName, stateDefinition ) {
 				return defaultState.addState( stateName, stateDefinition );
 			},
@@ -51,7 +45,7 @@ State.Controller = $.extend( true,
 		// Provide aliases, for brevity, but only if controller is not implemented as its own owner.
 		if ( owner !== this ) {
 			// Methods `add` and `change` also provide alternate return types to their aliased counterparts.
-			$.extend( this, {
+			extend( this, {
 				current: this.currentState,
 				add: function () { return this.addState.apply( this, arguments ) ? this : false; },
 				remove: this.removeState,
@@ -62,7 +56,7 @@ State.Controller = $.extend( true,
 			});
 		}
 		
-		( defaultState = $.extend( new State(), {
+		( defaultState = extend( new State(), {
 			controller: function () { return self; }
 		}) ).build( definition );
 		
@@ -134,7 +128,38 @@ State.Controller = $.extend( true,
 					proxy = superstate;
 				}
 			},
-		
+			
+			/**
+			 * Finds the appropriate transition definition for the given origin and destination states. If no
+			 * matching transitions are defined in any of the states, return a generic transition definition
+			 * for the origin/destination pair with no `operation`.
+			 */
+			getTransitionDefinitionFor: function ( destination, origin ) { //// untested
+				origin || ( origin = this.currentState() );
+				
+				function search ( state, until ) {
+					var result, transitions;
+					for ( ; state && state !== until; state = until ? state.superstate() : undefined ) {
+						( transitions = state.transitions() ) && each( transitions, function ( i, t ) {
+							return !(
+								( t.destination ? state.match( t.destination, destination ) : state === destination ) &&
+								( !t.origin || state.match( t.origin, origin ) ) &&
+							( result = t ) );
+						});
+					}
+					return result;
+				}
+				
+				// Search order: (1) `destination`, (2) `origin`, (3) superstates of `destination`, (4) superstates of `origin`
+				return (
+					search( destination ) ||
+					origin !== destination && search( origin ) ||
+					search( destination.superstate(), this.defaultState() ) || search( this.defaultState() ) ||
+					!destination.isIn( origin ) && search( origin.superstate(), origin.common( destination ) ) ||
+					new State.Transition.Definition( {} )
+				);
+			},
+			
 			/**
 			 * Attempts to change the controller's current state. Handles asynchronous transitions, generation
 			 * of appropriate events, and construction of temporary protostate proxies as necessary. Adheres
@@ -159,8 +184,9 @@ State.Controller = $.extend( true,
 				var	destinationOwner, source, origin, domain, data, state,
 					owner = this.owner(),
 					transition = this.transition(),
+					transitionDefinition,
 					self = this;
-
+				
 				// Translate `destination` argument to a proper `State` object if necessary.
 				destination instanceof State || ( destination = destination ? this.getState( destination ) : this.defaultState() );
 				
@@ -177,8 +203,8 @@ State.Controller = $.extend( true,
 						origin.evaluateRule( 'allowDepartureTo', destination ) &&
 						destination.evaluateRule( 'allowArrivalFrom', origin )
 				) {
-					// If `destination` is a state from a prototype, create a transient protostate proxy and
-					// reset `destination` to that.
+					// If `destination` is a state from a prototype of `owner`, it must be represented here as a
+					// transient protostate proxy.
 					destination && destination.controller() !== this && ( destination = this.createProxy( destination ) );
 					
 					// If a transition is underway, it needs to be notified that it won't finish.
@@ -190,8 +216,11 @@ State.Controller = $.extend( true,
 					
 					// Look up transition for origin/destination pairing; if none then create a default
 					// transition.
-					// TODO: transition lookup
-					setCurrentState( transition = setTransition( new State.Transition( source, destination ) ) );
+					transitionDefinition = this.getTransitionDefinitionFor( destination, origin );
+					setCurrentState( transition = setTransition(
+						new State.Transition( destination, source, transitionDefinition )
+					) );
+					
 					data = { transition: transition, forced: !!options.forced };
 					
 					// Walk up to the top of the domain, bubbling 'exit' events along the way
@@ -200,7 +229,8 @@ State.Controller = $.extend( true,
 						transition.attachTo( state = state.superstate() );
 					}
 					
-					// Finish with a closure function to be executed upon completion
+					// Provide an enclosed callback that can be called from `transition.end()` to complete the
+					// `changeState` operation
 					transition.setCallback( function () {
 						var pathToState = [];
 						

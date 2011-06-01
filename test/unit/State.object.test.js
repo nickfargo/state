@@ -65,7 +65,8 @@ test( "Method resolutions", function () {
 	ok( x.state.change('.CleaningUp').state.is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'Finished.CleaningUp.methodTwo' );
-	ok( x.state.change('..Terminated').state.is('Finished.Terminated'), "State 'Finished.Terminated'" );
+	ok( ( x.terminate(), x.state.is('Finished.Terminated') ), "State 'Finished.Terminated'" );
+	// ok( x.state.change('..Terminated').state.is('Finished.Terminated'), "State 'Finished.Terminated'" );
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'Finished.Terminated.methodTwo' );
 	equal( x.methodThree(1,2), 'Finished.Terminated.methodThree : Finished.methodThree uno=1 dos=2' );

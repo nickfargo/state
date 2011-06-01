@@ -1,8 +1,8 @@
-State.Controller.History = $.extend( true,
+State.Controller.History = extend( true,
 	function StateControllerHistory () {
 		var stack = [];
 		
-		$.extend( this, {
+		extend( this, {
 			push: function ( operation ) {
 				if ( operation instanceof State.Controller.Operation ) {
 					if ( stack.length == this.limit ) {

@@ -1,9 +1,9 @@
-State.Controller.Operation = $.extend( true,
+State.Controller.Operation = extend( true,
 	function StateControllerOperation ( type ) {
 		var result,
 			getResult;
 		
-		$.extend( this, {
+		extend( this, {
 			type: function () {
 				return type;
 			},

@@ -1,11 +1,12 @@
-State.Event = $.extend( true,
+State.Event = extend( true,
 	function StateEvent ( state, type ) {
-		$.extend( this, {
+		extend( this, {
 			target: state,
 			name: state.name,
 			type: type
 		});
 	}, {
+		types: [ 'depart', 'exit', 'enter', 'arrive' ],
 		prototype: {
 			toString: function () {
 				return 'StateEvent (' + this.type + ') ' + this.name;
@@ -14,13 +15,13 @@ State.Event = $.extend( true,
 				console && console.log( this + ' ' + this.name + '.' + this.type + ( text ? ' ' + text : '' ) );
 			}
 		},
-		Collection: $.extend( true,
+		Collection: extend( true,
 			function StateEventCollection ( state, type ) {
 				var	items = {},
 					length = 0,
 					getLength = ( getLength = function () { return length; } ).toString = getLength;
 					
-				$.extend( this, {
+				extend( this, {
 					length: getLength,
 					get: function ( id ) {
 						return items[id];
@@ -68,7 +69,7 @@ State.Event = $.extend( true,
 					},
 					trigger: function ( data ) {
 						for ( var i in items ) {
-							items[i].apply( state, [ $.extend( new State.Event( state, type ), data ) ] );
+							items[i].apply( state, [ extend( new State.Event( state, type ), data ) ] );
 						}
 					}
 				});

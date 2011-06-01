@@ -84,6 +84,11 @@ window.TestObject = function TestObject ( initialState ) {
 					CleaningUp: {
 						methodTwo: function () {
 							return 'Finished.CleaningUp.methodTwo';
+						},
+						terminate: State.change( 'Finished.Terminated' ),
+						
+						arrive: function ( event ) {
+							event.log( "I'm an event" );
 						}
 					},
 					Terminated: {
@@ -129,6 +134,18 @@ window.TestObject = function TestObject ( initialState ) {
 						states: {
 							// et cetera
 						}
+					}
+				},
+				transitions: {
+					'transitionName': {
+						origin: '*',
+						operation: function () {
+							// do some business
+							this.end( 1000 );
+						}
+					},
+					Transition2: {
+						
 					}
 				}
 			}

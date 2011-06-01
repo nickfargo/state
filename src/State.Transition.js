@@ -1,26 +1,33 @@
-State.Transition = $.extend( true,
-	function StateTransition ( source, destination, action, callback ) {
-		var	transition = this,
+State.Transition = extend( true,
+	function StateTransition ( destination, source, definition, callback ) {
+		if ( !( this instanceof State.Transition ) ) {
+			return State.Transition.Definition.apply( this, arguments );
+		}
+		definition instanceof State.Transition.Definition || ( definition = new State.Transition.Definition( definition ) );
+		
+		var	operation = definition.operation,
+			self = this,
 			attachment = source,
 		 	controller = ( controller = source.controller() ) === destination.controller() ? controller : undefined,
 			aborted;
 		
-		$.extend( this, {
+		extend( this, {
+			/**
+			 * Even though StateTransition inherits `superstate` from State, it requires its own implementation,
+			 * which is used here to track its position as it walks the State subtree domain.
+			 */
 			superstate: function () { return attachment; },
-			attachTo: function ( state ) {
-				attachment = state;
-			},
+			
+			attachTo: function ( state ) { attachment = state; },
 			controller: function () { return controller; },
-			origin: function () {
-				return source instanceof State.Transition ? source.origin() : source;
-			},
+			origin: function () { return source instanceof State.Transition ? source.origin() : source; },
 			source: function () { return source; },
 			destination: function () { return destination; },
 			setCallback: function ( fn ) { callback = fn; },
 			aborted: function () { return aborted; },
 			start: function () {
 				aborted = false;
-				typeof action === 'function' ? action.apply( this, arguments ) : this.end();
+				typeof operation === 'function' ? operation.apply( this, arguments ) : this.end();
 			},
 			abort: function () {
 				aborted = true;
@@ -29,7 +36,7 @@ State.Transition = $.extend( true,
 			},
 			end: function ( delay ) {
 				if ( delay ) {
-					return setTimeout( function () { transition.end(); }, delay );
+					return setTimeout( function () { self.end(); }, delay );
 				}
 				aborted || callback && callback.apply( controller );
 				// TODO: check for deferred state destroy() calls
@@ -41,18 +48,27 @@ State.Transition = $.extend( true,
 			}
 		});
 	}, {
-		prototype: $.extend( true, new State(), {
+		prototype: extend( true, new State(), {
 			depth: function () {
 				for ( var count = 0, t = this; t.source() instanceof State.Transition; count++, t = t.source() );
 				return count;
 			}
 		}),
 		
-		Definition: $.extend( true,
+		Definition: extend( true,
 			function StateTransitionDefinition ( map ) {
-				
+				var D = State.Transition.Definition;
+				if ( !( this instanceof D ) ) {
+					return new D( map );
+				}
+				extend( true, this, map instanceof D ? map : D.expand( map ) );
 			}, {
-				
+				members: [ 'origin', 'source', 'destination', 'operation' ],
+				expand: function ( map ) {
+					var result = nullHash( this.members );
+					extend( result, map );
+					return result;
+				}
 			}
 		)
 	}
