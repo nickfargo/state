@@ -13,34 +13,33 @@ test( "Simple: methods only", function () {
 });
 
 test( "Compound: array", function () {
-	var def = State.Definition([
-		{
-			methodOne: function () { return 'methodOne'; },
-			methodTwo: function () { return 'methodTwo'; }
+	var def = State.Definition({
+		methodOne: function () { return 'methodOne'; },
+		methodTwo: function () { return 'methodTwo'; },
+		enter: function () { return 'enter'; },
+		exit: [
+			function () { return 'exit 0'; },
+			function () { return 'exit 1'; }
+		],
+		release: {
+			'': function () { return 'release ""'; }
 		},
-		{
-			enter: function () { return 'enter'; },
-			leave: [
-				function () { return 'leave 0'; },
-				function () { return 'leave 1'; }
-			]
-		},
-		{
-			allowLeavingTo: {
-				'': function () { return 'allowLeavingTo ""'; }
-			}
+		Substate: {
+			methodOne: function () { return 'Substate methodOne'; }
 		}
-	]);
+	});
 	ok( def instanceof State.Definition, "Definition created" );
 	equals( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
 	equals( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
 	ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
 	equals( def.events.enter[0](), 'enter', "events.enter[0]()" );
-	ok( def.events.leave instanceof Array, "Event type 'leave' defined as array" );
-	equals( def.events.leave[0](), 'leave 0', "events.leave[0]()" );
-	equals( def.events.leave[1](), 'leave 1', "events.leave[1]()" );
-	ok( def.rules.allowLeavingTo, "Rule allowLeavingTo created" );
-	equals( def.rules.allowLeavingTo[''](), 'allowLeavingTo ""', "Rule allowLeavingTo['']");
+	ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
+	equals( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
+	equals( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
+	ok( def.rules.release, "Rule 'release' created" );
+	equals( def.rules.release[''](), 'release ""', "Rule release['']");
+	ok( def.states.Substate, "Substate 'Substate' created" );
+	equals( def.states.Substate.methods.methodOne(), "Substate methodOne", "Substate methodOne" );
 });
 
 test( "Complex: map", function () {
@@ -51,43 +50,39 @@ test( "Complex: map", function () {
 		},
 		events: {
 			enter: function () { return 'enter'; },
-			leave: [
-				function () { return 'leave 0'; },
-				function () { return 'leave 1'; }
+			exit: [
+				function () { return 'exit 0'; },
+				function () { return 'exit 1'; }
 			]
 		},
 		rules: {
-			allowLeavingTo: {
-				'': function () { return 'allowLeavingTo ""'; }
+			release: {
+				'': function () { return 'release ""'; }
 			}
 		},
 		states: {
-			SimpleChildState: {
-				methodOne: function () { return 'SimpleChildState.methodOne'; }
+			SimpleSubstate: {
+				methodOne: function () { return 'SimpleSubstate.methodOne'; }
 			},
-			CompoundChildState: [
-				{
-					methodOne: function () { return 'CompoundChildState.methodOne'; },
-					methodTwo: function () { return 'CompoundChildState.methodTwo'; }
+			CompoundSubstate: {
+				methodOne: function () { return 'CompoundSubstate.methodOne'; },
+				methodTwo: function () { return 'CompoundSubstate.methodTwo'; },
+				
+				enter: function () { return 'enter'; },
+				exit: [
+					function () { return 'exit 0'; },
+					function () { return 'exit 1'; }
+				],
+				
+				release: {
+					'': true,
+					'.': function () { return true; }
 				},
-				{
-					enter: function () { return 'enter'; },
-					leave: [
-						function () { return 'leave 0'; },
-						function () { return 'leave 1'; }
-					]
-				},
-				{
-					allowLeavingTo: {
-						'': true,
-						'.': function () { return true; }
-					},
-					allowEnteringFrom: {
-						'.SimpleChildState': function () { return 'CompoundChildState.allowEnteringFrom ".SimpleChildState"'; }
-					}
+				admit: {
+					'.SimpleSubstate': function () { return 'CompoundSubstate.admit ".SimpleSubstate"'; }
 				}
-			],
-			ComplexChildState: {
+			},
+			ComplexSubstate: {
 				methods: {
 					
 				},
@@ -98,22 +93,22 @@ test( "Complex: map", function () {
 					
 				},
 				states: {
-					DeepChildState: {
+					DeepSubstate: {
 						methods: {
-							methodOne: function () { return 'DeepChildState.methodOne'; }
+							methodOne: function () { return 'DeepSubstate.methodOne'; }
 						},
 						states: {
-							VeryDeepChildState: {
+							VeryDeepSubstate: {
 								methods: {
-									methodOne: function () { return 'VeryDeepChildState.methodOne'; }
+									methodOne: function () { return 'VeryDeepSubstate.methodOne'; }
 								}
 							}
 						}
 					},
-					DeepEmptyChildState: {
+					DeepEmptySubstate: {
 					},
-					DeepSimpleChildState: {
-						methodOne: function () { return 'DeepSimpleChildState.methodOne'; }
+					DeepSimpleSubstate: {
+						methodOne: function () { return 'DeepSimpleSubstate.methodOne'; }
 					}
 				}
 			}
@@ -130,40 +125,40 @@ test( "Complex: map", function () {
 	
 	ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
 	equals( def.events.enter[0](), 'enter', "events.enter[0]()" );
-	ok( def.events.leave instanceof Array, "Event type 'leave' defined as array" );
-	equals( def.events.leave[0](), 'leave 0', "events.leave[0]()" );
-	equals( def.events.leave[1](), 'leave 1', "events.leave[1]()" );
+	ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
+	equals( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
+	equals( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
 	
 	
-	ok( def.rules.allowLeavingTo, "Rule allowLeavingTo created" );
-	equals( def.rules.allowLeavingTo[''](), 'allowLeavingTo ""', "Rule allowLeavingTo['']");
+	ok( def.rules.release, "Rule release created" );
+	equals( def.rules.release[''](), 'release ""', "Rule release['']");
 	
 	
-	ok( def.states.SimpleChildState, "SimpleChildState created" );
-	ok( def.states.SimpleChildState instanceof State.Definition, "StateDefinition for SimpleChildState created" );
+	ok( def.states.SimpleSubstate, "SimpleSubstate created" );
+	ok( def.states.SimpleSubstate instanceof State.Definition, "StateDefinition for SimpleSubstate created" );
 	
-	ok( def.states.SimpleChildState.methods, "SimpleChildState.methods exists" );
-	equals( def.states.SimpleChildState.methods.methodOne(), 'SimpleChildState.methodOne', "SimpleChildState.methodOne" );
+	ok( def.states.SimpleSubstate.methods, "SimpleSubstate.methods exists" );
+	equals( def.states.SimpleSubstate.methods.methodOne(), 'SimpleSubstate.methodOne', "SimpleSubstate.methodOne" );
 	
-	ok( def.states.CompoundChildState instanceof State.Definition, "StateDefinition for CompoundChildState created" );
-	ok( def.states.CompoundChildState.methods, "CompoundChildState.methods exists" );
-	equals( def.states.CompoundChildState.methods.methodOne(), 'CompoundChildState.methodOne', "CompoundChildState.methodOne" );
-	equals( def.states.CompoundChildState.methods.methodTwo(), 'CompoundChildState.methodTwo', "CompoundChildState.methodTwo" );
-	ok( def.states.CompoundChildState.events, "CompoundChildState.events exists" );
-	ok( def.states.CompoundChildState.events.enter instanceof Array, "Event type 'enter' defined as array" );
-	equals( def.states.CompoundChildState.events.enter[0](), 'enter', "CompoundChildState.events.enter[0]()" );
-	ok( def.states.CompoundChildState.events.leave instanceof Array, "Event type 'leave' defined as array" );
-	equals( def.states.CompoundChildState.events.leave[0](), 'leave 0', "CompoundChildState.events.leave[0]()" );
-	equals( def.states.CompoundChildState.events.leave[1](), 'leave 1', "CompoundChildState.events.leave[1]()" );
+	ok( def.states.CompoundSubstate instanceof State.Definition, "StateDefinition for CompoundSubstate created" );
+	ok( def.states.CompoundSubstate.methods, "CompoundSubstate.methods exists" );
+	equals( def.states.CompoundSubstate.methods.methodOne(), 'CompoundSubstate.methodOne', "CompoundSubstate.methodOne" );
+	equals( def.states.CompoundSubstate.methods.methodTwo(), 'CompoundSubstate.methodTwo', "CompoundSubstate.methodTwo" );
+	ok( def.states.CompoundSubstate.events, "CompoundSubstate.events exists" );
+	ok( def.states.CompoundSubstate.events.enter instanceof Array, "Event type 'enter' defined as array" );
+	equals( def.states.CompoundSubstate.events.enter[0](), 'enter', "CompoundSubstate.events.enter[0]()" );
+	ok( def.states.CompoundSubstate.events.exit instanceof Array, "Event type 'exit' defined as array" );
+	equals( def.states.CompoundSubstate.events.exit[0](), 'exit 0', "CompoundSubstate.events.exit[0]()" );
+	equals( def.states.CompoundSubstate.events.exit[1](), 'exit 1', "CompoundSubstate.events.exit[1]()" );
 	
-	ok( def.states.ComplexChildState instanceof State.Definition, "StateDefinition for ComplexChildState created" );
-	ok( def.states.ComplexChildState.states, "ComplexChildState.states exists" );
-	ok( def.states.ComplexChildState.states.DeepChildState instanceof State.Definition, "StateDefinition for DeepChildState created" );
-	ok( def.states.ComplexChildState.states.DeepChildState.methods, "DeepChildState.methods exists" );
-	equals( def.states.ComplexChildState.states.DeepChildState.methods.methodOne(), 'DeepChildState.methodOne', "DeepChildState.methodOne" );
-	ok( def.states.ComplexChildState.states.DeepChildState.states.VeryDeepChildState instanceof State.Definition, "StateDefinition for VeryDeepChildState created" );
-	ok( def.states.ComplexChildState.states.DeepChildState.states.VeryDeepChildState.methods, "VeryDeepChildState.methods exists" );
-	equals( def.states.ComplexChildState.states.DeepChildState.states.VeryDeepChildState.methods.methodOne(), 'VeryDeepChildState.methodOne', "VeryDeepChildState.methodOne" );
+	ok( def.states.ComplexSubstate instanceof State.Definition, "StateDefinition for ComplexSubstate created" );
+	ok( def.states.ComplexSubstate.states, "ComplexSubstate.states exists" );
+	ok( def.states.ComplexSubstate.states.DeepSubstate instanceof State.Definition, "StateDefinition for DeepSubstate created" );
+	ok( def.states.ComplexSubstate.states.DeepSubstate.methods, "DeepSubstate.methods exists" );
+	equals( def.states.ComplexSubstate.states.DeepSubstate.methods.methodOne(), 'DeepSubstate.methodOne', "DeepSubstate.methodOne" );
+	ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate instanceof State.Definition, "StateDefinition for VeryDeepSubstate created" );
+	ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods, "VeryDeepSubstate.methods exists" );
+	equals( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods.methodOne(), 'VeryDeepSubstate.methodOne', "VeryDeepSubstate.methodOne" );
 });
 
 })(jQuery);

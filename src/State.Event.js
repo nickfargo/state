@@ -6,7 +6,7 @@ State.Event = extend( true,
 			type: type
 		});
 	}, {
-		types: [ 'depart', 'exit', 'enter', 'arrive' ],
+		types: [ 'depart', 'exit', 'enter', 'arrive', 'mutate' ],
 		prototype: {
 			toString: function () {
 				return 'StateEvent (' + this.type + ') ' + this.name;

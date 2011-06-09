@@ -34,6 +34,16 @@ test( "Simple state change", function () {
 	ok( x.state.change(), "Change to default state" );
 });
 
+// ( function () {
+// 	var x = new TestObject();
+// 	test( "Async transition to 'Finished'", function () {
+// 		ok( x.state.change('Finished') );
+// 	});
+// 	test( "Post transition to 'Finished'", function () {
+// 		equal( x.state.current(), x.state.Finished );
+// 	});
+// })();
+
 test( "State changes from parent state into child state", function () {
 	var x = new TestObject(''), result;
 	ok( x.state.is(''), "Initialized to default state" );
@@ -78,6 +88,15 @@ test( "Rules", function () {
 	ok( !x.state.change('Ready') );
 	ok( x.state.change('.Terminated') );
 	ok( !x.state.change('') );
+});
+
+test( "Data", function () {
+	var x = new TestObject();
+	ok( x.state.Finished.data() );
+	equal( x.state.Finished.data().c, x.state.Finished.Terminated.data().c );
+	notEqual( x.state.Finished.data().a, x.state.Finished.Terminated.data().a );
+	equal( x.state.Finished.data().d.a, x.state.Finished.Terminated.data().d.a );
+	notEqual( x.state.Finished.data().d.b, x.state.Finished.Terminated.data().d.b );
 });
 
 })( jQuery );

@@ -6,66 +6,44 @@ State.Definition = extend( true,
 		}
 		extend( true, this, map instanceof D ? map : D.expand( map ) );
 	}, {
-		members: [ 'methods', 'events', 'rules', 'states', 'transitions' ],
-		isLongForm: function ( map ) {
-			var result;
-			each( this.members, function ( i, key ) {
-				return !( result = ( key in map && !isFunction( map[key] ) ) );
-			});
-			return result;
-		},
+		members: [ 'data', 'methods', 'events', 'rules', 'states', 'transitions' ],
 		expand: function ( map ) {
-			var result = nullHash( this.members ),
-				eventTypes = invert( State.Event.types );
+			var key, category,
+				result = nullHash( this.members ),
+				eventTypes = invert( State.Event.types ),
+				ruleTypes = invert([ 'admit', 'release' ]); // invert( State.Rule.types );
 			
-			if ( isArray( map ) ) {
-				each( this.members, function ( i, key ) {
-					return i < map.length && ( result[key] = map[i] );
-				});
-			} else if ( isPlainObject( map ) ) {
-				if ( this.isLongForm( map ) ) {
-					extend( result, map );
+			for ( key in map ) {
+				if ( key in result ) {
+					result[key] = extend( result[key], map[key] );
 				} else {
-					for ( var key in map ) {
-						var m = /^_*[A-Z]/.test( key ) ? 'states' : key in eventTypes ? 'events' : 'methods';
-						( result[m] || ( result[m] = {} ) )[key] = map[key];
-					}
+					category = /^_*[A-Z]/.test( key ) ? 'states' :
+							key in eventTypes ? 'events' :
+							key in ruleTypes ? 'rules' :
+							'methods';
+					( result[category] || ( result[category] = {} ) )[key] = map[key];
 				}
 			}
 			
 			if ( result.events ) {
 				each( result.events, function ( type, value ) {
 					isFunction( value ) && ( result.events[type] = value = [ value ] );
-					if ( !isArray( value ) ) {
-						throw new Error();
-					}
 				});
 			}
 			
 			if ( result.transitions ) {
 				each( result.transitions, function ( name, map ) {
 					result.transitions[name] = map instanceof State.Transition.Definition ? map : State.Transition.Definition( map );
-					// map instanceof State.TransitionDefinition || ( map = State.Transition.Definition( map ) );
 				});
 			}
 			
 			if ( result.states ) {
 				each( result.states, function ( name, map ) {
 					result.states[name] = map instanceof State.Definition ? map : State.Definition( map );
-					// map instanceof State.Definition || ( map = State.Definition( map ) );
 				});
 			}
 			
 			return result;
-		},
-		
-		Set: function StateDefinitionSet ( map ) {
-			each( map, function ( name, definition ) {
-				if ( !( definition instanceof State.Definition ) ) {
-					map[name] = State.Definition( definition );
-				}
-			});
-			extend( true, this, map );
 		}
 	}
 );

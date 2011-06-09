@@ -49,3 +49,19 @@ function resolveOverloads ( args, map ) {
 	}
 	return result;
 }
+
+function subtract ( deep, target ) { //// untested
+	var	args = slice( arguments ),
+		i, key, obj,
+		delta = {};
+	deep === !!deep && args.shift();
+	target = args[0];
+	for ( i = args.length; --i; ) {
+		obj = args[i];
+		for ( key in obj ) {
+			deep && isPlainObject( obj[key] ) && ( delta[key] = subtract( target[key], obj[key] ) ) ||
+			!!obj[key] && ( delta[key] = target[key], delete target[key] );
+		}
+	}
+	return delta;
+}

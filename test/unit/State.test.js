@@ -2,8 +2,15 @@
 
 module( "State" );
 
+test( "superstate()", function () {
+	var x = new TestObject();
+	strictEqual( x.state.Finished.Terminated.ReallyDead.superstate('Finished'), x.state.Finished );
+	strictEqual( x.state.Finished.Terminated.ReallyDead.superstate(''), x.state.defaultState() );
+	strictEqual( x.state.Finished.Terminated.ReallyDead.superstate(), x.state.Finished.Terminated );
+	strictEqual( x.state.defaultState().superstate(), undefined );
+});
 
-test( "match()", function() {
+test( "match()", function () {
 	var x = new TestObject();
 	ok( x.state.match( 'Finished.*', x.state.Finished.CleaningUp ) );
 	ok( x.state.match( 'Finished.*', x.state.Finished.Terminated ) );
@@ -20,7 +27,7 @@ test( "match()", function() {
 	
 	equal( x.state.match( 'Finished' ), x.state.Finished );
 	equal( x.state.match( '*' ).length, 3 );
-	equal( x.state.match( '**' ).length, 5 );
+	equal( x.state.match( '**' ).length, 7 );
 	equal( x.state.Finished.match( '.Terminated' ), x.state.Finished.Terminated );
 	equal( x.state.Finished.match( '.*' ).length, 2 );
 	strictEqual( x.state.match( '*', x.state.Finished ), true );
@@ -42,7 +49,7 @@ test( "isIn()", function () {
 	ok( x.state.Finished.CleaningUp.isIn( '.' ) );
 });
 
-test( "isSuperstateOf()", function() {
+test( "isSuperstateOf()", function () {
 	var x = new TestObject();
 	ok( x.state.defaultState().isSuperstateOf( x.state.Preparing ) );
 	ok( x.state.defaultState().isSuperstateOf( x.state.Finished.CleaningUp ) );
@@ -50,13 +57,13 @@ test( "isSuperstateOf()", function() {
 	ok( !x.state.Finished.isSuperstateOf( x.state.Ready ) );
 });
 
-test( "substates()", function() {
+test( "substates()", function () {
 	var	x = new TestObject(),
 		states = x.state.defaultState().substateCollection( true );
-	ok( ( console.log( states ), states.length == 5 ) );
+	ok( ( console.log( states ), states.length == 7 ) );
 });
 
-test( "depth()", function() {
+test( "depth()", function () {
 	var x = new TestObject();
 	equal( x.state.defaultState().depth(), 0 );
 	equal( x.state.Finished.Terminated.depth(), 2 );

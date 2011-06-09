@@ -19,35 +19,47 @@ window.TestObject = function TestObject ( initialState ) {
 				}
 			},
 
-			// 2. Compound (inside array literal): methods plus events
-			Ready: [
-				// [0]: methods
-				{
-					methodTwo: function () {
-						return 'Ready.methodTwo';
+			// 2. Compound: methods plus events
+			Ready: {
+				methodTwo: function () {
+					return 'Ready.methodTwo';
+				},
+				
+				// event with one listener declared
+				arrive: function ( event ) {
+					event.log();
+				},
+
+				// event with multiple listeners declared
+				depart: [
+					function ( event ) {
+						event.log('1');
+					},
+					function ( event ) {
+						event.log('2');
+					}
+				],
+				
+				admit: true,
+				
+				Champing: {
+					data: {
+						description: "I'm really ready"
+					}
+				}
+			},
+
+			// 3. Complex: named categories
+			Finished: {
+				data: {
+					a: 1,
+					b: 'deux',
+					c: false,
+					d: {
+						a: 'deep',
+						b: 'thoughts'
 					}
 				},
-				// [1]: events
-				{
-					// event with one listener declared
-					arrive: function ( event ) {
-						event.log();
-					},
-
-					// event with multiple listeners declared
-					depart: [
-						function ( event ) {
-							event.log('1');
-						},
-						function ( event ) {
-							event.log('2');
-						}
-					]
-				}
-			],
-
-			// 3. Complex (StateDefinition): named sections
-			Finished: {
 				methods: {
 					methodOne: function () {
 						return 'Finished.methodOne';
@@ -66,14 +78,14 @@ window.TestObject = function TestObject ( initialState ) {
 					]
 				},
 				rules: {
-					allowDepartureTo: {
+					release: {
 						Preparing: function () { return false; },
 						Ready: function () { return false; },
 
 						// leading "." references current state ('Finished.')
 						'.CleaningUp': true
 					},
-					allowArrivalFrom: {
+					admit: {
 						'Preparing, Ready': function ( state ) {
 							console && console.log( 'Finished.allowArrivalFrom ' + state );
 							return true;
@@ -85,13 +97,22 @@ window.TestObject = function TestObject ( initialState ) {
 						methodTwo: function () {
 							return 'Finished.CleaningUp.methodTwo';
 						},
-						terminate: State.change( 'Finished.Terminated' ),
+						terminate: function () { return this.change( 'Finished.Terminated' ); },
 						
 						arrive: function ( event ) {
 							event.log( "I'm an event" );
 						}
+						
+						// weee: State.Transition({})
 					},
 					Terminated: {
+						data: {
+							a: 2,
+							b: 'trois',
+							d: {
+								b: 'impact'
+							}
+						},
 						methods: {
 							methodTwo: function () {
 								return 'Finished.Terminated.methodTwo';
@@ -103,7 +124,7 @@ window.TestObject = function TestObject ( initialState ) {
 							}
 						},
 						rules: {
-							allowDepartureTo: {
+							release: {
 								// empty string references the controller's default state
 								'': function ( state ) {
 									// "this" references current state ('Finished.Terminated')
@@ -113,7 +134,7 @@ window.TestObject = function TestObject ( initialState ) {
 								},
 								'*': true
 							},
-							allowArrivalFrom: {
+							admit: {
 								'..CleaningUp': function () { return true; },
 								'...Preparing': function () { return true; },
 
@@ -132,6 +153,8 @@ window.TestObject = function TestObject ( initialState ) {
 							}
 						},
 						states: {
+							ReallyDead: {
+							}
 							// et cetera
 						}
 					}
@@ -141,11 +164,32 @@ window.TestObject = function TestObject ( initialState ) {
 						origin: '*',
 						operation: function () {
 							// do some business
-							this.end( 1000 );
-						}
+							console && console.log( Date.now() + "OPERATION HERE I AM" );
+							// debugger;
+							var self = this;
+							// setTimeout( function () {
+							// 	self.end();
+							// 	console && console.log( Date.now() + "OPERATION I'M DONE GET ON WITH IT" );
+							// 	// start();
+							// }, 1000 );
+							this.end();
+						},
+						operations: [
+							[[
+								function () {},
+								function () {},
+								function () {}
+							]],
+							[
+								function () {},
+								function () {}
+							]
+						]
 					},
 					Transition2: {
-						
+						// origin: '*',
+						// destination: '.',
+						operation: function () { this.end(); }
 					}
 				}
 			}

@@ -77,16 +77,32 @@ function resolveOverloads ( args, map ) {
 	return result;
 }
 
+function subtract ( deep, target ) { //// untested
+	var	args = slice( arguments ),
+		i, key, obj,
+		delta = {};
+	deep === !!deep && args.shift();
+	target = args[0];
+	for ( i = args.length; --i; ) {
+		obj = args[i];
+		for ( key in obj ) {
+			deep && isPlainObject( obj[key] ) && ( delta[key] = subtract( target[key], obj[key] ) ) ||
+			!!obj[key] && ( delta[key] = target[key], delete target[key] );
+		}
+	}
+	return delta;
+}
 
 var State = extend( true,
 	function State ( superstate, name, definition ) {
 		if ( !( this instanceof State ) ) {
-			return ( arguments.length < 2 ? State.Definition : State.Controller.forObject ).apply( this, arguments );
+			return ( arguments.length < 2 ? State.Definition : State.Controller ).apply( this, arguments );
 		}
 		
 		var	self = this,
-			prototype = State.prototype,
+			privileged = State.privileged,
 			destroyed = false,
+			data, history = [],
 			methods = {},
 			events = {},
 			rules = {},
@@ -101,39 +117,72 @@ var State = extend( true,
 			methods: methods,
 			events: events,
 			rules: rules,
-			substates: substates
+			substates: substates,
+			transitions: transitions
 		});
 
 		extend( this, {
-			superstate: function () { return superstate; },
 			// directly expose the value while keeping it readonly (a convenience for viewing in Chrome inspector)
 			name: ( getName = function () { return name || ''; } ).toString = getName,
+			
 			definition: function () { return definition; },
 			
-			build: function () {
-				return prototype.build.apply( this, concat( setDefinition, slice( arguments ) ) );
-				// return prototype.build.apply( this, [ setDefinition ].concat( slice( arguments ) ) );
+			init: function () {
+				return privileged.init( setDefinition ).apply( this, arguments );
+			},
+			
+			/**
+			 * Returns the immediate superstate, or the nearest state in the superstate chain with the
+			 * provided `stateName`.
+			 */
+			superstate: function ( /*String*/ stateName ) {
+				return stateName === undefined ?
+					superstate
+					:
+					superstate ?
+						stateName ?
+							superstate.name() === stateName ?
+								superstate : superstate.superstate( stateName )
+							:
+							this.controller().defaultState()
+						:
+						undefined;
+			},
+			
+			data: function ( /*Object*/ edit, /*Boolean*/ isDeletion ) {
+				return edit ?
+					// set
+					isDeletion ?
+						( subtract( true, data, deletions ), data ) //// untested
+						:
+						( data = extend( true, data || {}, edit ) )
+				 	:
+					// get
+					data ?
+						extend( true, {}, superstate && superstate.data(), data )
+						:
+						undefined;
 			},
 			
 			method: function () {
-				return prototype.method.apply( this, concat( methods, slice( arguments ) ) );
+				return privileged.method( methods ).apply( this, arguments );
 			},
 			
 			methodAndContext: function () {
-				return prototype.methodAndContext.apply( this, concat( methods, slice( arguments ) ) );
+				return privileged.methodAndContext( methods ).apply( this, arguments );
 			},
 			
 			addMethod: function () {
-				return prototype.addMethod.apply( this, concat( methods, slice( arguments ) ) );
+				return privileged.addMethod( methods ).apply( this, arguments );
 			},
 			
-			removeMethod: function ( methodName ) {
+			removeMethod: function ( /*String*/ methodName ) {
 				var fn = methods[ methodName ];
 				delete methods[ methodName ];
 				return fn;
 			},
 			
-			addEvent: function ( eventType, fn ) {
+			addEvent: function ( /*String*/ eventType, /*Function*/ fn ) {
 				var e = events[ eventType ];
 				if ( !e ) {
 					throw new Error( "Invalid event type" );
@@ -141,19 +190,19 @@ var State = extend( true,
 				return e.add( fn );
 			},
 			
-			removeEvent: function ( eventType, id ) {
+			removeEvent: function ( /*String*/ eventType, /*String*/ id ) {
 				return events[ eventType ].remove( id );
 			},
 			
-			getEvent: function ( eventType, id ) {
+			getEvent: function ( /*String*/ eventType, /*String*/ id ) {
 				return events[ eventType ].get( id );
 			},
 			
-			getEvents: function ( eventType ) {
+			getEvents: function ( /*String*/ eventType ) {
 				return events[ eventType ];
 			},
 			
-			triggerEvents: function ( eventType, data ) {
+			triggerEvents: function ( /*String*/ eventType, /*Object*/ data ) {
 				var e = events[ eventType ];
 				if ( !e ) {
 					throw new Error( "Invalid event type" );
@@ -161,7 +210,7 @@ var State = extend( true,
 				return e.trigger( data );
 			},
 			
-			rule: function ( ruleName ) {
+			rule: function ( /*String*/ ruleName ) {
 				var protostate;
 				return (
 					definition && definition.rules && definition.rules[ ruleName ]
@@ -172,43 +221,52 @@ var State = extend( true,
 				);
 			},
 			
-			addRule: function ( ruleName, rule ) {
+			addRule: function ( /*String*/ ruleName, rule ) {
 				rules[ ruleName ] = rule;
 			},
 			
-			removeRule: function ( ruleName, ruleKey ) {
+			removeRule: function ( /*String*/ ruleName, /*String*/ ruleKey ) {
 				throw new Error( "Not implemented" );
 			},
 			
 			/**
-			 * Creates and adds a substate.
+			 * Creates a state from the supplied `stateDefinition` and adds it as a substate of this state.
+			 * If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
+			 * If the new substate is being added to the controller's default state, a reference is added
+			 * directly on the controller itself as well.
 			 */
-			addState: function ( stateName, stateDefinition ) {
+			addSubstate: function ( /*String*/ stateName, /*StateDefinition | Object*/ stateDefinition ) {
 				var	substate,
 					controller = this.controller();
 				( substate = substates[ stateName ] ) && substate.destroy();
 				substate = this[ stateName ] = substates[ stateName ] = new State( this, stateName, stateDefinition ),
-				controller && controller.defaultState() === this && ( controller[ stateName ] = substate );
+				controller.defaultState() === this && ( controller[ stateName ] = substate );
 				return substate;
 			},
 			
 			/**
 			 * 
 			 */
-			removeState: function ( stateName ) {
+			removeSubstate: function ( /*String*/ stateName ) { //// untested
 				// throw new Error( "Not implemented" );
 				
 				var	substate = substates[ stateName ],
 					controller,
-					current;
+					current,
+					transition;
 				if ( substate ) {
 					controller = this.controller();
 					current = controller.currentState();
 					// evacuate before removing
-					if ( controller.isInState( substate ) ) {
-						controller.changeState( this, { forced: true } );
-					}
+					// TODO: fail if a transition is underway involving `substate`
+					// ( transition = controller.transition() ) && (
+					// 	substate.isSuperstateOf( transition ) ||
+					// 	substate === transition.origin()
+					// );
+					controller.isInState( substate ) && controller.changeState( this, { forced: true } );
 					delete substates[ stateName ];
+					delete this[ stateName ];
+					controller.defaultState() === this && delete controller[ stateName ];
 					return substate;
 				}
 			},
@@ -216,7 +274,7 @@ var State = extend( true,
 			/**
 			 * 
 			 */
-			substate: function ( stateName, viaProto ) { //// untested
+			substate: function ( /*String*/ stateName, /*Boolean*/ viaProto ) { //// untested
 				var protostate;
 				viaProto === undefined && ( viaProto = true );
 				return (
@@ -229,7 +287,7 @@ var State = extend( true,
 			 * Returns an `Array` of this state's substates.
 			 */
 			// TODO: rewrite to consider protostates
-			substateCollection: function ( deep ) { //// untested
+			substateCollection: function ( /*Boolean*/ deep ) { //// untested
 				var result = [], i;
 				for ( i in substates ) {
 					result.push( substates[i] );
@@ -238,12 +296,15 @@ var State = extend( true,
 				return result;
 			},
 			
-			addTransition: function () {
-				
+			addTransition: function ( /*String*/ transitionName, /*StateTransitionDefinition | Object*/ transitionDefinition ) {
+				transitionDefinition instanceof State.Transition.Definition ||
+					( transitionDefinition = State.Transition.Definition( transitionDefinition ) );
+				transitions[ transitionName ] = transitionDefinition;
+				return transitionDefinition;
 			},
 			
-			transitions: function () {
-				return transitions;
+			transition: function ( transitionName ) {
+				return transitions[ transitionName ];
 			},
 			
 			/**
@@ -279,48 +340,136 @@ var State = extend( true,
 		});
 		
 		// If no superstate, then assume this is a default state being created by a StateController,
-		// which will call build() itself after overriding controller()
-		superstate && this.build();
+		// which will call init() itself after overriding controller()
+		superstate && this.init();
 	}, {
+		/*
+		 * Curried indirections, called from inside the constructor. Allows access to "private" free vars of
+		 * the constructor.
+		 */
+		privileged: {
+			/**
+			 * Builds out the state's members based on the contents of the supplied definition.
+			 */
+			init: function ( setDefinition ) {
+				return function ( /*StateDefinition|Object*/ override ) {
+					var	self = this,
+						definition = this.definition();
+					
+					// Validate and expand out the definition if necessary
+					override && ( definition = override );
+					definition instanceof State.Definition || ( definition = State.Definition( definition ) );
+					setDefinition( definition );
+					
+					// Build
+					// TODO: (???) destroy()
+					definition.data && this.data( definition.data );
+					each({
+							methods: function ( methodName, fn ) {
+								self.addMethod( methodName, fn );
+							},
+							events: function ( eventType, fn ) {
+								each( isArray( fn ) ? fn : [ fn ], function ( i, fn ) { self.addEvent( eventType, fn ); });
+							},
+							rules: function ( ruleName, rule ) {
+								self.addRule( ruleName, rule );
+							},
+							states: function ( stateName, stateDefinition ) {
+								self.addSubstate( stateName, stateDefinition );
+							},
+							transitions: function ( transitionName, transitionDefinition ) {
+								self.addTransition( transitionName, transitionDefinition );
+							}
+						},
+						function ( i, fn ) {
+							definition[i] && each( definition[i], fn );
+						}
+					);
+					
+					return this;
+				};
+			},
+			
+			/**
+			 * Retrieves the named method held on this state. If no method is found, step through this state's
+			 * protostate chain to find one. If no method is found there, step up the superstate hierarchy
+			 * and repeat the search.
+			 */
+			method: function ( methods ) {
+				return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
+					var	superstate, protostate;
+				
+					viaSuper === undefined && ( viaSuper = true );
+					viaProto === undefined && ( viaProto = true );
+				
+					return (
+						methods[ methodName ]
+							||
+						viaProto && ( protostate = this.protostate() ) && protostate.method( methodName, false, true )
+							||
+						viaSuper && ( superstate = this.superstate() ) && superstate.method( methodName, true, viaProto )
+							||
+						undefined
+					);
+				
+					return this.methodAndContext( methodName, viaSuper, viaProto ).method;
+				};
+			},
+			
+			/**
+			 * Returns the product of `method()` along with its context, i.e. the State that will be
+			 * referenced by `this` within the function.
+			 */
+			methodAndContext: function ( methods ) {
+				return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
+					var	superstate, protostate, result = {};
+				
+					viaSuper === undefined && ( viaSuper = true );
+					viaProto === undefined && ( viaProto = true );
+				
+					return (
+						( result.method = methods[ methodName ] ) && ( result.context = this, result )
+							||
+						viaProto && ( protostate = this.protostate() ) &&
+								( result = protostate.methodAndContext( methodName, false, true ) ) && ( result.context = this, result )
+							||
+						viaSuper && ( superstate = this.superstate() ) && superstate.methodAndContext( methodName, true, viaProto )
+							||
+						result
+					);
+				};
+			},
+			
+			/**
+			 * Adds a method to this state, callable directly from the owner.
+			 */
+			addMethod: function ( methods ) {
+				return function ( methodName, fn ) {
+					var	controller = this.controller(),
+						defaultState = controller.defaultState(),
+						owner = controller.owner(),
+						ownerMethod;
+					if ( !this.method( methodName, true, false ) ) {
+						if ( this !== defaultState &&
+							!defaultState.method( methodName, false, false ) &&
+							( ownerMethod = owner[ methodName ] ) !== undefined &&
+							!ownerMethod.isDelegate
+						) {
+							ownerMethod.callAsOwner = true;
+							defaultState.addMethod( methodName, ownerMethod );
+						}
+						owner[ methodName ] = State.delegate( methodName, controller );
+					}
+					return ( methods[ methodName ] = fn );
+				};
+			}
+		},
 		prototype: {
 			/**
 			 * Returns this state's fully qualified name.
 			 */
 			toString: function () {
 				return this.derivation( true ).join('.');
-			},
-			
-			build: function ( setDefinition, definitionOverride ) {
-				var self = this;
-				definitionOverride && setDefinition( definitionOverride );
-				this.definition() instanceof State.Definition || setDefinition( State.Definition( this.definition() ) );
-				// TODO: (???) destroy()
-				each(
-					{
-						methods: function ( methodName, fn ) {
-							self.addMethod( methodName, fn );
-						},
-						events: function ( eventType, fn ) {
-							if ( isArray( fn ) ) {
-								each( fn, function ( i, fn ) {
-									self.addEvent( eventType, fn );
-								});
-							} else {
-								self.addEvent( eventType, fn );
-							}
-						},
-						rules: function ( ruleName, rule ) {
-							self.addRule( ruleName, rule );
-						},
-						states: function ( stateName, stateDefinition ) {
-							self.addState( stateName, stateDefinition );
-						}
-					},
-					function ( i, fn ) {
-						self.definition()[i] && each( self.definition()[i], fn );
-					}
-				);
-				return this;
 			},
 			
 			controller: function () {
@@ -379,13 +528,14 @@ var State = extend( true,
 			 * Returns an object array of this state's superstate chain, starting after the default state
 			 * and ending at `this`.
 			 * 
-			 * @param byName:Boolean  Returns a string array of the states' names, rather than references
+			 * @param byName Returns a string array of the states' names, rather than references
 			 */
-			derivation: function ( byName ) {
-				for ( var result = [], s, ss = this;
-						( s = ss ) && ( ss = s.superstate() );
-						result.unshift( byName ? s.name() || '' : s )
-					);
+			derivation: function ( /*Boolean*/ byName ) {
+				for (
+					var result = [], s, ss = this;
+					( s = ss ) && ( ss = s.superstate() );
+					result.unshift( byName ? s.name() || '' : s )
+				);
 				return result;
 			},
 			
@@ -402,7 +552,7 @@ var State = extend( true,
 			 * Returns the state that is the nearest superstate, or the state itself, of both `this` and `other`.
 			 * Used to establish a common domain between any two states in a hierarchy.
 			 */
-			common: function ( other ) {
+			common: function ( /*State*/ other ) {
 				var state;
 				for ( ( this.depth() > other.depth() ) ? ( state = other, other = this ) : ( state = this );
 						state;
@@ -441,51 +591,28 @@ var State = extend( true,
 			},
 			
 			/**
-			 * Retrieves the named method held on this state. If no method is found, step through this state's
-			 * protostate chain to find one. If no method is found there, step up the superstate hierarchy
-			 * and repeat the search.
+			 * Finds a state method and applies it in the context of the state in which it was declared, or
+			 * if the implementation resides in a protostate, the corresponding `StateProxy`.
+			 * 
+			 * If the method was not declared in a state, e.g. one that that had already been defined and
+			 * was subsequently "swizzled" onto the default state, the function will have been marked
+			 * `callAsOwner`, in which case the method will be called in the original context of the owner.
 			 */
-			method: function ( methods, methodName, viaSuper, viaProto ) {
-				var	superstate, protostate;
-				
-				viaSuper === undefined && ( viaSuper = true );
-				viaProto === undefined && ( viaProto = true );
-				
-				return (
-					methods[ methodName ]
-						||
-					viaProto && ( protostate = this.protostate() ) && protostate.method( methodName, false, true )
-						||
-					viaSuper && ( superstate = this.superstate() ) && superstate.method( methodName, true, viaProto )
-						||
-					undefined
-				);
-				
-				return this.methodAndContext( methodName, viaSuper, viaProto ).method;
+			apply: function ( methodName, args ) {
+				var	mc = this.methodAndContext( methodName ),
+					method = mc.method,
+					context = mc.context;
+				if ( method ) {
+					method.callAsOwner && ( context = this.owner() );
+					return method.apply( context, args );
+				}
 			},
 			
 			/**
-			 * Returns the product of `method()` along with its context, i.e. the State that will be
-			 * referenced by `this` within the function.
+			 * @see apply
 			 */
-			methodAndContext: function ( methods, methodName, viaSuper, viaProto ) {
-				var	superstate,
-					protostate,
-					result = {};
-				
-				viaSuper === undefined && ( viaSuper = true );
-				viaProto === undefined && ( viaProto = true );
-				
-				return (
-					( result.method = methods[ methodName ] ) && ( result.context = this, result )
-						||
-					viaProto && ( protostate = this.protostate() ) &&
-							( result = protostate.methodAndContext( methodName, false, true ) ) && ( result.context = this, result )
-						||
-					viaSuper && ( superstate = this.superstate() ) && superstate.methodAndContext( methodName, true, viaProto )
-						||
-					undefined
-				);
+			call: function ( methodName ) {
+				return this.apply( methodName, slice( arguments, 1 ) );
 			},
 			
 			/**
@@ -495,43 +622,21 @@ var State = extend( true,
 				return !!this.method( methodName, false, false );
 			},
 			
-			/**
-			 * Adds a method to this state, callable directly from the owner.
-			 */
-			addMethod: function ( methods, methodName, fn ) {
-				var	controller = this.controller(),
-					defaultState = controller.defaultState(),
-					owner = controller.owner(),
-					ownerMethod;
-				if ( !this.method( methodName, true, false ) ) {
-					if ( this !== defaultState &&
-						!defaultState.method( methodName, false, false ) &&
-						( ownerMethod = owner[ methodName ] ) !== undefined &&
-						!ownerMethod.isDelegate
-					) {
-						ownerMethod.callAsOwner = true;
-						defaultState.addMethod( methodName, ownerMethod );
-					}
-					owner[ methodName ] = State.delegate( methodName, controller );
-				}
-				return ( methods[ methodName ] = fn );
-			},
-			
 			select: function () {
 				return this.controller().changeState( this ) && this;
 			},
 			isSelected: function () {
 				return this.controller().currentState() === this;
 			},
-			change: function ( state ) {
-				return this.controller().changeState( state ) && state;
+			change: function ( /*State|String*/ state ) {
+				return this.controller().changeState( state ) && this;
 			},
 			
 			/**
 			 * Returns the Boolean result of the rule function at `ruleName` defined on this state, as
 			 * evaluated against `testState`, or `true` if no rule exists.
 			 */
-			evaluateRule: function ( ruleName, testState ) {
+			evaluateRule: function ( /*String*/ ruleName, /*State*/ testState ) {
 				var	state = this,
 					rule = this.rule( ruleName ),
 					result;
@@ -556,7 +661,7 @@ var State = extend( true,
 			 * Returns the matched state, the set of matched states, or a Boolean indicating whether
 			 * `testState` is included in the matched set.
 			 */
-			match: function ( expr, testState ) {
+			match: function ( /*String*/ expr, /*State*/ testState ) {
 				var	parts = expr.split('.'),
 					cursor = ( parts.length && parts[0] === '' ? ( parts.shift(), this ) : this.controller().defaultState() ),
 					cursorSubstate,
@@ -593,7 +698,7 @@ var State = extend( true,
 		 * Returns a function that forwards a `methodName` call to `controller`, which will itself then
 		 * forward the call on to the appropriate implementation in the state hierarchy as determined by
 		 * the controller's current state. If the forwarded method is on the default state and was originally
-		 * a method of the controller's owner, then it will be executed in its original context; Otherwise,
+		 * a method of the controller's owner, then it will be executed in its original context. Otherwise,
 		 * it will be executed in the context of the state to which the selected method implementation
 		 * belongs, or if the implementation resides in a protostate, the context will be the corresponding
 		 * `StateProxy` within `controller`.
@@ -605,20 +710,12 @@ var State = extend( true,
 		 * @see State.addMethod
 		 */
 		delegate: function ( methodName, controller ) {
-			function delegate () {
-				var	data = controller.currentState().methodAndContext( methodName );
-				if ( data ) {
-					if ( data.context === controller.defaultState() && data.method.callAsOwner ) {
-						data.context = controller.owner();
-					}
-					return data.method.apply( data.context, arguments );
-				}
-			}
+			function delegate () { return controller.currentState().apply( methodName, arguments ); }
 			delegate.isDelegate = true;
 			return delegate;
 		},
 		
-		change: function ( expr ) {
+		change: function ( /*String*/ expr ) {
 			return function () { return this.change( expr ); }
 		}
 	}
@@ -633,66 +730,44 @@ State.Definition = extend( true,
 		}
 		extend( true, this, map instanceof D ? map : D.expand( map ) );
 	}, {
-		members: [ 'methods', 'events', 'rules', 'states', 'transitions' ],
-		isLongForm: function ( map ) {
-			var result;
-			each( this.members, function ( i, key ) {
-				return !( result = ( key in map && !isFunction( map[key] ) ) );
-			});
-			return result;
-		},
+		members: [ 'data', 'methods', 'events', 'rules', 'states', 'transitions' ],
 		expand: function ( map ) {
-			var result = nullHash( this.members ),
-				eventTypes = invert( State.Event.types );
+			var key, category,
+				result = nullHash( this.members ),
+				eventTypes = invert( State.Event.types ),
+				ruleTypes = invert([ 'admit', 'release' ]); // invert( State.Rule.types );
 			
-			if ( isArray( map ) ) {
-				each( this.members, function ( i, key ) {
-					return i < map.length && ( result[key] = map[i] );
-				});
-			} else if ( isPlainObject( map ) ) {
-				if ( this.isLongForm( map ) ) {
-					extend( result, map );
+			for ( key in map ) {
+				if ( key in result ) {
+					result[key] = extend( result[key], map[key] );
 				} else {
-					for ( var key in map ) {
-						var m = /^_*[A-Z]/.test( key ) ? 'states' : key in eventTypes ? 'events' : 'methods';
-						( result[m] || ( result[m] = {} ) )[key] = map[key];
-					}
+					category = /^_*[A-Z]/.test( key ) ? 'states' :
+							key in eventTypes ? 'events' :
+							key in ruleTypes ? 'rules' :
+							'methods';
+					( result[category] || ( result[category] = {} ) )[key] = map[key];
 				}
 			}
 			
 			if ( result.events ) {
 				each( result.events, function ( type, value ) {
 					isFunction( value ) && ( result.events[type] = value = [ value ] );
-					if ( !isArray( value ) ) {
-						throw new Error();
-					}
 				});
 			}
 			
 			if ( result.transitions ) {
 				each( result.transitions, function ( name, map ) {
 					result.transitions[name] = map instanceof State.Transition.Definition ? map : State.Transition.Definition( map );
-					// map instanceof State.TransitionDefinition || ( map = State.Transition.Definition( map ) );
 				});
 			}
 			
 			if ( result.states ) {
 				each( result.states, function ( name, map ) {
 					result.states[name] = map instanceof State.Definition ? map : State.Definition( map );
-					// map instanceof State.Definition || ( map = State.Definition( map ) );
 				});
 			}
 			
 			return result;
-		},
-		
-		Set: function StateDefinitionSet ( map ) {
-			each( map, function ( name, definition ) {
-				if ( !( definition instanceof State.Definition ) ) {
-					map[name] = State.Definition( definition );
-				}
-			});
-			extend( true, this, map );
 		}
 	}
 );
@@ -704,17 +779,16 @@ State.Controller = extend( true,
 			return new State.Controller( owner, name, definition, initialState );
 		}
 		
-		// # Locals
 		var	defaultState, currentState, transition, getName,
 			self = this,
+			privileged = State.Controller.privileged,
 			args = resolveOverloads( arguments, this.constructor.overloads );
 		
 		function setCurrentState ( value ) { return currentState = value; }
 		function setTransition ( value ) { return transition = value; }
 		
-		// # Overload argument rewrites
-		owner = args.owner;
-		name = args.name || 'state';
+		// Overload argument rewrites
+		( owner = args.owner || {} )[ name = args.name || 'state' ] = this;
 		definition = args.definition instanceof State.Definition ? args.definition : State.Definition( args.definition );
 		initialState = args.initialState;
 		
@@ -725,40 +799,32 @@ State.Controller = extend( true,
 			currentState: function () { return currentState || defaultState; },
 			transition: function () { return transition; },
 			addState: function ( stateName, stateDefinition ) {
-				return defaultState.addState( stateName, stateDefinition );
+				return defaultState.addSubstate( stateName, stateDefinition );
 			},
 			removeState: function ( stateName ) {
-				throw new Error( "State.Controller.removeState not implemented yet" );
+				return defaultState.removeState( stateName );
 			},
-			
-			/**
-			 * Forwards to prototype, with closures providing write access to private vars `currentState`
-			 * and `transition`.
-			 * 
-			 * @see State.Controller.prototype.changeState
-			 */
-			changeState: function ( destination, options ) {
-				return State.Controller.prototype.changeState.call( this, destination, options, setCurrentState, setTransition );
+			changeState: function () {
+				return privileged.changeState( setCurrentState, setTransition ).apply( this, arguments );
 			}
 		});
 		
-		// Provide aliases, for brevity, but only if controller is not implemented as its own owner.
-		if ( owner !== this ) {
-			// Methods `add` and `change` also provide alternate return types to their aliased counterparts.
-			extend( this, {
-				current: this.currentState,
-				add: function () { return this.addState.apply( this, arguments ) ? this : false; },
-				remove: this.removeState,
-				change: function () { return this.changeState.apply( this, arguments ) ? this.owner() : false; },
-				isIn: this.isInState,
-				get: this.getState,
-				method: this.getMethod
-			});
-		}
+		// Aliases for brevity.
+		// Methods `add` and `change` also provide alternate return types to their aliased counterparts.
+		extend( this, {
+			current: this.currentState,
+			add: function () { return this.addState.apply( this, arguments ) ? this : false; },
+			remove: this.removeState,
+			change: function () { return this.changeState.apply( this, arguments ) ? this.owner() : false; },
+			isIn: this.isInState,
+			get: this.getState,
+			method: this.getMethod
+		});
 		
+		// Instantiate the default state and initialize it as the root of the state hierarchy
 		( defaultState = extend( new State(), {
 			controller: function () { return self; }
-		}) ).build( definition );
+		}) ).init( definition );
 		
 		currentState = initialState ? this.getState( initialState ) : defaultState;
 		currentState.controller() === this || ( currentState = this.createProxy( currentState ) );
@@ -774,6 +840,110 @@ State.Controller = extend( true,
 			'object' : 'definition',
 			'string' : 'name'
 		},
+		privileged: {
+			/**
+			 * Attempts to change the controller's current state. Handles asynchronous transitions, generation
+			 * of appropriate events, and construction of temporary protostate proxies as necessary. Adheres
+			 * to rules supplied in both the origin and destination states, and fails appropriately if a
+			 * matching rule disallows the change.
+			 * 
+			 * @param destination:State
+			 * @param options:Object Map of settings:
+			 * 		forced:Boolean
+			 * 			Overrides any rules defined, ensuring the change will complete, assuming a valid
+			 * 			destination.
+			 * 		success:Function
+			 * 			Callback to be executed upon successful completion of the change.
+			 * 		failure:Function
+			 * 			Callback to be executed if the change is blocked by a rule.
+			 * @param setCurrentState:Function
+			 * @param setTransition:Function
+			 * 
+			 * @see State.Controller.changeState
+			 */
+			changeState: function ( setCurrentState, setTransition ) {
+				return function ( destination, options ) {
+					var	destinationOwner, source, origin, domain, data, state,
+						owner = this.owner(),
+						transition = this.transition(),
+						transitionDefinition,
+						self = this;
+				
+					// Translate `destination` argument to a proper `State` object if necessary.
+					destination instanceof State || ( destination = destination ? this.getState( destination ) : this.defaultState() );
+				
+					if ( !destination ||
+							( destinationOwner = destination.owner() ) !== owner &&
+							!destinationOwner.isPrototypeOf( owner )
+					) {
+						throw new Error( "Invalid state" );
+					}
+				
+					options || ( options = {} );
+					origin = transition ? transition.origin() : this.currentState();
+					if ( options.forced ||
+							origin.evaluateRule( 'release', destination ) &&
+							destination.evaluateRule( 'admit', origin )
+					) {
+						// If `destination` is a state from a prototype of `owner`, it must be represented here as a
+						// transient protostate proxy.
+						destination && destination.controller() !== this && ( destination = this.createProxy( destination ) );
+					
+						// If a transition is underway, it needs to be notified that it won't finish.
+						transition && transition.abort();
+					
+						source = state = this.currentState();
+						domain = source.common( destination );
+						source.triggerEvents( 'depart', data );
+					
+						// Look up transition for origin/destination pairing; if none then create a default
+						// transition.
+						transitionDefinition = this.getTransitionDefinitionFor( destination, origin );
+						setCurrentState( transition = setTransition(
+							new State.Transition( destination, source, transitionDefinition )
+						) );
+					
+						data = { transition: transition, forced: !!options.forced };
+					
+						// Walk up to the top of the domain, bubbling 'exit' events along the way
+						while ( state !== domain ) {
+							state.triggerEvents( 'exit', data );
+							transition.attachTo( state = state.superstate() );
+						}
+					
+						// Provide an enclosed callback that can be called from `transition.end()` to complete the
+						// `changeState` operation
+						transition.setCallback( function () {
+							var pathToState = [];
+						
+							// Trace a path from `destination` up to `domain`, then walk down it, capturing 'enter'
+							// events along the way
+							for ( state = destination; state !== domain; pathToState.push( state ), state = state.superstate() );
+							while ( pathToState.length ) {
+								transition.attachTo( state = pathToState.pop() );
+								state.triggerEvents( 'enter', data );
+							}
+						
+							setCurrentState( destination );
+							this.currentState().triggerEvents( 'arrive', data );
+						
+							origin instanceof State.Proxy && ( this.destroyProxy( origin ), origin = null );
+							transition.destroy(), transition = setTransition( null );
+						
+							typeof options.success === 'function' && options.success.call( this );
+							return this;
+						});
+					
+						// Initiate transition and return asynchronously
+						transition.start.apply( transition, options.arguments );
+						return this;
+					} else {
+						typeof options.failure === 'function' && options.failure.call( this );
+						return false;
+					}
+				}
+			},
+		},
 		prototype: {
 			toString: function () {
 				return this.currentState().toString();
@@ -788,6 +958,7 @@ State.Controller = extend( true,
 				return this.getState( expr, context ) === this.currentState();
 			},
 			isInState: function ( expr, context ) {
+				// return this.currentState().isIn( this.getState( expr, context ) );
 				var	state = this.getState( expr, context ),
 					currentState = this.currentState();
 				return state === currentState || state.isSuperstateOf( currentState );
@@ -840,7 +1011,7 @@ State.Controller = extend( true,
 				function search ( state, until ) {
 					var result, transitions;
 					for ( ; state && state !== until; state = until ? state.superstate() : undefined ) {
-						( transitions = state.transitions() ) && each( transitions, function ( i, t ) {
+						each( state.transitions, function ( i, t ) {
 							return !(
 								( t.destination ? state.match( t.destination, destination ) : state === destination ) &&
 								( !t.origin || state.match( t.origin, origin ) ) &&
@@ -860,119 +1031,14 @@ State.Controller = extend( true,
 				);
 			},
 			
-			/**
-			 * Attempts to change the controller's current state. Handles asynchronous transitions, generation
-			 * of appropriate events, and construction of temporary protostate proxies as necessary. Adheres
-			 * to rules supplied in both the origin and destination states, and fails appropriately if a
-			 * matching rule disallows the change.
-			 * 
-			 * @param destination:State
-			 * @param options:Object Map of settings:
-			 * 		forced:Boolean
-			 * 			Overrides any rules defined, ensuring the change will complete, assuming a valid
-			 * 			destination.
-			 * 		success:Function
-			 * 			Callback to be executed upon successful completion of the change.
-			 * 		failure:Function
-			 * 			Callback to be executed if the change is blocked by a rule.
-			 * @param setCurrentState:Function
-			 * @param setTransition:Function
-			 * 
-			 * @see State.Controller.changeState
-			 */
-			changeState: function ( destination, options, setCurrentState, setTransition ) {
-				var	destinationOwner, source, origin, domain, data, state,
-					owner = this.owner(),
-					transition = this.transition(),
-					transitionDefinition,
-					self = this;
-				
-				// Translate `destination` argument to a proper `State` object if necessary.
-				destination instanceof State || ( destination = destination ? this.getState( destination ) : this.defaultState() );
-				
-				if ( !destination ||
-						( destinationOwner = destination.owner() ) !== owner &&
-						!destinationOwner.isPrototypeOf( owner )
-				) {
-					throw new Error( "Invalid state" );
-				}
-				
-				options || ( options = {} );
-				origin = transition ? transition.origin() : this.currentState();
-				if ( options.forced ||
-						origin.evaluateRule( 'allowDepartureTo', destination ) &&
-						destination.evaluateRule( 'allowArrivalFrom', origin )
-				) {
-					// If `destination` is a state from a prototype of `owner`, it must be represented here as a
-					// transient protostate proxy.
-					destination && destination.controller() !== this && ( destination = this.createProxy( destination ) );
-					
-					// If a transition is underway, it needs to be notified that it won't finish.
-					transition && transition.abort();
-					
-					source = state = this.currentState();
-					domain = source.common( destination );
-					source.triggerEvents( 'depart', data );
-					
-					// Look up transition for origin/destination pairing; if none then create a default
-					// transition.
-					transitionDefinition = this.getTransitionDefinitionFor( destination, origin );
-					setCurrentState( transition = setTransition(
-						new State.Transition( destination, source, transitionDefinition )
-					) );
-					
-					data = { transition: transition, forced: !!options.forced };
-					
-					// Walk up to the top of the domain, bubbling 'exit' events along the way
-					while ( state !== domain ) {
-						state.triggerEvents( 'exit', data );
-						transition.attachTo( state = state.superstate() );
-					}
-					
-					// Provide an enclosed callback that can be called from `transition.end()` to complete the
-					// `changeState` operation
-					transition.setCallback( function () {
-						var pathToState = [];
-						
-						// Trace a path from `destination` up to `domain`, then walk down it, capturing 'enter'
-						// events along the way
-						for ( state = destination; state !== domain; pathToState.push( state ), state = state.superstate() );
-						while ( pathToState.length ) {
-							transition.attachTo( state = pathToState.pop() );
-							state.triggerEvents( 'enter', data );
-						}
-						
-						setCurrentState( destination );
-						this.currentState().triggerEvents( 'arrive', data );
-						
-						origin instanceof State.Proxy && ( this.destroyProxy( origin ), origin = null );
-						transition.destroy(), transition = setTransition( null );
-						
-						typeof options.success === 'function' && options.success.call( this );
-						return this;
-					});
-					
-					// Initiate transition and return asynchronously
-					transition.start.apply( transition, options.arguments );
-					return this;
-				} else {
-					typeof options.failure === 'function' && options.failure.call( this );
-					return false;
-				}
-			},
 			getMethod: function ( methodName ) {
 				return this.currentState().method( methodName );
 			},
+			
 			superstate: function ( methodName ) {
 				var superstate = this.currentState().superstate();
 				return methodName === undefined ? superstate : superstate.method( methodName );
 			}
-		},
-		
-		forObject: function () {
-			var controller = State.Controller.apply( undefined, arguments );
-			controller.owner()[ controller.name() ] = controller;
-			return controller.owner();
 		}
 	}
 );
@@ -986,7 +1052,7 @@ State.Event = extend( true,
 			type: type
 		});
 	}, {
-		types: [ 'depart', 'exit', 'enter', 'arrive' ],
+		types: [ 'depart', 'exit', 'enter', 'arrive', 'mutate' ],
 		prototype: {
 			toString: function () {
 				return 'StateEvent (' + this.type + ') ' + this.name;
@@ -1064,7 +1130,6 @@ State.Event = extend( true,
 		)
 	}
 );
-
 
 /**
  * StateProxy allows a state controller to reference a protostate from within its own state hierarchy.
@@ -1172,6 +1237,7 @@ State.Transition = extend( true,
 );
 
 
+// exposes everything on one place on the global object
 this.State = State;
 
 })( jQuery );
