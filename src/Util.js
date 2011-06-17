@@ -1,22 +1,61 @@
 /**
- * Module-level utility functions
+ * # Utility functions
  */
 
 // TODO: check for presence of jQuery, Underscore, etc., or fall back to script-loaded independent implementations 
-var	each = $.each,
-	extend = $.extend,
+var	extend = $.extend,
 	trim = $.trim,
 	isArray = $.isArray,
-	isFunction = $.isFunction,
-	isPlainObject = $.isPlainObject;
+	isFunction = $.isFunction;
+
+function isEmpty( obj ) {
+	for ( var key in obj ) {
+		if ( obj.hasOwnProperty( key ) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function isNumber( n ) {
+	return !isNaN( parseFloat( n ) && isFinite( n ) );
+}
+
+function each ( obj, fn ) {
+	if ( !obj ) return;
+	var	key,
+		length = obj.length;
+	if ( length === undefined || isFunction( obj ) ) {
+		for ( key in obj ) {
+			if ( fn.call( obj[key], key, obj[key], obj ) === false ) {
+				break;
+			}
+		}
+	} else {
+		for ( key = 0, length = obj.length; key < length; ) {
+			if ( fn.call( obj[key], key, obj[key++], obj ) === false ) {
+				break;
+			}
+		}
+	}
+	return obj;
+}
 
 function concat () { return Array.prototype.concat.apply( [], arguments ); }
 
 function slice ( array, begin, end ) { return Array.prototype.slice.call( array, begin, end ); }
 
+function keys ( obj ) {
+	var key, result = [];
+	for ( key in obj ) {
+		result.push( i );
+	}
+	return result;
+}
+
 function invert ( array ) {
-	var	map = {};
-	for ( var i in array ) {
+	var	i, map = {};
+	for ( i in array ) {
 		map[ array[i] ] = i;
 	}
 	return map;
@@ -24,7 +63,7 @@ function invert ( array ) {
 
 function nullify ( o ) {
 	for ( var i in o ) {
-		o[i] = null;
+		o.hasOwnProperty( i ) && ( o[i] = null );
 	}
 	return o;
 }

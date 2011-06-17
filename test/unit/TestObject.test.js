@@ -46,7 +46,9 @@ window.TestObject = function TestObject ( initialState ) {
 					data: {
 						description: "I'm really ready"
 					}
-				}
+				},
+				
+				wiggle: State.Transition({})
 			},
 
 			// 3. Complex: named categories
@@ -97,7 +99,7 @@ window.TestObject = function TestObject ( initialState ) {
 						methodTwo: function () {
 							return 'Finished.CleaningUp.methodTwo';
 						},
-						terminate: function () { return this.change( 'Finished.Terminated' ); },
+						terminate: function () { return this.select( '..Terminated' ); },
 						
 						arrive: function ( event ) {
 							event.log( "I'm an event" );

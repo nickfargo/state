@@ -9,6 +9,7 @@ State.Controller = extend( true,
 			privileged = State.Controller.privileged,
 			args = resolveOverloads( arguments, this.constructor.overloads );
 		
+		function getName () { return name; }
 		function setCurrentState ( value ) { return currentState = value; }
 		function setTransition ( value ) { return transition = value; }
 		
@@ -19,31 +20,13 @@ State.Controller = extend( true,
 		
 		extend( this, {
 			owner: function () { return owner; },
-			name: ( getName = function () { return name; } ).toString = getName,
+			name: getName.toString = getName,
 			defaultState: function () { return defaultState; },
-			currentState: function () { return currentState || defaultState; },
+			current: function () { return currentState || defaultState; },
 			transition: function () { return transition; },
-			addState: function ( stateName, stateDefinition ) {
-				return defaultState.addSubstate( stateName, stateDefinition );
-			},
-			removeState: function ( stateName ) {
-				return defaultState.removeState( stateName );
-			},
-			changeState: function () {
-				return privileged.changeState( setCurrentState, setTransition ).apply( this, arguments );
+			change: function () {
+				return privileged.change( setCurrentState, setTransition ).apply( this, arguments );
 			}
-		});
-		
-		// Aliases for brevity.
-		// Methods `add` and `change` also provide alternate return types to their aliased counterparts.
-		extend( this, {
-			current: this.currentState,
-			add: function () { return this.addState.apply( this, arguments ) ? this : false; },
-			remove: this.removeState,
-			change: function () { return this.changeState.apply( this, arguments ) ? this.owner() : false; },
-			isIn: this.isInState,
-			get: this.getState,
-			method: this.getMethod
 		});
 		
 		// Instantiate the default state and initialize it as the root of the state hierarchy
@@ -51,7 +34,7 @@ State.Controller = extend( true,
 			controller: function () { return self; }
 		}) ).init( definition );
 		
-		currentState = initialState ? this.getState( initialState ) : defaultState;
+		currentState = initialState ? this.get( initialState ) : defaultState;
 		currentState.controller() === this || ( currentState = this.createProxy( currentState ) );
 	}, {
 		overloads: {
@@ -84,9 +67,9 @@ State.Controller = extend( true,
 			 * @param setCurrentState:Function
 			 * @param setTransition:Function
 			 * 
-			 * @see State.Controller.changeState
+			 * @see State.Controller.change
 			 */
-			changeState: function ( setCurrentState, setTransition ) {
+			change: function ( setCurrentState, setTransition ) {
 				return function ( destination, options ) {
 					var	destinationOwner, source, origin, domain, data, state,
 						owner = this.owner(),
@@ -95,7 +78,7 @@ State.Controller = extend( true,
 						self = this;
 				
 					// Translate `destination` argument to a proper `State` object if necessary.
-					destination instanceof State || ( destination = destination ? this.getState( destination ) : this.defaultState() );
+					destination instanceof State || ( destination = destination ? this.get( destination ) : this.defaultState() );
 				
 					if ( !destination ||
 							( destinationOwner = destination.owner() ) !== owner &&
@@ -105,7 +88,7 @@ State.Controller = extend( true,
 					}
 				
 					options || ( options = {} );
-					origin = transition ? transition.origin() : this.currentState();
+					origin = transition ? transition.origin() : this.current();
 					if ( options.forced ||
 							origin.evaluateRule( 'release', destination ) &&
 							destination.evaluateRule( 'admit', origin )
@@ -113,53 +96,54 @@ State.Controller = extend( true,
 						// If `destination` is a state from a prototype of `owner`, it must be represented here as a
 						// transient protostate proxy.
 						destination && destination.controller() !== this && ( destination = this.createProxy( destination ) );
-					
+						
 						// If a transition is underway, it needs to be notified that it won't finish.
 						transition && transition.abort();
-					
-						source = state = this.currentState();
+						
+						source = state = this.current();
 						domain = source.common( destination );
-						source.triggerEvents( 'depart', data );
-					
-						// Look up transition for origin/destination pairing; if none then create a default
-						// transition.
-						transitionDefinition = this.getTransitionDefinitionFor( destination, origin );
-						setCurrentState( transition = setTransition(
-							new State.Transition( destination, source, transitionDefinition )
-						) );
-					
+						
+						// Retrieve the appropriate transition definition for this origin/destination pairing;
+						// if none is defined then a default transition is created that will cause the callback
+						// to return immediately.
+						transition = setTransition( new State.Transition(
+							destination,
+							source,
+							transitionDefinition = this.getTransitionDefinitionFor( destination, origin )
+						));
 						data = { transition: transition, forced: !!options.forced };
-					
-						// Walk up to the top of the domain, bubbling 'exit' events along the way
+						
+						// Walk up to the top of the domain, beginning with a 'depart' event, and bubbling 'exit'
+						// events at each step along the way.
+						source.triggerEvents( 'depart', data );
+						setCurrentState( transition );
 						while ( state !== domain ) {
 							state.triggerEvents( 'exit', data );
 							transition.attachTo( state = state.superstate() );
 						}
-					
+						
 						// Provide an enclosed callback that can be called from `transition.end()` to complete the
-						// `changeState` operation
+						// `change` operation.
 						transition.setCallback( function () {
 							var pathToState = [];
-						
+							
 							// Trace a path from `destination` up to `domain`, then walk down it, capturing 'enter'
-							// events along the way
+							// events along the way, and terminating with an 'arrive' event.
 							for ( state = destination; state !== domain; pathToState.push( state ), state = state.superstate() );
 							while ( pathToState.length ) {
 								transition.attachTo( state = pathToState.pop() );
 								state.triggerEvents( 'enter', data );
 							}
-						
 							setCurrentState( destination );
-							this.currentState().triggerEvents( 'arrive', data );
-						
+							this.current().triggerEvents( 'arrive', data );
+							
 							origin instanceof State.Proxy && ( this.destroyProxy( origin ), origin = null );
 							transition.destroy(), transition = setTransition( null );
-						
+							
 							typeof options.success === 'function' && options.success.call( this );
 							return this;
 						});
-					
-						// Initiate transition and return asynchronously
+						
 						transition.start.apply( transition, options.arguments );
 						return this;
 					} else {
@@ -171,22 +155,19 @@ State.Controller = extend( true,
 		},
 		prototype: {
 			toString: function () {
-				return this.currentState().toString();
+				return this.current().toString();
 			},
 			match: function ( expr, testState ) {
-				return this.currentState().match( expr, testState );
+				return this.current().match( expr, testState );
 			},
-			getState: function ( expr, context ) {
-				return expr === undefined ? this.currentState() : ( context || this ).match( expr );
+			get: function ( expr, context ) {
+				return expr === undefined ? this.current() : ( context || this ).match( expr );
 			},
 			is: function ( expr, context ) {
-				return this.getState( expr, context ) === this.currentState();
+				return ( expr instanceof State ? expr : this.get( expr, context ) ) === this.current();
 			},
-			isInState: function ( expr, context ) {
-				// return this.currentState().isIn( this.getState( expr, context ) );
-				var	state = this.getState( expr, context ),
-					currentState = this.currentState();
-				return state === currentState || state.isSuperstateOf( currentState );
+			isIn: function ( expr, context ) {
+				return this.current().isIn( expr instanceof State ? expr : this.get( expr, context ) );
 			},
 			
 			/**
@@ -227,11 +208,11 @@ State.Controller = extend( true,
 			
 			/**
 			 * Finds the appropriate transition definition for the given origin and destination states. If no
-			 * matching transitions are defined in any of the states, return a generic transition definition
+			 * matching transitions are defined in any of the states, returns a generic transition definition
 			 * for the origin/destination pair with no `operation`.
 			 */
 			getTransitionDefinitionFor: function ( destination, origin ) { //// untested
-				origin || ( origin = this.currentState() );
+				origin || ( origin = this.current() );
 				
 				function search ( state, until ) {
 					var result, transitions;
@@ -252,17 +233,29 @@ State.Controller = extend( true,
 					origin !== destination && search( origin ) ||
 					search( destination.superstate(), this.defaultState() ) || search( this.defaultState() ) ||
 					!destination.isIn( origin ) && search( origin.superstate(), origin.common( destination ) ) ||
-					new State.Transition.Definition( {} )
+					new State.Transition.Definition()
 				);
 			},
 			
-			getMethod: function ( methodName ) {
-				return this.currentState().method( methodName );
+			addState: function ( stateName, stateDefinition ) {
+				return this.defaultState().addSubstate( stateName, stateDefinition );
+			},
+			
+			removeState: function ( stateName ) {
+				return this.defaultState().removeSubstate( stateName );
+			},
+			
+			method: function ( methodName ) {
+				return this.current().method( methodName );
 			},
 			
 			superstate: function ( methodName ) {
-				var superstate = this.currentState().superstate();
+				var superstate = this.current().superstate();
 				return methodName === undefined ? superstate : superstate.method( methodName );
+			},
+			
+			destroy: function () {
+				return this.defaultState().destroy() && delete this.owner()[ this.name() ];
 			}
 		}
 	}

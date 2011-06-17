@@ -3,14 +3,19 @@
 module( "State.Controller" );
 
 test( "isInState()", function () {
-	
+	var x = new TestObject('Preparing');
+	ok( x.state.isIn('Preparing') );
+	ok( x.state.change('Ready').isIn('Ready') );
+	ok( x.state.change('Finished').isIn('Finished') );
+	ok( x.state.change('.CleaningUp').isIn('Finished') );
+	ok( x.state.isIn('Finished.CleaningUp') );
 });
 
-test( "changeState()", function () {
+test( "change()", function () {
 	var x = new TestObject('');
 	var callback;
 	
-	// This state change attempt should succeed, so the `success` callback in `changeState()` should be called
+	// This state change attempt should succeed, so the `success` callback in `change()` should be called
 	strictEqual( ( x.state.change(
 		'Preparing', {
 			success: function () { callback = true; }
@@ -18,7 +23,7 @@ test( "changeState()", function () {
 	callback = undefined;
 	
 	// This state change attempt should fail since Terminated disallows further state changes,
-	// so the `fail` callback in `changeState()` should be called
+	// so the `fail` callback in `change()` should be called
 	x.state.change( 'Finished.Terminated' );
 	strictEqual( ( x.state.change(
 		'Preparing', {
@@ -35,7 +40,7 @@ test( "changeState()", function () {
 	callback = undefined;
 });
 
-test( "changeState() bubble/capture", function () {
+test( "change() bubble/capture", function () {
 	var out = '', x = new TestObject('Preparing');
 	x.state.Preparing.addEvent( 'exit', function () { out += "fee"; console.log( "Preparing.exit" ); } );
 	x.state.Finished.addEvent( 'enter', function () { out += "fi"; console.log( "Finished.enter" ); } );

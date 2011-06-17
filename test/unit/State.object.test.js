@@ -13,6 +13,7 @@ test( "Object creation", function () {
 	equal( x.methodOne(), 'Preparing.methodOne', "methodOne() on TestObject returns proper method for state 'Preparing'" );
 	
 	ok( x.state.Ready instanceof State );
+	ok( x.state.Ready.Champing instanceof State );
 	ok( !x.state.Ready.method( 'methodOne', false, false ) );
 	ok( x.state.Ready.method( 'methodTwo', false, false ) );
 	arr = x.state.Ready.getEvents('arrive');
@@ -23,7 +24,7 @@ test( "Object creation", function () {
 
 test( "Null state change", function () {
 	var x = new TestObject();
-	ok( x.state.change( x.state.current() ).state.is('Preparing'), "StateController.change() to current state" );
+	ok( x.state.change( x.state.current() ).is('Preparing'), "StateController.change() to current state" );
 	ok( x.state.current() === x.state.current().select(), "State.select() on current state" );
 });
 
@@ -54,7 +55,7 @@ test( "State changes from parent state into child state", function () {
 test( "State changes from one child state sibling to another", function () {
 	var x = new TestObject('Finished');
 	ok( x.state.is('Finished'), "Initialized to state 'Finished'" );
-	ok( x.state.change('Finished').state.change('.CleaningUp'), "Null state change chained to change to child state" );
+	ok( x.state.change('Finished').change('.CleaningUp'), "Null state change chained to change to child state" );
 	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax" );
 });
 
@@ -72,7 +73,7 @@ test( "Method resolutions", function () {
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'methodTwo' );
 	equal( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' );
-	ok( x.state.change('.CleaningUp').state.is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
+	ok( x.state.change('.CleaningUp').is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'Finished.CleaningUp.methodTwo' );
 	ok( ( x.terminate(), x.state.is('Finished.Terminated') ), "State 'Finished.Terminated'" );
@@ -84,19 +85,24 @@ test( "Method resolutions", function () {
 
 test( "Rules", function () {
 	var x = new TestObject('Finished');
-	ok( !x.state.change('Preparing') );
-	ok( !x.state.change('Ready') );
-	ok( x.state.change('.Terminated') );
-	ok( !x.state.change('') );
+	ok( !x.state.change('Preparing'), "'Finished' to 'Preparing' disallowed" );
+	ok( !x.state.change('Ready'), "'Finished' to 'Ready' disallowed" );
+	ok( x.state.change('.Terminated'), "'Finished' to 'Finished.Terminated' allowed" );
+	ok( !x.state.change(''), "'Finished.Terminated' to default state disallowed" );
 });
 
 test( "Data", function () {
 	var x = new TestObject();
-	ok( x.state.Finished.data() );
-	equal( x.state.Finished.data().c, x.state.Finished.Terminated.data().c );
-	notEqual( x.state.Finished.data().a, x.state.Finished.Terminated.data().a );
-	equal( x.state.Finished.data().d.a, x.state.Finished.Terminated.data().d.a );
-	notEqual( x.state.Finished.data().d.b, x.state.Finished.Terminated.data().d.b );
+	ok( x.state.Finished.data(), "Data accessible from `data()`" );
+	equal( x.state.Finished.data().c, x.state.Finished.Terminated.data().c, "Substate inherits data member from superstate" );
+	notEqual( x.state.Finished.data().a, x.state.Finished.Terminated.data().a, "Substate overrides data member of superstate" );
+	equal( x.state.Finished.data().d.a, x.state.Finished.Terminated.data().d.a, "Substate inherits data member from superstate one level deep" );
+	notEqual( x.state.Finished.data().d.b, x.state.Finished.Terminated.data().d.b, "Substate overrides data member of superstate one level deep" );
 });
+
+test( "Destroy", function () {
+	var x = new TestObject();
+	ok( x.state.destroy() );
+})
 
 })( jQuery );

@@ -27,7 +27,7 @@ State.Transition = extend( true,
 			aborted: function () { return aborted; },
 			start: function () {
 				aborted = false;
-				typeof operation === 'function' ? operation.apply( this, arguments ) : this.end();
+				isFunction( operation ) ? operation.apply( this, arguments ) : this.end();
 			},
 			abort: function () {
 				aborted = true;

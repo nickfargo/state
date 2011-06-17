@@ -22,5 +22,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-( function ( $, undefined ) {
+( function ( undefined ) {
 "use strict";
+
+/**
+ * Locally identify the global object.
+ */
+var	global = this,
+
+	/**
+	 * Save whatever value may have already existed at `State`.
+	 */
+	autochthon = global.State,
+
+	/**
+	 * Locally identify Underscore, or, if on the server, require it.
+	 */
+	// _ = global._ || typeof require !== 'undefined' && require('underscore')._,
+
+	/**
+	 * Locally identify jQuery.
+	 */
+	$ = global.jQuery;
