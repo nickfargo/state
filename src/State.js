@@ -22,71 +22,135 @@ var State = extend( true,
 			return ( arguments.length < 2 ? State.Definition : State.Controller ).apply( this, arguments );
 		}
 		
-		var	self = this,
-			privileged = State.privileged,
+		var	getName,
+			self = this,
 			destroyed = false,
-			data, history = [],
+			// history = [],
+			data = {},
 			methods = {},
 			events = nullHash( State.Event.types ),
 			rules = {},
 			substates = {},
-			transitions = {},
-			getName;
+			transitions = {};
 		
-		/**
-		 * Defines a setter function; this can be passed to external privileged methods to provide access to
+		/*
+		 * Setter functions; these are passed as arguments to external privileged methods to provide access to
 		 * free variables within the constructor.
 		 */
+		function setSuperstate ( value ) { return superstate = value; }
 		function setDefinition ( value ) { return definition = value; }
+		function setDestroyed ( value ) { return destroyed = !!value; }
 		
-		// deprivatize these for now to allow visibility to inspectors
-		extend( this, {
+		// expose these in debug mode
+		debug && extend( this.__private__ = {}, {
+			data: data,
 			methods: methods,
 			events: events,
 			rules: rules,
 			substates: substates,
 			transitions: transitions
 		});
-
+		
 		/**
-		 * Internal privileged methods.
+		 * Get the state's name. Copying the function to its own `toString` exposes the value of `name`
+		 * when the method is viewed in the Chrome web inspector.
 		 */
-		extend( this, {
+		( this.name = function () { return name || ''; } ).toString = this.name;
+		
+		/**
+		 * Get the `StateDefinition` that was used to define this state.
+		 */
+		this.definition = function () { return definition; };
+		
+		/*
+		 * External privileged methods
+		 * 
+		 * Method names are mapped to specific internal free variables. The named methods are created on
+		 * `this`, each of which is partially applied with its mapped free variables to the correspondingly
+		 * named methods at `State.privileged`.
+		 */
+		indirect( this, State.privileged, {
+			'init' : [ State.Definition, setDefinition ],
+			'superstate' : [ superstate ],
+			'data' : [ data ],
+			'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
+			'event events addEvent removeEvent trigger' : [ events ],
+			'rule addRule removeRule' : [ rules ],
+			'substate substates addSubstate removeSubstate' : [ substates ],
+			'transition transitions addTransition' : [ transitions ],
+			'destroy' : [ setSuperstate, setDestroyed, methods, substates ]
+		});
+		
+		/*
+		 * If no superstate, then assume this is a default state being created by a StateController,
+		 * which will call `init()` itself after overriding `controller`.
+		 */
+		superstate && this.init();
+	}, {
+		/*
+		 * Privileged indirections, partially applied with private free variables from inside the constructor.
+		 */
+		privileged: {
 			/**
-			 * Get the state's name. Copying the function to its own `toString` exposes the value of `name`
-			 * when the method is viewed in the Chrome web inspector.
+			 * Builds out the state's members based on the contents of the supplied definition.
 			 */
-			name: ( getName = function () { return name || ''; } ).toString = getName,
-			
-			/**
-			 * Get the `StateDefinition` that was used to define this state.
-			 */
-			definition: function () { return definition; },
-			
-			/**
-			 * Curried indirection to `State.privileged.init`.
-			 * @see State.privileged.init
-			 */
-			init: function () {
-				return privileged.init( setDefinition ).apply( this, arguments );
+			init: function ( DefinitionConstructor, setDefinition ) {
+				return function ( /*<DefinitionConstructor>|Object*/ definitionOverride ) {
+					var	category,
+						definition = definitionOverride || this.definition(),
+						self = this;
+					
+					definition instanceof DefinitionConstructor ||
+						setDefinition( definition = DefinitionConstructor( definition ) );
+					
+					definition.data && this.data( definition.data );
+					each({
+						methods: function ( methodName, fn ) {
+							self.addMethod( methodName, fn );
+						},
+						events: function ( eventType, fn ) {
+							isArray( fn ) || ( fn = [ fn ] );
+							for ( var i in fn ) {
+								self.addEvent( eventType, fn[i] );
+							}
+						},
+						rules: function ( ruleType, rule ) {
+							self.addRule( ruleType, rule );
+						},
+						states: function ( stateName, stateDefinition ) {
+							self.addSubstate( stateName, stateDefinition );
+						},
+						transitions: function ( transitionName, transitionDefinition ) {
+							self.addTransition( transitionName, transitionDefinition );
+						}
+					}, function ( category, fn ) {
+						definition[category] && each( definition[category], fn );
+					});
+					
+					this.trigger( 'construct', { definition: definition } );
+					
+					return this;
+				};
 			},
 			
 			/**
 			 * Returns the immediate superstate, or the nearest state in the superstate chain with the
 			 * provided `stateName`.
 			 */
-			superstate: function ( /*String*/ stateName ) {
-				return stateName === undefined ?
-					superstate
-					:
-					superstate ?
-						stateName ?
-							superstate.name() === stateName ?
-								superstate : superstate.superstate( stateName )
-							:
-							this.controller().defaultState()
+			superstate: function ( superstate ) {
+				return function ( /*String*/ stateName ) {
+					return stateName === undefined ?
+						superstate
 						:
-						undefined;
+						superstate ?
+							stateName ?
+								superstate.name() === stateName ?
+									superstate : superstate.superstate( stateName )
+								:
+								this.controller().defaultState()
+							:
+							undefined;
+				}
 			},
 			
 			/**
@@ -99,338 +163,33 @@ var State = extend( true,
 			 * deletes from `data` the items with matching keys in `edit` whose values evaluate to `true`. If
 			 * the operation causes `data` to be changed, a `mutate` event is generated for this state.
 			 */
-			data: function ( /*Object*/ edit, /*Boolean*/ isDeletion ) {
-				var viaSuper, viaProto, key, protostate;
+			data: function ( data ) {
+				return function ( /*Object*/ edit, /*Boolean*/ isDeletion ) {
+					var viaSuper, viaProto, key, superstate, protostate;
 				
-				// If first argument is a Boolean, interpret method call as a "get" with inheritance flags.
-				edit === !!edit && ( viaSuper = edit, viaProto = isDeletion, edit = false );
-				viaSuper === undefined && ( viaSuper = true );
-				viaProto === undefined && ( viaProto = true );
+					// If first argument is a Boolean, interpret method call as a "get" with inheritance flags.
+					typeof edit === 'boolean' && ( viaSuper = edit, viaProto = isDeletion, edit = false );
+					viaSuper === undefined && ( viaSuper = true );
+					viaProto === undefined && ( viaProto = true );
 				
-				if ( edit ) { // set
-					( isDeletion ?
-						data && !isEmpty( data ) && !isEmpty( edit ) && subtract( true, data, edit )
-						:
-						isEmpty( edit ) || extend( true, data || ( data = {} ), edit )
-					) &&
-						this.triggerEvents( 'mutate', { edit: edit, isDeletion: isDeletion } );
-					return this;
-				} else { // get
-					return data ?
-						extend( true, {},
-							viaSuper && superstate && superstate.data(),
-							viaProto && ( protostate = this.protostate() ) && protostate.data( false ),
-							data )
-						:
-						undefined;
-				}
-			},
-			
-			/**
-			 * Curried indirection to `State.privileged.method`.
-			 * @see State.privileged.method
-			 */
-			method: function () {
-				return privileged.method( methods ).apply( this, arguments );
-			},
-			
-			/**
-			 * Curried indirection to `State.privileged.methodAndContext`.
-			 * @see State.privileged.methodAndContext
-			 */
-			methodAndContext: function () {
-				return privileged.methodAndContext( methods ).apply( this, arguments );
-			},
-			
-			/**
-			 * Returns an `Array` of names of methods defined for this state.
-			 */
-			methodNames: function () {
-				return keys( methods );
-			},
-			
-			/**
-			 * Curried indirection to `State.privileged.addMethod`.
-			 * @see State.privileged.addMethod
-			 */
-			addMethod: function () {
-				return privileged.addMethod( methods ).apply( this, arguments );
-			},
-			
-			/**
-			 * Dissociates the named method from this state object and returns its function.
-			 */
-			removeMethod: function ( /*String*/ methodName ) {
-				var fn = methods[ methodName ];
-				delete methods[ methodName ];
-				return fn;
-			},
-			
-			/**
-			 * Binds an event handler to the specified `eventType` and returns a unique identifier for the
-			 * handler. Recognized event types are listed at `State.Event.types`.
-			 * @see State.Event
-			 */
-			addEvent: function ( /*String*/ eventType, /*Function*/ fn ) {
-				if ( eventType in events ) {
-					events[ eventType ] ||
-						( events[ eventType ] = new State.Event.Collection( this, eventType ) );
-					return events[ eventType ].add( fn );
-				} else {
-					throw new Error( "Invalid event type" );
-				}
-			},
-			
-			/**
-			 * Unbinds the event handler with the specified `id` that was supplied by `addEvent`.
-			 * @see State.addEvent
-			 */
-			removeEvent: function ( /*String*/ eventType, /*String*/ id ) {
-				return events[ eventType ].remove( id );
-			},
-			
-			/**
-			 * Gets a registered event handler.
-			 */
-			getEvent: function ( /*String*/ eventType, /*String*/ id ) {
-				return events[ eventType ].get( id );
-			},
-			
-			/**
-			 * Gets an `Array` of all event handlers registered for the specified `eventType`.
-			 */
-			getEvents: function ( /*String*/ eventType ) {
-				return events[ eventType ];
-			},
-			
-			/**
-			 * Used internally to invoke an event type's handlers at the appropriate time.
-			 */
-			triggerEvents: function ( /*String*/ eventType, /*Object*/ data ) {
-				var e;
-				if ( eventType in events ) {
-					return ( e = events[ eventType ] ) && e.trigger( data );
-				} else {
-					throw new Error( "Invalid event type" );
-				}
-			},
-			
-			/**
-			 * Gets a rule object for this state. Rules are inherited from protostates, but not from
-			 * superstates.
-			 */
-			rule: function ( /*String*/ ruleType ) {
-				var protostate;
-				return (
-					rules[ ruleType ]
-						||
-					( protostate = this.protostate() ) && protostate.rule( ruleType )
-					 	||
-					undefined
-				);
-			},
-			
-			/**
-			 * Adds a rule to the state.
-			 */
-			addRule: function ( /*String*/ ruleType, rule ) {
-				rules[ ruleType ] = rule;
-			},
-			
-			removeRule: function ( /*String*/ ruleType, /*String*/ ruleKey ) {
-				throw new Error( "Not implemented" );
-			},
-			
-			/**
-			 * Creates a state from the supplied `stateDefinition` and adds it as a substate of this state.
-			 * If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
-			 * If the new substate is being added to the controller's default state, a reference is added
-			 * directly on the controller itself as well.
-			 */
-			addSubstate: function ( /*String*/ stateName, /*StateDefinition | Object*/ stateDefinition ) {
-				var	substate,
-					controller = this.controller();
-				( substate = substates[ stateName ] ) && substate.destroy();
-				substate = this[ stateName ] = substates[ stateName ] = new State( this, stateName, stateDefinition ),
-				controller.defaultState() === this && ( controller[ stateName ] = substate );
-				return substate;
-			},
-			
-			/**
-			 * 
-			 */
-			removeSubstate: function ( /*String*/ stateName ) {
-				var	substate = substates[ stateName ],
-					controller,
-					current,
-					transition;
-				
-				if ( substate ) {
-					controller = this.controller();
-					current = controller.current();
-					
-					// Fail if a transition is underway involving `substate`
-					if (
-						( transition = controller.transition() )
-							&&
-						(
-							substate.isSuperstateOf( transition ) ||
-							substate === transition.origin() ||
-							substate === transition.destination()
-						)
-					) {
-						return false;
-					}
-					
-					// Evacuate before removing
-					controller.isIn( substate ) && controller.change( this, { forced: true } );
-					
-					delete substates[ stateName ];
-					delete this[ stateName ];
-					controller.defaultState() === this && delete controller[ stateName ];
-					
-					return substate;
-				}
-			},
-			
-			/**
-			 * 
-			 */
-			substate: function ( /*String*/ stateName, /*Boolean*/ viaProto ) {
-				var protostate;
-				viaProto === undefined && ( viaProto = true );
-				return (
-					substates[ stateName ] ||
-					viaProto && ( ( protostate = this.protostate() ) ? protostate.substate( stateName ) : undefined )
-				);
-			},
-			
-			/**
-			 * Returns an `Array` of this state's substates.
-			 */
-			// TODO: rewrite to consider protostates
-			substateCollection: function ( /*Boolean*/ deep ) {
-				var result = [], i;
-				for ( i in substates ) {
-					result.push( substates[i] );
-					deep && ( result = result.concat( substates[i].substateCollection( true ) ) );
-				}
-				return result;
-			},
-			
-			addTransition: function ( /*String*/ transitionName, /*StateTransitionDefinition | Object*/ transitionDefinition ) {
-				transitionDefinition instanceof State.Transition.Definition ||
-					( transitionDefinition = State.Transition.Definition( transitionDefinition ) );
-				transitions[ transitionName ] = transitionDefinition;
-				return transitionDefinition;
-			},
-			
-			transition: function ( transitionName ) {
-				return transitions[ transitionName ];
-			},
-			
-			/**
-			 * Attempts to cleanly destroy this state and all of its substates. A 'destroy' event is issued
-			 * to each state after it is destroyed.
-			 */
-			destroy: function () {
-				var	controller = this.controller(),
-					owner = controller.owner(),
-					transition = controller.transition(),
-					origin, destination, methodName, method, stateName;
-				if ( transition ) {
-					origin = transition.origin();
-					destination = transition.destination();
-					if (
-						this === origin || this.isSuperstateOf( origin )
-							||
-						this === destination || this.isSuperstateOf( destination )
-					) {
-						// TODO: defer destroy() until transition finish()
-						return false;
+					if ( edit ) { // set
+						( isDeletion ?
+							!isEmpty( data ) && !isEmpty( edit ) && subtract( true, data, edit )
+							:
+							isEmpty( edit ) || extend( true, data, edit )
+						) &&
+							this.trigger( 'mutate', { edit: edit, isDeletion: isDeletion } );
+						return this;
+					} else { // get
+						return isEmpty( data ) ?
+							undefined
+							:
+							extend( true, {},
+								viaSuper && ( superstate = this.superstate() ) && superstate.data(),
+								viaProto && ( protostate = this.protostate() ) && protostate.data( false ),
+								data );
 					}
 				}
-				if ( superstate ) {
-					superstate.removeSubstate( name );
-				} else {
-					for ( methodName in methods ) {
-						// The default state is being destroyed, so the delegates on the owner can be deleted.
-						delete owner[ methodName ];
-						
-						// A default state may have been holding methods for the owner, so it must give those back.
-						if ( ( method = methods[ methodName ] ).autochthonousToOwner ) {
-							delete method.autochthonous;
-							delete method.autochthonousToOwner;
-							owner[ methodName ] = method;
-						}
-					}
-				}
-				for ( stateName in substates ) {
-					substates[ stateName ].destroy();
-				}
-				superstate = undefined;
-				destroyed = true;
-				this.triggerEvents( 'destroy' );
-				return true;
-			}
-		});
-		
-		// If no superstate, then assume this is a default state being created by a StateController,
-		// which will call init() itself after overriding controller()
-		superstate && this.init();
-	}, {
-		/*
-		 * Privileged indirections, curried with "private" free variables from inside the constructor.
-		 */
-		privileged: {
-			/**
-			 * Builds out the state's members based on the contents of the supplied definition.
-			 */
-			init: function ( setDefinition ) {
-				return function ( /*StateDefinition|Object*/ override ) {
-					var	i,
-						self = this,
-						definition = this.definition();
-					
-					// Validate and expand out the definition if necessary
-					override && ( definition = override );
-					definition instanceof State.Definition || ( definition = State.Definition( definition ) );
-					setDefinition( definition );
-					
-					// Build
-					// TODO: (???) destroy()
-					definition.data && this.data( definition.data );
-					each({
-							methods: function ( methodName, fn ) {
-								self.addMethod( methodName, fn );
-							},
-							events: function ( eventType, fn ) {
-								var i;
-								isArray( fn ) || ( fn = [ fn ] );
-								for ( i in fn ) {
-									self.addEvent( eventType, fn[i] );
-								}
-								// each( isArray( fn ) ? fn : [ fn ], function ( i, fn ) { self.addEvent( eventType, fn ); });
-							},
-							rules: function ( ruleType, rule ) {
-								self.addRule( ruleType, rule );
-							},
-							states: function ( stateName, stateDefinition ) {
-								self.addSubstate( stateName, stateDefinition );
-							},
-							transitions: function ( transitionName, transitionDefinition ) {
-								self.addTransition( transitionName, transitionDefinition );
-							}
-						},
-						function ( i, fn ) {
-							definition[i] && each( definition[i], fn );
-						}
-					);
-					
-					this.triggerEvents( 'construct', { definition: definition } );
-					
-					return this;
-				};
 			},
 			
 			/**
@@ -441,10 +200,10 @@ var State = extend( true,
 			method: function ( methods ) {
 				return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
 					var	superstate, protostate;
-				
+					
 					viaSuper === undefined && ( viaSuper = true );
 					viaProto === undefined && ( viaProto = true );
-				
+					
 					return (
 						methods[ methodName ]
 							||
@@ -454,8 +213,6 @@ var State = extend( true,
 							||
 						undefined
 					);
-				
-					return this.methodAndContext( methodName, viaSuper, viaProto ).method;
 				};
 			},
 			
@@ -465,11 +222,12 @@ var State = extend( true,
 			 */
 			methodAndContext: function ( methods ) {
 				return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
-					var	superstate, protostate, result = {};
-				
+					var	superstate, protostate,
+						result = {};
+					
 					viaSuper === undefined && ( viaSuper = true );
 					viaProto === undefined && ( viaProto = true );
-				
+					
 					return (
 						( result.method = methods[ methodName ] ) && ( result.context = this, result )
 							||
@@ -484,7 +242,17 @@ var State = extend( true,
 			},
 			
 			/**
-			 * Adds a method to this state, callable directly from the owner.
+			 * Returns an `Array` of names of methods defined for this state.
+			 */
+			methodNames: function ( methods ) {
+				return function () {
+					return keys( methods );
+				};
+			},
+			
+			/**
+			 * Adds a method to this state, which will be callable directly from the owner, but with its
+			 * context bound to the state.
 			 */
 			addMethod: function ( methods ) {
 				return function ( methodName, fn ) {
@@ -519,7 +287,7 @@ var State = extend( true,
 								 * Otherwise, since the method being added has no counterpart on the owner, a
 								 * no-op is placed on the default state instead.
 								 */
-								ownerMethod = function () {};
+								ownerMethod = noop;
 							}
 							defaultState.addMethod( methodName, ownerMethod );
 						}
@@ -532,8 +300,279 @@ var State = extend( true,
 					}
 					return ( methods[ methodName ] = fn );
 				};
+			},
+			
+			/**
+			 * Dissociates the named method from this state object and returns its function.
+			 */
+			removeMethod: function ( methods ) {
+				return function ( /*String*/ methodName ) {
+					var fn = methods[ methodName ];
+					delete methods[ methodName ];
+					return fn;
+				};
+			},
+			
+			/**
+			 * Gets a registered event handler.
+			 */
+			event: function ( events ) {
+				return function ( /*String*/ eventType, /*String*/ id ) {
+					return events[ eventType ].get( id );
+				};
+			},
+			
+			/**
+			 * Gets an `Array` of all event handlers registered for the specified `eventType`.
+			 */
+			events: function ( events ) {
+				return function ( /*String*/ eventType ) {
+					return events[ eventType ];
+				};
+			},
+			
+			/**
+			 * Binds an event handler to the specified `eventType` and returns a unique identifier for the
+			 * handler. Recognized event types are listed at `State.Event.types`.
+			 * @see State.Event
+			 */
+			addEvent: function ( events ) {
+				return function ( /*String*/ eventType, /*Function*/ fn ) {
+					if ( eventType in events ) {
+						events[ eventType ] ||
+							( events[ eventType ] = new State.Event.Collection( this, eventType ) );
+						return events[ eventType ].add( fn );
+					} else {
+						throw new Error( "Invalid event type" );
+					}
+				};
+			},
+			
+			/**
+			 * Unbinds the event handler with the specified `id` that was supplied by `addEvent`.
+			 * @see State.addEvent
+			 */
+			removeEvent: function ( events ) {
+				return function ( /*String*/ eventType, /*String*/ id ) {
+					return events[ eventType ].remove( id );
+				};
+			},
+			
+			/**
+			 * Used internally to invoke an event type's handlers at the appropriate time.
+			 */
+			trigger: function ( events ) {
+				return function ( /*String*/ eventType, /*Object*/ data ) {
+					var e;
+					return eventType in events && ( e = events[ eventType ] ) && e.trigger( data ) && this;
+				};
+			},
+
+			/**
+			 * Gets a rule object for this state. Rules are inherited from protostates, but not from
+			 * superstates.
+			 */
+			rule: function ( rules ) {
+				return function ( /*String*/ ruleType ) {
+					var protostate;
+					return (
+						rules[ ruleType ]
+							||
+						( protostate = this.protostate() ) && protostate.rule( ruleType )
+						 	||
+						undefined
+					);
+				};
+			},
+			
+			/**
+			 * Adds a rule to the state.
+			 */
+			addRule: function ( rules ) {
+				return function ( /*String*/ ruleType, rule ) {
+					rules[ ruleType ] = rule;
+				};
+			},
+			
+			/**
+			 * 
+			 */
+			removeRule: function ( rules ) {
+				return function ( /*String*/ ruleType, /*String*/ ruleKey ) {
+					throw new Error( "Not implemented" );
+				};
+			},
+			
+			/**
+			 * 
+			 */
+			substate: function ( substates ) {
+				return function ( /*String*/ stateName, /*Boolean*/ viaProto ) {
+					var protostate;
+					viaProto === undefined && ( viaProto = true );
+					return (
+						substates[ stateName ] ||
+						viaProto && ( ( protostate = this.protostate() ) ? protostate.substate( stateName ) : undefined )
+					);
+				};
+			},
+			
+			/**
+			 * Returns an `Array` of this state's substates.
+			 */
+			// TODO: rewrite to consider protostates
+			substates: function ( substates ) {
+				return function ( /*Boolean*/ deep ) {
+					var i,
+						result = [];
+					for ( i in substates ) {
+						result.push( substates[i] );
+						deep && ( result = result.concat( substates[i].substates( true ) ) );
+					}
+					return result;
+				};
+			},
+			
+			/**
+			 * Creates a state from the supplied `stateDefinition` and adds it as a substate of this state.
+			 * If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
+			 * If the new substate is being added to the controller's default state, a reference is added
+			 * directly on the controller itself as well.
+			 */
+			addSubstate: function ( substates ) {
+				return function ( /*String*/ stateName, /*StateDefinition | Object*/ stateDefinition ) {
+					var	substate,
+						controller = this.controller();
+					( substate = substates[ stateName ] ) && substate.destroy();
+					substate = this[ stateName ] = substates[ stateName ] = new State( this, stateName, stateDefinition ),
+					controller.defaultState() === this && ( controller[ stateName ] = substate );
+					return substate;
+				};
+			},
+			
+			/**
+			 * 
+			 */
+			removeSubstate: function ( substates ) {
+				return function ( /*String*/ stateName ) {
+					var	controller, current, transition,
+						substate = substates[ stateName ];
+				
+					if ( substate ) {
+						controller = this.controller();
+						current = controller.current();
+					
+						// Fail if a transition is underway involving `substate`
+						if (
+							( transition = controller.transition() )
+								&&
+							(
+								substate.isSuperstateOf( transition ) ||
+								substate === transition.origin() ||
+								substate === transition.destination()
+							)
+						) {
+							return false;
+						}
+					
+						// Evacuate before removing
+						controller.isIn( substate ) && controller.change( this, { forced: true } );
+					
+						delete substates[ stateName ];
+						delete this[ stateName ];
+						controller.defaultState() === this && delete controller[ stateName ];
+					
+						return substate;
+					}
+				};
+			},
+			
+			/**
+			 * 
+			 */
+			transition: function ( transitions ) {
+				return function ( transitionName ) {
+					return transitions[ transitionName ];
+				};
+			},
+			
+			/**
+			 * 
+			 */
+			transitions: function ( transitions ) {
+				return function () {
+					return extend( true, {}, transitions );
+					// var i, result = [];
+					// for ( i in transitions ) {
+					// 	result.push( transitions[i] );
+					// }
+					// return result;
+				};
+			},
+			
+			/**
+			 * 
+			 */
+			addTransition: function ( transitions ) {
+				return function ( /*String*/ transitionName, /*StateTransitionDefinition | Object*/ transitionDefinition ) {
+					transitionDefinition instanceof State.Transition.Definition ||
+						( transitionDefinition = State.Transition.Definition( transitionDefinition ) );
+					return transitions[ transitionName ] = transitionDefinition;
+				};
+			},
+			
+			/**
+			 * Attempts to cleanly destroy this state and all of its substates. A 'destroy' event is issued
+			 * to each state after it is destroyed.
+			 */
+			destroy: function ( setSuperstate, setDestroyed, methods, substates ) {
+				return function () {
+					var	superstate = this.superstate(),
+						controller = this.controller(),
+						owner = controller.owner(),
+						transition = controller.transition(),
+						origin, destination, methodName, method, stateName;
+					
+					if ( transition ) {
+						origin = transition.origin();
+						destination = transition.destination();
+						if (
+							this === origin || this.isSuperstateOf( origin )
+								||
+							this === destination || this.isSuperstateOf( destination )
+						) {
+							// TODO: instead of failing, defer destroy() until after transition.end()
+							return false;
+						}
+					}
+					
+					if ( superstate ) {
+						superstate.removeSubstate( name );
+					} else {
+						for ( methodName in methods ) {
+							// It's the default state being destroyed, so the delegates on the owner can be deleted.
+							methodName in owner && delete owner[ methodName ];
+							
+							// A default state may have been holding methods for the owner, so it must give those back.
+							if ( ( method = methods[ methodName ] ).autochthonousToOwner ) {
+								delete method.autochthonous;
+								delete method.autochthonousToOwner;
+								owner[ methodName ] = method;
+							}
+						}
+					}
+					for ( stateName in substates ) {
+						substates[ stateName ].destroy();
+					}
+					setSuperstate( undefined );
+					setDestroyed( true );
+					this.trigger( 'destroy' );
+					
+					return true;
+				};
 			}
 		},
+		
 		prototype: {
 			/**
 			 * Returns this state's fully qualified name.
@@ -554,6 +593,13 @@ var State = extend( true,
 			 */
 			owner: function () {
 				return this.controller().owner();
+			},
+			
+			/**
+			 * Gets the default state, i.e. the top-level superstate of this state.
+			 */
+			defaultState: function () {
+				return this.controller.defaultState();
 			},
 			
 			/**
@@ -668,11 +714,13 @@ var State = extend( true,
 			
 			/**
 			 * Finds a state method and applies it in the context of the state in which it was declared, or
-			 * if the implementation resides in a protostate, the corresponding `StateProxy`.
+			 * if the implementation resides in a protostate, the corresponding `StateProxy` in the calling
+			 * controller.
 			 * 
-			 * If the method was not declared in a state, e.g. one already defined on the owner that was
-			 * subsequently "swizzled" onto the default state, the function will have been marked
-			 * `autochthonous`, in which case the method will be called in the original context of the owner.
+			 * If the method was autochthonous, i.e. it was already defined on the owner and subsequently
+			 * "swizzled" onto the default state when the controller was constructed, then its function
+			 * will have been marked `autochthonous`, and the method will thereafter be called in the
+			 * original context of the owner.
 			 */
 			apply: function ( methodName, args ) {
 				var	mc = this.methodAndContext( methodName ),
@@ -718,6 +766,16 @@ var State = extend( true,
 				return this.controller().current() === this;
 			},
 			
+			pushHistory: global.history && global.history.pushState ?
+				function ( title, urlBase ) {
+					return global.history.pushState( this.data, title || this.toString(), urlBase + '/' + this.derivation( true ).join('/') );
+				} : noop,
+			
+			replaceHistory: global.history && global.history.replaceState ?
+				function ( title, urlBase ) {
+					return global.history.replaceState( this.data, title || this.toString(), urlBase + '/' + this.derivation( true ).join('/') );
+				} : noop,
+			
 			/**
 			 * Returns the Boolean result of the rule function at `ruleName` defined on this state, as
 			 * evaluated against `testState`, or `true` if no rule exists.
@@ -760,10 +818,10 @@ var State = extend( true,
 						} else if ( cursorSubstate = cursor.substate( name ) ) {
 							cursor = cursorSubstate;
 						} else if ( name === '*' ) {
-							result = testState ? cursor === testState.superstate() : cursor.substateCollection();
+							result = testState ? cursor === testState.superstate() : cursor.substates();
 							return false;
 						} else if ( name === '**' ) {
-							result = testState ? cursor.isSuperstateOf( testState ) : cursor.substateCollection( true );
+							result = testState ? cursor.isSuperstateOf( testState ) : cursor.substates( true );
 							return false;
 						} else {
 							return result = false;

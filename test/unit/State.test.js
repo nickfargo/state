@@ -14,7 +14,7 @@ test( "match()", function () {
 	var x = new TestObject();
 	ok( x.state.match( 'Finished.*', x.state.Finished.CleaningUp ) );
 	ok( x.state.match( 'Finished.*', x.state.Finished.Terminated ) );
-	ok( !x.state.match( 'Finished.*', x.state.Preparing ) );
+	ok( !x.state.match( 'Finished.*', x.state.Waiting ) );
 	ok( !x.state.match( 'Finished.*', x.state.Finished ) );
 	ok( x.state.Finished.match( '.Terminated', x.state.Finished.Terminated ) );
 	ok( x.state.Finished.match( '.*', x.state.Finished.CleaningUp ) );
@@ -39,10 +39,10 @@ test( "match()", function () {
 
 test( "isIn()", function () {
 	var x = new TestObject();
-	ok( x.state.Preparing.isIn( x.state.defaultState() ) );
+	ok( x.state.Waiting.isIn( x.state.defaultState() ) );
 	ok( x.state.Finished.CleaningUp.isIn( x.state.defaultState() ) );
 	ok( x.state.Finished.CleaningUp.isIn( x.state.Finished ) );
-	ok( !x.state.Finished.CleaningUp.isIn( x.state.Preparing ) );
+	ok( !x.state.Finished.CleaningUp.isIn( x.state.Waiting ) );
 	ok( x.state.Finished.isIn( x.state.Finished ) );
 	ok( !x.state.Finished.isIn( x.state.Finished.CleaningUp ) );
 	ok( !x.state.Finished.isIn( 'Finished.CleaningUp' ) );
@@ -51,16 +51,16 @@ test( "isIn()", function () {
 
 test( "isSuperstateOf()", function () {
 	var x = new TestObject();
-	ok( x.state.defaultState().isSuperstateOf( x.state.Preparing ) );
+	ok( x.state.defaultState().isSuperstateOf( x.state.Waiting ) );
 	ok( x.state.defaultState().isSuperstateOf( x.state.Finished.CleaningUp ) );
 	ok( x.state.Finished.isSuperstateOf( x.state.Finished.CleaningUp ) );
-	ok( !x.state.Finished.isSuperstateOf( x.state.Ready ) );
+	ok( !x.state.Finished.isSuperstateOf( x.state.Active ) );
 });
 
 test( "substates()", function () {
 	var	x = new TestObject(),
-		states = x.state.defaultState().substateCollection( true );
-	ok( ( console.log( states ), states.length == 7 ) );
+		states = x.state.defaultState().substates( true );
+	ok( ( states.length == 7 ) );
 });
 
 test( "depth()", function () {
@@ -73,10 +73,10 @@ test( "common()", function () {
 	var x = new TestObject();
 	equal( x.state.Finished.Terminated.common( x.state.Finished ), x.state.Finished );
 	equal( x.state.Finished.Terminated.common( x.state.Finished.CleaningUp ), x.state.Finished );
-	equal( x.state.Finished.Terminated.common( x.state.Ready ), x.state.defaultState() );
+	equal( x.state.Finished.Terminated.common( x.state.Active ), x.state.defaultState() );
 	equal( x.state.defaultState().common( x.state.defaultState() ), x.state.defaultState() );
-	equal( x.state.Ready.common( x.state.Finished.Terminated ), x.state.defaultState() );
-	equal( x.state.Preparing.common( x.state.Preparing ), x.state.Preparing );
+	equal( x.state.Active.common( x.state.Finished.Terminated ), x.state.defaultState() );
+	equal( x.state.Waiting.common( x.state.Waiting ), x.state.Waiting );
 	equal( x.state.Finished.common( x.state.Finished.CleaningUp ), x.state.Finished );
 });
 

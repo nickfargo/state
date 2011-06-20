@@ -1,24 +1,105 @@
 /**
  * # Utility functions
+ * 
+ * Heavy lifting from jQuery of only what we need
  */
 
-// TODO: check for presence of jQuery, Underscore, etc., or fall back to script-loaded independent implementations 
-var	extend = $.extend,
-	trim = $.trim,
-	isArray = $.isArray,
-	isFunction = $.isFunction;
+// TODO: stick these in a $ var; use if jQuery doesn't already have us covered
+var	toString = Object.prototype.toString,
+	hasOwn = Object.prototype.hasOwnProperty,
+	trim = String.prototype.trim ?
+		function ( text ) { return text == null ? '' : String.prototype.trim.call( text ); }:
+		function ( text ) { return text == null ? '' : text.toString().replace( /^\s+/, '' ).replace( /\s+$/, '' ); };
 
-function isEmpty( obj ) {
-	for ( var key in obj ) {
-		if ( obj.hasOwnProperty( key ) ) {
+function noop () {}
+
+function type ( o ) { return o == null ? String( o ) : type.map[ toString.call( o ) ] || 'object'; }
+type.map = {};
+each( 'Boolean Number String Function Array Date RegExp Object'.split(' '), function( i, name ) {
+	type.map[ "[object " + name + "]" ] = name.toLowerCase();
+});
+
+function isNumber( n ) { return !isNaN( parseFloat( n ) && isFinite( n ) ); }
+function isArray ( o ) { return type( o ) === 'array'; }
+function isFunction ( o ) { return type( o ) === 'function'; }
+function isPlainObject ( o ) {
+	if ( !o || type( o ) !== 'object' || o.nodeType || o === global ||
+		o.constructor &&
+		!hasOwn.call( o, 'constructor' ) &&
+		!hasOwn.call( o.constructor.prototype, 'isPrototypeOf' )
+	) {
+		return false;
+	}
+	for ( var key in o ) {}
+	return key === undefined || hasOwn.call( o, key );
+}
+function isEmpty( o ) {
+	if ( isArray( o ) && o.length ) {
+		return false;
+	}
+	for ( var key in o ) {
+		if ( hasOwn.call( o, key ) ) {
 			return false;
 		}
 	}
 	return true;
 }
 
-function isNumber( n ) {
-	return !isNaN( parseFloat( n ) && isFinite( n ) );
+function extend () {
+	var options, name, src, copy, copyIsArray, clone,
+		target = arguments[0] || {},
+		i = 1,
+		length = arguments.length,
+		deep = false;
+
+	// Handle a deep copy situation
+	if ( typeof target === "boolean" ) {
+		deep = target;
+		target = arguments[1] || {};
+		// skip the boolean and the target
+		i = 2;
+	}
+
+	// Handle case when target is a string or something (possible in deep copy)
+	if ( typeof target !== "object" && !isFunction( target ) ) {
+		target = {};
+	}
+
+	for ( ; i < length; i++ ) {
+		// Only deal with non-null/undefined values
+		if ( ( options = arguments[i] ) != null ) {
+			// Extend the base object
+			for ( name in options ) {
+				src = target[ name ];
+				copy = options[ name ];
+
+				// Prevent never-ending loop
+				if ( target === copy ) {
+					continue;
+				}
+
+				// Recurse if we're merging plain objects or arrays
+				if ( deep && copy && ( isPlainObject( copy ) || ( copyIsArray = isArray( copy ) ) ) ) {
+					if ( copyIsArray ) {
+						copyIsArray = false;
+						clone = src && isArray( src ) ? src : [];
+					} else {
+						clone = src && isPlainObject( src ) ? src : {};
+					}
+					
+					// Never move original objects, clone them
+					target[ name ] = extend( deep, clone, copy );
+					
+				// Don't bring in undefined values
+				} else if ( copy !== undefined ) {
+					target[ name ] = copy;
+				}
+			}
+		}
+	}
+
+	// Return the modified object
+	return target;
 }
 
 function each ( obj, fn ) {
@@ -45,9 +126,9 @@ function concat () { return Array.prototype.concat.apply( [], arguments ); }
 
 function slice ( array, begin, end ) { return Array.prototype.slice.call( array, begin, end ); }
 
-function keys ( obj ) {
+function keys ( o ) {
 	var key, result = [];
-	for ( key in obj ) {
+	for ( key in o ) {
 		result.push( i );
 	}
 	return result;
@@ -70,18 +151,26 @@ function nullify ( o ) {
 
 function nullHash( keys ) { return nullify( invert( keys ) ); }
 
-function resolveOverloads ( args, map ) {
+function indirect ( subject, privileged, map ) {
+	each( map, function ( names, args ) {
+		each( names.split(' '), function ( i, methodName ) {
+			var method = privileged[ methodName ].apply( undefined, args );
+			subject[ methodName ] = function () { return method.apply( subject, arguments ); };
+		});
+	});
+}
+
+function mapOverloads ( args, map ) {
 	var	i,
 		types = [],
 		names,
 		result = {};
-	args = slice( args );
 	for ( i in args ) {
 		if ( args[i] === undefined ) { break; }
-		types.push( typeof args[i] );
+		types.push( type( args[i] ) );
 	}
-	if ( types.length && ( ( types = types.join() ) in map ) ) {
-		names = map[ types ].split(',');
+	if ( types.length && ( types = types.join(' ') ) in map ) {
+		names = map[ types ].split(' ');
 		for ( i in names ) {
 			result[ names[i] ] = args[i];
 		}

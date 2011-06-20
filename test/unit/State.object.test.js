@@ -7,30 +7,30 @@ test( "Object creation", function () {
 		arr;
 	ok( x.state instanceof State.Controller, "StateController created" );
 	
-	ok( x.state.Preparing instanceof State, "State 'Preparing' created" );
-	ok( x.state.Preparing.method( 'methodOne', false, false ), "Method 'methodOne' in state 'Preparing' created" );
-	ok( x.state.is('Preparing'), "In state 'Preparing'" );
-	equal( x.methodOne(), 'Preparing.methodOne', "methodOne() on TestObject returns proper method for state 'Preparing'" );
+	ok( x.state.Waiting instanceof State, "State 'Waiting' created" );
+	ok( x.state.Waiting.method( 'methodOne', false, false ), "Method 'methodOne' in state 'Waiting' created" );
+	ok( x.state.is('Waiting'), "In state 'Waiting'" );
+	equal( x.methodOne(), 'Waiting.methodOne', "methodOne() on TestObject returns proper method for state 'Waiting'" );
 	
-	ok( x.state.Ready instanceof State );
-	ok( x.state.Ready.Champing instanceof State );
-	ok( !x.state.Ready.method( 'methodOne', false, false ) );
-	ok( x.state.Ready.method( 'methodTwo', false, false ) );
-	arr = x.state.Ready.getEvents('arrive');
+	ok( x.state.Active instanceof State );
+	ok( x.state.Active.Champing instanceof State );
+	ok( !x.state.Active.method( 'methodOne', false, false ) );
+	ok( x.state.Active.method( 'methodTwo', false, false ) );
+	arr = x.state.Active.events('arrive');
 	equal( arr.length, 1, arr.keys() );
-	arr = x.state.Ready.getEvents('depart');
+	arr = x.state.Active.events('depart');
 	equal( arr.length(), 2, arr.keys() );
 });
 
 test( "Null state change", function () {
 	var x = new TestObject();
-	ok( x.state.change( x.state.current() ).is('Preparing'), "StateController.change() to current state" );
+	ok( x.state.change( x.state.current() ).is('Waiting'), "StateController.change() to current state" );
 	ok( x.state.current() === x.state.current().select(), "State.select() on current state" );
 });
 
 test( "Simple state change", function () {
 	var x = new TestObject();
-	ok( x.state.change('Ready'), "Change to state 'Ready'" );
+	ok( x.state.change('Active'), "Change to state 'Active'" );
 	ok( x.state.change('Finished'), "Change to state 'Finished'" );
 	ok( x.state.change(), "Change to default state" );
 });
@@ -63,12 +63,12 @@ test( "Method resolutions", function () {
 	var x = new TestObject('');
 	equal( x.methodOne(), 'methodOne' );
 	equal( x.methodTwo(), 'methodTwo' );
-	ok( x.state.change('Preparing'), "State 'Preparing'" );
-	equal( x.methodOne(), 'Preparing.methodOne' );
+	ok( x.state.change('Waiting'), "State 'Waiting'" );
+	equal( x.methodOne(), 'Waiting.methodOne' );
 	equal( x.methodTwo(), 'methodTwo' );
-	ok( x.state.change('Ready'), "State 'Ready'" );
+	ok( x.state.change('Active'), "State 'Active'" );
 	equal( x.methodOne(), 'methodOne' );
-	equal( x.methodTwo(), 'Ready.methodTwo' );
+	equal( x.methodTwo(), 'Active.methodTwo' );
 	ok( x.state.change('Finished'), "State 'Finished'" );
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'methodTwo' );
@@ -85,8 +85,8 @@ test( "Method resolutions", function () {
 
 test( "Rules", function () {
 	var x = new TestObject('Finished');
-	ok( !x.state.change('Preparing'), "'Finished' to 'Preparing' disallowed" );
-	ok( !x.state.change('Ready'), "'Finished' to 'Ready' disallowed" );
+	ok( !x.state.change('Waiting'), "'Finished' to 'Waiting' disallowed" );
+	ok( !x.state.change('Active'), "'Finished' to 'Active' disallowed" );
 	ok( x.state.change('.Terminated'), "'Finished' to 'Finished.Terminated' allowed" );
 	ok( !x.state.change(''), "'Finished.Terminated' to default state disallowed" );
 });
@@ -102,7 +102,7 @@ test( "Data", function () {
 
 test( "Destroy", function () {
 	var x = new TestObject();
-	ok( x.state.destroy() );
+	ok( ( 'isDelegate' in x.methodOne ) && x.state.destroy() && !( 'isDelegate' in x.methodOne ), "Owner method returned" );
 })
 
 })( jQuery );
