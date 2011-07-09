@@ -5,10 +5,10 @@
 		<title>State.js Staging Area</title>
 		
 		<!-- libs -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
 		
 		<!-- includes -->
-		<script src="state.js"></script>
+		<script src="state.min.js"></script>
 	</head>
 	<body>
 	</body>

@@ -27,7 +27,7 @@ test( "match()", function () {
 	
 	equal( x.state.match( 'Finished' ), x.state.Finished );
 	equal( x.state.match( '*' ).length, 3 );
-	equal( x.state.match( '**' ).length, 7 );
+	equal( x.state.match( '**' ).length, 8 );
 	equal( x.state.Finished.match( '.Terminated' ), x.state.Finished.Terminated );
 	equal( x.state.Finished.match( '.*' ).length, 2 );
 	strictEqual( x.state.match( '*', x.state.Finished ), true );
@@ -60,7 +60,7 @@ test( "isSuperstateOf()", function () {
 test( "substates()", function () {
 	var	x = new TestObject(),
 		states = x.state.defaultState().substates( true );
-	ok( ( states.length == 7 ) );
+	ok( ( states.length == 8 ) );
 });
 
 test( "depth()", function () {

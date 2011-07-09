@@ -1,7 +1,6 @@
 ( function ( $, undefined ) {
 
-window.TestObject = function TestObject ( initialState ) {
-	
+function TestObject ( initialState ) {
 	/*
 	 * A method of the `TestObject` object, defined as usual. This implementation is identified as
 	 * being **autochthonous**, or "of the original owner", and as such will always be called in the
@@ -52,25 +51,37 @@ window.TestObject = function TestObject ( initialState ) {
 					}
 				],
 				
-				// interpreted as a **rule** (since "admit" is a rule type) constant
+				// interpreted as a **rule** (since "admit" is a rule type) **constant**
 				admit: true,
 				
 				/*
-				 * interpreted as a **rule** (since "release" is a rule type) function that may examine the
-				 * counterpart `state` and then returns its ruling
+				 * interpreted as a **rule** (since "release" is a rule type) **function** that may examine the
+				 * counterpart `state` in determining its ruling
 				 */
-				release: function ( state ) { return this.defaultState().isSuperstateOf( state ); /* always true */ },
+				release: function ( state ) {
+					return this.defaultState().isSuperstateOf( state ); /* always true */
+				},
 				
 				// a **substate**, with its own nested definition
-				Champing: {
+				Hyperactive: {
 					// some stateful **data**
 					data: {
-						description: "I'm really ready"
+						description: "Alright now I'm really ready"
+					},
+					
+					// another nested substate
+					Tweaked: {
+						// ...
 					}
 				},
 				
 				// a **transition**
-				wiggle: State.Transition({})
+				wiggle: State.Transition({
+					origin: '*',
+					operation: function () {
+						this.end();
+					}
+				})
 			},
 
 			// State 3. Verbose: elements are explicitly categorized
@@ -128,6 +139,7 @@ window.TestObject = function TestObject ( initialState ) {
 						},
 						
 						weee: State.Transition({
+							origin: '*',
 							operation: function () { this.end(); }
 						})
 					},
@@ -193,12 +205,12 @@ window.TestObject = function TestObject ( initialState ) {
 							console && console.log( Date.now() + " - HANG ON, I'M OPERATING" );
 							// debugger;
 							var self = this;
-							// setTimeout( function () {
-							// 	self.end();
-							// 	console && console.log( Date.now() + " - I'M DONE NOW GET ON WITH IT" );
-							// 	// start();
-							// }, 1000 );
-							this.end();
+							setTimeout( function () {
+								self.end();
+								console && console.log( Date.now() + " - I'M DONE NOW GET ON WITH IT" );
+								// start();
+							}, 1000 );
+							// this.end();
 						},
 						/* TODO: promise-based serial and asynchronous queueing
 						operations: [
@@ -234,6 +246,7 @@ window.TestObject = function TestObject ( initialState ) {
 		// initial state selector
 		initialState === undefined ? 'Waiting' : initialState
 	);
-};
+}
+window.TestObject = TestObject;
 
 })( jQuery );

@@ -1,6 +1,7 @@
 <?php
 $files = array(
 	'Util',
+	'Deferral',
 	'State',
 	'State.Definition',
 	'State.Controller',

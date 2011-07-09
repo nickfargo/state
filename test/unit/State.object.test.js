@@ -13,7 +13,7 @@ test( "Object creation", function () {
 	equal( x.methodOne(), 'Waiting.methodOne', "methodOne() on TestObject returns proper method for state 'Waiting'" );
 	
 	ok( x.state.Active instanceof State );
-	ok( x.state.Active.Champing instanceof State );
+	ok( x.state.Active.Hyperactive instanceof State );
 	ok( !x.state.Active.method( 'methodOne', false, false ) );
 	ok( x.state.Active.method( 'methodTwo', false, false ) );
 	arr = x.state.Active.events('arrive');
@@ -53,9 +53,11 @@ test( "State changes from parent state into child state", function () {
 });
 
 test( "State changes from one child state sibling to another", function () {
+	var s;
 	var x = new TestObject('Finished');
 	ok( x.state.is('Finished'), "Initialized to state 'Finished'" );
-	ok( x.state.change('Finished').change('.CleaningUp'), "Null state change chained to change to child state" );
+	ok( s = x.state.change('Finished'), "Asynchronous state change" );
+	ok( s.change('Finished.CleaningUp'), "Aborted transition redirected to child state" );
 	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax" );
 });
 
@@ -70,10 +72,10 @@ test( "Method resolutions", function () {
 	equal( x.methodOne(), 'methodOne' );
 	equal( x.methodTwo(), 'Active.methodTwo' );
 	ok( x.state.change('Finished'), "State 'Finished'" );
-	equal( x.methodOne(), 'Finished.methodOne' );
-	equal( x.methodTwo(), 'methodTwo' );
-	equal( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' );
-	ok( x.state.change('.CleaningUp').is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
+	notEqual( x.methodOne(), 'Finished.methodOne' ); // fails because change('Finished') is delayed
+	equal( x.methodTwo(), 'methodTwo' ); // passes because `methodTwo` isn't overridden by Finished
+	notEqual( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' ); // fails, idem
+	ok( x.state.change('Finished.CleaningUp').is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
 	equal( x.methodOne(), 'Finished.methodOne' );
 	equal( x.methodTwo(), 'Finished.CleaningUp.methodTwo' );
 	ok( ( x.terminate(), x.state.is('Finished.Terminated') ), "State 'Finished.Terminated'" );

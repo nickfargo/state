@@ -6,8 +6,8 @@ test( "isInState()", function () {
 	var x = new TestObject('Waiting');
 	ok( x.state.isIn('Waiting') );
 	ok( x.state.change('Active').isIn('Active') );
-	ok( x.state.change('Finished').isIn('Finished') );
-	ok( x.state.change('.CleaningUp').isIn('Finished') );
+	ok( !x.state.change('Finished').isIn('Finished') ); // false because change('Finished') is delayed
+	ok( x.state.change('Finished.CleaningUp').isIn('Finished') );
 	ok( x.state.isIn('Finished.CleaningUp') );
 });
 

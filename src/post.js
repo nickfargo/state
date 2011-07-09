@@ -3,4 +3,7 @@
 	// typeof module !== 'undefined' ? module.exports : 
 	global ).State = State;
 
+global.Deferral = Deferral;
+global.when = when;
+
 })();
