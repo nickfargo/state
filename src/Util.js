@@ -47,7 +47,7 @@ function isPlainObject ( obj ) {
 	for ( var key in obj ) {}
 	return key === undefined || hasOwn.call( obj, key );
 }
-function isEmpty( obj, andPrototype ) {
+function isEmpty ( obj, andPrototype ) {
 	if ( isArray( obj ) && obj.length ) {
 		return false;
 	}
@@ -228,16 +228,16 @@ function overload ( args, map ) {
 
 function excise ( deep, target ) { //// untested
 	var	args = slice( arguments ),
-		i, key, obj,
+		i, key, value, obj,
 		delta = {};
 	deep === !!deep && args.shift();
 	target = args[0];
 	for ( i = args.length; --i; ) {
 		obj = args[i];
-		for ( key in obj ) {
-			if ( deep && isPlainObject( obj[key] ) ) {
-				delta[key] = excise( target[key], obj[key] );
-			} else if ( !!obj[key] ) {
+		for ( key in obj ) if ( hasOwn.call( value = obj[key] ) ) {
+			if ( deep && isPlainObject( value ) ) {
+				delta[key] = excise( target[key], value );
+			} else if ( value != null ) {
 				delta[key] = target[key];
 				delete target[key];
 			}

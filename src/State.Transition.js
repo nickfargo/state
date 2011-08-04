@@ -1,14 +1,16 @@
-function StateTransition ( destination, source, definition, callback ) {
+function StateTransition ( target, source, definition, callback ) {
 	if ( !( this instanceof State.Transition ) ) {
 		return State.Transition.Definition.apply( this, arguments );
 	}
 	
-	var	methods = {},
+	var	deferral,
+		methods = {},
 		events = nullHash( State.Transition.Event.types ),
+		guards = {},
 		operation = definition.operation,
 		self = this,
 		attachment = source,
-	 	controller = ( controller = source.controller() ) === destination.controller() ? controller : undefined,
+	 	controller = ( controller = source.controller() ) === target.controller() ? controller : undefined,
 		aborted;
 	
 	function setDefinition ( value ) { return definition = value; }
@@ -17,35 +19,174 @@ function StateTransition ( destination, source, definition, callback ) {
 	debug && extend( this.__private__ = {}, {
 		methods: methods,
 		events: events,
+		guards: guards,
 		operation: operation
 	});
 	
 	extend( this, {
 		/**
-		 * Even though StateTransition inherits `superstate` from State, it requires its own implementation,
-		 * which is used here to track its position as it walks the State subtree domain.
+		 * `superstate` is used here to track the transition's position as it walks the State subtree domain.
 		 */
 		superstate: function () { return attachment; },
 		
+		/**
+		 * 
+		 */
 		attachTo: function ( state ) { attachment = state; },
+		
+		/**
+		 * 
+		 */
 		controller: function () { return controller; },
+		
+		/**
+		 * 
+		 */
 		definition: function () { return definition; },
+		
+		/**
+		 * 
+		 */
 		origin: function () { return source instanceof State.Transition ? source.origin() : source; },
+		
+		/**
+		 * 
+		 */
 		source: function () { return source; },
-		destination: function () { return destination; },
+		
+		/**
+		 * 
+		 */
+		target: function () { return target; },
+		
+		/**
+		 * 
+		 */
 		setCallback: function ( fn ) { callback = fn; },
+		
+		/**
+		 * 
+		 */
 		aborted: function () { return aborted; },
+		
+		promise: function () {
+			if ( deferral ) {
+				return deferral.promise();
+			}
+		},
+		
+		execute: function ( op ) {
+			// [
+			// 	fn1,
+			// 	[[
+			// 		fn2,
+			// 		[[
+			// 			fn3,
+			// 			fn4
+			// 		]],
+			// 		[
+			// 			fn5,
+			// 			fn6
+			// 		]
+			// 	]],
+			// 	[
+			// 		fn7,
+			// 		fn8
+			// 	]
+			// ]
+			// 
+			// Deferral
+			// 	.then( fn1 )
+			// 	.then( function () { return when(
+			// 		Deferral.then( fn2 ),
+			// 		Deferral.then( function () { return when(
+			// 			Deferral.then( fn3 ),
+			// 			Deferral.then( fn4 )
+			// 		} )),
+			// 		Deferral
+			// 			.then( fn5 )
+			// 			.then( fn6 )
+			// 	} ))
+			// 	.then( function () { return Deferral
+			// 		.then( fn7 )
+			// 		.then( fn8 )
+			// 	} )
+			// );
+			
+			function parse ( obj, promise ) {
+				var arr, next, i, l;
+				function parallel ( deferrals ) {
+					return function () {
+						var d, result = when( deferrals );
+						// while ( d = deferrals.shift() ) d.fulfill( d, [self] );
+						return result;
+					}
+				}
+				if ( isFunction( obj ) ) {
+					return promise ? promise.then( obj ) : new Deferral( obj );
+					// return ( promise || ( new Deferral ) ).then( obj );
+				} else if ( isArray( obj ) ) {
+					i = 0;
+					if ( obj.length === 1 && isArray( obj[0] ) ) {
+						// double array, interpret as parallel/asynchronous
+						for ( arr = [], obj = obj[0], l = obj.length; i < l; ) {
+							arr.push( parse( obj[i++], new Deferral ) );
+						}
+						return promise ? promise.then( parallel( arr ) ) : parallel( arr )();
+					} else {
+						// single array, interpret as serial/synchronous
+						for ( next = promise || ( promise = new Deferral ), l = obj.length; i < l; ) {
+							next = next.then( parse( obj[i++], next ) );
+						}
+						return promise;
+					}
+				}
+			}
+			
+			var deferral = new Deferral;
+			parse( op, deferral );
+			return deferral;
+		},
+		
+		/**
+		 * 
+		 */
 		start: function () {
+			var self = this;
 			aborted = false;
 			this.trigger( 'start' );
-			isFunction( operation ) ? operation.apply( this, arguments ) : this.end();
+			if ( isFunction( operation ) ) {
+				// deferral = new Deferral();
+				// add contents of `operation` to deferral
+				operation.apply( this, arguments );
+				// deferral.
+				// return deferral.promise();
+			} else if ( isArray( operation ) ) {
+				// return ( this.omg( operation )
+				// 	.done( function () { self.end(); } )
+				// 	.fulfill( this )
+				// );
+				var d = this.execute( operation );
+				d.done( function () { self.end(); } );
+				return d.fulfill( this );
+			} else {
+				return this.end();
+			}
 		},
+		
+		/**
+		 * 
+		 */
 		abort: function () {
 			aborted = true;
 			callback = null;
 			this.trigger( 'abort' );
 			return this;
 		},
+		
+		/**
+		 * 
+		 */
 		end: function ( delay ) {
 			if ( delay ) {
 				return setTimeout( function () { self.end(); }, delay );
@@ -57,16 +198,20 @@ function StateTransition ( destination, source, definition, callback ) {
 			// TODO: check for deferred state destroy() calls
 			this.destroy();
 		},
+		
+		/**
+		 * 
+		 */
 		destroy: function () {
 			source instanceof State.Transition && source.destroy();
-			destination = attachment = controller = null;
+			target = attachment = controller = null;
 		}
 	});
 	
 	indirect( this, State.privileged, {
 		'init' : [ State.Transition.Definition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
-		'event events addEvent removeEvent trigger' : [ events ],
+		'event events on addEvent removeEvent emit trigger' : [ events ],
 	});
 	
 	this.init();
@@ -94,7 +239,7 @@ function StateTransitionDefinition ( map ) {
 }
 
 State.Transition.Definition = extend( StateTransitionDefinition, {
-	properties: [ 'origin', 'source', 'destination', 'operation' ],
+	properties: [ 'origin', 'source', 'target', 'operation' ],
 	categories: [ 'methods', 'events' ],
 	expand: function ( map ) {
 		var	properties = nullHash( this.properties ),

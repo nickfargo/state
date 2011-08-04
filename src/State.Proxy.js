@@ -17,13 +17,13 @@ function StateProxy ( superstate, name ) {
 
 State.Proxy = extend( true, StateProxy, {
 	prototype: extend( true, new State(), {
-		rule: function ( ruleName ) {
+		guard: function ( guardName ) {
 			// TODO: this.protostate() isn't resolving when it should
 					// CAUSE: derived object doesn't have its StateController.name set, so it can't match with prototype's StateController
 			if ( !this.protostate() ) {
 				// debugger;
 			}
-			return this.protostate().rule( ruleName );
+			return this.protostate().guard( guardName );
 		}
 	})
 });

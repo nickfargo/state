@@ -2,23 +2,25 @@
  * 
  */
 function Deferral ( fn ) {
-	var	callbacks, resolve, bind;
+	var	callbacks, bind, resolve;
 	
-	( this.reset = function () {
+	( this.empty = function () {
 		callbacks = { done: [], fail: [] };
 		return this;
 	})();
 	
+	this.__private__ = {
+		callbacks: callbacks
+	};
+	
 	bind = Deferral.privileged.bind( callbacks );
 	resolve = Deferral.privileged.resolve( callbacks );
-	
 	extend( this, {
 		done: bind( 'done' ),
 		fail: bind( 'fail' ),
-		succeed: resolve( 'done' ),
+		fulfill: resolve( 'done' ),
 		forfeit: resolve( 'fail' )
 	});
-	
 	bind = resolve = null;
 	
 	fn && isFunction( fn ) && fn.apply( this, slice( arguments, 1 ) );
@@ -30,27 +32,13 @@ extend( true, Deferral, {
 		bind: function ( callbacks ) {
 			return function ( as ) { // as = { 'done' | 'fail' }
 				return function ( fn ) {
-					// TODO decide between ...
-					
-					// either:
 					isFunction( fn ) && callbacks[as].push( fn ) || isArray( fn ) && forEach( fn, this[as] );
-					return this;
-					
-					// or:
-					var i, l;
-					if ( isFunction( fn ) ) {
-						callbacks[as].push( fn );
-					} else if ( isArray( fn ) ) {
-						for ( i = 0, l = fn.length; i < l; i++ ) {
-							this[as]( fn[i] );
-						}
-					}
 					return this;
 				};
 			};
 		},
 		
-		/** Produces a function that resolves the deferral as either fulfilled or failed. */
+		/** Produces a function that resolves the deferral as either fulfilled or forfeited. */
 		resolve: function ( callbacks ) {
 			return function ( as ) { // as = { 'done' | 'fail' }
 				var not = Deferral.anti[as];
@@ -65,12 +53,19 @@ extend( true, Deferral, {
 		}
 	},
 	prototype: {
-		/** Determines whether the deferral has either been fulfilled or failed. */
-		isResolved: function () { return this.done === noop || this.fail === noop },
-		
 		/** Determines whether the deferral has been fulfilled. */
 		isFulfilled: function () {
 			return this.fail === noop ? true : this.done === noop ? false : undefined;
+		},
+		
+		/** Determines whether the deferral has been forfeited. */
+		isForfeited: function () {
+			return this.done === noop ? true : this.fail === noop ? false : undefined;
+		},
+		
+		/** Determines whether the deferral has been either fulfilled or forfeited. */
+		isResolved: function () {
+			return this.done === noop || this.fail === noop;
 		},
 		
 		/** Returns a function that will become the deferral's `done` or `fail` method once it has been resolved. */
@@ -112,13 +107,17 @@ extend( true, Deferral, {
 		promise: function () {
 			return new Promise( this );
 		}
+	},
+	then: function () {
+		return ( new Deferral() ).then( arguments );
 	}
 });
+
 
 /**
  * `Promise` is a limited interface into a `Deferral` instance. Consumers of the promise may add
  * callbacks to the represented deferral, and may check its resolved/fulfilled states, but cannot affect
- * the deferral itself as would be done with the deferral's `succeed` and `forfeit` methods.
+ * the deferral itself as would be done with the deferral's `fulfill` and `forfeit` methods.
  */
 function Promise ( deferral ) {
 	var promise = this,
@@ -132,17 +131,48 @@ function Promise ( deferral ) {
 		})( Promise.methods[i] );
 	}
 }
-Promise.methods = 'isResolved isFulfilled done fail then always'.split(' ');
+extend( Promise, {
+	methods: 'isResolved isFulfilled done fail then always'.split(' '),
+	
+	/** Weakly duck-types an object against `Promise`, checking for `then()` */
+	resembles: function ( obj ) {
+		return obj && isFunction( obj.then );
+	}
+});
 
-function Operation ( fn, context ) {
-	var d = new Deferral();
-	fn.apply( context, slice( arguments, 2 ) );
+
+function Operation ( fn ) {
+	var	deferral = new Deferral(),
+		next;
+	
+	extend( this, {
+		/** Executes `fn`, then `apply`s all successive operations */
+		apply: function ( context, args ) {
+			next && deferral.then( function () { next.apply( context, args ); } );
+			deferral.fulfill( context, args );
+		},
+		
+		/** Adds `op` to end of `next` chain */
+		then: function ( op ) {
+			return next.then( op ) || ( next = op );
+		},
+		
+		promise: function () {
+			return deferral.promise();
+		}
+	});
+	
+	deferral.then( fn );
 }
+Operation.prototype.call = function ( context ) {
+	return this.apply( context, slice( arguments, 1 ) );
+};
+
 
 /**
  * Binds together the fate of all the deferrals submitted as arguments, returning a promise that will be
- * fulfilled only after all the individual deferrals are fulfilled, or will fail immediately after any one
- * deferral fails.
+ * fulfilled only after all the individual deferrals are fulfilled, or will be forfeited immediately after
+ * any one deferral is forfeited.
  */
 function when ( arg /*...*/ ) {
 	var	args = flatten( slice( arguments ) ),
@@ -153,20 +183,20 @@ function when ( arg /*...*/ ) {
 			arg instanceof Deferral ?
 				arg
 				:
-				( deferral = new Deferral() ).succeed( deferral, arg )
+				( deferral = new Deferral() ).fulfill( deferral, arg )
 			:
 			new Deferral();
 	
-	function succeed () {
-		--unresolvedCount || deferral.succeed( deferral, arguments );
+	function fulfill () {
+		--unresolvedCount || deferral.fulfill( deferral, arguments );
 	}
 	
 	if ( length > 1 ) {
 		for ( ; i < length; i++ ) {
 			arg = args[i];
 			arg instanceof Deferral || arg instanceof Promise ||
-				( arg = args[i] = ( new Deferral() ).succeed( deferral, arg ) );
-			arg.then( succeed, deferral.forfeit );
+				( arg = args[i] = ( new Deferral() ).fulfill( deferral, arg ) );
+			arg.then( fulfill, deferral.forfeit );
 		}
 	}
 	

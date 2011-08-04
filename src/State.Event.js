@@ -69,12 +69,15 @@ function StateEventCollection ( state, type ) {
 				return false;
 			}
 		},
-		trigger: function ( data ) {
+		emit: function ( data ) {
 			for ( var i in items ) if ( hasOwn.call( items, i ) ) {
 				items[i].apply( state, [ extend( new State.Event( state, type ), data ) ] );
 			}
 		}
 	});
+	
+	this.on = this.add;
+	this.trigger = this.emit;
 }
 
 State.Event.Collection = extend( true, StateEventCollection, {

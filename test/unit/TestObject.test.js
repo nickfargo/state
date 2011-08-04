@@ -31,7 +31,7 @@ function TestObject ( initialState ) {
 
 			// State 2. Abbreviated: elements can be listed flatly; proper categorization is inferred
 			Active: {
-				// interpreted as a **method** (since "methodTwo" is neither an event or rule type).
+				// interpreted as a **method** (since "methodTwo" is neither an event or guard type).
 				methodTwo: function () {
 					return 'Active.methodTwo';
 				},
@@ -51,11 +51,11 @@ function TestObject ( initialState ) {
 					}
 				],
 				
-				// interpreted as a **rule** (since "admit" is a rule type) **constant**
+				// interpreted as a **guard** (since "admit" is a guard type) **constant**
 				admit: true,
 				
 				/*
-				 * interpreted as a **rule** (since "release" is a rule type) **function** that may examine the
+				 * interpreted as a **guard** (since "release" is a guard type) **function** that may examine the
 				 * counterpart `state` in determining its ruling
 				 */
 				release: function ( state ) {
@@ -112,7 +112,7 @@ function TestObject ( initialState ) {
 						function ( event ) {}
 					]
 				},
-				rules: {
+				guards: {
 					release: {
 						Waiting: function () { return false; },
 						Active: function () { return false; },
@@ -161,7 +161,7 @@ function TestObject ( initialState ) {
 								return result;
 							}
 						},
-						rules: {
+						guards: {
 							release: {
 								// empty string references the controller's default state
 								'': function ( state ) {
@@ -200,33 +200,49 @@ function TestObject ( initialState ) {
 				transitions: {
 					'transitionName': {
 						origin: '*',
+						// /*
 						operation: function () {
 							// do some business
 							console && console.log( Date.now() + " - HANG ON, I'M OPERATING" );
-							// debugger;
 							var self = this;
 							setTimeout( function () {
 								self.end();
 								console && console.log( Date.now() + " - I'M DONE NOW GET ON WITH IT" );
-								// start();
 							}, 1000 );
-							// this.end();
 						},
+						// */
 						/* TODO: promise-based serial and asynchronous queueing
-						operations: [
+						operation: [
+							function ( op ) { console.log("1"); },
 							// double array literal indicates a set of parallel asynchronous operations
+							// succeeding operation will start only after all operations inside the `[[ ]]` have completed
 							[[
-								function () {},
-								function () {},
-								function () {}
+								function ( op ) {
+									console.log("2");
+									this.fulfill();
+								},
+								[[
+									function ( op ) {
+										console.log("3");
+										this.fulfill();
+									},
+									function ( op ) {
+										console.log("4");
+										this.fulfill();
+									}
+								]],
+								[
+									function ( op ) { console.log("5"); },
+									function ( op ) { console.log("6"); }
+								]
 							]],
 							// plain array literal indicates a sequential queue
 							[
-								function () {},
-								function () {}
+								function ( op ) { console.log("7"); },
+								function ( op ) { console.log("8"); }
 							]
 						],
-						*/
+						// */
 						start: function ( event ) {
 							// console && console.log( "Transition 'transitionName' start" );
 						},

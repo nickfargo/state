@@ -29,7 +29,7 @@ function StateController ( owner, name, definition, options ) {
 		name: getName.toString = getName,
 		defaultState: function () { return defaultState; },
 		current: extend( function () { return currentState; }, {
-			toString: function () { return currentState.toString(); }
+			toString: function () { return currentState ? currentState.toString() : undefined; }
 		}),
 		transition: extend( function () { return transition; }, {
 			toString: function () { return transition ? transition.toString() : ''; }
@@ -68,38 +68,38 @@ State.Controller = extend( true, StateController, {
 	privileged: {
 		/**
 		 * Attempts to change the controller's current state. Handles asynchronous transitions, generation
-		 * of appropriate events, and construction of temporary protostate proxies as necessary. Adheres
-		 * to rules supplied in both the origin and destination states, and fails appropriately if a
-		 * matching rule disallows the change.
+		 * of appropriate events, and construction of temporary protostate proxies as necessary. Respects
+		 * guards supplied in both the origin and target states, and fails appropriately if a matching
+		 * guard disallows the change.
 		 * 
-		 * @param destination:State
+		 * @param target:State
 		 * @param options:Object Map of settings:
 		 * 		forced:Boolean
-		 * 			Overrides any rules defined, ensuring the change will complete, assuming a valid
-		 * 			destination.
+		 * 			Overrides any guards defined, ensuring the change will complete, assuming a valid
+		 * 			target.
 		 * 		success:Function
 		 * 			Callback to be executed upon successful completion of the change.
 		 * 		failure:Function
-		 * 			Callback to be executed if the change is blocked by a rule.
+		 * 			Callback to be executed if the change is blocked by a guard.
 		 * @param setCurrentState:Function
 		 * @param setTransition:Function
 		 * 
 		 * @see State.Controller.change
 		 */
 		change: function ( setCurrentState, setTransition ) {
-			return function ( destination, options ) {
-				var	destinationOwner, source, origin, domain, info, state,
+			return function ( target, options ) {
+				var	targetOwner, source, origin, domain, info, state,
 					owner = this.owner(),
 					transition = this.transition(),
 					transitionDefinition,
 					self = this;
 			
-				// Resolve `destination` argument to a proper `State` object if necessary.
-				destination instanceof State || ( destination = destination ? this.get( destination ) : this.defaultState() );
+				// Resolve `target` argument to a proper `State` object if necessary.
+				target instanceof State || ( target = target ? this.get( target ) : this.defaultState() );
 			
-				if ( !destination ||
-						( destinationOwner = destination.owner() ) !== owner &&
-						!destinationOwner.isPrototypeOf( owner )
+				if ( !target ||
+						( targetOwner = target.owner() ) !== owner &&
+						!targetOwner.isPrototypeOf( owner )
 				) {
 					throw new Error( "StateController: attempted a change to an invalid state" );
 				}
@@ -107,30 +107,30 @@ State.Controller = extend( true, StateController, {
 				options || ( options = {} );
 				origin = transition ? transition.origin() : this.current();
 				if ( options.forced ||
-						origin.evaluateRule( 'release', destination ) &&
-						destination.evaluateRule( 'admit', origin )
+						origin.evaluateGuard( 'release', target ) &&
+						target.evaluateGuard( 'admit', origin )
 				) {
 					/*
-					 * If `destination` is a state from a prototype of `owner`, it must be represented here as a
+					 * If `target` is a state from a prototype of `owner`, it must be represented here as a
 					 * transient protostate proxy.
 					 */
-					destination && destination.controller() !== this && ( destination = this.createProxy( destination ) );
+					target && target.controller() !== this && ( target = this.createProxy( target ) );
 					
 					// If a transition is underway, it needs to be notified that it won't finish.
 					transition && transition.abort();
 					
 					source = state = this.current();
-					domain = source.common( destination );
+					domain = source.common( target );
 					
 					/*
-					 * Retrieve the appropriate transition definition for this origin/destination pairing;
+					 * Retrieve the appropriate transition definition for this origin/target pairing;
 					 * if none is defined then a default transition is created that will cause the callback
 					 * to return immediately.
 					 */
 					transition = setTransition( new State.Transition(
-						destination,
+						target,
 						source,
-						transitionDefinition = this.getTransitionDefinitionFor( destination, origin )
+						transitionDefinition = this.getTransitionDefinitionFor( target, origin )
 					));
 					info = { transition: transition, forced: !!options.forced };
 					
@@ -154,16 +154,16 @@ State.Controller = extend( true, StateController, {
 						var pathToState = [];
 						
 						/*
-						 * Trace a path from `destination` up to `domain`, then walk down it, capturing 'enter'
+						 * Trace a path from `target` up to `domain`, then walk down it, capturing 'enter'
 						 * events along the way, and terminating with an 'arrive' event.
 						 */
-						for ( state = destination; state !== domain; pathToState.push( state ), state = state.superstate() );
+						for ( state = target; state !== domain; pathToState.push( state ), state = state.superstate() );
 						while ( pathToState.length ) {
 							transition.attachTo( state = pathToState.pop() );
 							state.trigger( 'enter', info );
 						}
 						transition.trigger( 'exit' );
-						setCurrentState( destination );
+						setCurrentState( target );
 						this.current().trigger( 'arrive', info );
 						
 						origin instanceof State.Proxy && ( this.destroyProxy( origin ), origin = null );
@@ -173,8 +173,7 @@ State.Controller = extend( true, StateController, {
 						return this;
 					});
 					
-					transition.start.apply( transition, options.arguments );
-					return this; // TODO: return a promise
+					return transition.start.apply( transition, options.arguments ) || this;
 				} else {
 					typeof options.failure === 'function' && options.failure.call( this );
 					return false;
@@ -227,7 +226,7 @@ State.Controller = extend( true, StateController, {
 		/**
 		 * Destroys `proxy` and all of its StateProxy superstates.
 		 */
-		destroyProxy: function ( proxy ) { //// untested
+		destroyProxy: function ( proxy ) {
 			var superstate;
 			while ( proxy instanceof State.Proxy ) {
 				superstate = proxy.superstate();
@@ -237,11 +236,11 @@ State.Controller = extend( true, StateController, {
 		},
 		
 		/**
-		 * Finds the appropriate transition definition for the given origin and destination states. If no
+		 * Finds the appropriate transition definition for the given origin and target states. If no
 		 * matching transitions are defined in any of the states, returns a generic transition definition
-		 * for the origin/destination pair with no `operation`.
+		 * for the origin/target pair with no `operation`.
 		 */
-		getTransitionDefinitionFor: function ( destination, origin ) { //// untested
+		getTransitionDefinitionFor: function ( target, origin ) {
 			origin || ( origin = this.current() );
 			
 			function search ( state, until ) {
@@ -249,7 +248,7 @@ State.Controller = extend( true, StateController, {
 				for ( ; state && state !== until; state = until ? state.superstate() : undefined ) {
 					each( state.transitions(), function ( i, definition ) {
 						return !(
-							( definition.destination ? state.match( definition.destination, destination ) : state === destination ) &&
+							( definition.target ? state.match( definition.target, target ) : state === target ) &&
 							( !definition.origin || state.match( definition.origin, origin ) ) &&
 						( result = definition ) );
 					});
@@ -257,12 +256,12 @@ State.Controller = extend( true, StateController, {
 				return result;
 			}
 			
-			// Search order: (1) `destination`, (2) `origin`, (3) superstates of `destination`, (4) superstates of `origin`
+			// Search order: (1) `target`, (2) `origin`, (3) superstates of `target`, (4) superstates of `origin`
 			return (
-				search( destination ) ||
-				origin !== destination && search( origin ) ||
-				search( destination.superstate(), this.defaultState() ) || search( this.defaultState() ) ||
-				!destination.isIn( origin ) && search( origin.superstate(), origin.common( destination ) ) ||
+				search( target ) ||
+				origin !== target && search( origin ) ||
+				search( target.superstate(), this.defaultState() ) || search( this.defaultState() ) ||
+				!target.isIn( origin ) && search( origin.superstate(), origin.common( target ) ) ||
 				new State.Transition.Definition()
 			);
 		},

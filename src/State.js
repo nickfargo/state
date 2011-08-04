@@ -25,7 +25,7 @@ function State ( superstate, name, definition ) {
 		data = {},
 		methods = {},
 		events = nullHash( State.Event.types ),
-		rules = {},
+		guards = {},
 		substates = {},
 		transitions = {};
 	
@@ -42,7 +42,7 @@ function State ( superstate, name, definition ) {
 		data: data,
 		methods: methods,
 		events: events,
-		rules: rules,
+		guards: guards,
 		substates: substates,
 		transitions: transitions
 	});
@@ -68,25 +68,25 @@ function State ( superstate, name, definition ) {
 		'superstate' : [ superstate ],
 		'data' : [ data ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
-		'event events addEvent removeEvent trigger' : [ events ],
-		'rule addRule removeRule' : [ rules ],
+		'event events on addEvent removeEvent emit trigger' : [ events ],
+		'guard addGuard removeGuard' : [ guards ],
 		'substate substates addSubstate removeSubstate' : [ substates ],
 		'transition transitions addTransition' : [ transitions ],
 		'destroy' : [ setSuperstate, setDestroyed, methods, substates ]
 	});
 	
 	/*
-	 * If no superstate, e.g. a default state being created by a StateController, then `init()` must be
+	 * If no superstate, e.g. a default state being created by a `StateController`, then `init()` must be
 	 * called later by the implementor.
 	 */
 	superstate && this.init();
 }
 
-extend( true, State, {
-	/*
-	 * Privileged indirections, partially applied with private free variables from inside the constructor.
-	 */
-	privileged: {
+/*
+ * Privileged indirections, partially applied with private free variables from inside the `State` constructor.
+ */
+State.privileged = new function () {
+	extend( this, {
 		/**
 		 * Builds out the state's members based on the contents of the supplied definition.
 		 */
@@ -95,10 +95,10 @@ extend( true, State, {
 				var	category,
 					definition = definitionOverride || this.definition(),
 					self = this;
-			
+		
 				definition instanceof DefinitionConstructor ||
 					setDefinition( definition = DefinitionConstructor( definition ) );
-			
+		
 				definition.data && this.data( definition.data );
 				each({
 					methods: function ( methodName, fn ) {
@@ -111,8 +111,8 @@ extend( true, State, {
 							self.addEvent( eventType, fn[i] );
 						}
 					},
-					rules: function ( ruleType, rule ) {
-						self.addRule( ruleType, rule );
+					guards: function ( guardType, guard ) {
+						self.addGuard( guardType, guard );
 					},
 					states: function ( stateName, stateDefinition ) {
 						self.addSubstate( stateName, stateDefinition );
@@ -123,13 +123,13 @@ extend( true, State, {
 				}, function ( category, fn ) {
 					definition[category] && each( definition[category], fn );
 				});
-			
-				this.trigger( 'construct', { definition: definition } );
-			
+		
+				this.emit( 'construct', { definition: definition } );
+		
 				return this;
 			};
 		},
-	
+
 		superstate: function ( /*State*/ superstate ) {
 			/**
 			 * Returns the immediate superstate, or the nearest state in the superstate chain with the
@@ -149,7 +149,7 @@ extend( true, State, {
 						undefined;
 			}
 		},
-	
+
 		data: function ( /*Object*/ data ) {
 			/**
 			 * ( [Boolean viaSuper], [Boolean viaProto] )
@@ -163,19 +163,19 @@ extend( true, State, {
 			 */
 			return function ( /*Object*/ edit, /*Boolean*/ isDeletion ) {
 				var viaSuper, viaProto, key, superstate, protostate;
-		
+	
 				// If first argument is a Boolean, interpret method call as a "get" with inheritance flags.
 				typeof edit === 'boolean' && ( viaSuper = edit, viaProto = isDeletion, edit = false );
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
-		
+	
 				if ( edit ) { // set
 					( isDeletion ?
 						!isEmpty( data ) && !isEmpty( edit ) && excise( true, data, edit )
 						:
 						isEmpty( edit ) || extend( true, data, edit )
 					) &&
-						this.trigger( 'mutate', { edit: edit, isDeletion: isDeletion } );
+						this.emit( 'mutate', { edit: edit, isDeletion: isDeletion } );
 					return this;
 				} else { // get
 					return isEmpty( data ) ?
@@ -188,7 +188,7 @@ extend( true, State, {
 				}
 			}
 		},
-	
+
 		method: function ( methods ) {
 			/**
 			 * Retrieves the named method held on this state. If no method is found, step through this state's
@@ -197,10 +197,10 @@ extend( true, State, {
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
 				var	superstate, protostate;
-			
+		
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
-			
+		
 				return (
 					methods[ methodName ]
 						||
@@ -212,7 +212,7 @@ extend( true, State, {
 				);
 			};
 		},
-	
+
 		methodAndContext: function ( methods ) {
 			/**
 			 * Returns the product of `method()` along with its context, i.e. the State that will be
@@ -221,10 +221,10 @@ extend( true, State, {
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
 				var	superstate, protostate,
 					result = {};
-			
+		
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
-			
+		
 				return (
 					( result.method = methods[ methodName ] ) && ( result.context = this, result )
 						||
@@ -237,14 +237,14 @@ extend( true, State, {
 				);
 			};
 		},
-	
+
 		methodNames: function ( methods ) {
 			/** Returns an `Array` of names of methods defined for this state. */
 			return function () {
 				return keys( methods );
 			};
 		},
-	
+
 		addMethod: function ( methods ) {
 			/**
 			 * Adds a method to this state, which will be callable directly from the owner, but with its
@@ -297,7 +297,7 @@ extend( true, State, {
 				return ( methods[ methodName ] = fn );
 			};
 		},
-	
+
 		removeMethod: function ( methods ) {
 			/** Dissociates the named method from this state object and returns its function. */
 			return function ( /*String*/ methodName ) {
@@ -306,21 +306,21 @@ extend( true, State, {
 				return fn;
 			};
 		},
-	
+
 		event: function ( events ) {
 			/** Gets a registered event handler. */
 			return function ( /*String*/ eventType, /*String*/ id ) {
 				return events[ eventType ].get( id );
 			};
 		},
-	
+
 		events: function ( events ) {
 			/** Gets an `Array` of all event handlers registered for the specified `eventType`. */
 			return function ( /*String*/ eventType ) {
 				return events[ eventType ];
 			};
 		},
-	
+
 		addEvent: function ( events ) {
 			/**
 			 * Binds an event handler to the specified `eventType` and returns a unique identifier for the
@@ -347,46 +347,46 @@ extend( true, State, {
 				return events[ eventType ].remove( id );
 			};
 		},
-	
-		trigger: function ( events ) {
+
+		emit: function ( events ) {
 			/** Used internally to invoke an event type's handlers at the appropriate time. */
 			return function ( /*String*/ eventType, /*Object*/ data ) {
 				var e;
-				return eventType in events && ( e = events[ eventType ] ) && e.trigger( data ) && this;
+				return eventType in events && ( e = events[ eventType ] ) && e.emit( data ) && this;
 			};
 		},
 
-		rule: function ( rules ) {
+		guard: function ( guards ) {
 			/**
-			 * Gets a rule object for this state. Rules are inherited from protostates, but not from
+			 * Gets a guard object for this state. Guards are inherited from protostates, but not from
 			 * superstates.
 			 */
-			return function ( /*String*/ ruleType ) {
+			return function ( /*String*/ guardType ) {
 				var protostate;
 				return (
-					rules[ ruleType ]
+					guards[ guardType ]
 						||
-					( protostate = this.protostate() ) && protostate.rule( ruleType )
+					( protostate = this.protostate() ) && protostate.guard( guardType )
 					 	||
 					undefined
 				);
 			};
 		},
-	
-		addRule: function ( rules ) {
-			/** Adds a rule to the state. */
-			return function ( /*String*/ ruleType, rule ) {
-				rules[ ruleType ] = rule;
+
+		addGuard: function ( guards ) {
+			/** Adds a guard to the state. */
+			return function ( /*String*/ guardType, guard ) {
+				guards[ guardType ] = guard;
 			};
 		},
-	
-		removeRule: function ( rules ) {
+
+		removeGuard: function ( guards ) {
 			/** */
-			return function ( /*String*/ ruleType, /*String*/ ruleKey ) {
+			return function ( /*String*/ guardType, /*String*/ guardKey ) {
 				throw new Error( "Not implemented" );
 			};
 		},
-	
+
 		substate: function ( substates ) {
 			/** */
 			return function ( /*String*/ stateName, /*Boolean*/ viaProto ) {
@@ -398,7 +398,7 @@ extend( true, State, {
 				);
 			};
 		},
-	
+
 		// TODO: rewrite to consider protostates
 		substates: function ( substates ) {
 			/** Returns an `Array` of this state's substates. */
@@ -412,7 +412,7 @@ extend( true, State, {
 				return result;
 			};
 		},
-	
+
 		addSubstate: function ( substates ) {
 			/**
 			 * Creates a state from the supplied `stateDefinition` and adds it as a substate of this state.
@@ -429,17 +429,17 @@ extend( true, State, {
 				return substate;
 			};
 		},
-	
+
 		removeSubstate: function ( substates ) {
 			/** */
 			return function ( /*String*/ stateName ) {
 				var	controller, current, transition,
 					substate = substates[ stateName ];
-		
+	
 				if ( substate ) {
 					controller = this.controller();
 					current = controller.current();
-			
+		
 					// Fail if a transition is underway involving `substate`
 					if (
 						( transition = controller.transition() )
@@ -447,31 +447,31 @@ extend( true, State, {
 						(
 							substate.isSuperstateOf( transition ) ||
 							substate === transition.origin() ||
-							substate === transition.destination()
+							substate === transition.target()
 						)
 					) {
 						return false;
 					}
-			
+		
 					// Evacuate before removing
 					controller.isIn( substate ) && controller.change( this, { forced: true } );
-			
+		
 					delete substates[ stateName ];
 					delete this[ stateName ];
 					controller.defaultState() === this && delete controller[ stateName ];
-			
+		
 					return substate;
 				}
 			};
 		},
-	
+
 		transition: function ( transitions ) {
 			/** */
 			return function ( transitionName ) {
 				return transitions[ transitionName ];
 			};
 		},
-	
+
 		transitions: function ( transitions ) {
 			/** */
 			return function () {
@@ -483,7 +483,7 @@ extend( true, State, {
 				// return result;
 			};
 		},
-	
+
 		addTransition: function ( transitions ) {
 			/** */
 			return function ( /*String*/ transitionName, /*StateTransitionDefinition | Object*/ transitionDefinition ) {
@@ -492,7 +492,7 @@ extend( true, State, {
 				return transitions[ transitionName ] = transitionDefinition;
 			};
 		},
-	
+
 		destroy: function ( setSuperstate, setDestroyed, methods, substates ) {
 			/**
 			 * Attempts to cleanly destroy this state and all of its substates. A 'destroy' event is issued
@@ -503,28 +503,28 @@ extend( true, State, {
 					controller = this.controller(),
 					owner = controller.owner(),
 					transition = controller.transition(),
-					origin, destination, methodName, method, stateName;
-			
+					origin, target, methodName, method, stateName;
+		
 				if ( transition ) {
 					origin = transition.origin();
-					destination = transition.destination();
+					target = transition.target();
 					if (
 						this === origin || this.isSuperstateOf( origin )
 							||
-						this === destination || this.isSuperstateOf( destination )
+						this === target || this.isSuperstateOf( target )
 					) {
 						// TODO: instead of failing, defer destroy() until after transition.end()
 						return false;
 					}
 				}
-			
+		
 				if ( superstate ) {
 					superstate.removeSubstate( name );
 				} else {
 					for ( methodName in methods ) if ( hasOwn.call( methods, methodName ) ) {
 						// It's the default state being destroyed, so the delegates on the owner can be deleted.
 						hasOwn.call( owner, methodName ) && delete owner[ methodName ];
-					
+				
 						// A default state may have been holding methods for the owner, which it must give back.
 						if ( ( method = methods[ methodName ] ).autochthonousToOwner ) {
 							delete method.autochthonous;
@@ -538,13 +538,21 @@ extend( true, State, {
 				}
 				setSuperstate( undefined );
 				setDestroyed( true );
-				this.trigger( 'destroy' );
-			
+				this.emit( 'destroy' );
+		
 				return true;
 			};
 		}
-	},
+	});
 	
+	// Aliases
+	extend( this, {
+		on: this.addEvent,
+		trigger: this.emit
+	});
+};
+	
+extend( true, State, {
 	prototype: {
 		/** Returns this state's fully qualified name. */
 		toString: function () {
@@ -587,7 +595,7 @@ extend( true, State, {
 				controllerName = controller.name(),
 				owner = controller.owner(),
 				prototype = owner,
-				state, protostate;
+				protostate, i, l, stateName;
 			
 			function iterate () {
 				prototype = prototype.__proto__ || prototype.constructor.prototype;
@@ -599,8 +607,8 @@ extend( true, State, {
 			}
 			
 			for ( iterate(); protostate; iterate() ) {
-				for ( state in derivation ) if ( hasOwn.call( derivation, state ) ) {
-					if ( !( protostate = protostate[ derivation[ state ] ] ) ) {
+				for ( i = 0, l = derivation.length; i < l; i++ ) {
+					if ( !( protostate = protostate.substate( derivation[i], false ) ) ) {
 						break;
 					}
 				}
@@ -739,15 +747,15 @@ extend( true, State, {
 		,
 		
 		/**
-		 * Returns the Boolean result of the rule function at `ruleName` defined on this state, as
-		 * evaluated against `testState`, or `true` if no rule exists.
+		 * Returns the Boolean result of the guard function at `guardName` defined on this state, as
+		 * evaluated against `testState`, or `true` if no guard exists.
 		 */
-		evaluateRule: function ( /*String*/ ruleName, /*State*/ testState ) {
+		evaluateGuard: function ( /*String*/ guardName, /*State*/ testState ) {
 			var	state = this,
-				rule = this.rule( ruleName ),
+				guard = this.guard( guardName ),
 				result;
-			if ( rule ) {
-				each( rule, function ( selector, value ) {
+			if ( guard ) {
+				each( guard, function ( selector, value ) {
 					each( selector.split(','), function ( i, expr ) {
 						if ( state.match( trim( expr ), testState ) ) {
 							result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );

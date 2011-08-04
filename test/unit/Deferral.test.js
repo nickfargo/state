@@ -19,26 +19,27 @@ asyncTest( "when( multiple ), all succeed", function () {
 	}
 	
 	when( d, d2, d3 )
-		.then( [ setResultTrue, setAsideTrue ], setResultFalse )
+		.then( setResultTrue, setResultFalse )
+		.then( setAsideTrue )
 		.always(
 			function () {
 				ok( result === true && aside === true, "result === true, aside === true" );
 				ok( result !== false, "result !== false" );
 				ok( result != null, "result != null")
-			},
-			start
-		);
+			}
+		)
+		.always( start );
 	
 	setTimeout( function () {
-		d.succeed();
+		d.fulfill();
 	}, 25 );
 	
 	setTimeout( function () {
-		d2.succeed();
+		d2.fulfill();
 	}, 50 );
 	
 	setTimeout( function () {
-		d3.succeed();
+		d3.fulfill();
 	}, 75 );
 });
 
@@ -73,7 +74,7 @@ asyncTest( "when( multiple ), early forfeit", function () {
 	}, 25 );
 	
 	setTimeout( function () {
-		d2.succeed();
+		d2.fulfill();
 	}, 50 );
 });
 

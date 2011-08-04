@@ -7,12 +7,12 @@ function StateDefinition ( map ) {
 }
 
 State.Definition = extend( true, StateDefinition, {
-	categories: [ 'data', 'methods', 'events', 'rules', 'states', 'transitions' ],
+	categories: [ 'data', 'methods', 'events', 'guards', 'states', 'transitions' ],
 	expand: function ( map ) {
 		var key, value, category,
 			result = nullHash( this.categories ),
 			eventTypes = invert( State.Event.types ),
-			ruleTypes = invert([ 'admit', 'release' ]); // invert( State.Rule.types );
+			guardTypes = invert([ 'admit', 'release' ]); // invert( State.Guard.types );
 		
 		for ( key in map ) if ( hasOwn.call( map, key ) ) {
 			value = map[key];
@@ -36,7 +36,7 @@ State.Definition = extend( true, StateDefinition, {
 			else {
 				category = /^_*[A-Z]/.test( key ) ? 'states' :
 						key in eventTypes ? 'events' :
-						key in ruleTypes ? 'rules' :
+						key in guardTypes ? 'guards' :
 						'methods';
 				( result[category] || ( result[category] = {} ) )[key] = value;
 			}

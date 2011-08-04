@@ -36,8 +36,8 @@ test( "Compound: array", function () {
 	ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
 	equals( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
 	equals( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
-	ok( def.rules.release, "Rule 'release' created" );
-	equals( def.rules.release[''](), 'release ""', "Rule release['']");
+	ok( def.guards.release, "Rule 'release' created" );
+	equals( def.guards.release[''](), 'release ""', "Rule release['']");
 	ok( def.states.Substate, "Substate 'Substate' created" );
 	equals( def.states.Substate.methods.methodOne(), "Substate methodOne", "Substate methodOne" );
 });
@@ -55,7 +55,7 @@ test( "Complex: map", function () {
 				function () { return 'exit 1'; }
 			]
 		},
-		rules: {
+		guards: {
 			release: {
 				'': function () { return 'release ""'; }
 			}
@@ -89,7 +89,7 @@ test( "Complex: map", function () {
 				events: {
 					
 				},
-				rules: {
+				guards: {
 					
 				},
 				states: {
@@ -130,8 +130,8 @@ test( "Complex: map", function () {
 	equals( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
 	
 	
-	ok( def.rules.release, "Rule release created" );
-	equals( def.rules.release[''](), 'release ""', "Rule release['']");
+	ok( def.guards.release, "Rule release created" );
+	equals( def.guards.release[''](), 'release ""', "Rule release['']");
 	
 	
 	ok( def.states.SimpleSubstate, "SimpleSubstate created" );

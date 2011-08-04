@@ -57,7 +57,7 @@ test( "State changes from one child state sibling to another", function () {
 	var x = new TestObject('Finished');
 	ok( x.state.is('Finished'), "Initialized to state 'Finished'" );
 	ok( s = x.state.change('Finished'), "Asynchronous state change" );
-	ok( s.change('Finished.CleaningUp'), "Aborted transition redirected to child state" );
+	ok( x.state.change('Finished.CleaningUp'), "Aborted transition redirected to child state" );
 	ok( x.state.change('..Terminated'), "Change to sibling state using relative selector syntax" );
 });
 
