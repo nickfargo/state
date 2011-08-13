@@ -23,7 +23,7 @@ function Deferral ( fn ) {
 	});
 	bind = resolve = null;
 	
-	fn && isFunction( fn ) && fn.apply( this, slice( arguments, 1 ) );
+	fn && isFunction( fn ) && fn.apply( this, slice.call( arguments, 1 ) );
 }
 extend( true, Deferral, {
 	anti: { done: 'fail', fail: 'done' },
@@ -99,7 +99,7 @@ extend( true, Deferral, {
 		 * whether it is fulfilled or not.
 		 */
 		always: function () {
-			var fns = slice( arguments );
+			var fns = slice.call( arguments );
 			return this.done( fns ).fail( fns );
 		},
 		
@@ -165,7 +165,7 @@ function Operation ( fn ) {
 	deferral.then( fn );
 }
 Operation.prototype.call = function ( context ) {
-	return this.apply( context, slice( arguments, 1 ) );
+	return this.apply( context, slice.call( arguments, 1 ) );
 };
 
 
@@ -175,7 +175,7 @@ Operation.prototype.call = function ( context ) {
  * any one deferral is forfeited.
  */
 function when ( arg /*...*/ ) {
-	var	args = flatten( slice( arguments ) ),
+	var	args = flatten( slice.call( arguments ) ),
 		length = args.length || 1,
 		unresolvedCount = length,
 		i = 0,

@@ -43,7 +43,8 @@ var	toString = Object.prototype.toString,
 	hasOwn = Object.prototype.hasOwnProperty,
 	trim = String.prototype.trim ?
 		function ( text ) { return text == null ? '' : String.prototype.trim.call( text ); }:
-		function ( text ) { return text == null ? '' : text.toString().replace( /^\s+/, '' ).replace( /\s+$/, '' ); };
+		function ( text ) { return text == null ? '' : text.toString().replace( /^\s+/, '' ).replace( /\s+$/, '' ); },
+	slice = Array.prototype.slice;
 
 /**
  * Calls the specified native function if it exists and returns its result; if no such function exists on
@@ -52,7 +53,7 @@ var	toString = Object.prototype.toString,
  */
 function __native ( item, obj /* , ... */ ) {
 	var n = __native.fn[item];
-	return n && obj[item] === n ? n.apply( obj, slice( arguments, 2 ) ) : noop;
+	return n && obj[item] === n ? n.apply( obj, slice.call( arguments, 2 ) ) : noop;
 }
 __native.fn = {
 	forEach: Array.prototype.forEach
@@ -64,15 +65,30 @@ __native.fn = {
  */
 function noop () {}
 
-function type ( obj ) { return obj == null ? String( obj ) : type.map[ toString.call( obj ) ] || 'object'; }
+/** */
+function getThis () { return this; }
+
+/**
+ * Safer alternative to `typeof`
+ */
+function type ( obj ) {
+	return obj == null ? String( obj ) : type.map[ toString.call( obj ) ] || 'object';
+}
 type.map = {};
-each( 'Boolean Number String Function Array Date RegExp Object'.split(' '), function( i, name ) {
+each( 'Array Boolean Date Function Number Object RegExp String'.split(' '), function( i, name ) {
 	type.map[ "[object " + name + "]" ] = name.toLowerCase();
 });
 
+/** isNumber */
 function isNumber ( n ) { return !isNaN( parseFloat( n ) && isFinite( n ) ); }
+
+/** isArray */
 function isArray ( obj ) { return type( obj ) === 'array'; }
+
+/** isFunction */
 function isFunction ( obj ) { return type( obj ) === 'function'; }
+
+/** isPlainObject */
 function isPlainObject ( obj ) {
 	if ( !obj || type( obj ) !== 'object' || obj.nodeType || obj === global ||
 		obj.constructor &&
@@ -84,6 +100,8 @@ function isPlainObject ( obj ) {
 	for ( var key in obj ) {}
 	return key === undefined || hasOwn.call( obj, key );
 }
+
+/** isEmpty */
 function isEmpty ( obj, andPrototype ) {
 	if ( isArray( obj ) && obj.length ) {
 		return false;
@@ -96,6 +114,7 @@ function isEmpty ( obj, andPrototype ) {
 	return true;
 }
 
+/** extend */
 function extend () {
 	var options, name, src, copy, copyIsArray, clone,
 		target = arguments[0] || {},
@@ -137,10 +156,10 @@ function extend () {
 					} else {
 						clone = src && isPlainObject( src ) ? src : {};
 					}
-					
+
 					// Never move original objects, clone them
 					target[ name ] = extend( deep, clone, copy );
-					
+
 				// 
 				// Don't bring in undefined values
 				} else if ( copy !== undefined ) {
@@ -193,11 +212,11 @@ function forEach ( obj, fn, context ) {
 	return obj;
 }
 
-function concat () { return Array.prototype.concat.apply( [], arguments ); }
-
-function slice ( array, begin, end ) { return Array.prototype.slice.call( array, begin, end ); }
-
+/**
+ * Extracts elements of nested arrays
+ */
 function flatten ( array ) {
+	isArray( array ) || ( array = [ array ] );
 	var	i = 0,
 		l = array.length,
 		item,
@@ -209,24 +228,40 @@ function flatten ( array ) {
 	return result;
 }
 
+/**
+ * Returns an array containing the keys of a hashmap
+ */
 function keys ( obj ) {
 	var key, result = [];
 	for ( key in obj ) if ( hasOwn.call( obj, key ) ) {
-		result.push( i );
+		result.push( key );
 	}
 	return result;
 }
 
+/**
+ * Returns a hashmap that is the key-value inversion of the supplied string array
+ */
 function invert ( array ) {
-	var	i = 0,
-		l = array.length,
-		map = {};
-	for ( ; i < l; i++ ) {
-		map[ array[i] ] = i;
+	for ( var i = 0, l = array.length, map = {}; i < l; ) {
+		map[ array[i] ] = i++;
 	}
 	return map;
 }
 
+/**
+ * Sets all of an object's values to a specified value
+ */
+function setAll ( obj, value ) {
+	for ( var i in obj ) if ( hasOwn.call( obj, i ) ) {
+		obj[i] = value;
+	}
+	return obj;
+}
+
+/**
+ * Sets all of an object's values to `null`
+ */
 function nullify ( obj ) {
 	for ( var i in obj ) if ( hasOwn.call( obj, i ) ) {
 		obj[i] = null;
@@ -234,6 +269,9 @@ function nullify ( obj ) {
 	return obj;
 }
 
+/**
+ * Produces a hashmap whose keys are the supplied string array, with values all set to `null`
+ */
 function nullHash( keys ) { return nullify( invert( keys ) ); }
 
 function indirect ( subject, privileged, map ) {
@@ -264,7 +302,7 @@ function overload ( args, map ) {
 }
 
 function excise ( deep, target ) { //// untested
-	var	args = slice( arguments ),
+	var	args = slice.call( arguments ),
 		i, key, value, obj,
 		delta = {};
 	deep === !!deep && args.shift();
@@ -310,7 +348,7 @@ function Deferral ( fn ) {
 	});
 	bind = resolve = null;
 	
-	fn && isFunction( fn ) && fn.apply( this, slice( arguments, 1 ) );
+	fn && isFunction( fn ) && fn.apply( this, slice.call( arguments, 1 ) );
 }
 extend( true, Deferral, {
 	anti: { done: 'fail', fail: 'done' },
@@ -386,7 +424,7 @@ extend( true, Deferral, {
 		 * whether it is fulfilled or not.
 		 */
 		always: function () {
-			var fns = slice( arguments );
+			var fns = slice.call( arguments );
 			return this.done( fns ).fail( fns );
 		},
 		
@@ -452,7 +490,7 @@ function Operation ( fn ) {
 	deferral.then( fn );
 }
 Operation.prototype.call = function ( context ) {
-	return this.apply( context, slice( arguments, 1 ) );
+	return this.apply( context, slice.call( arguments, 1 ) );
 };
 
 
@@ -462,7 +500,7 @@ Operation.prototype.call = function ( context ) {
  * any one deferral is forfeited.
  */
 function when ( arg /*...*/ ) {
-	var	args = flatten( slice( arguments ) ),
+	var	args = flatten( slice.call( arguments ) ),
 		length = args.length || 1,
 		unresolvedCount = length,
 		i = 0,
@@ -1197,7 +1235,7 @@ extend( true, State, {
 		
 		/** @see apply */
 		call: function ( methodName ) {
-			return this.apply( methodName, slice( arguments, 1 ) );
+			return this.apply( methodName, slice.call( arguments, 1 ) );
 		},
 		
 		/** Determines whether `this` directly possesses a method named `methodName`. */

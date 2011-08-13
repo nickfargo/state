@@ -700,7 +700,7 @@ extend( true, State, {
 		
 		/** @see apply */
 		call: function ( methodName ) {
-			return this.apply( methodName, slice( arguments, 1 ) );
+			return this.apply( methodName, slice.call( arguments, 1 ) );
 		},
 		
 		/** Determines whether `this` directly possesses a method named `methodName`. */
