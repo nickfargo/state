@@ -17,9 +17,9 @@ test( "Object creation", function () {
 	ok( !x.state.Active.method( 'methodOne', false, false ) );
 	ok( x.state.Active.method( 'methodTwo', false, false ) );
 	arr = x.state.Active.events('arrive');
-	equal( arr.length, 1, arr.keys() );
+	strictEqual( +arr.length, 1, arr.keys() );
 	arr = x.state.Active.events('depart');
-	equal( arr.length(), 2, arr.keys() );
+	strictEqual( arr.length(), 2, arr.keys() );
 });
 
 test( "Null state change", function () {

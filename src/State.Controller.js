@@ -36,7 +36,7 @@ function StateController ( owner, name, definition, options ) {
 		})
 	});
 	
-	indirect( this, State.Controller.privileged, {
+	constructPrivilegedMethods( this, State.Controller.privileged, {
 		'change' : [ setCurrentState, setTransition ]
 	});
 	

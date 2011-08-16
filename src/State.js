@@ -63,7 +63,7 @@ function State ( superstate, name, definition ) {
 	 * `this`, each of which is partially applied with its mapped free variables to the correspondingly
 	 * named methods at `State.privileged`.
 	 */
-	indirect( this, State.privileged, {
+	constructPrivilegedMethods( this, State.privileged, {
 		'init' : [ State.Definition, setDefinition ],
 		'superstate' : [ superstate ],
 		'data' : [ data ],
@@ -196,19 +196,20 @@ State.privileged = new function () {
 			 * and repeat the search.
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
-				var	superstate, protostate;
-		
+				var	superstate, protostate,
+					method = methods[ methodName ];
+				
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
-		
+				
 				return (
-					methods[ methodName ]
+					method !== noop && method
 						||
 					viaProto && ( protostate = this.protostate() ) && protostate.method( methodName, false, true )
 						||
 					viaSuper && ( superstate = this.superstate() ) && superstate.method( methodName, true, viaProto )
 						||
-					undefined
+					method
 				);
 			};
 		},
@@ -220,13 +221,14 @@ State.privileged = new function () {
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
 				var	superstate, protostate,
+					method = methods[ methodName ],
 					result = {};
 		
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
 		
 				return (
-					( result.method = methods[ methodName ] ) && ( result.context = this, result )
+					( result.method = method ) && method !== noop && ( result.context = this, result )
 						||
 					viaProto && ( protostate = this.protostate() ) &&
 							( result = protostate.methodAndContext( methodName, false, true ) ) && ( result.context = this, result )

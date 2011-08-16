@@ -65,12 +65,10 @@ __native.fn = {
  */
 function noop () {}
 
-/** */
+/** Similar purpose to `noop` */
 function getThis () { return this; }
 
-/**
- * Safer alternative to `typeof`
- */
+/** Safer alternative to `typeof` operator */
 function type ( obj ) {
 	return obj == null ? String( obj ) : type.map[ toString.call( obj ) ] || 'object';
 }
@@ -213,7 +211,7 @@ function forEach ( obj, fn, context ) {
 }
 
 /**
- * Extracts elements of nested arrays
+ * Extracts elements of nested arrays and deposits them into a single flat array
  */
 function flatten ( array ) {
 	isArray( array ) || ( array = [ array ] );
@@ -260,41 +258,50 @@ function setAll ( obj, value ) {
 }
 
 /**
- * Sets all of an object's values to `null`
+ * Produces a hashmap whose keys are the supplied string array, with values all set to `null`
  */
-function nullify ( obj ) {
-	for ( var i in obj ) if ( hasOwn.call( obj, i ) ) {
-		obj[i] = null;
-	}
-	return obj;
+function nullHash( keys ) { return setAll( invert( keys ), null ); }
+
+/**
+ * Rigs partially applied functions, obtained from `functionSource`, as methods on a `object`. This
+ * facilitates implementation of reusable privileged methods by abstracting the "privileged" subset
+ * of variables available to the method into another level of scope. Because of this separation, the
+ * actual logic portion of the method can then be used by other objects ("subclasses" and the like),
+ * whose constructors can simply call this function themselves with their own private free variables.
+ * 
+ * Functions supplied by `functionSource` accept the set of closed variables as arguments, and return
+ * a function that will become the `object`'s method.
+ * 
+ * The `map` argument maps a space-delimited set of method names to an array of free variables. These
+ * variables are passed as arguments to each of the named methods as found within `functionSource`.
+ */
+function constructPrivilegedMethods ( object, functionSource, map ) {
+	each( map, function ( names, args ) {
+		each( names.split(' '), function ( i, methodName ) {
+			var method = functionSource[ methodName ].apply( undefined, args );
+			object[ methodName ] = function () { return method.apply( this, arguments ); };
+		});
+	});
+	return object;
 }
 
 /**
- * Produces a hashmap whose keys are the supplied string array, with values all set to `null`
+ * Transforms an array of `args` into a map of named arguments, based on the position and type of
+ * each item within `args`. This is directed by `map`, wherein each item maps a space-delimited
+ * type sequence (e.g., "object array string") to an equal number of space-delimited argument names.
  */
-function nullHash( keys ) { return nullify( invert( keys ) ); }
-
-function indirect ( subject, privileged, map ) {
-	each( map, function ( names, args ) {
-		each( names.split(' '), function ( i, methodName ) {
-			var method = privileged[ methodName ].apply( undefined, args );
-			subject[ methodName ] = function () { return method.apply( subject, arguments ); };
-		});
-	});
-}
-
 function overload ( args, map ) {
-	var	i,
+	var	i, l,
 		types = [],
 		names,
 		result = {};
-	for ( i in args ) {
+	for ( i = 0, l = args.length; i < l; i++ ) {
 		if ( args[i] === undefined ) { break; }
 		types.push( type( args[i] ) );
 	}
 	if ( types.length && ( types = types.join(' ') ) in map ) {
 		names = map[ types ].split(' ');
-		for ( i in names ) {
+		for ( i = 0, l = names.length; i < l; i++ ) {
 			result[ names[i] ] = args[i];
 		}
 	}
@@ -324,213 +331,439 @@ function excise ( deep, target ) { //// untested
 }
 
 /**
- * 
+`Deferral` is a stateful callback device used to manage the eventualities of asynchronous operations.
+
+@param Object map : Hashmap whose entries represent the set of resolved substates for the deferral;
+		keys specify a name for the substate's callback queue, and values specify a name for the
+		resolution method used to transition to that substate and execute its associated callbacks.
+@param Function fn : A function that will be executed immediately in the context of the deferral.
+@param Array args : Array of arguments to be passed to `fn`.
  */
-function Deferral ( fn ) {
-	var	callbacks, bind, resolve;
+function Deferral ( map, fn, args ) {
+	if ( !( this instanceof Deferral ) ) {
+		return new Deferral( map, fn, args );
+	}
+	if ( map == null || isFunction( map ) ) {
+		return new Deferral.Binary( arguments[0], arguments[1] );
+	}
 	
-	( this.empty = function () {
-		callbacks = { done: [], fail: [] };
-		return this;
-	})();
+	var	self = this,
+		callbacks,
+		resolution, resolutionContext, resolutionArguments,
+		register, resolve,
+		promise;
 	
-	this.__private__ = {
-		callbacks: callbacks
-	};
+	function setResolution ( name ) { return name in map && ( resolution = name ); }
+	function getResolutionContext () { return resolutionContext; }
+	function getResolutionArguments () { return resolutionArguments; }
+	function setResolutionArguments ( args ) { return resolutionArguments = args; }
 	
-	bind = Deferral.privileged.bind( callbacks );
-	resolve = Deferral.privileged.resolve( callbacks );
 	extend( this, {
-		done: bind( 'done' ),
-		fail: bind( 'fail' ),
-		fulfill: resolve( 'done' ),
-		forfeit: resolve( 'fail' )
+		empty: function () {
+			callbacks = {};
+			each( map, function ( key ) { callbacks[ key ] = []; });
+			return this;
+		},
+		map: function () { return extend( {}, map ); },
+		queueNames: function () { return keys( map ); },
+		resolution: function ( test ) {
+			return test ? test === resolution || ( test in map ? false : undefined ) : resolution;
+		},
+		did: function ( resolver ) {
+			return resolver ? !!resolution && resolver === map[ resolution ] : !!resolution;
+		},
+		promise: function () {
+			return promise || ( promise = new Promise( this ) );
+		},
+		as: function ( context ) {
+			resolutionContext = context;
+			return this;
+		},
+		given: function ( args ) {
+			resolutionArguments = args;
+			return this;
+		}
 	});
-	bind = resolve = null;
+	this.queueNames.toString = function () { return self.queueNames().join(' ') };
+	this.resolution.toString = this.resolution;
 	
-	fn && isFunction( fn ) && fn.apply( this, slice.call( arguments, 1 ) );
+	this.empty();
+	register = Deferral.privileged.register( callbacks );
+	resolve = Deferral.privileged.resolve(
+		callbacks, setResolution, getResolutionContext, getResolutionArguments, setResolutionArguments
+	);
+	
+	each( map, function ( name, resolver ) {
+		self[ name ] = register( name );
+		self[ resolver ] = resolve( name );
+	});
+	
+	register = resolve = null;
+	
+	fn && isFunction( fn ) && fn.apply( this, args );
 }
 extend( true, Deferral, {
-	anti: { done: 'fail', fail: 'done' },
 	privileged: {
-		/** Produces a function that pushes callbacks onto one of the callback queues. */
-		bind: function ( callbacks ) {
-			return function ( as ) { // as = { 'done' | 'fail' }
+		/**
+		 * Produces a function that pushes callbacks onto one of the callback queues.
+		 */
+		register: function ( callbacks ) {
+			return function ( resolution ) { // e.g. { 'yes' | 'no' }
 				return function ( fn ) {
-					isFunction( fn ) && callbacks[as].push( fn ) || isArray( fn ) && forEach( fn, this[as] );
+					isFunction( fn ) && callbacks[ resolution ].push( fn ) ||
+						isArray( fn ) && forEach( fn, this[ resolution ] );
 					return this;
 				};
 			};
 		},
 		
-		/** Produces a function that resolves the deferral as either fulfilled or forfeited. */
-		resolve: function ( callbacks ) {
-			return function ( as ) { // as = { 'done' | 'fail' }
-				var not = Deferral.anti[as];
-				return function ( context, args ) {
-					this[as] = this.invoke( callbacks ), this[not] = this.resolve = noop;
-					callbacks.context = context, callbacks.args = args;
-					this.invokeAll( callbacks )( callbacks[as] );
-					delete callbacks[as], delete callbacks[not];
+		/**
+		 * Produces a function that resolves the deferral, transitioning it to one of its resolved substates.
+		 */
+		resolve: function ( callbacks, setResolution, getResolutionContext, getResolutionArguments, setResolutionArguments ) {
+			return function ( resolution ) {
+				return function () {
+					var	self = this,
+						name,
+						map = this.map(),
+						context = getResolutionContext(),
+						args = arguments.length ? setResolutionArguments( slice.call( arguments ) ) : getResolutionArguments();
+					
+					setResolution( resolution );
+					
+					/*
+					 * The deferral has transitioned to a 'resolved' substate ( e.g. affirmed | negated ),
+					 * so the behavior of its callback registration methods are redefined to reflect this.
+					 * A closure preserves the current execution state as `context` and `args`; henceforth,
+					 * callbacks that would be registered to the queue named `resolution` will instead be
+					 * called immediately with the saved `context` and `args`, while subsequent callback
+					 * registrations to any of the other queues are deemed invalid and will be discarded.
+					 */
+					this[ resolution ] = Deferral.privileged.invoke( this, callbacks )( context, args );
+					this[ map[ resolution ] ] = this.as = this.given = getThis;
+					delete map[ resolution ];
+					for ( name in map ) {
+						this[ name ] = this[ map[ name ] ] = getThis;
+					}
+					
+					Deferral.privileged.invokeAll( this, callbacks )( context, args )( callbacks[ resolution ] );
+					
+					delete callbacks[ resolution ];
+					for ( name in map ) { delete callbacks[ name ]; }
+					
 					return this;
+				};
+			};
+		},
+		
+		/**
+		 * Produces a function that invokes a queued callback. In addition, when the deferral is
+		 * resolved, the function returned here will become the callback registration method (e.g.,
+		 * 'yes' | 'no') that corresponds to the deferral's resolution, such that registering a
+		 * callback after the deferral is resolved will cause the callback to be invoked immediately.
+		 */
+		invoke: function ( deferral, callbacks ) {
+			return function ( context, args ) {
+				return function ( fn ) {
+					try {
+						isFunction( fn ) ? fn.apply( context || deferral, args ) :
+						isArray( fn ) && Deferral.privileged.invokeAll( deferral, callbacks )( context, args )( fn );
+					} catch ( nothing ) {}
+					return deferral;
+				};
+			};
+		},
+		
+		/** Analogue of `invoke`, for an array of callbacks. */
+		invokeAll: function ( deferral, callbacks ) {
+			return function ( context, args ) {
+				return function ( fns ) {
+					var invoke = Deferral.privileged.invoke( deferral, callbacks )( context, args );
+					for ( i = 0, l = fns.length; i < l; i++ ) {
+						invoke( fns[i] );
+					}
 				};
 			};
 		}
 	},
 	prototype: {
-		/** Determines whether the deferral has been fulfilled. */
-		isFulfilled: function () {
-			return this.fail === noop ? true : this.done === noop ? false : undefined;
-		},
-		
-		/** Determines whether the deferral has been forfeited. */
-		isForfeited: function () {
-			return this.done === noop ? true : this.fail === noop ? false : undefined;
-		},
-		
-		/** Determines whether the deferral has been either fulfilled or forfeited. */
-		isResolved: function () {
-			return this.done === noop || this.fail === noop;
-		},
-		
-		/** Returns a function that will become the deferral's `done` or `fail` method once it has been resolved. */
-		invoke: function ( callbacks ) {
-			var self = this;
-			return function ( fn ) {
-				try {
-					isFunction( fn ) && fn.apply( callbacks.context || self, callbacks.args )
-						||
-					isArray( fn ) && self.invokeAll( callbacks )( fn );
-				} catch ( nothing ) {}
-				return !!fn;
-			};
-		},
-		
-		/** Analogue of `invoke`, for an array of callbacks. */
-		invokeAll: function ( callbacks ) {
-			var self = this;
-			return function ( fns ) {
-				while ( self.invoke( callbacks )( fns.shift() ) );
-			};
-		},
-		
-		/** Unified interface for adding `done` and `fail` callbacks. */
-		then: function ( done, fail ) {
-			return this.done( done ).fail( fail );
+		/**
+		 * Unified interface for registering callbacks. Multiple arguments are registered to callback
+		 * queues in respective order; e.g. `Deferral().then( fn1, fn2 )` registers `fn1` to the
+		 * first queue (`yes`) and `fn2` to the second queue (`no`).
+		 */
+		then: function () {
+			var map = keys( this.map() ), i = 0, l = Math.min( map.length, arguments.length );
+			while ( i < l ) { this[ map[i] ]( arguments[ i++ ] ); }
+			return this;
 		},
 		
 		/**
 		 * Interface for adding callbacks that will execute once the deferral is resolved, regardless of
-		 * whether it is fulfilled or not.
+		 * whether it is affirmed or not.
 		 */
 		always: function () {
-			var fns = slice.call( arguments );
-			return this.done( fns ).fail( fns );
+			var name, map = this.map(), fns = slice.call( arguments );
+			for ( name in map ) { this[ name ]( fns ); }
+			return this;
 		},
 		
-		/** Returns a `Promise` bound to this deferral. */
-		promise: function () {
-			return new Promise( this );
+		/**
+		 * Registers callbacks to a separate deferral, whose resolver methods are registered to the
+		 * queues of this deferral, and returns a promise bound to the succeeding deferral. This
+		 * arrangement forms a pipeline structure, which can be extended indefinitely with chained
+		 * calls to `pipe`. Once resolved, the original deferral (`this`) passes its resolution
+		 * state, context and arguments on to the succeeding deferral, whose callbacks may then
+		 * likewise dictate the resolution parameters of a further `pipe`d deferral, and so on.
+		 * 
+		 * Synchronous callbacks that return immediately will cause the succeeding deferral to
+		 * resolve immediately, with the same resolution state and context from its receiving
+		 * deferral, and the callback's return value as its lone resolution argument. Asynchronous
+		 * callbacks that return their own promise or deferral will cause the succeeding deferral
+		 * to resolve similarly once the callback's own deferral is resolved.
+		 */
+		pipe: function () {
+			var	self = this,
+				map = this.map(),
+				key, resolver, fn,
+				i = 0, l = arguments.length,
+				next = new Deferral( map );
+			for ( key in map ) {
+				if ( i < l ) {
+					resolver = map[ key ];
+					fn = arguments[ i++ ];
+					this[ key ](
+						isFunction( fn ) ?
+							function () {
+								var key,
+									result = fn.apply( this, arguments ),
+									promise = result && Promise.resembles( result ) ?
+										result.promise() : undefined;
+								if ( promise ) {
+									for ( key in map ) {
+										promise[ key ]( next[ map[ key ] ] );
+									}
+								} else {
+									next.as( this === self ? next : this )[ resolver ]( result );
+								}
+							} :
+							next[ resolver ]
+					);
+				} else break;
+			}
+			return next.promise();
 		}
-	},
-	then: function () {
-		return ( new Deferral() ).then( arguments );
 	}
 });
 
 
+function UnaryDeferral ( fn, args ) {
+	if ( !( this instanceof UnaryDeferral ) ) { return new UnaryDeferral( fn, args ); }
+	Deferral.call( this, { done: 'resolve' }, fn, args );
+}
+UnaryDeferral.prototype = Deferral.prototype;
+Deferral.Unary = UnaryDeferral;
+
+
+function BinaryDeferral ( fn, args ) {
+	if ( !( this instanceof BinaryDeferral ) ) { return new BinaryDeferral( fn, args ); }
+	Deferral.call( this, { yes: 'affirm', no: 'negate' }, fn, args );
+}
+BinaryDeferral.prototype = Deferral.prototype;
+Deferral.Binary = BinaryDeferral;
+
 /**
- * `Promise` is a limited interface into a `Deferral` instance. Consumers of the promise may add
- * callbacks to the represented deferral, and may check its resolved/fulfilled states, but cannot affect
- * the deferral itself as would be done with the deferral's `fulfill` and `forfeit` methods.
+ * `Promise` is a limited interface into a `Deferral` instance, consisting of a particular subset of
+ * the deferral's methods. Consumers of the promise are prevented from affecting the represented
+ * deferral's resolution state, but they can use it to query its state and add callbacks.
  */
 function Promise ( deferral ) {
-	var promise = this,
-		i = Promise.methods.length;
+	var self = this,
+		list = Promise.methods.concat( deferral.queueNames() ),
+		i = list.length;
 	while ( i-- ) {
 		( function ( name ) {
-			promise[name] = function () {
-				deferral[name].apply( deferral, arguments );
-				return promise;
+			self[ name ] = function () {
+				var result = deferral[ name ].apply( deferral, arguments );
+				return result === deferral ? self : result;
 			};
-		})( Promise.methods[i] );
+		})( list[i] );
 	}
+	this.serves = function ( master ) { return master === deferral; };
 }
-extend( Promise, {
-	methods: 'isResolved isFulfilled done fail then always'.split(' '),
+extend( true, Promise, {
+	methods: 'then always pipe promise did resolution map queueNames'.split(' '),
 	
-	/** Weakly duck-types an object against `Promise`, checking for `then()` */
+	// Used to test whether an object is or might be able to act as a Promise.
 	resembles: function ( obj ) {
-		return obj && isFunction( obj.then );
+		return obj && (
+			obj instanceof Promise ||
+			obj instanceof Deferral ||
+			isFunction( obj.then ) && isFunction( obj.promise )
+		);
 	}
 });
 
 
-function Operation ( fn ) {
-	var	deferral = new Deferral(),
-		next;
+function Queue ( operations ) {
+	if ( !( this instanceof Queue ) ) {
+		return new Queue( operations );
+	}
 	
-	extend( this, {
-		/** Executes `fn`, then `apply`s all successive operations */
-		apply: function ( context, args ) {
-			next && deferral.then( function () { next.apply( context, args ); } );
-			deferral.fulfill( context, args );
-		},
-		
-		/** Adds `op` to end of `next` chain */
-		then: function ( op ) {
-			return next.then( op ) || ( next = op );
-		},
-		
-		promise: function () {
-			return deferral.promise();
+	var	self = this,
+		queue = slice.call( operations ),
+		operation,
+		args,
+		deferral,
+		running = false,
+		pausePending = false;
+	
+	function continuation () {
+		var result;
+		if ( isFunction( this ) ) {
+			result = this.apply( self, arguments );
+			if ( Promise.resembles( result ) ) {
+				result.then(
+					function () {
+						args = slice.call( arguments );
+						pausePending && ( running = pausePending = false );
+						running && continuation.apply( operation = queue.shift(), args );
+					},
+					function () {
+						deferral.as( self ).negate.apply( deferral, args );
+					}
+				);
+			} else {
+				args = slice.call( arguments );
+				running && continuation.apply( operation = queue.shift(), isArray( result ) ? result : [ result ] );
+			}
+		} else {
+			deferral.as( self.stop() ).affirm.apply( deferral, arguments );
 		}
+	}
+	function start () {
+		deferral = new Deferral;
+		running = true;
+		this.start = getThis, this.pause = pause, this.resume = resume, this.stop = stop;
+		continuation.apply( operation = queue.shift(), args = slice.call( arguments ) );
+		return this;
+	}
+	function pause () {
+		pausePending = true;
+		this.resume = resume, this.pause = getThis;
+		return this;
+	}
+	function resume () {
+		running = true, pausePending = false;
+		this.pause = pause, this.resume = getThis;
+		continuation.apply( operation = queue.shift(), args );
+		return this;
+	}
+	function stop () {
+		running = pausePending = false;
+		this.start = start, this.pause = this.resume = this.stop = getThis;
+		return this;
+	}
+	
+	forEach( 'push pop shift unshift reverse splice'.split(' '), function ( method ) {
+		self[ method ] = function () {
+			return Array.prototype[ method ].apply( queue, arguments );
+		};
 	});
 	
-	deferral.then( fn );
+	extend( this, {
+		length: ( function () {
+			function f () { return queue.length; }
+			return ( f.valueOf = f );
+		})(),
+		promise: function () {
+			return deferral.promise();
+		},
+		operation: function () { return operation; },
+		args: function () { return slice.call( args ); },
+		start: start,
+		pause: getThis,
+		resume: getThis,
+		stop: getThis,
+		isRunning: ( function () {
+			function f () { return running; }
+			return ( f.valueOf = f );
+		})()
+	});
 }
-Operation.prototype.call = function ( context ) {
-	return this.apply( context, slice.call( arguments, 1 ) );
-};
 
 
 /**
- * Binds together the fate of all the deferrals submitted as arguments, returning a promise that will be
- * fulfilled only after all the individual deferrals are fulfilled, or will be forfeited immediately after
- * any one deferral is forfeited.
+ * Binds together the fate of all `promises` as evaluated against the specified `resolution`. Returns a
+ * `Promise` to a master `Deferral` that either: (1) will resolve to `yes` once all `promises` have
+ * individually been resolved to the specified `resolution`; or (2) will resolve to `no` once any one of the
+ * `promises` has been resolved to a different resolution. If no `resolution` is specified, it will default
+ * to that of the first defined callback queue (e.g. `yes` for a standard deferral).
  */
-function when ( arg /*...*/ ) {
-	var	args = flatten( slice.call( arguments ) ),
-		length = args.length || 1,
-		unresolvedCount = length,
-		i = 0,
-		deferral = length === 1 ?
-			arg instanceof Deferral ?
-				arg
-				:
-				( deferral = new Deferral() ).fulfill( deferral, arg )
-			:
-			new Deferral();
+function when ( /* promises..., [ resolution ] */ ) {
+	var	promises = flatten( slice.call( arguments ) ),
+		length = promises.length || 1,
+		resolution,
+		master = new Deferral,
+		list = [],
+		i, promise, affirmativeQueue, map, name;
 	
-	function fulfill () {
-		--unresolvedCount || deferral.fulfill( deferral, arguments );
+	function affirmed ( p ) {
+		return function () {
+			list.push( p ) === length && master.affirm.apply( master, list );
+		};
+	}
+	function negated ( p ) {
+		return function () {
+			list.push( p );
+			master.negate.apply( master, list );
+		};
 	}
 	
-	if ( length > 1 ) {
-		for ( ; i < length; i++ ) {
-			arg = args[i];
-			arg instanceof Deferral || arg instanceof Promise ||
-				( arg = args[i] = ( new Deferral() ).fulfill( deferral, arg ) );
-			arg.then( fulfill, deferral.forfeit );
+	if ( length > 1 && type( promises[ length - 1 ] ) === 'string' ) {
+		resolution = promises.splice( --length, 1 )[0];
+	}
+	
+	for ( i = 0; i < length; i++ ) {
+		promise = promises[i];
+		if ( promise instanceof Deferral || promise instanceof Promise ) {
+			
+			// Determine which of this promise's callback queues matches the specified `resolution`
+			affirmativeQueue = resolution || promise.queueNames()[0];
+			
+			// `map` becomes a list referencing the callback queues not considered affirmative in this context
+			map = promise.map();
+			if ( affirmativeQueue in map ) {
+				delete map[ affirmativeQueue ];
+			} else {
+				// Because this promise will never be resolved to match `resolution`, the master deferral
+				// can be negated immediately
+				list.push( promise );
+				master.negate.apply( master, list );
+				break;
+			}
+			
+			promise[ affirmativeQueue ]( affirmed( promise ) );
+			for ( name in map ) {
+				promise[ name ]( negated( promise ) );
+			}
+		}
+		
+		// For foreign promise objects, we utilize the standard `then` interface
+		else if ( Promise.resembles( promise ) ) {
+			promise.then( affirmed( promise ), negated( promise ) );
+		}
+		
+		// For anything that isn't promise-like, force whatever `promise` is to play nice with the
+		// other promises by wrapping it in an immediately affirmed deferral.
+		else {
+			promises[i] = ( isFunction( promise ) ? new Deferral( promise ) : new Deferral )
+				.as( master ).affirm( promise );
 		}
 	}
 	
-	return deferral.promise();
+	return master.promise();
 }
-
-window.Deferral = Deferral;
-window.Promise = Promise;
-window.when = when;
 
 
 /**
@@ -598,7 +831,7 @@ function State ( superstate, name, definition ) {
 	 * `this`, each of which is partially applied with its mapped free variables to the correspondingly
 	 * named methods at `State.privileged`.
 	 */
-	indirect( this, State.privileged, {
+	constructPrivilegedMethods( this, State.privileged, {
 		'init' : [ State.Definition, setDefinition ],
 		'superstate' : [ superstate ],
 		'data' : [ data ],
@@ -731,19 +964,20 @@ State.privileged = new function () {
 			 * and repeat the search.
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
-				var	superstate, protostate;
-		
+				var	superstate, protostate,
+					method = methods[ methodName ];
+				
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
-		
+				
 				return (
-					methods[ methodName ]
+					method !== noop && method
 						||
 					viaProto && ( protostate = this.protostate() ) && protostate.method( methodName, false, true )
 						||
 					viaSuper && ( superstate = this.superstate() ) && superstate.method( methodName, true, viaProto )
 						||
-					undefined
+					method
 				);
 			};
 		},
@@ -755,13 +989,14 @@ State.privileged = new function () {
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
 				var	superstate, protostate,
+					method = methods[ methodName ],
 					result = {};
 		
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
 		
 				return (
-					( result.method = methods[ methodName ] ) && ( result.context = this, result )
+					( result.method = method ) && method !== noop && ( result.context = this, result )
 						||
 					viaProto && ( protostate = this.protostate() ) &&
 							( result = protostate.methodAndContext( methodName, false, true ) ) && ( result.context = this, result )
@@ -1471,7 +1706,7 @@ function StateController ( owner, name, definition, options ) {
 		})
 	});
 	
-	indirect( this, State.Controller.privileged, {
+	constructPrivilegedMethods( this, State.Controller.privileged, {
 		'change' : [ setCurrentState, setTransition ]
 	});
 	
@@ -1747,9 +1982,10 @@ State.Event = extend( true, StateEvent, {
 
 function StateEventCollection ( state, type ) {
 	var	items = {},
-		length = 0,
-		getLength = ( getLength = function () { return length; } ).toString = getLength;
-		
+		length = 0;
+	function getLength () { return length; }
+	getLength.valueOf = getLength;
+	
 	extend( this, {
 		length: getLength,
 		get: function ( id ) {
@@ -1835,7 +2071,7 @@ function StateProxy ( superstate, name ) {
 }
 
 State.Proxy = extend( true, StateProxy, {
-	prototype: extend( true, new State(), {
+	prototype: extend( true, new State( null, "[StateProxy prototype]" ), {
 		guard: function ( guardName ) {
 			// TODO: this.protostate() isn't resolving when it should
 					// CAUSE: derived object doesn't have its StateController.name set, so it can't match with prototype's StateController
@@ -2058,7 +2294,7 @@ function StateTransition ( target, source, definition, callback ) {
 		}
 	});
 	
-	indirect( this, State.privileged, {
+	constructPrivilegedMethods( this, State.privileged, {
 		'init' : [ State.Transition.Definition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event events on addEvent removeEvent emit trigger' : [ events ],

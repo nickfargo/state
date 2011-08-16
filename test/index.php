@@ -10,19 +10,19 @@ require '../build/combine.php';
 		<link rel="stylesheet" media="screen" href="qunit.css" />
 		
 		<!-- libs -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
 		
 		<!-- includes -->
 		<script src="../state.js"></script>
 		
 		<!-- tests -->
 		<script src="qunit.js"></script>
-		<script src="unit/Deferral.test.js"></script>
 		<script src="unit/TestObject.test.js"></script>
 		<script src="unit/State.Definition.test.js"></script>
 		<script src="unit/State.object.test.js"></script>
 		<script src="unit/State.test.js"></script>
 		<script src="unit/State.Controller.test.js"></script>
+		<script src="unit/protostate.test.js"></script>
 	</head>
 	<body>
 		<h1 id="qunit-header">State.js Test Suite</h1>

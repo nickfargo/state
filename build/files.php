@@ -1,7 +1,10 @@
 <?php
 $files = array(
 	'Util',
-	'Deferral',
+	'../../deferral.js/src/deferral',
+	'../../deferral.js/src/promise',
+	'../../deferral.js/src/queue',
+	'../../deferral.js/src/when',
 	'State',
 	'State.Definition',
 	'State.Controller',

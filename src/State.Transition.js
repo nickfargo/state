@@ -208,7 +208,7 @@ function StateTransition ( target, source, definition, callback ) {
 		}
 	});
 	
-	indirect( this, State.privileged, {
+	constructPrivilegedMethods( this, State.privileged, {
 		'init' : [ State.Transition.Definition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event events on addEvent removeEvent emit trigger' : [ events ],

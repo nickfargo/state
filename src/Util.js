@@ -28,12 +28,10 @@ __native.fn = {
  */
 function noop () {}
 
-/** */
+/** Similar purpose to `noop` */
 function getThis () { return this; }
 
-/**
- * Safer alternative to `typeof`
- */
+/** Safer alternative to `typeof` operator */
 function type ( obj ) {
 	return obj == null ? String( obj ) : type.map[ toString.call( obj ) ] || 'object';
 }
@@ -176,7 +174,7 @@ function forEach ( obj, fn, context ) {
 }
 
 /**
- * Extracts elements of nested arrays
+ * Extracts elements of nested arrays and deposits them into a single flat array
  */
 function flatten ( array ) {
 	isArray( array ) || ( array = [ array ] );
@@ -223,41 +221,50 @@ function setAll ( obj, value ) {
 }
 
 /**
- * Sets all of an object's values to `null`
+ * Produces a hashmap whose keys are the supplied string array, with values all set to `null`
  */
-function nullify ( obj ) {
-	for ( var i in obj ) if ( hasOwn.call( obj, i ) ) {
-		obj[i] = null;
-	}
-	return obj;
+function nullHash( keys ) { return setAll( invert( keys ), null ); }
+
+/**
+ * Rigs partially applied functions, obtained from `functionSource`, as methods on a `object`. This
+ * facilitates implementation of reusable privileged methods by abstracting the "privileged" subset
+ * of variables available to the method into another level of scope. Because of this separation, the
+ * actual logic portion of the method can then be used by other objects ("subclasses" and the like),
+ * whose constructors can simply call this function themselves with their own private free variables.
+ * 
+ * Functions supplied by `functionSource` accept the set of closed variables as arguments, and return
+ * a function that will become the `object`'s method.
+ * 
+ * The `map` argument maps a space-delimited set of method names to an array of free variables. These
+ * variables are passed as arguments to each of the named methods as found within `functionSource`.
+ */
+function constructPrivilegedMethods ( object, functionSource, map ) {
+	each( map, function ( names, args ) {
+		each( names.split(' '), function ( i, methodName ) {
+			var method = functionSource[ methodName ].apply( undefined, args );
+			object[ methodName ] = function () { return method.apply( this, arguments ); };
+		});
+	});
+	return object;
 }
 
 /**
- * Produces a hashmap whose keys are the supplied string array, with values all set to `null`
+ * Transforms an array of `args` into a map of named arguments, based on the position and type of
+ * each item within `args`. This is directed by `map`, wherein each item maps a space-delimited
+ * type sequence (e.g., "object array string") to an equal number of space-delimited argument names.
  */
-function nullHash( keys ) { return nullify( invert( keys ) ); }
-
-function indirect ( subject, privileged, map ) {
-	each( map, function ( names, args ) {
-		each( names.split(' '), function ( i, methodName ) {
-			var method = privileged[ methodName ].apply( undefined, args );
-			subject[ methodName ] = function () { return method.apply( subject, arguments ); };
-		});
-	});
-}
-
 function overload ( args, map ) {
-	var	i,
+	var	i, l,
 		types = [],
 		names,
 		result = {};
-	for ( i in args ) {
+	for ( i = 0, l = args.length; i < l; i++ ) {
 		if ( args[i] === undefined ) { break; }
 		types.push( type( args[i] ) );
 	}
 	if ( types.length && ( types = types.join(' ') ) in map ) {
 		names = map[ types ].split(' ');
-		for ( i in names ) {
+		for ( i = 0, l = names.length; i < l; i++ ) {
 			result[ names[i] ] = args[i];
 		}
 	}
@@ -279,8 +286,6 @@ function excise ( deep, target ) { //// untested
 				delta[key] = target[key];
 				delete target[key];
 			}
-			// deep && isPlainObject( obj[key] ) && ( delta[key] = excise( target[key], obj[key] ) ) ||
-			// !!obj[key] && ( delta[key] = target[key], delete target[key] );
 		}
 	}
 	return delta;

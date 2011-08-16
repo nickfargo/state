@@ -20,9 +20,10 @@ State.Event = extend( true, StateEvent, {
 
 function StateEventCollection ( state, type ) {
 	var	items = {},
-		length = 0,
-		getLength = ( getLength = function () { return length; } ).toString = getLength;
-		
+		length = 0;
+	function getLength () { return length; }
+	getLength.valueOf = getLength;
+	
 	extend( this, {
 		length: getLength,
 		get: function ( id ) {
