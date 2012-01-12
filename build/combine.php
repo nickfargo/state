@@ -10,8 +10,8 @@ function file_append( $target, $source ) {
 
 
 
-file_put_contents( $outputPath, file_get_contents( './../src/pre.js' ) );
+file_put_contents( $outputPath, file_get_contents( './../lib/__pre.js' ) );
 foreach( $files as $file ) {
-	file_append( $outputPath, './../src/' . $file . '.js' );
+	file_append( $outputPath, './../lib/' . $file . '.js' );
 }
-file_append( $outputPath, './../src/post.js' );
+file_append( $outputPath, './../lib/__post.js' );
