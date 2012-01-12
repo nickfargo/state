@@ -1,0 +1,6 @@
+.tmp*
+examples/*
+test/.gitignore
+*.tmproj
+*.gz
+*.min.js
