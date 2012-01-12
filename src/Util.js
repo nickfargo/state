@@ -5,9 +5,18 @@
 var	toString = Object.prototype.toString,
 	hasOwn = Object.prototype.hasOwnProperty,
 	trim = String.prototype.trim ?
-		function ( text ) { return text == null ? '' : String.prototype.trim.call( text ); }:
+		function ( text ) { return text == null ? '' : String.prototype.trim.call( text ); } :
 		function ( text ) { return text == null ? '' : text.toString().replace( /^\s+/, '' ).replace( /\s+$/, '' ); },
 	slice = Array.prototype.slice;
+
+/**
+ * General-purpose empty function; also usable as a unique alternative "nil" type in strict-equal matches
+ * whenever it's desirable to avoid traditional `null` and `undefined`.
+ */
+function noop () {}
+
+/** */
+function getThis () { return this; }
 
 /**
  * Calls the specified native function if it exists and returns its result; if no such function exists on
@@ -23,15 +32,8 @@ __native.fn = {
 };
 
 /**
- * General-purpose empty function; also usable as a unique alternative "nil" type in strict-equal matches
- * whenever it's desirable to avoid traditional `null` and `undefined`.
+ * Safer alternative to `typeof`
  */
-function noop () {}
-
-/** Similar purpose to `noop` */
-function getThis () { return this; }
-
-/** Safer alternative to `typeof` operator */
 function type ( obj ) {
 	return obj == null ? String( obj ) : type.map[ toString.call( obj ) ] || 'object';
 }
@@ -51,6 +53,7 @@ function isFunction ( obj ) { return type( obj ) === 'function'; }
 
 /** isPlainObject */
 function isPlainObject ( obj ) {
+	var key;
 	if ( !obj || type( obj ) !== 'object' || obj.nodeType || obj === global ||
 		obj.constructor &&
 		!hasOwn.call( obj, 'constructor' ) &&
@@ -58,21 +61,61 @@ function isPlainObject ( obj ) {
 	) {
 		return false;
 	}
-	for ( var key in obj ) {}
+	for ( key in obj ) {}
 	return key === undefined || hasOwn.call( obj, key );
 }
 
 /** isEmpty */
 function isEmpty ( obj, andPrototype ) {
+	var key;
 	if ( isArray( obj ) && obj.length ) {
 		return false;
 	}
-	for ( var key in obj ) {
+	for ( key in obj ) {
 		if ( andPrototype || hasOwn.call( obj, key ) ) {
 			return false;
 		}
 	}
 	return true;
+}
+
+function each ( obj, fn ) {
+	if ( !obj ) { return; }
+	var	key, i, l = obj.length;
+	if ( l === undefined || isFunction( obj ) ) {
+		for ( key in obj ) {
+			if ( fn.call( obj[key], key, obj[key], obj ) === false ) {
+				break;
+			}
+		}
+	} else {
+		for ( i = 0, l = obj.length; i < l; ) {
+			if ( fn.call( obj[i], i, obj[i++], obj ) === false ) {
+				break;
+			}
+		}
+	}
+	return obj;
+}
+
+function forEach ( obj, fn, context ) {
+	var	n, l, key, i;
+	if ( obj == null ) { return; }
+	if ( ( n = __native( 'forEach', obj, fn, context ) ) !== noop ) { return n; }
+	if ( ( l = obj.length ) === undefined || isFunction( obj ) ) {
+		for ( key in obj ) {
+			if ( fn.call( context || obj[key], obj[key], key, obj ) === false ) {
+				break;
+			}
+		}
+	} else {
+		for ( i = 0, l = obj.length; i < l; ) {
+			if ( fn.call( context || obj[i], obj[i], i++, obj ) === false ) {
+				break;
+			}
+		}
+	}
+	return obj;
 }
 
 /** extend */
@@ -134,47 +177,8 @@ function extend () {
 	return target;
 }
 
-function each ( obj, fn ) {
-	if ( !obj ) return;
-	var	key, i, l = obj.length;
-	if ( l === undefined || isFunction( obj ) ) {
-		for ( key in obj ) {
-			if ( fn.call( obj[key], key, obj[key], obj ) === false ) {
-				break;
-			}
-		}
-	} else {
-		for ( i = 0, l = obj.length; i < l; ) {
-			if ( fn.call( obj[i], i, obj[i++], obj ) === false ) {
-				break;
-			}
-		}
-	}
-	return obj;
-}
-
-function forEach ( obj, fn, context ) {
-	var	n, l, key, i;
-	if ( obj == null ) return;
-	if ( ( n = __native( 'forEach', obj, fn, context ) ) !== noop ) return n;
-	if ( ( l = obj.length ) === undefined || isFunction( obj ) ) {
-		for ( key in obj ) {
-			if ( fn.call( context || obj[key], obj[key], key, obj ) === false ) {
-				break;
-			}
-		}
-	} else {
-		for ( i = 0, l = obj.length; i < l; ) {
-			if ( fn.call( context || obj[i], obj[i], i++, obj ) === false ) {
-				break;
-			}
-		}
-	}
-	return obj;
-}
-
 /**
- * Extracts elements of nested arrays and deposits them into a single flat array
+ * Extracts elements of nested arrays
  */
 function flatten ( array ) {
 	isArray( array ) || ( array = [ array ] );
@@ -221,9 +225,25 @@ function setAll ( obj, value ) {
 }
 
 /**
+ * Sets all of an object's values to `null`
+ */
+function nullify ( obj ) {
+	for ( var i in obj ) if ( hasOwn.call( obj, i ) ) {
+		obj[i] = null;
+	}
+	return obj;
+}
+
+/**
  * Produces a hashmap whose keys are the supplied string array, with values all set to `null`
  */
-function nullHash( keys ) { return setAll( invert( keys ), null ); }
+function nullHash( keys ) { return nullify( invert( keys ) ); }
+
+/** */
+function valueFunction ( fn ) { return fn.valueOf = fn; }
+
+/** */
+function stringFunction ( fn ) { return fn.toString = fn; }
 
 /**
  * Rigs partially applied functions, obtained from `functionSource`, as methods on a `object`. This

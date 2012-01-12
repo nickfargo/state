@@ -4,6 +4,6 @@
 	global ).State = State;
 
 global.Deferral = Deferral;
-global.when = when;
+global.when = Deferral.when;
 
 })();

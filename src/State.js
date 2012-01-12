@@ -591,7 +591,7 @@ extend( true, State, {
 		 * (2) The respective superstates of both a state and its protostate will also adhere to
 		 * point (1).
 		 */
-		protostate: function () { //// TODO: needs more unit tests
+		protostate: function () { //// TODO: needs better prototype extraction; needs more unit tests
 			var	derivation = this.derivation( true ),
 				controller = this.controller(),
 				controllerName = controller.name(),
