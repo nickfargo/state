@@ -1,4 +1,4 @@
-( function ( $, undefined ) {
+( function ( $, assert, undefined ) {
 
 module( "State.Definition" );
 
@@ -7,9 +7,9 @@ test( "Simple: methods only", function () {
 		methodOne: function () { return 'methodOne'; },
 		methodTwo: function () { return 'methodTwo'; }
 	});
-	ok( def instanceof State.Definition );
-	equals( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
-	equals( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
+	assert.ok( def instanceof State.Definition );
+	assert.equal( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
+	assert.equal( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
 });
 
 test( "Compound: array", function () {
@@ -28,18 +28,18 @@ test( "Compound: array", function () {
 			methodOne: function () { return 'Substate methodOne'; }
 		}
 	});
-	ok( def instanceof State.Definition, "Definition created" );
-	equals( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
-	equals( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
-	ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
-	equals( def.events.enter[0](), 'enter', "events.enter[0]()" );
-	ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
-	equals( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
-	equals( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
-	ok( def.guards.release, "Rule 'release' created" );
-	equals( def.guards.release[''](), 'release ""', "Rule release['']");
-	ok( def.states.Substate, "Substate 'Substate' created" );
-	equals( def.states.Substate.methods.methodOne(), "Substate methodOne", "Substate methodOne" );
+	assert.ok( def instanceof State.Definition, "Definition created" );
+	assert.equal( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
+	assert.equal( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
+	assert.ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
+	assert.equal( def.events.enter[0](), 'enter', "events.enter[0]()" );
+	assert.ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
+	assert.equal( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
+	assert.equal( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
+	assert.ok( def.guards.release, "Rule 'release' created" );
+	assert.equal( def.guards.release[''](), 'release ""', "Rule release['']");
+	assert.ok( def.states.Substate, "Substate 'Substate' created" );
+	assert.equal( def.states.Substate.methods.methodOne(), "Substate methodOne", "Substate methodOne" );
 });
 
 test( "Complex: map", function () {
@@ -115,50 +115,50 @@ test( "Complex: map", function () {
 		}
 	});
 	
-	ok( def instanceof State.Definition, "Definition created" );
+	assert.ok( def instanceof State.Definition, "Definition created" );
 	
 	
-	ok( def.methods, "methods" );
-	equals( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
-	equals( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
+	assert.ok( def.methods, "methods" );
+	assert.equal( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
+	assert.equal( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
 	
 	
-	ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
-	equals( def.events.enter[0](), 'enter', "events.enter[0]()" );
-	ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
-	equals( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
-	equals( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
+	assert.ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
+	assert.equal( def.events.enter[0](), 'enter', "events.enter[0]()" );
+	assert.ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
+	assert.equal( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
+	assert.equal( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
 	
 	
-	ok( def.guards.release, "Rule release created" );
-	equals( def.guards.release[''](), 'release ""', "Rule release['']");
+	assert.ok( def.guards.release, "Rule release created" );
+	assert.equal( def.guards.release[''](), 'release ""', "Rule release['']");
 	
 	
-	ok( def.states.SimpleSubstate, "SimpleSubstate created" );
-	ok( def.states.SimpleSubstate instanceof State.Definition, "StateDefinition for SimpleSubstate created" );
+	assert.ok( def.states.SimpleSubstate, "SimpleSubstate created" );
+	assert.ok( def.states.SimpleSubstate instanceof State.Definition, "StateDefinition for SimpleSubstate created" );
 	
-	ok( def.states.SimpleSubstate.methods, "SimpleSubstate.methods exists" );
-	equals( def.states.SimpleSubstate.methods.methodOne(), 'SimpleSubstate.methodOne', "SimpleSubstate.methodOne" );
+	assert.ok( def.states.SimpleSubstate.methods, "SimpleSubstate.methods exists" );
+	assert.equal( def.states.SimpleSubstate.methods.methodOne(), 'SimpleSubstate.methodOne', "SimpleSubstate.methodOne" );
 	
-	ok( def.states.CompoundSubstate instanceof State.Definition, "StateDefinition for CompoundSubstate created" );
-	ok( def.states.CompoundSubstate.methods, "CompoundSubstate.methods exists" );
-	equals( def.states.CompoundSubstate.methods.methodOne(), 'CompoundSubstate.methodOne', "CompoundSubstate.methodOne" );
-	equals( def.states.CompoundSubstate.methods.methodTwo(), 'CompoundSubstate.methodTwo', "CompoundSubstate.methodTwo" );
-	ok( def.states.CompoundSubstate.events, "CompoundSubstate.events exists" );
-	ok( def.states.CompoundSubstate.events.enter instanceof Array, "Event type 'enter' defined as array" );
-	equals( def.states.CompoundSubstate.events.enter[0](), 'enter', "CompoundSubstate.events.enter[0]()" );
-	ok( def.states.CompoundSubstate.events.exit instanceof Array, "Event type 'exit' defined as array" );
-	equals( def.states.CompoundSubstate.events.exit[0](), 'exit 0', "CompoundSubstate.events.exit[0]()" );
-	equals( def.states.CompoundSubstate.events.exit[1](), 'exit 1', "CompoundSubstate.events.exit[1]()" );
+	assert.ok( def.states.CompoundSubstate instanceof State.Definition, "StateDefinition for CompoundSubstate created" );
+	assert.ok( def.states.CompoundSubstate.methods, "CompoundSubstate.methods exists" );
+	assert.equal( def.states.CompoundSubstate.methods.methodOne(), 'CompoundSubstate.methodOne', "CompoundSubstate.methodOne" );
+	assert.equal( def.states.CompoundSubstate.methods.methodTwo(), 'CompoundSubstate.methodTwo', "CompoundSubstate.methodTwo" );
+	assert.ok( def.states.CompoundSubstate.events, "CompoundSubstate.events exists" );
+	assert.ok( def.states.CompoundSubstate.events.enter instanceof Array, "Event type 'enter' defined as array" );
+	assert.equal( def.states.CompoundSubstate.events.enter[0](), 'enter', "CompoundSubstate.events.enter[0]()" );
+	assert.ok( def.states.CompoundSubstate.events.exit instanceof Array, "Event type 'exit' defined as array" );
+	assert.equal( def.states.CompoundSubstate.events.exit[0](), 'exit 0', "CompoundSubstate.events.exit[0]()" );
+	assert.equal( def.states.CompoundSubstate.events.exit[1](), 'exit 1', "CompoundSubstate.events.exit[1]()" );
 	
-	ok( def.states.ComplexSubstate instanceof State.Definition, "StateDefinition for ComplexSubstate created" );
-	ok( def.states.ComplexSubstate.states, "ComplexSubstate.states exists" );
-	ok( def.states.ComplexSubstate.states.DeepSubstate instanceof State.Definition, "StateDefinition for DeepSubstate created" );
-	ok( def.states.ComplexSubstate.states.DeepSubstate.methods, "DeepSubstate.methods exists" );
-	equals( def.states.ComplexSubstate.states.DeepSubstate.methods.methodOne(), 'DeepSubstate.methodOne', "DeepSubstate.methodOne" );
-	ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate instanceof State.Definition, "StateDefinition for VeryDeepSubstate created" );
-	ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods, "VeryDeepSubstate.methods exists" );
-	equals( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods.methodOne(), 'VeryDeepSubstate.methodOne', "VeryDeepSubstate.methodOne" );
+	assert.ok( def.states.ComplexSubstate instanceof State.Definition, "StateDefinition for ComplexSubstate created" );
+	assert.ok( def.states.ComplexSubstate.states, "ComplexSubstate.states exists" );
+	assert.ok( def.states.ComplexSubstate.states.DeepSubstate instanceof State.Definition, "StateDefinition for DeepSubstate created" );
+	assert.ok( def.states.ComplexSubstate.states.DeepSubstate.methods, "DeepSubstate.methods exists" );
+	assert.equal( def.states.ComplexSubstate.states.DeepSubstate.methods.methodOne(), 'DeepSubstate.methodOne', "DeepSubstate.methodOne" );
+	assert.ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate instanceof State.Definition, "StateDefinition for VeryDeepSubstate created" );
+	assert.ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods, "VeryDeepSubstate.methods exists" );
+	assert.equal( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods.methodOne(), 'VeryDeepSubstate.methodOne', "VeryDeepSubstate.methodOne" );
 });
 
-})(jQuery);
+})( jQuery, QUnit || require('assert') );

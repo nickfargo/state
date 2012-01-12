@@ -55,50 +55,50 @@ function Ostrich () {
 }
 
 
-( function ( undefined ) {
+( function ( assert, undefined ) {
 
 module( "Protostate" );
 
 test( "Animal", function () {
 	var animal = new Animal();
-	strictEqual( animal.move(), false );
-	strictEqual( animal.getThis(), animal.state.Stationary );
-	animal.state.change('Moving'), strictEqual( animal.move(), true );
-	animal.state.change(''), strictEqual( animal.move(), 0 );
+	assert.strictEqual( animal.move(), false );
+	assert.strictEqual( animal.getThis(), animal.state.Stationary );
+	animal.state.change('Moving'), assert.strictEqual( animal.move(), true );
+	animal.state.change(''), assert.strictEqual( animal.move(), 0 );
 });
 
 test( "Bird", function () {
 	var bird = new Bird();
-	strictEqual( bird.constructor, Bird );
+	assert.strictEqual( bird.constructor, Bird );
 	
 	var prototype = bird.constructor.prototype;
-	ok( prototype instanceof Animal && !( prototype instanceof Bird ) );
+	assert.ok( prototype instanceof Animal && !( prototype instanceof Bird ) );
 	
 	var protostate = bird.state.defaultState().protostate();
-	ok( protostate );
-	ok( protostate.owner() === prototype );
-	ok( protostate.controller().defaultState() === protostate );
+	assert.ok( protostate );
+	assert.ok( protostate.owner() === prototype );
+	assert.ok( protostate.controller().defaultState() === protostate );
 	
-	strictEqual( bird.move(), false );
-	strictEqual( bird.getThis(), bird.state.get('Stationary') );
-	bird.state.change('Moving'), strictEqual( bird.move(), true );
-	bird.state.change('.Flying'), strictEqual( bird.move(), "Flap flap" );
-	bird.state.change('..Ambulating'), strictEqual( bird.move(), "Waddle waddle" );
-	bird.state.change('.'), strictEqual( bird.move(), true );
-	bird.state.change('Stationary'), strictEqual( bird.move(), false );
-	bird.state.change(''), strictEqual( bird.move(), 0 );
+	assert.strictEqual( bird.move(), false );
+	assert.strictEqual( bird.getThis(), bird.state.get('Stationary') );
+	bird.state.change('Moving'), assert.strictEqual( bird.move(), true );
+	bird.state.change('.Flying'), assert.strictEqual( bird.move(), "Flap flap" );
+	bird.state.change('..Ambulating'), assert.strictEqual( bird.move(), "Waddle waddle" );
+	bird.state.change('.'), assert.strictEqual( bird.move(), true );
+	bird.state.change('Stationary'), assert.strictEqual( bird.move(), false );
+	bird.state.change(''), assert.strictEqual( bird.move(), 0 );
 });
 
 test( "Ostrich", function () {
 	var ostrich = new Ostrich();
-	strictEqual( ostrich.move(), 0 );
-	ostrich.state.change('Moving'), strictEqual( ostrich.move(), true );
-	ostrich.state.change('.Flying'), strictEqual( ostrich.move(), undefined );
-	ostrich.state.change('..Ambulating'), strictEqual( ostrich.move(), "Waddle waddle" );
-	ostrich.state.change('.Walking'), strictEqual( ostrich.move(), "Stomp stomp" );
-	ostrich.state.change('..Running'), strictEqual( ostrich.move(), "Thumpthumpthumpthump" );
-	ostrich.state.change('....Stationary.HeadBuried'), strictEqual( ostrich.move(), "Buttwiggle" );
-	ostrich.state.change('Moving.Kicking'), strictEqual( ostrich.move(), "Pow!" );
+	assert.strictEqual( ostrich.move(), 0 );
+	ostrich.state.change('Moving'), assert.strictEqual( ostrich.move(), true );
+	ostrich.state.change('.Flying'), assert.strictEqual( ostrich.move(), undefined );
+	ostrich.state.change('..Ambulating'), assert.strictEqual( ostrich.move(), "Waddle waddle" );
+	ostrich.state.change('.Walking'), assert.strictEqual( ostrich.move(), "Stomp stomp" );
+	ostrich.state.change('..Running'), assert.strictEqual( ostrich.move(), "Thumpthumpthumpthump" );
+	ostrich.state.change('....Stationary.HeadBuried'), assert.strictEqual( ostrich.move(), "Buttwiggle" );
+	ostrich.state.change('Moving.Kicking'), assert.strictEqual( ostrich.move(), "Pow!" );
 });
 
-})();
+})( QUnit || require('assert') );
