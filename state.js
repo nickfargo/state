@@ -415,7 +415,7 @@ function State ( superstate, name, definition ) {
 	function setDestroyed ( value ) { return destroyed = !!value; }
 	
 	// expose these in debug mode
-	Z.env.debug && extend( this.__private__ = {}, {
+	Z.env.debug && Z.extend( this.__private__ = {}, {
 		data: data,
 		methods: methods,
 		events: events,
@@ -463,7 +463,7 @@ function State ( superstate, name, definition ) {
  * Privileged indirections, partially applied with private free variables from inside the `State` constructor.
  */
 State.privileged = new function () {
-	extend( this, {
+	Z.extend( this, {
 		/**
 		 * Builds out the state's members based on the contents of the supplied definition.
 		 */
@@ -550,7 +550,7 @@ State.privileged = new function () {
 					( isDeletion ?
 						!isEmpty( data ) && !isEmpty( edit ) && excise( true, data, edit )
 						:
-						isEmpty( edit ) || extend( true, data, edit )
+						isEmpty( edit ) || Z.extend( true, data, edit )
 					) &&
 						this.emit( 'mutate', { edit: edit, isDeletion: isDeletion } );
 					return this;
@@ -558,7 +558,7 @@ State.privileged = new function () {
 					return isEmpty( data ) ?
 						undefined
 						:
-						extend( true, {},
+						Z.extend( true, {},
 							viaSuper && ( superstate = this.superstate() ) && superstate.data(),
 							viaProto && ( protostate = this.protostate() ) && protostate.data( false ),
 							data );
@@ -854,7 +854,7 @@ State.privileged = new function () {
 		transitions: function ( transitions ) {
 			/** */
 			return function () {
-				return extend( true, {}, transitions );
+				return Z.extend( true, {}, transitions );
 				// var i, result = [];
 				// for ( i in transitions ) if ( hasOwn.call( transitions, i ) ) {
 				// 	result.push( transitions[i] );
@@ -925,13 +925,13 @@ State.privileged = new function () {
 	});
 	
 	// Aliases
-	extend( this, {
+	Z.extend( this, {
 		on: this.addEvent,
 		trigger: this.emit
 	});
 };
 	
-extend( true, State, {
+Z.extend( true, State, {
 	prototype: {
 		/** Returns this state's fully qualified name. */
 		toString: function () {
@@ -1220,10 +1220,10 @@ function StateDefinition ( map ) {
 	if ( !( this instanceof StateDefinition ) ) {
 		return new StateDefinition( map );
 	}
-	extend( true, this, map instanceof StateDefinition ? map : StateDefinition.expand( map ) );
+	Z.extend( true, this, map instanceof StateDefinition ? map : StateDefinition.expand( map ) );
 }
 
-extend( true, StateDefinition, {
+Z.extend( true, StateDefinition, {
 	categories: [ 'data', 'methods', 'events', 'guards', 'states', 'transitions' ],
 	expand: function ( map ) {
 		var key, value, category,
@@ -1246,7 +1246,7 @@ extend( true, StateDefinition, {
 			
 			// Priority 2 : explicitly named category
 			else if ( key in result ) {
-				result[key] = extend( result[key], value );
+				result[key] = Z.extend( result[key], value );
 			}
 			
 			// Priority 3 : implicit categorization
@@ -1296,20 +1296,20 @@ function StateController ( owner, name, definition, options ) {
 	typeof ( options = args.options || {} ) === 'string' && ( options = { initialState: options } );
 	
 	// Expose these in debug mode
-	Z.env.debug && extend( this.__private__ = {}, {
+	Z.env.debug && Z.extend( this.__private__ = {}, {
 		defaultState: defaultState,
 		owner: owner,
 		options: options
 	});
 	
-	extend( this, {
+	Z.extend( this, {
 		owner: function () { return owner; },
 		name: getName.toString = getName,
 		defaultState: function () { return defaultState; },
-		current: extend( function () { return currentState; }, {
+		current: Z.extend( function () { return currentState; }, {
 			toString: function () { return currentState ? currentState.toString() : undefined; }
 		}),
-		transition: extend( function () { return transition; }, {
+		transition: Z.extend( function () { return transition; }, {
 			toString: function () { return transition ? transition.toString() : ''; }
 		})
 	});
@@ -1319,7 +1319,7 @@ function StateController ( owner, name, definition, options ) {
 	});
 	
 	// Instantiate the default state and initialize it as the root of the state hierarchy
-	( defaultState = extend( new State(), {
+	( defaultState = Z.extend( new State(), {
 		controller: function () { return self; }
 	}) ).init( definition );
 	
@@ -1327,7 +1327,7 @@ function StateController ( owner, name, definition, options ) {
 	currentState.controller() === this || ( currentState = this.createProxy( currentState ) );
 }
 
-extend( true, StateController, {
+Z.extend( true, StateController, {
 	overloads: {
 		'object string object object' : 'owner name definition options',
 		'object string object string' : 'owner name definition options',
@@ -1444,7 +1444,7 @@ extend( true, StateController, {
 						setCurrentState( target );
 						this.current().trigger( 'arrive', info );
 						
-						origin instanceof State.Proxy && ( this.destroyProxy( origin ), origin = null );
+						origin instanceof StateProxy && ( this.destroyProxy( origin ), origin = null );
 						transition.destroy(), transition = setTransition( null );
 						
 						typeof options.success === 'function' && options.success.call( this );
@@ -1494,7 +1494,7 @@ extend( true, StateController, {
 						next;
 						state = next, next = iterate() );
 				while ( name ) {
-					state = new State.Proxy( state, name );
+					state = new StateProxy( state, name );
 					name = derivation.shift();
 				}
 				return state;
@@ -1506,7 +1506,7 @@ extend( true, StateController, {
 		 */
 		destroyProxy: function ( proxy ) {
 			var superstate;
-			while ( proxy instanceof State.Proxy ) {
+			while ( proxy instanceof StateProxy ) {
 				superstate = proxy.superstate();
 				proxy.destroy();
 				proxy = superstate;
@@ -1569,14 +1569,14 @@ extend( true, StateController, {
 
 
 function StateEvent ( state, type ) {
-	extend( this, {
+	Z.extend( this, {
 		target: state,
 		name: state.name,
 		type: type
 	});
 }
 
-extend( true, StateEvent, {
+Z.extend( true, StateEvent, {
 	types: [ 'construct', 'destroy', 'depart', 'exit', 'enter', 'arrive', 'mutate' ],
 	prototype: {
 		toString: function () {
@@ -1594,7 +1594,7 @@ function StateEventCollection ( state, type ) {
 	function getLength () { return length; }
 	getLength.valueOf = getLength;
 	
-	extend( this, {
+	Z.extend( this, {
 		length: getLength,
 		get: function ( id ) {
 			return items[id];
@@ -1642,7 +1642,7 @@ function StateEventCollection ( state, type ) {
 		},
 		emit: function ( data ) {
 			for ( var i in items ) if ( hasOwn.call( items, i ) ) {
-				items[i].apply( state, [ extend( new StateEvent( state, type ), data ) ] );
+				items[i].apply( state, [ Z.extend( new StateEvent( state, type ), data ) ] );
 			}
 		}
 	});
@@ -1651,7 +1651,7 @@ function StateEventCollection ( state, type ) {
 	this.trigger = this.emit;
 }
 
-extend( true, StateEventCollection, {
+Z.extend( true, StateEventCollection, {
 	__guid__: 0,
 	prototype: {
 		guid: function () {
@@ -1666,7 +1666,7 @@ extend( true, StateEventCollection, {
  */
 function StateProxy ( superstate, name ) {
 	var	getName;
-	extend( this, {
+	Z.extend( this, {
 		superstate: function () { return superstate; },
 		name: ( getName = function () { return name || ''; } ).toString = getName,
 		
@@ -1678,8 +1678,8 @@ function StateProxy ( superstate, name ) {
 	});
 }
 
-State.Proxy = extend( true, StateProxy, {
-	prototype: extend( true, new State( null, "[StateProxy prototype]" ), {
+Z.extend( true, StateProxy, {
+	prototype: Z.extend( true, new State( null, "[StateProxy prototype]" ), {
 		guard: function ( guardName ) {
 			// TODO: this.protostate() isn't resolving when it should
 					// CAUSE: derived object doesn't have its StateController.name set, so it can't match with prototype's StateController
@@ -1710,14 +1710,14 @@ function StateTransition ( target, source, definition, callback ) {
 	function setDefinition ( value ) { return definition = value; }
 	
 	// expose these in debug mode
-	Z.env.debug && extend( this.__private__ = {}, {
+	Z.env.debug && Z.extend( this.__private__ = {}, {
 		methods: methods,
 		events: events,
 		guards: guards,
 		operation: operation
 	});
 	
-	extend( this, {
+	Z.extend( this, {
 		/**
 		 * `superstate` is used here to track the transition's position as it walks the State subtree domain.
 		 */
@@ -1911,8 +1911,8 @@ function StateTransition ( target, source, definition, callback ) {
 	this.init();
 }
 
-extend( true, StateTransition, {
-	prototype: extend( true, new State(), {
+Z.extend( true, StateTransition, {
+	prototype: Z.extend( true, new State(), {
 		depth: function () {
 			for ( var count = 0, t = this; t.source() instanceof StateTransition; count++, t = t.source() );
 			return count;
@@ -1929,16 +1929,16 @@ function StateTransitionDefinition ( map ) {
 	if ( !( this instanceof D ) ) {
 		return new D( map );
 	}
-	extend( true, this, map instanceof D ? map : D.expand( map ) );
+	Z.extend( true, this, map instanceof D ? map : D.expand( map ) );
 }
 
-extend( StateTransitionDefinition, {
+Z.extend( StateTransitionDefinition, {
 	properties: [ 'origin', 'source', 'target', 'operation' ],
 	categories: [ 'methods', 'events' ],
 	expand: function ( map ) {
 		var	properties = nullHash( this.properties ),
 			categories = nullHash( this.categories ),
-			result = extend( {}, properties, categories ),
+			result = Z.extend( {}, properties, categories ),
 			eventTypes = invert( StateTransition.Event.types ),
 			key, value, category;
 		for ( key in map ) if ( hasOwn.call( map, key ) ) {
@@ -1947,7 +1947,7 @@ extend( StateTransitionDefinition, {
 				result[key] = value;
 			}
 			else if ( key in categories ) {
-				extend( result[key], value );
+				Z.extend( result[key], value );
 			}
 			else {
 				category = key in eventTypes ? 'events' : 'methods';
