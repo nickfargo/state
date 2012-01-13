@@ -334,8 +334,24 @@ State.privileged = new function () {
 
 		addMethod: function ( methods ) {
 			/**
-			 * Adds a method to this state, which will be callable directly from the owner, but with its
-			 * context bound to the state.
+			 * Returns a function that forwards a `methodName` call to `controller`, which will
+			 * itself then forward the call on to the appropriate implementation in the state
+			 * hierarchy as determined by the controller's current state.
+			 * 
+			 * The context of autochthonous methods relocated to the default state remains bound to
+			 * the owner, whereas stateful methods are executed in the context of the state in which
+			 * they are declared, or if the implementation resides in a protostate, the context will
+			 * be the corresponding `StateProxy` within `controller`.
+			 */
+			function applyDelegate ( methodName, controller ) {
+				function delegate () { return controller.current().apply( methodName, arguments ); }
+				delegate.isDelegate = true;
+				return delegate;
+			}
+
+			/**
+			 * Adds a method to this state, which will be callable directly from the owner, but with
+			 * its context bound to the state.
 			 */
 			return function ( methodName, fn ) {
 				var	controller = this.controller(),
@@ -379,7 +395,7 @@ State.privileged = new function () {
 					 * `owner[ methodName ]` to the controller, and then on to the appropriate state's
 					 * implementation.
 					 */
-					owner[ methodName ] = State.delegate( methodName, controller );
+					owner[ methodName ] = applyDelegate( methodName, controller );
 				}
 				return ( methods[ methodName ] = fn );
 			};
@@ -893,33 +909,6 @@ Z.extend( true, State, {
 				return cursor;
 			}
 		}
-	},
-	
-	/**
-	 * Returns a function that forwards a `methodName` call to `controller`, which will itself then
-	 * forward the call on to the appropriate implementation in the state hierarchy as determined by
-	 * the controller's current state.
-	 * 
-	 * The context of autochthonous methods relocated to the default state remains bound to the owner.
-	 * Otherwise, methods are executed in the context of the state in which they are declared, or if the
-	 * implementation resides in a protostate, the context will be the corresponding `StateProxy` within
-	 * `controller`.
-	 * 
-	 * @see State.addMethod
-	 */
-	delegate: function ( methodName, controller ) {
-		function delegate () { return controller.current().apply( methodName, arguments ); }
-		delegate.isDelegate = true;
-		return delegate;
-	},
-	
-	/**
-	 * Reinstates the original occupant of `'State'` on the global object and returns this module's
-	 * `State`.
-	 */
-	noConflict: function () {
-		global.State = autochthon;
-		return this;
 	}
 });
 
