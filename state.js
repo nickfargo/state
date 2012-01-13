@@ -60,272 +60,6 @@ Z.env.client && ( global['state'] = state );
  * # Utility functions
  */
 
-var	toString = Object.prototype.toString,
-	hasOwn = Object.prototype.hasOwnProperty,
-	trim = String.prototype.trim ?
-		function ( text ) { return text == null ? '' : String.prototype.trim.call( text ); } :
-		function ( text ) { return text == null ? '' : text.toString().replace( /^\s+/, '' ).replace( /\s+$/, '' ); },
-	slice = Array.prototype.slice;
-
-/**
- * General-purpose empty function; also usable as a unique alternative "nil" type in strict-equal matches
- * whenever it's desirable to avoid traditional `null` and `undefined`.
- */
-function noop () {}
-
-/** */
-function getThis () { return this; }
-
-/**
- * Calls the specified native function if it exists and returns its result; if no such function exists on
- * `obj` as registered in `__native.fn`, returns our unique `noop` (as opposed to `null` or `undefined`,
- * which may be a valid result from the native function itself).
- */
-function __native ( item, obj /* , ... */ ) {
-	var n = __native.fn[item];
-	return n && obj[item] === n ? n.apply( obj, slice.call( arguments, 2 ) ) : noop;
-}
-__native.fn = {
-	forEach: Array.prototype.forEach
-};
-
-/**
- * Safer alternative to `typeof`
- */
-function type ( obj ) {
-	return obj == null ? String( obj ) : type.map[ toString.call( obj ) ] || 'object';
-}
-type.map = {};
-each( 'Array Boolean Date Function Number Object RegExp String'.split(' '), function( i, name ) {
-	type.map[ "[object " + name + "]" ] = name.toLowerCase();
-});
-
-/** isNumber */
-function isNumber ( n ) { return !isNaN( parseFloat( n ) && isFinite( n ) ); }
-
-/** isArray */
-function isArray ( obj ) { return type( obj ) === 'array'; }
-
-/** isFunction */
-function isFunction ( obj ) { return type( obj ) === 'function'; }
-
-/** isPlainObject */
-function isPlainObject ( obj ) {
-	var key;
-	if ( !obj || type( obj ) !== 'object' || obj.nodeType || obj === global ||
-		obj.constructor &&
-		!hasOwn.call( obj, 'constructor' ) &&
-		!hasOwn.call( obj.constructor.prototype, 'isPrototypeOf' )
-	) {
-		return false;
-	}
-	for ( key in obj ) {}
-	return key === undefined || hasOwn.call( obj, key );
-}
-
-/** isEmpty */
-function isEmpty ( obj, andPrototype ) {
-	var key;
-	if ( isArray( obj ) && obj.length ) {
-		return false;
-	}
-	for ( key in obj ) {
-		if ( andPrototype || hasOwn.call( obj, key ) ) {
-			return false;
-		}
-	}
-	return true;
-}
-
-function each ( obj, fn ) {
-	if ( !obj ) { return; }
-	var	key, i, l = obj.length;
-	if ( l === undefined || isFunction( obj ) ) {
-		for ( key in obj ) {
-			if ( fn.call( obj[key], key, obj[key], obj ) === false ) {
-				break;
-			}
-		}
-	} else {
-		for ( i = 0, l = obj.length; i < l; ) {
-			if ( fn.call( obj[i], i, obj[i++], obj ) === false ) {
-				break;
-			}
-		}
-	}
-	return obj;
-}
-
-function forEach ( obj, fn, context ) {
-	var	n, l, key, i;
-	if ( obj == null ) { return; }
-	if ( ( n = __native( 'forEach', obj, fn, context ) ) !== noop ) { return n; }
-	if ( ( l = obj.length ) === undefined || isFunction( obj ) ) {
-		for ( key in obj ) {
-			if ( fn.call( context || obj[key], obj[key], key, obj ) === false ) {
-				break;
-			}
-		}
-	} else {
-		for ( i = 0, l = obj.length; i < l; ) {
-			if ( fn.call( context || obj[i], obj[i], i++, obj ) === false ) {
-				break;
-			}
-		}
-	}
-	return obj;
-}
-
-/** extend */
-function extend () {
-	var options, name, src, copy, copyIsArray, clone,
-		target = arguments[0] || {},
-		i = 1,
-		length = arguments.length,
-		deep = false;
-
-	// Handle a deep copy situation
-	if ( typeof target === "boolean" ) {
-		deep = target;
-		target = arguments[1] || {};
-		// skip the boolean and the target
-		i = 2;
-	}
-
-	// Handle case when target is a string or something (possible in deep copy)
-	if ( typeof target !== "object" && !isFunction( target ) ) {
-		target = {};
-	}
-
-	for ( ; i < length; i++ ) {
-		// Only deal with non-null/undefined values
-		if ( ( options = arguments[i] ) != null ) {
-			// Extend the base object
-			for ( name in options ) {
-				src = target[ name ];
-				copy = options[ name ];
-
-				// Prevent never-ending loop
-				if ( target === copy ) {
-					continue;
-				}
-
-				// Recurse if we're merging plain objects or arrays
-				if ( deep && copy && ( isPlainObject( copy ) || ( copyIsArray = isArray( copy ) ) ) ) {
-					if ( copyIsArray ) {
-						copyIsArray = false;
-						clone = src && isArray( src ) ? src : [];
-					} else {
-						clone = src && isPlainObject( src ) ? src : {};
-					}
-
-					// Never move original objects, clone them
-					target[ name ] = extend( deep, clone, copy );
-
-				// 
-				// Don't bring in undefined values
-				} else if ( copy !== undefined ) {
-					target[ name ] = copy;
-				}
-			}
-		}
-	}
-
-	// Return the modified object
-	return target;
-}
-
-/**
- * Extracts elements of nested arrays
- */
-function flatten ( array ) {
-	isArray( array ) || ( array = [ array ] );
-	var	i = 0,
-		l = array.length,
-		item,
-		result = [];
-	while ( i < l ) {
-		item = array[i++];
-		isArray( item ) ? ( result = result.concat( flatten( item ) ) ) : result.push( item );
-	}
-	return result;
-}
-
-/**
- * Returns an array containing the keys of a hashmap
- */
-function keys ( obj ) {
-	var key, result = [];
-	for ( key in obj ) if ( hasOwn.call( obj, key ) ) {
-		result.push( key );
-	}
-	return result;
-}
-
-/**
- * Returns a hashmap that is the key-value inversion of the supplied string array
- */
-function invert ( array ) {
-	for ( var i = 0, l = array.length, map = {}; i < l; ) {
-		map[ array[i] ] = i++;
-	}
-	return map;
-}
-
-/**
- * Sets all of an object's values to a specified value
- */
-function setAll ( obj, value ) {
-	for ( var i in obj ) if ( hasOwn.call( obj, i ) ) {
-		obj[i] = value;
-	}
-	return obj;
-}
-
-/**
- * Sets all of an object's values to `null`
- */
-function nullify ( obj ) {
-	for ( var i in obj ) if ( hasOwn.call( obj, i ) ) {
-		obj[i] = null;
-	}
-	return obj;
-}
-
-/**
- * Produces a hashmap whose keys are the supplied string array, with values all set to `null`
- */
-function nullHash( keys ) { return nullify( invert( keys ) ); }
-
-/** */
-function valueFunction ( fn ) { return fn.valueOf = fn; }
-
-/** */
-function stringFunction ( fn ) { return fn.toString = fn; }
-
-/**
- * Rigs partially applied functions, obtained from `functionSource`, as methods on a `object`. This
- * facilitates implementation of reusable privileged methods by abstracting the "privileged" subset
- * of variables available to the method into another level of scope. Because of this separation, the
- * actual logic portion of the method can then be used by other objects ("subclasses" and the like),
- * whose constructors can simply call this function themselves with their own private free variables.
- * 
- * Functions supplied by `functionSource` accept the set of closed variables as arguments, and return
- * a function that will become the `object`'s method.
- * 
- * The `map` argument maps a space-delimited set of method names to an array of free variables. These
- * variables are passed as arguments to each of the named methods as found within `functionSource`.
- */
-function constructPrivilegedMethods ( object, functionSource, map ) {
-	each( map, function ( names, args ) {
-		each( names.split(' '), function ( i, methodName ) {
-			var method = functionSource[ methodName ].apply( undefined, args );
-			object[ methodName ] = function () { return method.apply( this, arguments ); };
-		});
-	});
-	return object;
-}
-
 /**
  * Transforms an array of `args` into a map of named arguments, based on the position and type of
  * each item within `args`. This is directed by `map`, wherein each item maps a space-delimited
@@ -338,7 +72,7 @@ function overload ( args, map ) {
 		result = {};
 	for ( i = 0, l = args.length; i < l; i++ ) {
 		if ( args[i] === undefined ) { break; }
-		types.push( type( args[i] ) );
+		types.push( Z.type( args[i] ) );
 	}
 	if ( types.length && ( types = types.join(' ') ) in map ) {
 		names = map[ types ].split(' ');
@@ -349,25 +83,6 @@ function overload ( args, map ) {
 	return result;
 }
 
-function excise ( deep, target ) { //// untested
-	var	args = slice.call( arguments ),
-		i, key, value, obj,
-		delta = {};
-	deep === !!deep && args.shift();
-	target = args[0];
-	for ( i = args.length; --i; ) {
-		obj = args[i];
-		for ( key in obj ) if ( hasOwn.call( value = obj[key] ) ) {
-			if ( deep && isPlainObject( value ) ) {
-				delta[key] = excise( target[key], value );
-			} else if ( value != null ) {
-				delta[key] = target[key];
-				delete target[key];
-			}
-		}
-	}
-	return delta;
-}
 
 
 
@@ -395,13 +110,12 @@ function State ( superstate, name, definition ) {
 		return ( arguments.length < 2 ? StateDefinition : StateController ).apply( this, arguments );
 	}
 	
-	var	getName,
-		self = this,
+	var	self = this,
 		destroyed = false,
 		// history = [],
 		data = {},
 		methods = {},
-		events = nullHash( StateEvent.types ),
+		events = Z.nullHash( StateEvent.types ),
 		guards = {},
 		substates = {},
 		transitions = {};
@@ -424,13 +138,7 @@ function State ( superstate, name, definition ) {
 		transitions: transitions
 	});
 	
-	/**
-	 * Get the state's name. Copying the function to its own `toString` exposes the value of `name`
-	 * when the method is viewed in the Chrome web inspector.
-	 */
-	( this.name = function () { return name || ''; } ).toString = this.name;
-	
-	/** Get the `StateDefinition` that was used to define this state. */
+	this.name = Z.stringFunction( function () { return name || ''; } );
 	this.definition = function () { return definition; };
 	
 	/*
@@ -440,7 +148,7 @@ function State ( superstate, name, definition ) {
 	 * `this`, each of which is partially applied with its mapped free variables to the correspondingly
 	 * named methods at `State.privileged`.
 	 */
-	constructPrivilegedMethods( this, State.privileged, {
+	Z.constructPrivilegedMethods( this, State.privileged, {
 		'init' : [ StateDefinition, setDefinition ],
 		'superstate' : [ superstate ],
 		'data' : [ data ],
@@ -477,7 +185,7 @@ State.privileged = new function () {
 					setDefinition( definition = DefinitionConstructor( definition ) );
 		
 				definition.data && this.data( definition.data );
-				each({
+				Z.each({
 					methods: function ( methodName, fn ) {
 						self.addMethod( methodName, fn );
 					},
@@ -498,7 +206,7 @@ State.privileged = new function () {
 						self.addTransition( transitionName, transitionDefinition );
 					}
 				}, function ( category, fn ) {
-					definition[category] && each( definition[category], fn );
+					definition[category] && Z.each( definition[category], fn );
 				});
 		
 				this.emit( 'construct', { definition: definition } );
@@ -620,7 +328,7 @@ State.privileged = new function () {
 		methodNames: function ( methods ) {
 			/** Returns an `Array` of names of methods defined for this state. */
 			return function () {
-				return keys( methods );
+				return Z.keys( methods );
 			};
 		},
 
@@ -655,7 +363,7 @@ State.privileged = new function () {
 							 * be returned to the owner should the controller ever be destroyed.
 							 */
 							ownerMethod.autochthonous = true;
-							ownerMethod.autochthonousToOwner = hasOwn.call( owner, methodName );
+							ownerMethod.autochthonousToOwner = Z.hasOwn.call( owner, methodName );
 						} else {
 							/*
 							 * Otherwise, since the method being added has no counterpart on the owner, a
@@ -784,7 +492,7 @@ State.privileged = new function () {
 			return function ( /*Boolean*/ deep ) {
 				var key,
 					result = [];
-				for ( key in substates ) if ( hasOwn.call( substates, key ) ) {
+				for ( key in substates ) if ( Z.hasOwn.call( substates, key ) ) {
 					result.push( substates[key] );
 					deep && ( result = result.concat( substates[key].substates( true ) ) );
 				}
@@ -856,7 +564,7 @@ State.privileged = new function () {
 			return function () {
 				return Z.extend( true, {}, transitions );
 				// var i, result = [];
-				// for ( i in transitions ) if ( hasOwn.call( transitions, i ) ) {
+				// for ( i in transitions ) if ( Z.hasOwn.call( transitions, i ) ) {
 				// 	result.push( transitions[i] );
 				// }
 				// return result;
@@ -900,9 +608,9 @@ State.privileged = new function () {
 				if ( superstate ) {
 					superstate.removeSubstate( name );
 				} else {
-					for ( methodName in methods ) if ( hasOwn.call( methods, methodName ) ) {
+					for ( methodName in methods ) if ( Z.hasOwn.call( methods, methodName ) ) {
 						// It's the default state being destroyed, so the delegates on the owner can be deleted.
-						hasOwn.call( owner, methodName ) && delete owner[ methodName ];
+						Z.hasOwn.call( owner, methodName ) && delete owner[ methodName ];
 				
 						// A default state may have been holding methods for the owner, which it must give back.
 						if ( ( method = methods[ methodName ] ).autochthonousToOwner ) {
@@ -912,7 +620,7 @@ State.privileged = new function () {
 						}
 					}
 				}
-				for ( stateName in substates ) if ( hasOwn.call( substates, stateName ) ) {
+				for ( stateName in substates ) if ( Z.hasOwn.call( substates, stateName ) ) {
 					substates[ stateName ].destroy();
 				}
 				setSuperstate( undefined );
@@ -979,7 +687,7 @@ Z.extend( true, State, {
 			function iterate () {
 				prototype = prototype.__proto__ || prototype.constructor.prototype;
 				protostate = prototype &&
-						hasOwn.call( prototype, controllerName ) &&
+						Z.hasOwn.call( prototype, controllerName ) &&
 						prototype[ controllerName ] instanceof StateController ?
 					prototype[ controllerName ].defaultState() :
 					undefined;
@@ -1079,7 +787,7 @@ Z.extend( true, State, {
 		
 		/** @see apply */
 		call: function ( methodName ) {
-			return this.apply( methodName, slice.call( arguments, 1 ) );
+			return this.apply( methodName, Z.slice.call( arguments, 1 ) );
 		},
 		
 		/** Determines whether `this` directly possesses a method named `methodName`. */
@@ -1134,9 +842,9 @@ Z.extend( true, State, {
 				guard = this.guard( guardName ),
 				result;
 			if ( guard ) {
-				each( guard, function ( selector, value ) {
-					each( selector.split(','), function ( i, expr ) {
-						if ( state.match( trim( expr ), testState ) ) {
+				Z.each( guard, function ( selector, value ) {
+					Z.each( selector.split(','), function ( i, expr ) {
+						if ( state.match( Z.trim( expr ), testState ) ) {
 							result = !!( typeof value === 'function' ? value.apply( state, [testState] ) : value );
 							return false; 
 						}
@@ -1161,7 +869,7 @@ Z.extend( true, State, {
 				result;
 			
 			if ( parts.length ) {
-				each( parts, function ( i, name ) {
+				Z.each( parts, function ( i, name ) {
 					if ( name === '' ) {
 						cursor = cursor.superstate();
 					} else if ( cursorSubstate = cursor.substate( name ) ) {
@@ -1227,11 +935,11 @@ Z.extend( true, StateDefinition, {
 	categories: [ 'data', 'methods', 'events', 'guards', 'states', 'transitions' ],
 	expand: function ( map ) {
 		var key, value, category,
-			result = nullHash( this.categories ),
-			eventTypes = invert( StateEvent.types ),
-			guardTypes = invert([ 'admit', 'release' ]); // invert( State.Guard.types );
+			result = Z.nullHash( this.categories ),
+			eventTypes = Z.invert( StateEvent.types ),
+			guardTypes = Z.invert([ 'admit', 'release' ]); // Z.invert( State.Guard.types );
 		
-		for ( key in map ) if ( hasOwn.call( map, key ) ) {
+		for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
 			value = map[key];
 			
 			// Priority 1 : strict type match opportunity for states and transitions
@@ -1259,15 +967,15 @@ Z.extend( true, StateDefinition, {
 			}
 		}
 		
-		each( result.events, function ( type, value ) {
+		Z.each( result.events, function ( type, value ) {
 			Z.isFunction( value ) && ( result.events[type] = value = [ value ] );
 		});
 		
-		each( result.transitions, function ( name, map ) {
+		Z.each( result.transitions, function ( name, map ) {
 			result.transitions[name] = map instanceof StateTransitionDefinition ? map : StateTransitionDefinition( map );
 		});
 		
-		each( result.states, function ( name, map ) {
+		Z.each( result.states, function ( name, map ) {
 			result.states[name] = map instanceof StateDefinition ? map : StateDefinition( map );
 		});
 		
@@ -1286,7 +994,6 @@ function StateController ( owner, name, definition, options ) {
 		privileged = StateController.privileged,
 		args = overload( arguments, this.constructor.overloads );
 	
-	function getName () { return name; }
 	function setCurrentState ( value ) { return currentState = value; }
 	function setTransition ( value ) { return transition = value; }
 	
@@ -1304,7 +1011,7 @@ function StateController ( owner, name, definition, options ) {
 	
 	Z.extend( this, {
 		owner: function () { return owner; },
-		name: getName.toString = getName,
+		name: Z.stringFunction( function () { return name; } ),
 		defaultState: function () { return defaultState; },
 		current: Z.extend( function () { return currentState; }, {
 			toString: function () { return currentState ? currentState.toString() : undefined; }
@@ -1314,7 +1021,7 @@ function StateController ( owner, name, definition, options ) {
 		})
 	});
 	
-	constructPrivilegedMethods( this, StateController.privileged, {
+	Z.constructPrivilegedMethods( this, StateController.privileged, {
 		'change' : [ setCurrentState, setTransition ]
 	});
 	
@@ -1524,7 +1231,7 @@ Z.extend( true, StateController, {
 			function search ( state, until ) {
 				var result;
 				for ( ; state && state !== until; state = until ? state.superstate() : undefined ) {
-					each( state.transitions(), function ( i, definition ) {
+					Z.each( state.transitions(), function ( i, definition ) {
 						return !(
 							( definition.target ? state.match( definition.target, target ) : state === target ) &&
 							( !definition.origin || state.match( definition.origin, origin ) ) &&
@@ -1591,16 +1298,14 @@ Z.extend( true, StateEvent, {
 function StateEventCollection ( state, type ) {
 	var	items = {},
 		length = 0;
-	function getLength () { return length; }
-	getLength.valueOf = getLength;
 	
 	Z.extend( this, {
-		length: getLength,
+		length: Z.valueFunction( function () { return length } ),
 		get: function ( id ) {
 			return items[id];
 		},
 		key: function ( listener ) {
-			for ( var i in items ) if ( hasOwn.call( items, i ) ) {
+			for ( var i in items ) if ( Z.hasOwn.call( items, i ) ) {
 				if ( items[i] === listener ) {
 					return i;
 				}
@@ -1609,7 +1314,7 @@ function StateEventCollection ( state, type ) {
 		keys: function () {
 			var result = [], i;
 			result.toString = function () { return '[' + result.join() + ']'; };
-			for ( i in items ) if ( hasOwn.call( items, i ) ) {
+			for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
 				result.push( items[i] );
 			}
 			return result;
@@ -1631,7 +1336,7 @@ function StateEventCollection ( state, type ) {
 		},
 		empty: function () {
 			if ( length ) {
-				for ( var i in items ) if ( hasOwn.call( items, i ) ) {
+				for ( var i in items ) if ( Z.hasOwn.call( items, i ) ) {
 					delete items[i];
 				}
 				length = 0;
@@ -1641,7 +1346,7 @@ function StateEventCollection ( state, type ) {
 			}
 		},
 		emit: function ( data ) {
-			for ( var i in items ) if ( hasOwn.call( items, i ) ) {
+			for ( var i in items ) if ( Z.hasOwn.call( items, i ) ) {
 				items[i].apply( state, [ Z.extend( new StateEvent( state, type ), data ) ] );
 			}
 		}
@@ -1699,7 +1404,7 @@ function StateTransition ( target, source, definition, callback ) {
 	
 	var	deferral,
 		methods = {},
-		events = nullHash( StateTransition.Event.types ),
+		events = Z.nullHash( StateTransition.Event.types ),
 		guards = {},
 		operation = definition.operation,
 		self = this,
@@ -1902,7 +1607,7 @@ function StateTransition ( target, source, definition, callback ) {
 		}
 	});
 	
-	constructPrivilegedMethods( this, State.privileged, {
+	Z.constructPrivilegedMethods( this, State.privileged, {
 		'init' : [ StateTransitionDefinition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event events on addEvent removeEvent emit trigger' : [ events ],
@@ -1936,12 +1641,12 @@ Z.extend( StateTransitionDefinition, {
 	properties: [ 'origin', 'source', 'target', 'operation' ],
 	categories: [ 'methods', 'events' ],
 	expand: function ( map ) {
-		var	properties = nullHash( this.properties ),
-			categories = nullHash( this.categories ),
+		var	properties = Z.nullHash( this.properties ),
+			categories = Z.nullHash( this.categories ),
 			result = Z.extend( {}, properties, categories ),
-			eventTypes = invert( StateTransition.Event.types ),
+			eventTypes = Z.invert( StateTransition.Event.types ),
 			key, value, category;
-		for ( key in map ) if ( hasOwn.call( map, key ) ) {
+		for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
 			value = map[key];
 			if ( key in properties ) {
 				result[key] = value;
@@ -1954,7 +1659,7 @@ Z.extend( StateTransitionDefinition, {
 				( result[category] || ( result[category] = {} ) )[key] = value;
 			}
 		}
-		each( result.events, function ( type, value ) {
+		Z.each( result.events, function ( type, value ) {
 			Z.isFunction( value ) && ( result.events[type] = value = [ value ] );
 		});
 		return result;
