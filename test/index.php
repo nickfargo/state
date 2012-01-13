@@ -13,6 +13,10 @@ require '../build/combine.php';
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
 		
 		<!-- includes -->
+		<script src="../../zcore/zcore.js"></script>
+		<script>
+			Z.env.debug = true;
+		</script>
 		<script src="../state.js"></script>
 		
 		<!-- tests -->
