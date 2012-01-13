@@ -1,6 +1,7 @@
+1&&
 ( function ( $, assert, undefined ) {
 
-module( "State.Controller" );
+module( "StateController" );
 
 test( "isInState()", function () {
 	var x = new TestObject('Waiting');

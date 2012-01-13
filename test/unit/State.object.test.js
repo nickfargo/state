@@ -1,11 +1,15 @@
+1&&
 ( function ( $, assert, undefined ) {
 
 module( "State.object" );
 
+var	State = state.State,
+	StateController = state.StateController;
+
 test( "Object creation", function () {
 	var x = new TestObject(),
 		arr;
-	assert.ok( x.state instanceof State.Controller, "StateController created" );
+	assert.ok( x.state instanceof StateController, "StateController created" );
 	
 	assert.ok( x.state.Waiting instanceof State, "State 'Waiting' created" );
 	assert.ok( x.state.Waiting.method( 'methodOne', false, false ), "Method 'methodOne' in state 'Waiting' created" );

@@ -1,19 +1,22 @@
+1&&
 ( function ( $, assert, undefined ) {
 
-module( "State.Definition" );
+module( "StateDefinition" );
+
+var StateDefinition = state.StateDefinition;
 
 test( "Simple: methods only", function () {
-	var def = State.Definition({
+	var def = state({
 		methodOne: function () { return 'methodOne'; },
 		methodTwo: function () { return 'methodTwo'; }
 	});
-	assert.ok( def instanceof State.Definition );
+	assert.ok( def instanceof StateDefinition );
 	assert.equal( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
 	assert.equal( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
 });
 
 test( "Compound: array", function () {
-	var def = State.Definition({
+	var def = state({
 		methodOne: function () { return 'methodOne'; },
 		methodTwo: function () { return 'methodTwo'; },
 		enter: function () { return 'enter'; },
@@ -28,7 +31,7 @@ test( "Compound: array", function () {
 			methodOne: function () { return 'Substate methodOne'; }
 		}
 	});
-	assert.ok( def instanceof State.Definition, "Definition created" );
+	assert.ok( def instanceof StateDefinition, "Definition created" );
 	assert.equal( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
 	assert.equal( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
 	assert.ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
@@ -43,7 +46,7 @@ test( "Compound: array", function () {
 });
 
 test( "Complex: map", function () {
-	var def = State.Definition({
+	var def = state({
 		methods: {
 			methodOne: function () { return 'methodOne'; },
 			methodTwo: function () { return 'methodTwo'; }
@@ -115,7 +118,7 @@ test( "Complex: map", function () {
 		}
 	});
 	
-	assert.ok( def instanceof State.Definition, "Definition created" );
+	assert.ok( def instanceof StateDefinition, "Definition created" );
 	
 	
 	assert.ok( def.methods, "methods" );
@@ -135,12 +138,12 @@ test( "Complex: map", function () {
 	
 	
 	assert.ok( def.states.SimpleSubstate, "SimpleSubstate created" );
-	assert.ok( def.states.SimpleSubstate instanceof State.Definition, "StateDefinition for SimpleSubstate created" );
+	assert.ok( def.states.SimpleSubstate instanceof StateDefinition, "StateDefinition for SimpleSubstate created" );
 	
 	assert.ok( def.states.SimpleSubstate.methods, "SimpleSubstate.methods exists" );
 	assert.equal( def.states.SimpleSubstate.methods.methodOne(), 'SimpleSubstate.methodOne', "SimpleSubstate.methodOne" );
 	
-	assert.ok( def.states.CompoundSubstate instanceof State.Definition, "StateDefinition for CompoundSubstate created" );
+	assert.ok( def.states.CompoundSubstate instanceof StateDefinition, "StateDefinition for CompoundSubstate created" );
 	assert.ok( def.states.CompoundSubstate.methods, "CompoundSubstate.methods exists" );
 	assert.equal( def.states.CompoundSubstate.methods.methodOne(), 'CompoundSubstate.methodOne', "CompoundSubstate.methodOne" );
 	assert.equal( def.states.CompoundSubstate.methods.methodTwo(), 'CompoundSubstate.methodTwo', "CompoundSubstate.methodTwo" );
@@ -151,12 +154,12 @@ test( "Complex: map", function () {
 	assert.equal( def.states.CompoundSubstate.events.exit[0](), 'exit 0', "CompoundSubstate.events.exit[0]()" );
 	assert.equal( def.states.CompoundSubstate.events.exit[1](), 'exit 1', "CompoundSubstate.events.exit[1]()" );
 	
-	assert.ok( def.states.ComplexSubstate instanceof State.Definition, "StateDefinition for ComplexSubstate created" );
+	assert.ok( def.states.ComplexSubstate instanceof StateDefinition, "StateDefinition for ComplexSubstate created" );
 	assert.ok( def.states.ComplexSubstate.states, "ComplexSubstate.states exists" );
-	assert.ok( def.states.ComplexSubstate.states.DeepSubstate instanceof State.Definition, "StateDefinition for DeepSubstate created" );
+	assert.ok( def.states.ComplexSubstate.states.DeepSubstate instanceof StateDefinition, "StateDefinition for DeepSubstate created" );
 	assert.ok( def.states.ComplexSubstate.states.DeepSubstate.methods, "DeepSubstate.methods exists" );
 	assert.equal( def.states.ComplexSubstate.states.DeepSubstate.methods.methodOne(), 'DeepSubstate.methodOne', "DeepSubstate.methodOne" );
-	assert.ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate instanceof State.Definition, "StateDefinition for VeryDeepSubstate created" );
+	assert.ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate instanceof StateDefinition, "StateDefinition for VeryDeepSubstate created" );
 	assert.ok( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods, "VeryDeepSubstate.methods exists" );
 	assert.equal( def.states.ComplexSubstate.states.DeepSubstate.states.VeryDeepSubstate.methods.methodOne(), 'VeryDeepSubstate.methodOne', "VeryDeepSubstate.methodOne" );
 });

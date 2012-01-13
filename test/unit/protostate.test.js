@@ -1,6 +1,6 @@
 function Animal () {
 	this.move = function () { return 0; };
-	State( this, {
+	state( this, {
 		getThis: function () { return this; },
 		
 		Stationary: {
@@ -15,7 +15,7 @@ function Animal () {
 
 ( Bird.prototype = new Animal() ).constructor = Bird;
 function Bird () {
-	State( this, {
+	state( this, {
 		Moving: {
 			Flying: {
 				move: function () { return 'Flap flap'; }
@@ -29,7 +29,7 @@ function Bird () {
 
 ( Ostrich.prototype = new Bird() ).constructor = Ostrich;
 function Ostrich () {
-	State( this, {
+	state( this, {
 		Stationary: {
 			HeadBuried: {
 				move: function () { return 'Buttwiggle'; }
@@ -55,6 +55,7 @@ function Ostrich () {
 }
 
 
+1&&
 ( function ( assert, undefined ) {
 
 module( "Protostate" );
