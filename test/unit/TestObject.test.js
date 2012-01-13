@@ -1,6 +1,7 @@
 ( function ( $, undefined ) {
 
-var State = state.State;
+var	State = state.State,
+	Transition = state.StateTransition;
 
 function TestObject ( initialState ) {
 	/*
@@ -77,7 +78,7 @@ function TestObject ( initialState ) {
 			},
 			
 			// a **transition**
-			wiggle: State.Transition({
+			wiggle: Transition({
 				origin: '*',
 				operation: function () {
 					this.end();
@@ -139,10 +140,12 @@ function TestObject ( initialState ) {
 						// event.log( "I'm an event" );
 					},
 					
-					weee: State.Transition({
-						origin: '*',
-						operation: function () { this.end(); }
-					})
+					transitions: {
+						weee: {
+							origin: '*',
+							operation: function () { this.end(); }
+						}
+					}
 				},
 				Terminated: {
 					data: {

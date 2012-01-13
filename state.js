@@ -1,6 +1,6 @@
 // State.js
 // 
-// Copyright © (C) 2011 Nick Fargo, Z Vector Inc.
+// Copyright (C) 2011-2012 Nick Fargo, Z Vector Inc.
 // 
 // License MIT
 // 
@@ -24,16 +24,37 @@
 
 ( function ( undefined ) {
 
-/**
- * Locally identify the global object.
- */
 var	global = this,
-	debug = true,
-	
-	/**
-	 * Save whatever value may have already existed at `State`.
-	 */
-	autochthon = global.State;
+	Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
+
+function state () {
+	return ( arguments.length < 2 ? StateDefinition : StateController )
+		.apply( this, arguments );
+}
+
+Z.extend( state, {
+	VERSION: '0.0.1',
+
+	State: State,
+	StateDefinition: StateDefinition,
+	StateController: StateController,
+	StateEvent: StateEvent,
+	StateEventCollection: StateEventCollection,
+	StateProxy: StateProxy,
+	StateTransition: StateTransition,
+	StateTransitionDefinition: StateTransitionDefinition,
+
+	noConflict: ( function () {
+		var autochthon = global.state;
+		return function () {
+			global.state = autochthon;
+			return this;
+		};
+	})()
+});
+
+Z.env.server && ( module.exports = exports = state );
+Z.env.client && ( global['state'] = state );
 
 /**
  * # Utility functions
@@ -361,10 +382,6 @@ function excise ( deep, target ) { //// untested
 /**
  * # State
  */
-
-/**
- * Constructor for `State` typed objects, as well as the root namespace.
- */
 function State ( superstate, name, definition ) {
 	/**
 	 * If not invoked as a constructor, `State()` acts as an alias for acquiring either a `StateDefinition`
@@ -375,7 +392,7 @@ function State ( superstate, name, definition ) {
 	 * @see StateController
 	 */
 	if ( !( this instanceof State ) ) {
-		return ( arguments.length < 2 ? State.Definition : State.Controller ).apply( this, arguments );
+		return ( arguments.length < 2 ? StateDefinition : StateController ).apply( this, arguments );
 	}
 	
 	var	getName,
@@ -384,7 +401,7 @@ function State ( superstate, name, definition ) {
 		// history = [],
 		data = {},
 		methods = {},
-		events = nullHash( State.Event.types ),
+		events = nullHash( StateEvent.types ),
 		guards = {},
 		substates = {},
 		transitions = {};
@@ -398,7 +415,7 @@ function State ( superstate, name, definition ) {
 	function setDestroyed ( value ) { return destroyed = !!value; }
 	
 	// expose these in debug mode
-	debug && extend( this.__private__ = {}, {
+	Z.env.debug && extend( this.__private__ = {}, {
 		data: data,
 		methods: methods,
 		events: events,
@@ -424,7 +441,7 @@ function State ( superstate, name, definition ) {
 	 * named methods at `State.privileged`.
 	 */
 	constructPrivilegedMethods( this, State.privileged, {
-		'init' : [ State.Definition, setDefinition ],
+		'init' : [ StateDefinition, setDefinition ],
 		'superstate' : [ superstate ],
 		'data' : [ data ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
@@ -686,13 +703,13 @@ State.privileged = new function () {
 		addEvent: function ( events ) {
 			/**
 			 * Binds an event handler to the specified `eventType` and returns a unique identifier for the
-			 * handler. Recognized event types are listed at `State.Event.types`.
-			 * @see State.Event
+			 * handler. Recognized event types are listed at `StateEvent.types`.
+			 * @see StateEvent
 			 */
 			return function ( /*String*/ eventType, /*Function*/ fn ) {
 				if ( eventType in events ) {
 					events[ eventType ] ||
-						( events[ eventType ] = new State.Event.Collection( this, eventType ) );
+						( events[ eventType ] = new StateEventCollection( this, eventType ) );
 					return events[ eventType ].add( fn );
 				} else {
 					throw new Error( "Invalid event type" );
@@ -849,8 +866,8 @@ State.privileged = new function () {
 		addTransition: function ( transitions ) {
 			/** */
 			return function ( /*String*/ transitionName, /*StateTransitionDefinition | Object*/ transitionDefinition ) {
-				transitionDefinition instanceof State.Transition.Definition ||
-					( transitionDefinition = State.Transition.Definition( transitionDefinition ) );
+				transitionDefinition instanceof StateTransitionDefinition ||
+					( transitionDefinition = StateTransitionDefinition( transitionDefinition ) );
 				return transitions[ transitionName ] = transitionDefinition;
 			};
 		},
@@ -963,7 +980,7 @@ extend( true, State, {
 				prototype = prototype.__proto__ || prototype.constructor.prototype;
 				protostate = prototype &&
 						hasOwn.call( prototype, controllerName ) &&
-						prototype[ controllerName ] instanceof State.Controller ?
+						prototype[ controllerName ] instanceof StateController ?
 					prototype[ controllerName ].defaultState() :
 					undefined;
 			}
@@ -1200,30 +1217,29 @@ extend( true, State, {
 
 
 function StateDefinition ( map ) {
-	var D = State.Definition;
-	if ( !( this instanceof D ) ) {
-		return new D( map );
+	if ( !( this instanceof StateDefinition ) ) {
+		return new StateDefinition( map );
 	}
-	extend( true, this, map instanceof D ? map : D.expand( map ) );
+	extend( true, this, map instanceof StateDefinition ? map : StateDefinition.expand( map ) );
 }
 
-State.Definition = extend( true, StateDefinition, {
+extend( true, StateDefinition, {
 	categories: [ 'data', 'methods', 'events', 'guards', 'states', 'transitions' ],
 	expand: function ( map ) {
 		var key, value, category,
 			result = nullHash( this.categories ),
-			eventTypes = invert( State.Event.types ),
+			eventTypes = invert( StateEvent.types ),
 			guardTypes = invert([ 'admit', 'release' ]); // invert( State.Guard.types );
 		
 		for ( key in map ) if ( hasOwn.call( map, key ) ) {
 			value = map[key];
 			
 			// Priority 1 : strict type match opportunity for states and transitions
-			// -- allows arbitrarily keyed values of `State({})` and `State.Transition({})`
+			// -- allows arbitrarily keyed values of `State({})` and `StateTransition({})`
 			if ( category =
-				value instanceof State.Definition && 'states'
+				value instanceof StateDefinition && 'states'
 					||
-				value instanceof State.Transition.Definition && 'transitions'
+				value instanceof StateTransitionDefinition && 'transitions'
 			) {
 				( result[category] || ( result[category] = {} ) )[key] = value;
 			}
@@ -1248,11 +1264,11 @@ State.Definition = extend( true, StateDefinition, {
 		});
 		
 		each( result.transitions, function ( name, map ) {
-			result.transitions[name] = map instanceof State.Transition.Definition ? map : State.Transition.Definition( map );
+			result.transitions[name] = map instanceof StateTransitionDefinition ? map : StateTransitionDefinition( map );
 		});
 		
 		each( result.states, function ( name, map ) {
-			result.states[name] = map instanceof State.Definition ? map : State.Definition( map );
+			result.states[name] = map instanceof StateDefinition ? map : StateDefinition( map );
 		});
 		
 		return result;
@@ -1261,13 +1277,13 @@ State.Definition = extend( true, StateDefinition, {
 
 
 function StateController ( owner, name, definition, options ) {
-	if ( !( this instanceof State.Controller ) ) {
-		return new State.Controller( owner, name, definition, options );
+	if ( !( this instanceof StateController ) ) {
+		return new StateController( owner, name, definition, options );
 	}
 	
 	var	defaultState, currentState, transition, getName,
 		self = this,
-		privileged = State.Controller.privileged,
+		privileged = StateController.privileged,
 		args = overload( arguments, this.constructor.overloads );
 	
 	function getName () { return name; }
@@ -1276,11 +1292,11 @@ function StateController ( owner, name, definition, options ) {
 	
 	// Rewrites for overloaded arguments
 	( owner = args.owner || {} )[ name = args.name || 'state' ] = this;
-	definition = args.definition instanceof State.Definition ? args.definition : State.Definition( args.definition );
+	definition = args.definition instanceof StateDefinition ? args.definition : StateDefinition( args.definition );
 	typeof ( options = args.options || {} ) === 'string' && ( options = { initialState: options } );
 	
 	// Expose these in debug mode
-	debug && extend( this.__private__ = {}, {
+	Z.env.debug && extend( this.__private__ = {}, {
 		defaultState: defaultState,
 		owner: owner,
 		options: options
@@ -1298,7 +1314,7 @@ function StateController ( owner, name, definition, options ) {
 		})
 	});
 	
-	constructPrivilegedMethods( this, State.Controller.privileged, {
+	constructPrivilegedMethods( this, StateController.privileged, {
 		'change' : [ setCurrentState, setTransition ]
 	});
 	
@@ -1311,7 +1327,7 @@ function StateController ( owner, name, definition, options ) {
 	currentState.controller() === this || ( currentState = this.createProxy( currentState ) );
 }
 
-State.Controller = extend( true, StateController, {
+extend( true, StateController, {
 	overloads: {
 		'object string object object' : 'owner name definition options',
 		'object string object string' : 'owner name definition options',
@@ -1346,7 +1362,7 @@ State.Controller = extend( true, StateController, {
 		 * @param setCurrentState:Function
 		 * @param setTransition:Function
 		 * 
-		 * @see State.Controller.change
+		 * @see StateController.change
 		 */
 		change: function ( setCurrentState, setTransition ) {
 			return function ( target, options ) {
@@ -1389,7 +1405,7 @@ State.Controller = extend( true, StateController, {
 					 * if none is defined then a default transition is created that will cause the callback
 					 * to return immediately.
 					 */
-					transition = setTransition( new State.Transition(
+					transition = setTransition( new StateTransition(
 						target,
 						source,
 						transitionDefinition = this.getTransitionDefinitionFor( target, origin )
@@ -1524,7 +1540,7 @@ State.Controller = extend( true, StateController, {
 				origin !== target && search( origin ) ||
 				search( target.superstate(), this.defaultState() ) || search( this.defaultState() ) ||
 				!target.isIn( origin ) && search( origin.superstate(), origin.common( target ) ) ||
-				new State.Transition.Definition()
+				new StateTransitionDefinition()
 			);
 		},
 		
@@ -1560,7 +1576,7 @@ function StateEvent ( state, type ) {
 	});
 }
 
-State.Event = extend( true, StateEvent, {
+extend( true, StateEvent, {
 	types: [ 'construct', 'destroy', 'depart', 'exit', 'enter', 'arrive', 'mutate' ],
 	prototype: {
 		toString: function () {
@@ -1626,7 +1642,7 @@ function StateEventCollection ( state, type ) {
 		},
 		emit: function ( data ) {
 			for ( var i in items ) if ( hasOwn.call( items, i ) ) {
-				items[i].apply( state, [ extend( new State.Event( state, type ), data ) ] );
+				items[i].apply( state, [ extend( new StateEvent( state, type ), data ) ] );
 			}
 		}
 	});
@@ -1635,7 +1651,7 @@ function StateEventCollection ( state, type ) {
 	this.trigger = this.emit;
 }
 
-State.Event.Collection = extend( true, StateEventCollection, {
+extend( true, StateEventCollection, {
 	__guid__: 0,
 	prototype: {
 		guid: function () {
@@ -1677,13 +1693,13 @@ State.Proxy = extend( true, StateProxy, {
 
 
 function StateTransition ( target, source, definition, callback ) {
-	if ( !( this instanceof State.Transition ) ) {
-		return State.Transition.Definition.apply( this, arguments );
+	if ( !( this instanceof StateTransition ) ) {
+		return StateTransitionDefinition.apply( this, arguments );
 	}
 	
 	var	deferral,
 		methods = {},
-		events = nullHash( State.Transition.Event.types ),
+		events = nullHash( StateTransition.Event.types ),
 		guards = {},
 		operation = definition.operation,
 		self = this,
@@ -1694,7 +1710,7 @@ function StateTransition ( target, source, definition, callback ) {
 	function setDefinition ( value ) { return definition = value; }
 	
 	// expose these in debug mode
-	debug && extend( this.__private__ = {}, {
+	Z.env.debug && extend( this.__private__ = {}, {
 		methods: methods,
 		events: events,
 		guards: guards,
@@ -1725,7 +1741,7 @@ function StateTransition ( target, source, definition, callback ) {
 		/**
 		 * 
 		 */
-		origin: function () { return source instanceof State.Transition ? source.origin() : source; },
+		origin: function () { return source instanceof StateTransition ? source.origin() : source; },
 		
 		/**
 		 * 
@@ -1881,13 +1897,13 @@ function StateTransition ( target, source, definition, callback ) {
 		 * 
 		 */
 		destroy: function () {
-			source instanceof State.Transition && source.destroy();
+			source instanceof StateTransition && source.destroy();
 			target = attachment = controller = null;
 		}
 	});
 	
 	constructPrivilegedMethods( this, State.privileged, {
-		'init' : [ State.Transition.Definition, setDefinition ],
+		'init' : [ StateTransitionDefinition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event events on addEvent removeEvent emit trigger' : [ events ],
 	});
@@ -1895,10 +1911,10 @@ function StateTransition ( target, source, definition, callback ) {
 	this.init();
 }
 
-State.Transition = extend( true, StateTransition, {
+extend( true, StateTransition, {
 	prototype: extend( true, new State(), {
 		depth: function () {
-			for ( var count = 0, t = this; t.source() instanceof State.Transition; count++, t = t.source() );
+			for ( var count = 0, t = this; t.source() instanceof StateTransition; count++, t = t.source() );
 			return count;
 		}
 	}),
@@ -1909,21 +1925,21 @@ State.Transition = extend( true, StateTransition, {
 });
 
 function StateTransitionDefinition ( map ) {
-	var D = State.Transition.Definition;
+	var D = StateTransitionDefinition;
 	if ( !( this instanceof D ) ) {
 		return new D( map );
 	}
 	extend( true, this, map instanceof D ? map : D.expand( map ) );
 }
 
-State.Transition.Definition = extend( StateTransitionDefinition, {
+extend( StateTransitionDefinition, {
 	properties: [ 'origin', 'source', 'target', 'operation' ],
 	categories: [ 'methods', 'events' ],
 	expand: function ( map ) {
 		var	properties = nullHash( this.properties ),
 			categories = nullHash( this.categories ),
 			result = extend( {}, properties, categories ),
-			eventTypes = invert( State.Transition.Event.types ),
+			eventTypes = invert( StateTransition.Event.types ),
 			key, value, category;
 		for ( key in map ) if ( hasOwn.call( map, key ) ) {
 			value = map[key];
@@ -1945,14 +1961,6 @@ State.Transition.Definition = extend( StateTransitionDefinition, {
 	}
 });
 
-
-// exposes everything on one place on the global object
-( typeof exports !== 'undefined' ? exports :
-	// typeof module !== 'undefined' ? module.exports : 
-	global ).State = State;
-
-global.Deferral = Deferral;
-global.when = Deferral.when;
 
 })();
 
