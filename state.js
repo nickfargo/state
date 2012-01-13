@@ -483,7 +483,7 @@ State.privileged = new function () {
 					},
 					events: function ( eventType, fn ) {
 						var i, l;
-						isArray( fn ) || ( fn = [ fn ] );
+						Z.isArray( fn ) || ( fn = [ fn ] );
 						for ( i = 0, l = fn.length; i < l; i++ ) {
 							self.addEvent( eventType, fn[i] );
 						}
@@ -548,14 +548,14 @@ State.privileged = new function () {
 	
 				if ( edit ) { // set
 					( isDeletion ?
-						!isEmpty( data ) && !isEmpty( edit ) && excise( true, data, edit )
+						!Z.isEmpty( data ) && !Z.isEmpty( edit ) && excise( true, data, edit )
 						:
-						isEmpty( edit ) || Z.extend( true, data, edit )
+						Z.isEmpty( edit ) || Z.extend( true, data, edit )
 					) &&
 						this.emit( 'mutate', { edit: edit, isDeletion: isDeletion } );
 					return this;
 				} else { // get
-					return isEmpty( data ) ?
+					return Z.isEmpty( data ) ?
 						undefined
 						:
 						Z.extend( true, {},
@@ -580,7 +580,7 @@ State.privileged = new function () {
 				viaProto === undefined && ( viaProto = true );
 				
 				return (
-					method !== noop && method
+					method !== Z.noop && method
 						||
 					viaProto && ( protostate = this.protostate() ) && protostate.method( methodName, false, true )
 						||
@@ -605,7 +605,7 @@ State.privileged = new function () {
 				viaProto === undefined && ( viaProto = true );
 		
 				return (
-					( result.method = method ) && method !== noop && ( result.context = this, result )
+					( result.method = method ) && method !== Z.noop && ( result.context = this, result )
 						||
 					viaProto && ( protostate = this.protostate() ) &&
 							( result = protostate.methodAndContext( methodName, false, true ) ) && ( result.context = this, result )
@@ -662,7 +662,7 @@ State.privileged = new function () {
 							 * no-op is placed on the default state instead. Consequently the added method
 							 * may be called no matter which state the controller is in, though it 
 							 */
-							ownerMethod = noop;
+							ownerMethod = Z.noop;
 						}
 						defaultState.addMethod( methodName, ownerMethod );
 					}
@@ -1085,7 +1085,7 @@ Z.extend( true, State, {
 		/** Determines whether `this` directly possesses a method named `methodName`. */
 		hasMethod: function ( methodName ) {
 			var method = this.method( methodName );
-			return method && method !== noop;
+			return method && method !== Z.noop;
 		},
 		
 		/** Determines whether `this` directly possesses a method named `methodName`. */
@@ -1115,14 +1115,14 @@ Z.extend( true, State, {
 		pushHistory: global.history && global.history.pushState ?
 			function ( title, urlBase ) {
 				return global.history.pushState( this.data, title || this.toString(), urlBase + '/' + this.derivation( true ).join('/') );
-			} : noop
+			} : Z.noop
 		,
 		
 		/** */
 		replaceHistory: global.history && global.history.replaceState ?
 			function ( title, urlBase ) {
 				return global.history.replaceState( this.data, title || this.toString(), urlBase + '/' + this.derivation( true ).join('/') );
-			} : noop
+			} : Z.noop
 		,
 		
 		/**
@@ -1260,7 +1260,7 @@ Z.extend( true, StateDefinition, {
 		}
 		
 		each( result.events, function ( type, value ) {
-			isFunction( value ) && ( result.events[type] = value = [ value ] );
+			Z.isFunction( value ) && ( result.events[type] = value = [ value ] );
 		});
 		
 		each( result.transitions, function ( name, map ) {
@@ -1816,12 +1816,12 @@ function StateTransition ( target, source, definition, callback ) {
 						return result;
 					}
 				}
-				if ( isFunction( obj ) ) {
+				if ( Z.isFunction( obj ) ) {
 					return promise ? promise.then( obj ) : new Deferral( obj );
 					// return ( promise || ( new Deferral ) ).then( obj );
-				} else if ( isArray( obj ) ) {
+				} else if ( Z.isArray( obj ) ) {
 					i = 0;
-					if ( obj.length === 1 && isArray( obj[0] ) ) {
+					if ( obj.length === 1 && Z.isArray( obj[0] ) ) {
 						// double array, interpret as parallel/asynchronous
 						for ( arr = [], obj = obj[0], l = obj.length; i < l; ) {
 							arr.push( parse( obj[i++], new Deferral ) );
@@ -1849,13 +1849,13 @@ function StateTransition ( target, source, definition, callback ) {
 			var self = this;
 			aborted = false;
 			this.trigger( 'start' );
-			if ( isFunction( operation ) ) {
+			if ( Z.isFunction( operation ) ) {
 				// deferral = new Deferral();
 				// add contents of `operation` to deferral
 				operation.apply( this, arguments );
 				// deferral.
 				// return deferral.promise();
-			} else if ( isArray( operation ) ) {
+			} else if ( Z.isArray( operation ) ) {
 				// return ( this.omg( operation )
 				// 	.done( function () { self.end(); } )
 				// 	.fulfill( this )
@@ -1955,7 +1955,7 @@ Z.extend( StateTransitionDefinition, {
 			}
 		}
 		each( result.events, function ( type, value ) {
-			isFunction( value ) && ( result.events[type] = value = [ value ] );
+			Z.isFunction( value ) && ( result.events[type] = value = [ value ] );
 		});
 		return result;
 	}
