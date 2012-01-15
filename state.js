@@ -185,7 +185,7 @@ State.privileged = new function () {
 					setDefinition( definition = DefinitionConstructor( definition ) );
 		
 				definition.data && this.data( definition.data );
-				Z.each({
+				Z.forEach({
 					methods: function ( methodName, fn ) {
 						self.addMethod( methodName, fn );
 					},
@@ -205,8 +205,8 @@ State.privileged = new function () {
 					transitions: function ( transitionName, transitionDefinition ) {
 						self.addTransition( transitionName, transitionDefinition );
 					}
-				}, function ( category, fn ) {
 					definition[category] && Z.each( definition[category], fn );
+				}, function ( fn, category ) {
 				});
 		
 				this.emit( 'construct', { definition: definition } );
