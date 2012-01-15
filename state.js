@@ -948,11 +948,9 @@ Z.extend( true, State, {
 				cursorSubstate,
 				result;
 			
-			if ( !parts.length ) {
-				return cursor;
-			}
+			if ( !parts.length ) return cursor;
 
-			Z.each( parts, function ( i, name ) {
+			Z.forEach( parts, function ( name, i ) {
 				if ( name === '' ) {
 					cursor = cursor.superstate();
 				} else if ( cursorSubstate = cursor.substate( name ) ) {
@@ -971,7 +969,7 @@ Z.extend( true, State, {
 					return result = false;
 				}
 			});
-			
+
 			return result !== undefined ? result :
 				!testState || cursor === testState ? cursor :
 				false;
