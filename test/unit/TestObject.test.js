@@ -1,7 +1,7 @@
 ( function ( $, undefined ) {
 
 var	State = state.State,
-	Transition = state.StateTransition;
+	Transition = state.Transition;
 
 function TestObject ( initialState ) {
 	/*

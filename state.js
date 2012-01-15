@@ -41,8 +41,8 @@ Z.extend( state, {
 	StateEvent: StateEvent,
 	StateEventCollection: StateEventCollection,
 	StateProxy: StateProxy,
-	StateTransition: StateTransition,
-	StateTransitionDefinition: StateTransitionDefinition,
+	Transition: Transition,
+	TransitionDefinition: TransitionDefinition,
 
 	noConflict: ( function () {
 		var autochthon = global.state;
@@ -628,10 +628,10 @@ State.privileged = new function () {
 			/** */
 			return function (
 				/*String*/ transitionName,
-				/*StateTransitionDefinition | Object*/ transitionDefinition
+				/*TransitionDefinition | Object*/ transitionDefinition
 			) {
-				transitionDefinition instanceof StateTransitionDefinition ||
-					( transitionDefinition = StateTransitionDefinition( transitionDefinition ) );
+				transitionDefinition instanceof TransitionDefinition ||
+					( transitionDefinition = TransitionDefinition( transitionDefinition ) );
 				
 				return transitions[ transitionName ] = transitionDefinition;
 			};
@@ -997,11 +997,11 @@ Z.extend( true, StateDefinition, {
 			value = map[ key ];
 			
 			// Priority 1 : strict type match opportunity for states and transitions
-			// Allows arbitrarily keyed values of `State({})` and `StateTransition({})`
+			// Allows arbitrarily keyed values of `State({})` and `Transition({})`
 			if ( category =
 				value instanceof StateDefinition && 'states'
 					||
-				value instanceof StateTransitionDefinition && 'transitions'
+				value instanceof TransitionDefinition && 'transitions'
 			) {
 				( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
 			}
@@ -1026,9 +1026,9 @@ Z.extend( true, StateDefinition, {
 		});
 		
 		Z.each( result.transitions, function ( name, map ) {
-			result.transitions[ name ] = map instanceof StateTransitionDefinition ?
+			result.transitions[ name ] = map instanceof TransitionDefinition ?
 				map :
-				StateTransitionDefinition( map );
+				TransitionDefinition( map );
 		});
 		
 		Z.each( result.states, function ( name, map ) {
@@ -1170,7 +1170,7 @@ Z.extend( true, StateController, {
 					 * if none is defined then a default transition is created that will cause the callback
 					 * to return immediately.
 					 */
-					transition = setTransition( new StateTransition(
+					transition = setTransition( new Transition(
 						target,
 						source,
 						transitionDefinition = this.getTransitionDefinitionFor( target, origin )
@@ -1305,7 +1305,7 @@ Z.extend( true, StateController, {
 				origin !== target && search( origin ) ||
 				search( target.superstate(), this.defaultState() ) || search( this.defaultState() ) ||
 				!target.isIn( origin ) && search( origin.superstate(), origin.common( target ) ) ||
-				new StateTransitionDefinition()
+				new TransitionDefinition()
 			);
 		},
 		
@@ -1455,14 +1455,14 @@ Z.extend( true, StateProxy, {
 });
 
 
-function StateTransition ( target, source, definition, callback ) {
-	if ( !( this instanceof StateTransition ) ) {
-		return StateTransitionDefinition.apply( this, arguments );
+function Transition ( target, source, definition, callback ) {
+	if ( !( this instanceof Transition ) ) {
+		return TransitionDefinition.apply( this, arguments );
 	}
 	
 	var	deferral,
 		methods = {},
-		events = Z.nullHash( StateTransition.Event.types ),
+		events = Z.nullHash( Transition.Event.types ),
 		guards = {},
 		operation = definition.operation,
 		self = this,
@@ -1504,7 +1504,7 @@ function StateTransition ( target, source, definition, callback ) {
 		/**
 		 * 
 		 */
-		origin: function () { return source instanceof StateTransition ? source.origin() : source; },
+		origin: function () { return source instanceof Transition ? source.origin() : source; },
 		
 		/**
 		 * 
@@ -1660,13 +1660,13 @@ function StateTransition ( target, source, definition, callback ) {
 		 * 
 		 */
 		destroy: function () {
-			source instanceof StateTransition && source.destroy();
+			source instanceof Transition && source.destroy();
 			target = attachment = controller = null;
 		}
 	});
 	
 	Z.constructPrivilegedMethods( this, State.privileged, {
-		'init' : [ StateTransitionDefinition, setDefinition ],
+		'init' : [ TransitionDefinition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event events on addEvent removeEvent emit trigger' : [ events ],
 	});
@@ -1674,10 +1674,10 @@ function StateTransition ( target, source, definition, callback ) {
 	this.init();
 }
 
-Z.extend( true, StateTransition, {
+Z.extend( true, Transition, {
 	prototype: Z.extend( true, new State(), {
 		depth: function () {
-			for ( var count = 0, t = this; t.source() instanceof StateTransition; count++, t = t.source() );
+			for ( var count = 0, t = this; t.source() instanceof Transition; count++, t = t.source() );
 			return count;
 		}
 	}),
@@ -1687,22 +1687,22 @@ Z.extend( true, StateTransition, {
 	}
 });
 
-function StateTransitionDefinition ( map ) {
-	var D = StateTransitionDefinition;
+function TransitionDefinition ( map ) {
+	var D = TransitionDefinition;
 	if ( !( this instanceof D ) ) {
 		return new D( map );
 	}
 	Z.extend( true, this, map instanceof D ? map : D.desugar( map ) );
 }
 
-Z.extend( StateTransitionDefinition, {
+Z.extend( TransitionDefinition, {
 	properties: [ 'origin', 'source', 'target', 'operation' ],
 	categories: [ 'methods', 'events' ],
 	desugar: function ( map ) {
 		var	properties = Z.nullHash( this.properties ),
 			categories = Z.nullHash( this.categories ),
 			result = Z.extend( {}, properties, categories ),
-			eventTypes = Z.invert( StateTransition.Event.types ),
+			eventTypes = Z.invert( Transition.Event.types ),
 			key, value, category;
 		for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
 			value = map[key];
