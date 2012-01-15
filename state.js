@@ -987,12 +987,12 @@ function StateDefinition ( map ) {
 	if ( !( this instanceof StateDefinition ) ) {
 		return new StateDefinition( map );
 	}
-	Z.extend( true, this, map instanceof StateDefinition ? map : StateDefinition.expand( map ) );
+	Z.extend( true, this, map instanceof StateDefinition ? map : StateDefinition.desugar( map ) );
 }
 
 Z.extend( true, StateDefinition, {
 	categories: [ 'data', 'methods', 'events', 'guards', 'states', 'transitions' ],
-	expand: function ( map ) {
+	desugar: function ( map ) {
 		var key, value, category,
 			result = Z.nullHash( this.categories ),
 			eventTypes = Z.invert( StateEvent.types ),
@@ -1693,13 +1693,13 @@ function StateTransitionDefinition ( map ) {
 	if ( !( this instanceof D ) ) {
 		return new D( map );
 	}
-	Z.extend( true, this, map instanceof D ? map : D.expand( map ) );
+	Z.extend( true, this, map instanceof D ? map : D.desugar( map ) );
 }
 
 Z.extend( StateTransitionDefinition, {
 	properties: [ 'origin', 'source', 'target', 'operation' ],
 	categories: [ 'methods', 'events' ],
-	expand: function ( map ) {
+	desugar: function ( map ) {
 		var	properties = Z.nullHash( this.properties ),
 			categories = Z.nullHash( this.categories ),
 			result = Z.extend( {}, properties, categories ),
