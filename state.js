@@ -143,8 +143,6 @@ function State ( superstate, name, definition ) {
 	this.definition = function () { return definition; };
 	
 	/*
-	 * External privileged methods
-	 * 
 	 * Method names are mapped to specific local variables. The named methods are created on `this`,
 	 * each of which is a partial application of its corresponding method at `State.privileged`.
 	 */
@@ -168,21 +166,21 @@ function State ( superstate, name, definition ) {
 }
 
 /*
- * Privileged indirections, partially applied from inside the `State` constructor.
+ * Privileged methods, partially applied from inside the `State` constructor.
  */
 State.privileged = new function () {
 	Z.extend( this, {
 		/**
 		 * Builds out the state's members based on the contents of the supplied definition.
 		 */
-		init: function ( /*Function*/ DefinitionConstructor, /*Function*/ setDefinition ) {
-			return function ( /*<DefinitionConstructor>|Object*/ definitionOverride ) {
+		init: function ( /*Function*/ definitionConstructor, /*Function*/ setDefinition ) {
+			return function ( /*<definitionConstructor>|Object*/ definitionOverride ) {
 				var	category,
 					definition = definitionOverride || this.definition(),
 					self = this;
 		
-				definition instanceof DefinitionConstructor ||
-					setDefinition( definition = DefinitionConstructor( definition ) );
+				definition instanceof definitionConstructor ||
+					setDefinition( definition = definitionConstructor( definition ) );
 		
 				definition.data && this.data( definition.data );
 				Z.forEach({
@@ -205,8 +203,8 @@ State.privileged = new function () {
 					transitions: function ( transitionName, transitionDefinition ) {
 						self.addTransition( transitionName, transitionDefinition );
 					}
-					definition[category] && Z.each( definition[category], fn );
 				}, function ( fn, category ) {
+					definition[ category ] && Z.each( definition[ category ], fn );
 				});
 		
 				this.emit( 'construct', { definition: definition } );
@@ -999,21 +997,21 @@ Z.extend( true, StateDefinition, {
 			guardTypes = Z.invert([ 'admit', 'release' ]); // Z.invert( State.Guard.types );
 		
 		for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
-			value = map[key];
+			value = map[ key ];
 			
 			// Priority 1 : strict type match opportunity for states and transitions
-			// -- allows arbitrarily keyed values of `State({})` and `StateTransition({})`
+			// Allows arbitrarily keyed values of `State({})` and `StateTransition({})`
 			if ( category =
 				value instanceof StateDefinition && 'states'
 					||
 				value instanceof StateTransitionDefinition && 'transitions'
 			) {
-				( result[category] || ( result[category] = {} ) )[key] = value;
+				( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
 			}
 			
 			// Priority 2 : explicitly named category
 			else if ( key in result ) {
-				result[key] = Z.extend( result[key], value );
+				result[ key ] = Z.extend( result[ key ], value );
 			}
 			
 			// Priority 3 : implicit categorization
@@ -1022,20 +1020,24 @@ Z.extend( true, StateDefinition, {
 						key in eventTypes ? 'events' :
 						key in guardTypes ? 'guards' :
 						'methods';
-				( result[category] || ( result[category] = {} ) )[key] = value;
+				( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
 			}
 		}
 		
 		Z.each( result.events, function ( type, value ) {
-			Z.isFunction( value ) && ( result.events[type] = value = [ value ] );
+			Z.isFunction( value ) && ( result.events[ type ] = value = [ value ] );
 		});
 		
 		Z.each( result.transitions, function ( name, map ) {
-			result.transitions[name] = map instanceof StateTransitionDefinition ? map : StateTransitionDefinition( map );
+			result.transitions[ name ] = map instanceof StateTransitionDefinition ?
+				map :
+				StateTransitionDefinition( map );
 		});
 		
 		Z.each( result.states, function ( name, map ) {
-			result.states[name] = map instanceof StateDefinition ? map : StateDefinition( map );
+			result.states[ name ] = map instanceof StateDefinition ?
+				map :
+				StateDefinition( map );
 		});
 		
 		return result;
