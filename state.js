@@ -735,7 +735,7 @@ Z.extend( true, State, {
 		 * (2) The respective superstates of both a state and its protostate will also adhere to
 		 * point (1).
 		 */
-		protostate: function () { //// TODO: needs better prototype extraction; more unit tests
+		protostate: function () {
 			var	derivation = this.derivation( true ),
 				controller = this.controller(),
 				controllerName = controller.name(),
@@ -744,12 +744,15 @@ Z.extend( true, State, {
 				protostate, i, l, stateName;
 			
 			function iterate () {
-				prototype = prototype.__proto__ || prototype.constructor.prototype;
+				var fn, c;
+				prototype = Z.getPrototypeOf( prototype );
 				protostate = prototype &&
-						Z.hasOwn.call( prototype, controllerName ) &&
-						prototype[ controllerName ] instanceof StateController ?
-					prototype[ controllerName ].defaultState() :
-					undefined;
+					typeof prototype === 'object' &&
+					Z.isFunction( fn = prototype[ controllerName ] ) &&
+					( c = fn.apply( prototype ) ) &&
+					c instanceof StateController ?
+						c.defaultState() :
+						undefined;
 			}
 			
 			for ( iterate(); protostate; iterate() ) {
@@ -1047,19 +1050,33 @@ function StateController ( owner, name, definition, options ) {
 		return new StateController( owner, name, definition, options );
 	}
 	
-	var	defaultState, currentState, transition, getName,
-		self = this,
+	var	self = this,
 		privileged = StateController.privileged,
-		args = overload( arguments, this.constructor.overloads );
+		args = overload( arguments, this.constructor.overloads ),
+		defaultState, currentState, transition;
 	
 	function setCurrentState ( value ) { return currentState = value; }
 	function setTransition ( value ) { return transition = value; }
 	
+	function accessor () {
+		if ( this === owner ) {
+			return arguments.length ? self.get.apply( self, arguments ) : self;
+		} else {
+			new StateController( this, name, null, self.current().toString() );
+			return this[ name ].apply( this, arguments );
+		}
+	}
+
 	// Rewrites for overloaded arguments
-	( owner = args.owner || {} )[ name = args.name || 'state' ] = this;
-	definition = args.definition instanceof StateDefinition ? args.definition : StateDefinition( args.definition );
+	owner = args.owner || {};
+	name = args.name || 'state';
+	definition = args.definition instanceof StateDefinition ?
+		args.definition :
+		StateDefinition( args.definition );
 	typeof ( options = args.options || {} ) === 'string' && ( options = { initialState: options } );
 	
+	owner[ name ] = accessor;
+
 	// Expose these in debug mode
 	Z.env.debug && Z.extend( this.__private__ = {}, {
 		defaultState: defaultState,
@@ -1249,15 +1266,13 @@ Z.extend( true, StateController, {
 		createProxy: function ( protostate ) {
 			var	derivation, state, next, name;
 			function iterate () {
-				return state.substate( ( name = derivation.shift() ), false );
+				return next = state.substate( ( name = derivation.shift() ), false );
 			}
 			if ( protostate instanceof State &&
 				protostate.owner().isPrototypeOf( this.owner() ) &&
 				( derivation = protostate.derivation( true ) ).length
 			) {
-				for ( state = this.defaultState(), next = iterate();
-						next;
-						state = next, next = iterate() );
+				for ( state = this.defaultState(), iterate(); next; state = next, iterate() );
 				while ( name ) {
 					state = new StateProxy( state, name );
 					name = derivation.shift();
