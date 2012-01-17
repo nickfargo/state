@@ -9,7 +9,7 @@ var	State = state.State,
 test( "Object creation", function () {
 	var x = new TestObject(),
 		arr;
-	assert.ok( x.state() instanceof StateController, "StateController created" );
+	assert.ok( x.state().controller() instanceof StateController, "StateController created" );
 	
 	assert.ok( x.state('Waiting') instanceof State, "State 'Waiting' created" );
 	assert.ok( x.state('Waiting').method( 'methodOne', false, false ), "Method 'methodOne' in state 'Waiting' created" );
@@ -28,8 +28,8 @@ test( "Object creation", function () {
 
 test( "Null state change", function () {
 	var x = new TestObject();
-	assert.ok( x.state().change( x.state().current() ).is('Waiting'), "StateController.change() to current state" );
-	assert.ok( x.state().current() === x.state().current().select(), "State.select() on current state" );
+	assert.ok( x.state().change( x.state() ).is('Waiting'), "StateController.change() to current state" );
+	assert.ok( x.state() === x.state().select(), "State.select() on current state" );
 });
 
 test( "Simple state change", function () {
@@ -108,7 +108,7 @@ test( "Data", function () {
 
 test( "Destroy", function () {
 	var x = new TestObject();
-	assert.ok( ( 'isDelegate' in x.methodOne ) && x.state().destroy() && !( 'isDelegate' in x.methodOne ), "Owner method returned" );
+	assert.ok( ( 'isDelegate' in x.methodOne ) && x.state().controller().destroy() && !( 'isDelegate' in x.methodOne ), "Owner method returned" );
 })
 
 })( jQuery, QUnit || require('assert') );
