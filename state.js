@@ -117,9 +117,9 @@ function State ( superstate, name, definition ) {
 	 * Setter functions; these are passed as arguments to external privileged methods to provide
 	 * access to variables scoped within the constructor.
 	 */
-	function setSuperstate ( value ) { return superstate = value; }
-	function setDefinition ( value ) { return definition = value; }
-	function setDestroyed ( value ) { return destroyed = !!value; }
+	// function setSuperstate ( value ) { return superstate = value; }
+	// function setDefinition ( value ) { return definition = value; }
+	// function setDestroyed ( value ) { return destroyed = !!value; }
 	
 	// expose these in debug mode
 	Z.env.debug && Z.extend( this.__private__ = {}, {
@@ -142,7 +142,7 @@ function State ( superstate, name, definition ) {
 	 * `State.privileged`.
 	 */
 	Z.constructPrivilegedMethods( this, State.privileged, {
-		'init' : [ StateDefinition, setDefinition ],
+		'init' : [ StateDefinition, function ( value ) { return definition = value; } ],
 		'superstate' : [ superstate ],
 		'data' : [ data ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
@@ -150,7 +150,12 @@ function State ( superstate, name, definition ) {
 		'guard addGuard removeGuard' : [ guards ],
 		'substate substates addSubstate removeSubstate' : [ substates ],
 		'transition transitions addTransition' : [ transitions ],
-		'destroy' : [ setSuperstate, setDestroyed, methods, substates ]
+		'destroy' : [
+			function ( value ) { return superstate = value; },
+			function ( value ) { return destroyed = !!value; },
+			methods,
+			substates
+		]
 	});
 	
 	/*
@@ -687,12 +692,12 @@ Z.extend( State.prototype, {
 		return this.derivation( true ).join('.');
 	},
 	
-	isInitial:   function () { return this.attributes() & STATE_ATTRIBUTES.INITIAL; },
-	isDefault:   function () { return this.attributes() & STATE_ATTRIBUTES.DEFAULT; },
-	isFinal:     function () { return this.attributes() & STATE_ATTRIBUTES.FINAL; },
-	isAbstract:  function () { return this.attributes() & STATE_ATTRIBUTES.ABSTRACT; },
-	isSealed:    function () { return this.attributes() & STATE_ATTRIBUTES.SEALED; },
-	isRegioned:  function () { return this.attributes() & STATE_ATTRIBUTES.REGIONED; },
+	isInitial:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.INITIAL ); },
+	isDefault:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.DEFAULT ); },
+	isFinal:     function () { return !!( this.attributes() & STATE_ATTRIBUTES.FINAL ); },
+	isAbstract:  function () { return !!( this.attributes() & STATE_ATTRIBUTES.ABSTRACT ); },
+	isSealed:    function () { return !!( this.attributes() & STATE_ATTRIBUTES.SEALED ); },
+	isRegioned:  function () { return !!( this.attributes() & STATE_ATTRIBUTES.REGIONED ); },
 
 	/** Gets the `StateController` to which this state belongs. */
 	controller: function () {
