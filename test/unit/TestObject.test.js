@@ -25,11 +25,11 @@ function TestObject ( initialState ) {
 		// Three progressively more complex ways to define a state:
 		
 		// State 1. Simple: methods only
-		Waiting: {
+		Waiting: state( 'initial', {
 			methodOne: function () {
 				return 'Waiting.methodOne';
 			}
-		},
+		}),
 
 		// State 2. Abbreviated: elements can be listed flatly; proper categorization is inferred
 		Active: {
