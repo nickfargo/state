@@ -1,16 +1,16 @@
 <?php
 $files = array(
-	'Util',
+	'_util',
 	'../../deferral.js/src/deferral',
 	'../../deferral.js/src/promise',
 	'../../deferral.js/src/pipeline',
 	'../../deferral.js/src/multiplex',
 	'../../deferral.js/src/procedure',
-	'State',
-	'State.Definition',
-	'State.Controller',
-	'State.Event',
-	'State.Proxy',
-	'State.Transition',
+	'state',
+	'state-definition',
+	'state-controller',
+	'state-event',
+	'state-proxy',
+	'transition',
 	'transition-definition'
 );
