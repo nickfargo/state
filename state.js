@@ -131,7 +131,7 @@ function State ( superstate, name, definition ) {
 	 * `this`, each of which is a partial application of its corresponding method factory at
 	 * `State.privileged`.
 	 */
-	Z.constructPrivilegedMethods( this, State.privileged, {
+	Z.privilege( this, State.privileged, {
 		'init' : [ StateDefinition, setDefinition ],
 		'superstate' : [ superstate ],
 		'data' : [ data ],
@@ -1124,7 +1124,7 @@ function StateController ( owner, name, definition, options ) {
 		})
 	});
 	
-	Z.constructPrivilegedMethods( this, StateController.privileged, {
+	Z.privilege( this, StateController.privileged, {
 		'change' : [ setCurrentState, setTransition ]
 	});
 	
@@ -1725,7 +1725,7 @@ function Transition ( target, source, definition, callback ) {
 		}
 	});
 	
-	Z.constructPrivilegedMethods( this, State.privileged, {
+	Z.privilege( this, State.privileged, {
 		'init' : [ TransitionDefinition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event events on addEvent removeEvent emit trigger' : [ events ],
