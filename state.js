@@ -78,16 +78,6 @@ function overload ( args, map ) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
 Z.extend( State, STATE_ATTRIBUTES = {
 	NORMAL      : 0x0,
 	INITIAL     : 0x1,
@@ -1756,7 +1746,6 @@ Z.extend( true, Transition, {
 		types: [ 'construct', 'destroy', 'enter', 'exit', 'start', 'end', 'abort' ]
 	}
 });
-
 
 
 var TransitionDefinition = ( function () {
