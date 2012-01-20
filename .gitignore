@@ -4,3 +4,4 @@ test/.gitignore
 *.tmproj
 *.gz
 *.min.js
+*.tmp.js
