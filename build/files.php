@@ -11,5 +11,6 @@ $files = array(
 	'State.Controller',
 	'State.Event',
 	'State.Proxy',
-	'State.Transition'
+	'State.Transition',
+	'transition-definition'
 );
