@@ -50,34 +50,6 @@ function state ( attributes, owner, name, definition, options ) {
 		new StateDefinition( attributes, definition ), options );
 }
 
-/**
- * # Utility functions
- */
-
-/**
- * Transforms an array of `args` into a map of named arguments, based on the position and type of
- * each item within `args`. This is directed by `map`, wherein each item maps a space-delimited
- * type sequence (e.g., "object array string") to an equal number of space-delimited argument names.
- */
-function overload ( args, map ) {
-	var	i, l,
-		types = [],
-		names,
-		result = {};
-	for ( i = 0, l = args.length; i < l; i++ ) {
-		if ( args[i] === undefined ) { break; }
-		types.push( Z.type( args[i] ) );
-	}
-	if ( types.length && ( types = types.join(' ') ) in map ) {
-		names = map[ types ].split(' ');
-		for ( i = 0, l = names.length; i < l; i++ ) {
-			result[ names[i] ] = args[i];
-		}
-	}
-	return result;
-}
-
-
 Z.extend( State, STATE_ATTRIBUTES = {
 	NORMAL      : 0x0,
 	INITIAL     : 0x1,
@@ -1080,7 +1052,6 @@ function StateController ( owner, name, definition, options ) {
 	
 	var	self = this,
 		privileged = StateController.privileged,
-		args = overload( arguments, this.constructor.overloads ),
 		defaultState, currentState, transition;
 	
 	function setCurrentState ( value ) { return currentState = value; }
@@ -1096,12 +1067,11 @@ function StateController ( owner, name, definition, options ) {
 	}
 
 	// Rewrites for overloaded arguments
-	owner = args.owner || {};
-	name = args.name || 'state';
-	definition = args.definition instanceof StateDefinition ?
-		args.definition :
-		StateDefinition( args.definition );
-	typeof ( options = args.options || {} ) === 'string' && ( options = { initialState: options } );
+	owner || ( owner = {} );
+	name || ( name = 'state' );
+	definition instanceof StateDefinition || ( definition = new StateDefinition( definition ) );
+	!options && ( options = {} ) ||
+		typeof options === 'string' && ( options = { initialState: options } );
 	
 	owner[ name ] = accessor;
 
@@ -1138,21 +1108,6 @@ function StateController ( owner, name, definition, options ) {
 }
 
 Z.extend( true, StateController, {
-	overloads: {
-		'object string object object' : 'owner name definition options',
-		'object string object string' : 'owner name definition options',
-		'object string object' : 'owner name definition',
-		'object object object' : 'owner definition options',
-		'object object string' : 'owner definition options',
-		'string object object' : 'name definition options',
-		'string object string' : 'name definition options',
-		'object object' : 'owner definition',
-		'string object' : 'name definition',
-		'object string' : 'definition options',
-		'object' : 'definition',
-		'string' : 'name'
-	},
-	
 	privileged: {
 		/**
 		 * Attempts to change the controller's current state. Handles asynchronous transitions,

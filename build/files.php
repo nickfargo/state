@@ -1,6 +1,5 @@
 <?php
 $files = array(
-	'_util',
 	'state',
 	'state-definition',
 	'state-controller',
