@@ -87,7 +87,6 @@ function State ( superstate, name, definition ) {
 	});
 	
 	this.name = Z.stringFunction( function () { return name || ''; } );
-	this.definition = function () { return definition; };
 	this.attributes = function () { return attributes; };
 
 	/*
@@ -95,7 +94,6 @@ function State ( superstate, name, definition ) {
 	 * variables.
 	 */
 	function setSuperstate ( value ) { return superstate = value; }
-	function setDefinition ( value ) { return definition = value; }
 	function setDestroyed ( value ) { return destroyed = !!value; }
 	
 	/*
@@ -104,7 +102,7 @@ function State ( superstate, name, definition ) {
 	 * `State.privileged`.
 	 */
 	Z.privilege( this, State.privileged, {
-		'init' : [ StateDefinition, setDefinition ],
+		'init' : [ StateDefinition ],
 		'superstate' : [ superstate ],
 		'data' : [ data ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
@@ -120,21 +118,21 @@ function State ( superstate, name, definition ) {
 	 * If no superstate, e.g. a default state being created by a `StateController`, then `init()`
 	 * must be called later by the implementor.
 	 */
-	superstate && this.init();
+	superstate && this.init( definition );
+	definition = null;
 }
 
 State.privileged = {
-	init: function ( /*Function*/ definitionConstructor, /*Function*/ setDefinition ) {
+	init: function ( /*Function*/ definitionConstructor ) {
 		/**
 		 * Builds out the state's members based on the contents of the supplied definition.
 		 */
-		return function ( /*<definitionConstructor>|Object*/ definitionOverride ) {
+		return function ( /*<definitionConstructor>|Object*/ definition ) {
 			var	category,
-				definition = definitionOverride || this.definition(),
 				self = this;
-	
+			
 			definition instanceof definitionConstructor ||
-				setDefinition( definition = definitionConstructor( definition ) );
+				( definition = definitionConstructor( definition ) );
 			
 			definition.data && this.data( definition.data );
 			Z.forEach({
@@ -196,8 +194,8 @@ State.privileged = {
 		 * ( Object edit, [Boolean isDeletion] )
 		 * Sets the `data` on this state, overwriting any existing items, or if `!!isDeletion`
 		 * is `true`, deletes from `data` the items with matching keys in `edit` whose values
-		 * evaluate to `true`. If the operation causes `data` to be changed, a `mutate` event is
-		 * generated for this state.
+		 * evaluate to `true`. If the operation causes `data` to be changed, a `mutate` event
+		 * is generated for this state.
 		 */
 		return function ( /*Object*/ edit, /*Boolean*/ isDeletion ) {
 			var viaSuper, viaProto, key, superstate, protostate;
@@ -267,8 +265,8 @@ State.privileged = {
 
 	methodAndContext: function ( methods ) {
 		/**
-		 * Returns the product of `method()` along with its context, i.e. the State that will be
-		 * referenced by `this` within the function.
+		 * Returns the product of `method()` along with its context, i.e. the State that will
+		 * be referenced by `this` within the function.
 		 */
 		return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
 			var	superstate, protostate,
@@ -307,10 +305,10 @@ State.privileged = {
 		 * itself then forward the call on to the appropriate implementation in the state
 		 * hierarchy as determined by the controller's current state.
 		 * 
-		 * The context of autochthonous methods relocated to the default state remains bound to
-		 * the owner, whereas stateful methods are executed in the context of the state in which
-		 * they are declared, or if the implementation resides in a protostate, the context will
-		 * be the corresponding `StateProxy` within `controller`.
+		 * The context of autochthonous methods relocated to the default state remains bound
+		 * to the owner, whereas stateful methods are executed in the context of the state in
+		 * which they are declared, or if the implementation resides in a protostate, the
+		 * context will be the corresponding `StateProxy` within `controller`.
 		 */
 		function createDelegate ( methodName, controller ) {
 			function delegate () { return controller.current().apply( methodName, arguments ); }
@@ -319,8 +317,8 @@ State.privileged = {
 		}
 
 		/**
-		 * Adds a method to this state, which will be callable directly from the owner, but with
-		 * its context bound to the state.
+		 * Adds a method to this state, which will be callable directly from the owner, but
+		 * with its context bound to the state.
 		 */
 		return function ( methodName, fn ) {
 			var	controller = this.controller(),
@@ -329,9 +327,9 @@ State.privileged = {
 				ownerMethod;
 			
 			/*
-			 * If there is not already a method called `methodName` in the state hierarchy, then
-			 * the owner and controller need to be set up properly to accommodate calls to this
-			 * method.
+			 * If there is not already a method called `methodName` in the state hierarchy,
+			 * then the owner and controller need to be set up properly to accommodate calls
+			 * to this method.
 			 */
 			if ( !this.method( methodName, true, false ) ) {
 
@@ -342,16 +340,16 @@ State.privileged = {
 							!ownerMethod.isDelegate ) {
 						/*
 						 * If the owner has a method called `methodName` that hasn't already
-						 * been substituted with a delegate, then that method needs to be copied
-						 * into to the default state, so that calls made from other states which
-						 * do not implement this method can be forwarded to this original
-						 * implementation of the owner. Before the method is copied, it is
-						 * marked both as `autochthonous` to indicate that subsequent calls to
-						 * the method should be executed in the context of the owner (as opposed
-						 * to the usual context of the state for which the method was declared),
-						 * and, if the method was not inherited from a prototype of the owner,
-						 * as `autochthonousToOwner` to indicate that it must be returned to the
-						 * owner should the controller ever be destroyed.
+						 * been substituted with a delegate, then that method needs to be
+						 * copied into to the default state, so that calls made from other
+						 * states which do not implement this method can be forwarded to this
+						 * original implementation of the owner. Before the method is copied,
+						 * it is marked both as `autochthonous` to indicate that subsequent
+						 * calls to the method should be executed in the context of the owner
+						 * (as opposed to the usual context of the state for which the method
+						 * was declared), and, if the method was not inherited from a prototype
+						 * of the owner, as `autochthonousToOwner` to indicate that it must be
+						 * returned to the owner should the controller ever be destroyed.
 						 */
 						ownerMethod.autochthonous = true;
 						ownerMethod.autochthonousToOwner = Z.hasOwn.call( owner, methodName );
@@ -425,7 +423,7 @@ State.privileged = {
 	},
 
 	emit: function ( events ) {
-		/** Used internally to invoke an event type's handlers at the appropriate time. */
+		/** Invokes an event type's handlers at the appropriate time. */
 		return function ( /*String*/ eventType, /*Object*/ data ) {
 			var e;
 			return eventType in events && ( e = events[ eventType ] ) && e.emit( data ) && this;
@@ -525,32 +523,32 @@ State.privileged = {
 			var	controller, current, transition,
 				substate = substates[ stateName ];
 
-			if ( substate ) {
-				controller = this.controller();
-				current = controller.current();
-	
-				// Fail if a transition is underway involving `substate`
-				if (
-					( transition = controller.transition() )
-						&&
-					(
-						substate.isSuperstateOf( transition ) ||
-						substate === transition.origin() ||
-						substate === transition.target()
-					)
-				) {
-					return false;
-				}
-	
-				// Evacuate before removing
-				controller.isIn( substate ) && controller.change( this, { forced: true } );
-	
-				delete substates[ stateName ];
-				delete this[ stateName ];
-				controller.defaultState() === this && delete controller[ stateName ];
-	
-				return substate;
+			if ( !substate ) return;
+
+			controller = this.controller();
+			current = controller.current();
+
+			// Fail if a transition is underway involving `substate`
+			if (
+				( transition = controller.transition() )
+					&&
+				(
+					substate.isSuperstateOf( transition ) ||
+					substate === transition.origin() ||
+					substate === transition.target()
+				)
+			) {
+				return false;
 			}
+
+			// Evacuate before removing
+			controller.isIn( substate ) && controller.change( this, { forced: true } );
+
+			delete substates[ stateName ];
+			delete this[ stateName ];
+			controller.defaultState() === this && delete controller[ stateName ];
+
+			return substate;
 		};
 	},
 
@@ -636,12 +634,14 @@ State.privileged = {
 };
 
 Z.assign( State.prototype, {
+	name : Z.thunk(''),
+	attributes : Z.thunk( STATE_ATTRIBUTES.NORMAL ),
 	'superstate method addMethod removeMethod event addEvent removeEvent guard addGuard \
 	 removeGuard substate addSubstate removeSubstate transition addTransition' : Z.noop,
-	'data' : Z.getThis,
+	data : Z.getThis,
 	'methodNames substates' : function () { return []; },
 	'transitions' : function () { return {}; },
-	'destroy' : Z.thunk( false ),
+	destroy : Z.thunk( false ),
 
 	/** Returns this state's fully qualified name. */
 	toString: function () {
@@ -1492,8 +1492,6 @@ function Transition ( target, source, definition, callback ) {
 	 	controller = ( controller = source.controller() ) === target.controller() ? controller : undefined,
 		aborted;
 	
-	function setDefinition ( value ) { return definition = value; }
-	
 	// expose these in debug mode
 	Z.env.debug && Z.extend( this.__private__ = {}, {
 		methods: methods,
@@ -1688,13 +1686,13 @@ function Transition ( target, source, definition, callback ) {
 	});
 	
 	Z.privilege( this, State.privileged, {
-		'init' : [ TransitionDefinition, setDefinition ],
+		'init' : [ TransitionDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event addEvent removeEvent emit' : [ events ],
 	});
 	Z.alias( this, { addEvent: 'on', emit: 'trigger' } );
 	
-	this.init();
+	this.init( definition );
 }
 
 Z.extend( true, Transition, {
