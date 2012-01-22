@@ -20,10 +20,6 @@ test( "Object creation", function () {
 	assert.ok( x.state('Active.Hyperactive') instanceof State );
 	assert.ok( !x.state('Active').method( 'methodOne', false, false ) );
 	assert.ok( x.state('Active').method( 'methodTwo', false, false ) );
-	arr = x.state('Active').events('arrive');
-	assert.strictEqual( +arr.length, 1, arr.keys() );
-	arr = x.state('Active').events('depart');
-	assert.strictEqual( arr.length(), 2, arr.keys() );
 });
 
 test( "Null state change", function () {
