@@ -114,7 +114,8 @@ function State ( superstate, name, definition ) {
 		'transition transitions addTransition' : [ transitions ],
 		'destroy' : [ setSuperstate, setDestroyed, methods, substates ]
 	});
-	
+	Z.alias( this, { addEvent: 'on', emit: 'trigger' } );
+
 	/*
 	 * If no superstate, e.g. a default state being created by a `StateController`, then `init()`
 	 * must be called later by the implementor.
@@ -213,7 +214,7 @@ State.privileged = {
 			// set
 			if ( edit ) {
 				( isDeletion ?
-					!Z.isEmpty( data ) && !Z.isEmpty( edit ) && excise( true, data, edit )
+					!Z.isEmpty( data ) && !Z.isEmpty( edit ) && Z.excise( true, data, edit )
 					:
 					Z.isEmpty( edit ) || Z.extend( true, data, edit )
 				) &&
@@ -469,14 +470,12 @@ State.privileged = {
 			var protostate;
 			viaProto === undefined && ( viaProto = true );
 
-			return (
-				substates[ stateName ] ||
+			return substates[ stateName ] ||
 				viaProto && (
 					( protostate = this.protostate() ) ?
 						protostate.substate( stateName ) :
 						undefined
-				)
-			);
+				);
 		};
 	},
 
@@ -487,8 +486,8 @@ State.privileged = {
 			var key,
 				result = [];
 			for ( key in substates ) if ( Z.hasOwn.call( substates, key ) ) {
-				result.push( substates[key] );
-				deep && ( result = result.concat( substates[key].substates( true ) ) );
+				result.push( substates[ key ] );
+				deep && ( result = result.concat( substates[ key ].substates( true ) ) );
 			}
 			return result;
 		};
@@ -635,10 +634,6 @@ State.privileged = {
 		};
 	}
 };
-Z.alias( State.privileged, {
-	addEvent: 'on',
-	emit: 'trigger'
-});
 
 Z.assign( State.prototype, {
 	'superstate method addMethod removeMethod event addEvent removeEvent guard addGuard \
@@ -662,27 +657,38 @@ Z.assign( State.prototype, {
 
 	/** Gets the `StateController` to which this state belongs. */
 	controller: function () {
-		return this.superstate().controller();
+		var superstate = this.superstate();
+		if ( superstate ) {
+			return superstate.controller();
+		}
 	},
 	
 	/** Gets the owner object to which this state's controller belongs. */
 	owner: function () {
-		return this.controller().owner();
+		var controller = this.controller();
+		if ( controller ) {
+			return controller.owner();
+		}
 	},
 	
 	/** Gets the default state, i.e. the top-level superstate of this state. */
 	defaultState: function () {
-		return this.controller().defaultState();
+		var controller = this.controller();
+		if ( controller ) {
+			return controller.defaultState();
+		}
 	},
 	
-	/** Gets the first substate of this state that is marked with the 'default' attribute. */
+	/** Returns the first substate marked 'default', or simply the first substate. */
 	defaultSubstate: function () {
-		var i, l, substates = this.substates();
-		for ( i = 0, l = substates.length; i < l; i++ ) {
+		var substates = this.substates(), i = 0, l = substates && substates.length;
+		if ( !l ) return;
+		for ( ; i < l; i++ ) {
 			if ( substates[i].isDefault() ) {
 				return substates[i];
 			}
 		}
+		return substates[0];
 	},
 
 	/**
@@ -703,10 +709,7 @@ Z.assign( State.prototype, {
 	protostate: function () {
 		var	derivation = this.derivation( true ),
 			controller = this.controller(),
-			controllerName = controller.name(),
-			owner = controller.owner(),
-			prototype = owner,
-			protostate, i, l, stateName;
+			controllerName, owner, prototype, protostate, i, l, stateName;
 		
 		function iterate () {
 			var fn, c;
@@ -720,11 +723,15 @@ Z.assign( State.prototype, {
 					null;
 		}
 		
+		if ( !controller ) return;
+
+		controllerName = controller.name();
+		prototype = owner = controller.owner();
+	
 		for ( iterate(); protostate; iterate() ) {
 			for ( i = 0, l = derivation.length; i < l; i++ ) {
-				if ( !( protostate = protostate.substate( derivation[i], false ) ) ) {
-					return;
-				}
+				protostate = protostate.substate( derivation[i], false );
+				if ( !protostate ) return;
 			}
 			return protostate;
 		}
@@ -951,13 +958,10 @@ Z.assign( State.prototype, {
 			false;
 	},
 
-	change: function () {
-		var c = this.controller();
-		return c.change.apply( c, arguments );
+	'change be become go goTo': function () {
+		var controller = this.controller();
+		return controller.change.apply( controller, arguments );
 	}
-});
-Z.alias( State.prototype, {
-	change: 'be become go goTo'
 });
 
 
@@ -1051,7 +1055,6 @@ function StateController ( owner, name, definition, options ) {
 	}
 	
 	var	self = this,
-		privileged = StateController.privileged,
 		defaultState, currentState, transition;
 	
 	function setCurrentState ( value ) { return currentState = value; }
@@ -1066,7 +1069,6 @@ function StateController ( owner, name, definition, options ) {
 		}
 	}
 
-	// Rewrites for overloaded arguments
 	owner || ( owner = {} );
 	name || ( name = 'state' );
 	definition instanceof StateDefinition || ( definition = new StateDefinition( definition ) );
@@ -1433,6 +1435,7 @@ var StateEventCollection = ( function () {
 			}
 		}
 	});
+	Z.alias( StateEventCollection.prototype, {
 		add: 'on',
 		emit: 'trigger'
 	});
@@ -1687,6 +1690,7 @@ function Transition ( target, source, definition, callback ) {
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 		'event addEvent removeEvent emit' : [ events ],
 	});
+	Z.alias( this, { addEvent: 'on', emit: 'trigger' } );
 	
 	this.init();
 }
