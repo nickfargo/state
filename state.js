@@ -1475,6 +1475,8 @@ Z.extend( true, StateProxy, {
 });
 
 
+Z.inherit( Transition, State );
+
 function Transition ( target, source, definition, callback ) {
 	if ( !( this instanceof Transition ) ) {
 		return TransitionDefinition.apply( this, arguments );
@@ -1696,12 +1698,12 @@ function Transition ( target, source, definition, callback ) {
 }
 
 Z.extend( true, Transition, {
-	prototype: Z.extend( true, new State(), {
+	prototype: {
 		depth: function () {
 			for ( var count = 0, t = this; t.source() instanceof Transition; count++, t = t.source() );
 			return count;
 		}
-	}),
+	},
 	
 	Event: {
 		types: [ 'construct', 'destroy', 'enter', 'exit', 'start', 'end', 'abort' ]
