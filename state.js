@@ -396,13 +396,6 @@ State.privileged = {
 		};
 	},
 
-	events: function ( events ) {
-		/** Gets an `Array` of all event handlers registered for the specified `eventType`. */
-		return function ( /*String*/ eventType ) {
-			return events[ eventType ];
-		};
-	},
-
 	addEvent: function ( events ) {
 		/**
 		 * Binds an event handler to the specified `eventType` and returns a unique identifier
