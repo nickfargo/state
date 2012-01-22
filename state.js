@@ -108,7 +108,7 @@ function State ( superstate, name, definition ) {
 		'superstate' : [ superstate ],
 		'data' : [ data ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
-		'event events on addEvent removeEvent emit trigger' : [ events ],
+		'event addEvent removeEvent emit' : [ events ],
 		'guard addGuard removeGuard' : [ guards ],
 		'substate substates addSubstate removeSubstate' : [ substates ],
 		'transition transitions addTransition' : [ transitions ],
@@ -1678,7 +1678,7 @@ function Transition ( target, source, definition, callback ) {
 	Z.privilege( this, State.privileged, {
 		'init' : [ TransitionDefinition, setDefinition ],
 		'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
-		'event events on addEvent removeEvent emit trigger' : [ events ],
+		'event addEvent removeEvent emit' : [ events ],
 	});
 	
 	this.init();
