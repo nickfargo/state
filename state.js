@@ -29,12 +29,13 @@ var	global = this,
 
 	STATE_ATTRIBUTES = {
 		NORMAL      : 0x0,
-		INITIAL     : 0x1,
-		FINAL       : 0x2,
-		DEFAULT     : 0x4,
-		ABSTRACT    : 0x8,
-		SEALED      : 0x10,
-		REGIONED    : 0x20
+		VIRTUAL     : 0x1,
+		INITIAL     : 0x2,
+		FINAL       : 0x4,
+		DEFAULT     : 0x8,
+		ABSTRACT    : 0x10,
+		SEALED      : 0x20,
+		REGIONED    : 0x40
 	},
 
 	STATE_DEFINITION_CATEGORIES =
@@ -56,7 +57,7 @@ var	global = this,
 		'construct destroy enter exit start end abort';
 
 /**
- * The exported module is a function that may return either a `StateDefinition` or
+ * The exported module is a function, which returns either a `StateDefinition` or
  * a `StateController` bound to an owner object:
  * 
  * StateDefinition state( [String modifiers,] Object definition )
@@ -95,34 +96,32 @@ Z.assign( state, {
 var State = ( function () {
 	Z.assign( State, STATE_ATTRIBUTES );
 
-	function createDelegate ( methodName, controller ) {
-		/**
-		 * Forwards a `methodName` call to `controller`, which will then forward the call on to the
-		 * appropriate implementation in the state hierarchy as determined by the controller's
-		 * current state.
-		 * 
-		 * The context of autochthonous methods relocated to the default state remains bound to the
-		 * owner, whereas stateful methods are executed in the context of the state in which they
-		 * are declared, or if the implementation resides in a protostate, the context will be the
-		 * corresponding `StateProxy` within `controller`.
-		 * 
-		 * @see State.privileged.addMethod
-		 */
-		function delegate () {
-			return controller.current().apply( methodName, arguments );
-		}
-		delegate.isDelegate = true;
-		return delegate;
-	}
-
 	function State ( superstate, name, definition ) {
 		if ( !( this instanceof State ) ) {
 			return new State( superstate, name, definition );
 		}
 		
-		var	self = this,
-			destroyed = false,
-			attributes = definition && definition.attributes || STATE_ATTRIBUTES.NORMAL,
+		var attributes = definition && definition.attributes || STATE_ATTRIBUTES.NORMAL;
+		
+		this.name = Z.stringFunction( function () { return name || ''; } );
+		this.attributes = function () { return attributes; };
+		
+		Z.privilege( this, State.privileged, {
+			'superstate' : [ superstate ]
+		});
+
+		if ( attributes & STATE_ATTRIBUTES.VIRTUAL ) {
+			this.reify = function () {
+				delete this.reify;
+				return reify.call( this, superstate, definition );
+			};
+		} else {
+			reify.call( this, superstate, definition );
+		}
+	}
+
+	function reify ( superstate, definition ) {
+		var	destroyed = false,
 			data = {},
 			methods = {},
 			events = Z.assign( STATE_EVENT_TYPES, null ),
@@ -132,7 +131,7 @@ var State = ( function () {
 		
 		// expose these in debug mode
 		Z.env.debug && Z.assign( this.__private__ = {}, {
-			attributes: attributes,
+			attributes: this.attributes(),
 			data: data,
 			methods: methods,
 			events: events,
@@ -141,9 +140,6 @@ var State = ( function () {
 			transitions: transitions
 		});
 		
-		this.name = Z.stringFunction( function () { return name || ''; } );
-		this.attributes = function () { return attributes; };
-
 		/*
 		 * Setter functions are passed to privileged method factories to provide access to local
 		 * variables.
@@ -174,7 +170,28 @@ var State = ( function () {
 		 * `init()` must be called later by the implementor.
 		 */
 		superstate && this.init( definition );
-		definition = null;
+
+		return this;
+	}
+
+	function createDelegate ( methodName, controller ) {
+		/**
+		 * Forwards a `methodName` call to `controller`, which will then forward the call on to the
+		 * appropriate implementation in the state hierarchy as determined by the controller's
+		 * current state.
+		 * 
+		 * The context of autochthonous methods relocated to the default state remains bound to the
+		 * owner, whereas stateful methods are executed in the context of the state in which they
+		 * are declared, or if the implementation resides in a protostate, the context will be the
+		 * corresponding `StateProxy` within `controller`.
+		 * 
+		 * @see State.privileged.addMethod
+		 */
+		function delegate () {
+			return controller.current().apply( methodName, arguments );
+		}
+		delegate.isDelegate = true;
+		return delegate;
 	}
 
 	State.privileged = {
@@ -675,7 +692,7 @@ var State = ( function () {
 	Z.assign( State.prototype, {
 		name : Z.thunk(''),
 		attributes : Z.thunk( STATE_ATTRIBUTES.NORMAL ),
-		'superstate method addMethod removeMethod event addEvent removeEvent guard addGuard \
+		'reify superstate method addMethod removeMethod event addEvent removeEvent guard addGuard \
 		 removeGuard substate addSubstate removeSubstate transition addTransition' : Z.noop,
 		data : Z.getThis,
 		'methodNames substates' : function () { return []; },
@@ -687,6 +704,7 @@ var State = ( function () {
 			return this.derivation( true ).join('.');
 		},
 		
+		isVirtual:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.VIRTUAL ); },
 		isInitial:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.INITIAL ); },
 		isDefault:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.DEFAULT ); },
 		isFinal:     function () { return !!( this.attributes() & STATE_ATTRIBUTES.FINAL ); },
