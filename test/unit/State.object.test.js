@@ -7,7 +7,7 @@ var	State = state.State,
 	StateController = state.StateController;
 
 test( "Object creation", function () {
-	var x = new TestObject(),
+	var x = new TestObject,
 		arr;
 	assert.ok( x.state().controller() instanceof StateController, "StateController created" );
 	
@@ -23,20 +23,20 @@ test( "Object creation", function () {
 });
 
 test( "Null state change", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.ok( x.state().change( x.state() ).is('Waiting'), "StateController.change() to current state" );
 	assert.ok( x.state() === x.state().select(), "State.select() on current state" );
 });
 
 test( "Simple state change", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.ok( x.state().change('Active'), "Change to state 'Active'" );
 	assert.ok( x.state().change('Finished'), "Change to state 'Finished'" );
 	assert.ok( x.state().change(), "Change to default state" );
 });
 
 // ( function () {
-// 	var x = new TestObject();
+// 	var x = new TestObject;
 // 	test( "Async transition to 'Finished'", function () {
 // 		assert.ok( x.state().change('Finished') );
 // 	});
@@ -94,7 +94,7 @@ test( "Rules", function () {
 });
 
 test( "Data", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.ok( x.state('Finished').data(), "Data accessible from `data()`" );
 	assert.equal( x.state('Finished').data().c, x.state('Finished').Terminated.data().c, "Substate inherits data member from superstate" );
 	assert.notEqual( x.state('Finished').data().a, x.state('Finished').Terminated.data().a, "Substate overrides data member of superstate" );
@@ -103,7 +103,7 @@ test( "Data", function () {
 });
 
 test( "Destroy", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.ok( ( 'isDelegate' in x.methodOne ) && x.state().controller().destroy() && !( 'isDelegate' in x.methodOne ), "Owner method returned" );
 })
 

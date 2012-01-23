@@ -4,7 +4,7 @@
 module( "State" );
 
 test( "superstate()", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	strictEqual( x.state('Finished.Terminated.ReallyDead').superstate('Finished'), x.state('Finished') );
 	strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(''), x.state().defaultState() );
 	strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(), x.state('Finished.Terminated') );
@@ -12,7 +12,7 @@ test( "superstate()", function () {
 });
 
 test( "match()", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.ok( x.state().match( 'Finished.*', x.state('Finished.CleaningUp') ) );
 	assert.ok( x.state().match( 'Finished.*', x.state('Finished.Terminated') ) );
 	assert.ok( !x.state().match( 'Finished.*', x.state('Waiting') ) );
@@ -39,7 +39,7 @@ test( "match()", function () {
 });
 
 test( "isIn()", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.ok( x.state('Waiting').isIn( x.state().defaultState() ) );
 	assert.ok( x.state('Finished.CleaningUp').isIn( x.state().defaultState() ) );
 	assert.ok( x.state('Finished.CleaningUp').isIn( x.state('Finished') ) );
@@ -51,7 +51,7 @@ test( "isIn()", function () {
 });
 
 test( "isSuperstateOf()", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.ok( x.state().defaultState().isSuperstateOf( x.state('Waiting') ) );
 	assert.ok( x.state().defaultState().isSuperstateOf( x.state('Finished.CleaningUp') ) );
 	assert.ok( x.state('Finished').isSuperstateOf( x.state('Finished.CleaningUp') ) );
@@ -59,19 +59,19 @@ test( "isSuperstateOf()", function () {
 });
 
 test( "substates()", function () {
-	var	x = new TestObject(),
+	var	x = new TestObject,
 		states = x.state().defaultState().substates( true );
 	assert.ok( ( states.length == 8 ) );
 });
 
 test( "depth()", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.equal( x.state().defaultState().depth(), 0 );
 	assert.equal( x.state('Finished.Terminated').depth(), 2 );
 });
 
 test( "common()", function () {
-	var x = new TestObject();
+	var x = new TestObject;
 	assert.equal( x.state('Finished.Terminated').common( x.state('Finished') ), x.state('Finished') );
 	assert.equal( x.state('Finished.Terminated').common( x.state('Finished.CleaningUp') ), x.state('Finished') );
 	assert.equal( x.state('Finished.Terminated').common( x.state('Active') ), x.state().defaultState() );

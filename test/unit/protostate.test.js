@@ -13,7 +13,7 @@ function Animal () {
 	}, 'Stationary' );
 }
 
-( Bird.prototype = new Animal() ).constructor = Bird;
+( Bird.prototype = new Animal ).constructor = Bird;
 function Bird () {
 	state( this, {
 		Moving: {
@@ -27,7 +27,7 @@ function Bird () {
 	}, 'Stationary' );
 }
 
-( Ostrich.prototype = new Bird() ).constructor = Ostrich;
+( Ostrich.prototype = new Bird ).constructor = Ostrich;
 function Ostrich () {
 	state( this, {
 		Stationary: {
@@ -61,7 +61,7 @@ function Ostrich () {
 module( "Protostate" );
 
 test( "Animal", function () {
-	var animal = new Animal();
+	var animal = new Animal;
 	assert.strictEqual( animal.move(), false );
 	assert.strictEqual( animal.getThis(), animal.state('Stationary') );
 	animal.state().change('Moving'), assert.strictEqual( animal.move(), true );
@@ -69,7 +69,7 @@ test( "Animal", function () {
 });
 
 test( "Bird", function () {
-	var bird = new Bird();
+	var bird = new Bird;
 	assert.strictEqual( bird.constructor, Bird );
 	
 	var prototype = bird.constructor.prototype;
@@ -91,7 +91,7 @@ test( "Bird", function () {
 });
 
 test( "Ostrich", function () {
-	var ostrich = new Ostrich();
+	var ostrich = new Ostrich;
 	assert.strictEqual( ostrich.move(), 0 );
 	ostrich.state().change('Moving'), assert.strictEqual( ostrich.move(), true );
 	ostrich.state().change('.Flying'), assert.strictEqual( ostrich.move(), undefined );

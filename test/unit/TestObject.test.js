@@ -80,7 +80,7 @@ function TestObject ( initialState ) {
 			// a **transition**
 			wiggle: Transition({
 				origin: '*',
-				operation: function () {
+				action: function () {
 					this.end();
 				}
 			})
@@ -143,7 +143,7 @@ function TestObject ( initialState ) {
 					transitions: {
 						weee: {
 							origin: '*',
-							operation: function () { this.end(); }
+							action: function () { this.end(); }
 						}
 					}
 				},
@@ -205,7 +205,7 @@ function TestObject ( initialState ) {
 				'transitionName': {
 					origin: '*',
 					// /*
-					operation: function () {
+					action: function () {
 						// do some business
 						console && console.log( Date.now() + " - HANG ON, I'M OPERATING" );
 						var self = this;
@@ -216,7 +216,7 @@ function TestObject ( initialState ) {
 					},
 					// */
 					/* TODO: promise-based serial and asynchronous queueing
-					operation: [
+					action: [
 						function ( op ) { console.log("1"); },
 						// double array literal indicates a set of parallel asynchronous operations
 						// succeeding operation will start only after all operations inside the `[[ ]]` have completed
@@ -256,8 +256,8 @@ function TestObject ( initialState ) {
 				},
 				Transition2: {
 					// origin: '*',
-					// destination: '.',
-					operation: function () { this.end(); }
+					// target: '.',
+					action: function () { this.end(); }
 				}
 			}
 		}
