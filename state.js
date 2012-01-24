@@ -661,7 +661,7 @@ var State = ( function () {
 				}
 		
 				if ( superstate ) {
-					superstate.removeSubstate( name );
+					superstate.removeSubstate( this.name() );
 				} else {
 					for ( methodName in methods ) if ( Z.hasOwn.call( methods, methodName ) ) {
 						// It's the default state being destroyed, so the delegates on the owner can
