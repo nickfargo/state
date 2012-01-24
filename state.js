@@ -108,8 +108,9 @@ var State = ( function () {
 		this.attributes = function () { return attributes; };
 
 		if ( attributes & STATE_ATTRIBUTES.VIRTUAL ) {
-			this.reify = function () {
+			this.reify = function ( definition ) {
 				delete this.reify;
+				superstate.isVirtual() && superstate.reify();
 				return reify.call( this, superstate, definition );
 			};
 		} else {
