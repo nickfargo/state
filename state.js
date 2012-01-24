@@ -118,6 +118,9 @@ var State = ( function () {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	function reify ( superstate, definition ) {
 		var	destroyed = false,
 			data = {},
@@ -699,7 +702,7 @@ var State = ( function () {
 		isAbstract:  function () { return !!( this.attributes() & STATE_ATTRIBUTES.ABSTRACT ); },
 		isSealed:    function () { return !!( this.attributes() & STATE_ATTRIBUTES.SEALED ); },
 		isRegioned:  function () { return !!( this.attributes() & STATE_ATTRIBUTES.REGIONED ); },
-		
+
 		'reify superstate \
 		 addMethod removeMethod \
 		 event addEvent on removeEvent emit trigger \
@@ -1182,9 +1185,9 @@ var StateController = ( function () {
 	}
 
 	/**
-	 * Creates a transient virtual state within the state hierarchy of `this` to represent
+	 * Creates a transient virtual state within the local state hierarchy to represent
 	 * `protostate`, along with as many virtual superstates as are necessary to reach a real
-	 * `State` in the hierarchy.
+	 * `State` in the local hierarchy.
 	 */
 	function virtualize ( protostate ) {
 		var	derivation, state, next, name;
@@ -1207,7 +1210,7 @@ var StateController = ( function () {
 	/**
 	 * Destroys `virtualState` and all of its virtual superstates.
 	 */
-	function devirtualize ( virtualState ) {
+	function annihilate ( virtualState ) {
 		var superstate;
 		while ( virtualState.isVirtual() ) {
 			superstate = virtualState.superstate();
@@ -1322,7 +1325,7 @@ var StateController = ( function () {
 						this.current().trigger( 'arrive', info );
 						
 						if ( origin.isVirtual() ) {
-							devirtualize.call( this, origin );
+							annihilate.call( this, origin );
 							origin = null;
 						}
 						transition.destroy(), transition = setTransition( null );
