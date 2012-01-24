@@ -103,12 +103,9 @@ var State = ( function () {
 		
 		var attributes = definition && definition.attributes || STATE_ATTRIBUTES.NORMAL;
 		
+		this.superstate = State.privileged.superstate( superstate );
 		this.name = Z.stringFunction( function () { return name || ''; } );
 		this.attributes = function () { return attributes; };
-		
-		Z.privilege( this, State.privileged, {
-			'superstate' : [ superstate ]
-		});
 
 		if ( attributes & STATE_ATTRIBUTES.VIRTUAL ) {
 			this.reify = function () {
@@ -183,7 +180,7 @@ var State = ( function () {
 		 * The context of autochthonous methods relocated to the default state remains bound to the
 		 * owner, whereas stateful methods are executed in the context of the state in which they
 		 * are declared, or if the implementation resides in a protostate, the context will be the
-		 * corresponding `StateProxy` within `controller`.
+		 * corresponding virtual state within `controller`.
 		 * 
 		 * @see State.privileged.addMethod
 		 */
@@ -315,11 +312,12 @@ var State = ( function () {
 			 * superstate hierarchy and repeat the search.
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
-				var	superstate, protostate,
-					method = methods[ methodName ];
-				
+				var	superstate, protostate, method;
+
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
+				
+				methods && ( method = methods[ methodName ] );
 				
 				return (
 					method !== Z.noop && method
@@ -341,13 +339,14 @@ var State = ( function () {
 			 * be referenced by `this` within the function.
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
-				var	superstate, protostate,
-					method = methods[ methodName ],
+				var	superstate, protostate, method,
 					result = {};
 		
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
 		
+				methods && ( method = methods[ methodName ] );
+
 				return (
 					( result.method = method ) && method !== Z.noop &&
 							( result.context = this, result )
@@ -690,20 +689,8 @@ var State = ( function () {
 	};
 
 	Z.assign( State.prototype, {
-		name : Z.thunk(''),
-		attributes : Z.thunk( STATE_ATTRIBUTES.NORMAL ),
-		'reify superstate method addMethod removeMethod event addEvent removeEvent guard addGuard \
-		 removeGuard substate addSubstate removeSubstate transition addTransition' : Z.noop,
-		data : Z.getThis,
-		'methodNames substates' : function () { return []; },
-		'transitions' : function () { return {}; },
-		destroy : Z.thunk( false ),
-
-		/** Returns this state's fully qualified name. */
-		toString: function () {
-			return this.derivation( true ).join('.');
-		},
-		
+		name: Z.thunk(''),
+		attributes: Z.thunk( STATE_ATTRIBUTES.NORMAL ),
 		isVirtual:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.VIRTUAL ); },
 		isInitial:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.INITIAL ); },
 		isDefault:   function () { return !!( this.attributes() & STATE_ATTRIBUTES.DEFAULT ); },
@@ -711,7 +698,27 @@ var State = ( function () {
 		isAbstract:  function () { return !!( this.attributes() & STATE_ATTRIBUTES.ABSTRACT ); },
 		isSealed:    function () { return !!( this.attributes() & STATE_ATTRIBUTES.SEALED ); },
 		isRegioned:  function () { return !!( this.attributes() & STATE_ATTRIBUTES.REGIONED ); },
+		
+		'reify superstate \
+		 addMethod removeMethod \
+		 event addEvent on removeEvent emit trigger \
+		 guard addGuard removeGuard \
+		 substate addSubstate removeSubstate \
+		 transition addTransition' :
+			Z.noop,
+		
+		data: Z.getThis,
+		'methodNames substates' : function () { return []; },
+		'transitions' : function () { return {}; },
+		destroy: Z.thunk( false ),
+		method: State.privileged.method( null ),
+		methodAndContext: State.privileged.methodAndContext( null ),
 
+		/** Returns this state's fully qualified name. */
+		toString: function () {
+			return this.derivation( true ).join('.');
+		},
+		
 		/** Gets the `StateController` to which this state belongs. */
 		controller: function () {
 			var superstate = this.superstate();
@@ -877,7 +884,7 @@ var State = ( function () {
 		
 		/**
 		 * Finds a state method and applies it in the context of the state in which it was declared,
-		 * or if the implementation resides in a protostate, the corresponding `StateProxy` in the
+		 * or if the implementation resides in a protostate, the corresponding virtual state in the
 		 * calling controller.
 		 * 
 		 * If the method was autochthonous, i.e. it was already defined on the owner and
@@ -1109,41 +1116,6 @@ var StateDefinition = ( function () {
 
 
 var StateController = ( function () {
-	/**
-	 * Creates a StateProxy within the state hierarchy of `this` to represent `protostate`
-	 * temporarily, along with as many proxy superstates as are necessary to reach a `State` in
-	 * the hierarchy.
-	 */
-	function createProxy ( protostate ) {
-		var	derivation, state, next, name;
-		function iterate () {
-			return next = state.substate( ( name = derivation.shift() ), false );
-		}
-		if ( protostate instanceof State &&
-			protostate.owner().isPrototypeOf( this.owner() ) &&
-			( derivation = protostate.derivation( true ) ).length
-		) {
-			for ( state = this.defaultState(), iterate(); next; state = next, iterate() );
-			while ( name ) {
-				state = new StateProxy( state, name );
-				name = derivation.shift();
-			}
-			return state;
-		}
-	}
-	
-	/**
-	 * Destroys `proxy` and all of its StateProxy superstates.
-	 */
-	function destroyProxy ( proxy ) {
-		var superstate;
-		while ( proxy instanceof StateProxy ) {
-			superstate = proxy.superstate();
-			proxy.destroy();
-			proxy = superstate;
-		}
-	}
-	
 	function StateController ( owner, name, definition, options ) {
 		if ( !( this instanceof StateController ) ) {
 			return new StateController( owner, name, definition, options );
@@ -1205,9 +1177,44 @@ var StateController = ( function () {
 		currentState = options.initialState ?
 			defaultState.match( options.initialState ) : defaultState;
 		currentState.controller() === this ||
-			( currentState = createProxy.call( this, currentState ) );
+			( currentState = virtualize.call( this, currentState ) );
 	}
 
+	/**
+	 * Creates a transient virtual state within the state hierarchy of `this` to represent
+	 * `protostate`, along with as many virtual superstates as are necessary to reach a real
+	 * `State` in the hierarchy.
+	 */
+	function virtualize ( protostate ) {
+		var	derivation, state, next, name;
+		function iterate () {
+			return next = state.substate( ( name = derivation.shift() ), false );
+		}
+		if ( protostate instanceof State &&
+			protostate.owner().isPrototypeOf( this.owner() ) &&
+			( derivation = protostate.derivation( true ) ).length
+		) {
+			for ( state = this.defaultState(), iterate(); next; state = next, iterate() );
+			while ( name ) {
+				state = new State( state, name, { attributes: STATE_ATTRIBUTES.VIRTUAL } );
+				name = derivation.shift();
+			}
+			return state;
+		}
+	}
+	
+	/**
+	 * Destroys `virtualState` and all of its virtual superstates.
+	 */
+	function devirtualize ( virtualState ) {
+		var superstate;
+		while ( virtualState.isVirtual() ) {
+			superstate = virtualState.superstate();
+			virtualState.destroy();
+			virtualState = superstate;
+		}
+	}
+	
 	StateController.privileged = {
 		/**
 		 * Attempts to change the controller's current state. Handles asynchronous transitions,
@@ -1264,12 +1271,10 @@ var StateController = ( function () {
 						origin.evaluateGuard( 'release', target ) &&
 						target.evaluateGuard( 'admit', origin )
 				) {
-					/*
-					 * If `target` is a state from a prototype of `owner`, it must be represented
-					 * here as a transient protostate proxy.
-					 */
+					// If `target` is a state from a prototype of `owner`, it must be represented
+					// here as a transient virtual state.
 					target && target.controller() !== this &&
-						( target = createProxy.call( this, target ) );
+						( target = virtualize.call( this, target ) );
 					
 					// If a transition is underway, it needs to be notified that it won't finish.
 					transition && transition.abort();
@@ -1277,11 +1282,9 @@ var StateController = ( function () {
 					source = state = this.current();
 					domain = source.common( target );
 					
-					/*
-					 * Retrieve the appropriate transition definition for this origin/target
-					 * pairing; if none is defined then a default transition is created that will
-					 * cause the callback to return immediately.
-					 */
+					// Retrieve the appropriate transition definition for this origin/target
+					// pairing; if none is defined then a default transition is created that will
+					// cause the callback to return immediately.
 					transition = setTransition( new Transition(
 						target,
 						source,
@@ -1289,10 +1292,8 @@ var StateController = ( function () {
 					));
 					info = { transition: transition, forced: !!options.forced };
 					
-					/*
-					 * Walk up to the top of the domain, beginning with a 'depart' event, and
-					 * bubbling 'exit' events at each step along the way.
-					 */
+					// Walk up to the top of the domain, beginning with a 'depart' event, and
+					// bubbling 'exit' events at each step along the way.
 					source.trigger( 'depart', info );
 					setCurrentState( transition );
 					transition.trigger( 'enter' );
@@ -1301,17 +1302,13 @@ var StateController = ( function () {
 						transition.attachTo( state = state.superstate() );
 					}
 					
-					/*
-					 * Provide an enclosed callback that will be called from `transition.end()` to
-					 * conclude the `change` operation.
-					 */
+					// Provide an enclosed callback that will be called from `transition.end()` to
+					// conclude the `change` operation.
 					transition.setCallback( function () {
 						var pathToState = [];
 						
-						/*
-						 * Trace a path from `target` up to `domain`, then walk down it, capturing
-						 * 'enter' events along the way, and terminating with an 'arrive' event.
-						 */
+						// Trace a path from `target` up to `domain`, then walk down it, capturing
+						// 'enter' events along the way, and terminating with an 'arrive' event.
 						for ( state = target; state !== domain; state = state.superstate() ) {
 							pathToState.push( state );
 						}
@@ -1323,8 +1320,8 @@ var StateController = ( function () {
 						setCurrentState( target );
 						this.current().trigger( 'arrive', info );
 						
-						if ( origin instanceof StateProxy ) {
-							destroyProxy.call( this, origin );
+						if ( origin.isVirtual() ) {
+							devirtualize.call( this, origin );
 							origin = null;
 						}
 						transition.destroy(), transition = setTransition( null );
@@ -1525,37 +1522,6 @@ var StateEventCollection = ( function () {
 })();
 
 
-/**
- * StateProxy allows a state controller to reference a protostate from within its own state hierarchy.
- */
-function StateProxy ( superstate, name ) {
-	var	getName;
-	Z.extend( this, {
-		superstate: function () { return superstate; },
-		name: ( getName = function () { return name || ''; } ).toString = getName,
-		
-		// TODO: implement `invalidate`
-		// If protostate gets destroyed or removed, it should invalidate this proxy 
-		invalidate: function () {
-			// tell controller to eject itself
-		}
-	});
-}
-
-Z.extend( true, StateProxy, {
-	prototype: Z.extend( true, new State( null, "[StateProxy prototype]" ), {
-		guard: function ( guardName ) {
-			// TODO: this.protostate() isn't resolving when it should
-					// CAUSE: derived object doesn't have its StateController.name set, so it can't match with prototype's StateController
-			if ( !this.protostate() ) {
-				// debugger;
-			}
-			return this.protostate().guard( guardName );
-		}
-	})
-});
-
-
 var Transition = ( function () {
 	Z.inherit( Transition, State );
 
@@ -1711,7 +1677,6 @@ Z.assign( state, {
 	StateController: StateController,
 	StateEvent: StateEvent,
 	StateEventCollection: StateEventCollection,
-	StateProxy: StateProxy,
 	Transition: Transition,
 	TransitionDefinition: TransitionDefinition
 });
