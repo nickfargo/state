@@ -7,10 +7,11 @@ require '../build/combine.php';
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 		<title>State.js Test Suite</title>
-		<link rel="stylesheet" media="screen" href="qunit.css" />
+		<link rel="stylesheet" media="screen" href="../../qunit/qunit/qunit.css" />
 		
 		<!-- libs -->
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+		<script src="../../qunit/qunit/qunit.js"></script>
 		
 		<!-- includes -->
 		<script src="../../zcore/zcore.js"></script>
@@ -20,7 +21,6 @@ require '../build/combine.php';
 		<script src="../state.js"></script>
 		
 		<!-- tests -->
-		<script src="qunit.js"></script>
 		<script src="unit/TestObject.test.js"></script>
 		<script src="unit/State.Definition.test.js"></script>
 		<script src="unit/State.object.test.js"></script>
