@@ -1107,7 +1107,9 @@ var StateDefinition = ( function () {
 	}
 
 	function encode ( attributes ) {
-		var result = STATE_ATTRIBUTES.NORMAL;
+		var	key,
+			result = STATE_ATTRIBUTES.NORMAL;
+		
 		typeof attributes === 'string' && ( attributes = Z.assign( attributes ) );
 
 		for ( key in attributes ) {
@@ -1115,6 +1117,7 @@ var StateDefinition = ( function () {
 				result |= STATE_ATTRIBUTES[ key ];
 			}
 		}
+		
 		return result;
 	}
 
