@@ -1,0 +1,17 @@
+{
+	"name"          : "state",
+	"version"       : "0.0.1",
+	"description"   : "",
+	"homepage"      : "",
+	"keywords"      : [ "state", "transition", "state transition system", "fsm", "state machine", "behavior" ],
+	"author"        : "Nick Fargo <nick@zvector.com>",
+	"contributors"  : [],
+	"dependencies"  : {
+		"zcore"     : ">=0.1.1"
+	},
+	"repository"    : {
+		"type"      : "git",
+		"url"       : "git://github.com/nickfargo/state.git"
+	},
+	"main"          : "state.js"
+}
