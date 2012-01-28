@@ -88,7 +88,7 @@ var State = ( function () {
 
 		if ( attributes & STATE_ATTRIBUTES.VIRTUAL ) {
 			this.superstate = State.privileged.superstate( superstate );
-			
+
 			/**
 			 * Virtual states are weakly bound to a state hierarchy by their reference held at
 			 * `superstate`; they are not proper members of the superstate's set of substates.
@@ -172,7 +172,7 @@ var State = ( function () {
 		return this;
 	}
 
-	function createDelegator ( methodName, controllerName ) {
+	function createDelegator ( controllerName, methodName, original ) {
 		/**
 		 * Forwards a `methodName` call to `controller`, which will then forward the call on to
 		 * the appropriate implementation in the state hierarchy as determined by the
@@ -188,7 +188,9 @@ var State = ( function () {
 		function delegator () {
 			return this[ controllerName ]().apply( methodName, arguments );
 		}
+		
 		delegator.isDelegator = true;
+		original && ( delegator.original = original );
 
 		return delegator;
 	}
@@ -380,6 +382,7 @@ var State = ( function () {
 			 */
 			return function ( methodName, fn ) {
 				var	controller = this.controller(),
+					controllerName = controller.name(),
 					defaultState = controller.defaultState(),
 					owner = controller.owner(),
 					ownerMethod;
@@ -397,33 +400,9 @@ var State = ( function () {
 
 					if ( this !== defaultState &&
 							!defaultState.method( methodName, false, false ) ) {
-
-						if ( ( ownerMethod = owner[ methodName ] ) !== undefined &&
-								!ownerMethod.isDelegator ) {
-							/*
-							 * If the owner has a method called `methodName` that hasn't already
-							 * been substituted with a delegator, then that method needs to be
-							 * copied into to the default state, so that calls made from other
-							 * states which do not implement this method can be forwarded to this
-							 * original implementation of the owner. Before the method is copied,
-							 * it is marked both as `autochthonous` to indicate that subsequent
-							 * calls to the method should be executed in the context of the owner
-							 * (as opposed to the usual context of the state for which the method
-							 * was declared), and, if the method was not inherited from a prototype
-							 * of the owner, as `autochthonousToOwner` to indicate that it must be
-							 * returned to the owner should the controller ever be destroyed.
-							 */
-							ownerMethod.autochthonous = true;
-							ownerMethod.autochthonousToOwner = Z.hasOwn.call( owner, methodName );
-						}
-
-						else {
-							/*
-							 * Otherwise, since the method being added has no counterpart on the
-							 * owner, a no-op is placed on the default state instead. Consequently
-							 * the added method may be called no matter which state the controller
-							 * is in ....
-							 */
+						
+						ownerMethod = owner[ methodName ];
+						if ( ownerMethod === undefined || ownerMethod.isDelegator ) {
 							ownerMethod = Z.noop;
 						}
 						defaultState.addMethod( methodName, ownerMethod );
@@ -434,7 +413,8 @@ var State = ( function () {
 					 * calls to `owner[ methodName ]` to the controller, and then on to the
 					 * appropriate state's implementation.
 					 */
-					owner[ methodName ] = createDelegator( methodName, controller.name() );
+					owner[ methodName ] =
+						createDelegator( controllerName, methodName, ownerMethod );
 				}
 
 				return methods[ methodName ] = fn;
@@ -681,7 +661,7 @@ var State = ( function () {
 					controller = this.controller(),
 					owner = controller.owner(),
 					transition = controller.transition(),
-					origin, target, methodName, method, stateName;
+					origin, target, methodName, delegator, method, stateName;
 		
 				if ( transition ) {
 					origin = transition.origin();
@@ -699,17 +679,18 @@ var State = ( function () {
 				if ( superstate ) {
 					superstate.removeSubstate( this.name() );
 				} else {
-					for ( methodName in methods ) if ( Z.hasOwn.call( methods, methodName ) ) {
-						// It's the default state being destroyed, so the delegators on the owner
-						// can be deleted.
-						Z.hasOwn.call( owner, methodName ) && delete owner[ methodName ];
-				
-						// A default state may have been holding methods for the owner, which it
-						// must give back.
-						if ( ( method = methods[ methodName ] ).autochthonousToOwner ) {
-							delete method.autochthonous;
-							delete method.autochthonousToOwner;
+					/*
+					 * This is the default state, so restore any original methods to the owner and
+					 * delete any delegators.
+					 */
+					for ( methodName in methods ) {
+						delegator = owner[ methodName ];
+						method = delegator.original;
+						if ( method ) {
+							delete delegator.original;
 							owner[ methodName ] = method;
+						} else {
+							delete owner[ methodName ];
 						}
 					}
 				}
@@ -929,22 +910,26 @@ var State = ( function () {
 		},
 		
 		/**
-		 * Finds a state method and applies it in the context of the state in which it was declared,
-		 * or if the implementation resides in a protostate, the corresponding virtual state in the
-		 * calling controller.
-		 * 
-		 * If the method was autochthonous, i.e. it was already defined on the owner and
-		 * subsequently "swizzled" onto the default state when the controller was constructed, then
-		 * its function will have been marked `autochthonous`, and the method will thereafter be
-		 * called in the original context of the owner.
+		 * Finds a state method and applies it in the appropriate context. If the method was
+		 * originally defined in the owner, the context will be the owner. Otherwise, the context
+		 * will either be the state in which the method is defined, or if the implementation
+		 * resides in a protostate, the corresponding virtual state in the calling controller.
 		 */
 		apply: function ( methodName, args ) {
 			var	mc = this.methodAndContext( methodName ),
-				method = mc.method;
+				method = mc.method,
+				owner, ownerMethod, context;
 			
-			if ( method ) {
-				return method.apply( method.autochthonous ? this.owner() : mc.context, args );
+			if ( !method ) throw new TypeError;
+
+			owner = this.owner();
+			ownerMethod = owner[ methodName ];
+			context = mc.context;
+			if ( ownerMethod && ownerMethod.original && context === this.defaultState() ) {
+				context = owner;
 			}
+
+			return method.apply( context, args );
 		},
 		
 		/** @see apply */
@@ -1204,7 +1189,6 @@ var StateController = ( function () {
 				for ( key in this ) if ( Z.hasOwn.call( this, key ) ) {
 					method = this[ key ];
 					if ( Z.isFunction( method ) && defaultState.method( key, false ) ) {
-						method.autochthonous = method.autochthonousToOwner = true;
 						defaultState.addMethod( key, method );
 					}
 				}
