@@ -1174,11 +1174,39 @@ var StateController = ( function () {
 		function setCurrentState ( value ) { return currentState = value; }
 		function setTransition ( value ) { return transition = value; }
 		
+		/**
+		 * An object's interface to its implemented state.
+		 */
 		function accessor () {
+			var controller, defaultState, key, method;
+
 			if ( this === owner ) {
 				return arguments.length ? self.get.apply( self, arguments ) : self.current();
-			} else {
-				new StateController( this, name, null, self.current().toString() );
+			}
+
+			/*
+			 * Calling the accessor of a prototype means that `this` requires its own accessor
+			 * and StateController.
+			 */
+			else if (
+				Object.prototype.isPrototypeOf.call( owner, this ) &&
+				!Z.hasOwn( this, name )
+			) {
+				controller = new StateController( this, name, null, self.current().toString() );
+				defaultState = controller.defaultState();
+
+				/*
+				 * Any methods of `this` that have stateful implementations located higher in the
+				 * prototype chain must be copied into the default state.
+				 */
+				for ( key in this ) if ( Z.hasOwn.call( this, key ) ) {
+					method = this[ key ];
+					if ( Z.isFunction( method ) && defaultState.method( key, false ) ) {
+						method.autochthonous = method.autochthonousToOwner = true;
+						defaultState.addMethod( key, method );
+					}
+				}
+
 				return this[ name ].apply( this, arguments );
 			}
 		}
