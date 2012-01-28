@@ -104,7 +104,7 @@ test( "Data", function () {
 
 test( "Destroy", function () {
 	var x = new TestObject;
-	assert.ok( ( 'isDelegate' in x.methodOne ) && x.state().controller().destroy() && !( 'isDelegate' in x.methodOne ), "Owner method returned" );
+	assert.ok( ( 'isDelegator' in x.methodOne ) && x.state().controller().destroy() && !( 'isDelegator' in x.methodOne ), "Owner method returned" );
 })
 
 })( jQuery, QUnit || require('assert') );
