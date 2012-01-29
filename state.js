@@ -164,7 +164,7 @@ var State = ( function () {
 		Z.alias( this, { addEvent: 'on', emit: 'trigger' } );
 
 		/*
-		 * If no superstate, e.g. a default state being created by a `StateController`, then
+		 * If no superstate, e.g. a root state being created by a `StateController`, then
 		 * `init()` must be called later by the implementor.
 		 */
 		superstate && this.init( definition );
@@ -178,7 +178,7 @@ var State = ( function () {
 		 * the appropriate implementation in the state hierarchy as determined by the
 		 * controller's current state.
 		 * 
-		 * The context of autochthonous methods relocated to the default state remains bound to
+		 * The context of autochthonous methods relocated to the root state remains bound to
 		 * the owner, whereas stateful methods are executed in the context of the state in
 		 * which they are declared, or if the implementation resides in a protostate, the
 		 * context will be the corresponding virtual state within `controller`.
@@ -252,7 +252,7 @@ var State = ( function () {
 							superstate.name() === stateName ?
 								superstate : superstate.superstate( stateName )
 							:
-							this.controller().defaultState()
+							this.controller().root()
 						:
 						undefined;
 			}
@@ -382,7 +382,7 @@ var State = ( function () {
 			return function ( methodName, fn ) {
 				var	controller = this.controller(),
 					controllerName = controller.name(),
-					defaultState = controller.defaultState(),
+					root = controller.root(),
 					owner = controller.owner(),
 					ownerMethod;
 
@@ -396,15 +396,12 @@ var State = ( function () {
 				 * to this method.
 				 */
 				if ( !this.method( methodName, true, false ) ) {
-
-					if ( this !== defaultState &&
-							!defaultState.method( methodName, false, false ) ) {
-						
+					if ( this !== root && !root.method( methodName, false, false ) ) {
 						ownerMethod = owner[ methodName ];
 						if ( ownerMethod === undefined || ownerMethod.isDelegator ) {
 							ownerMethod = Z.noop;
 						}
-						defaultState.addMethod( methodName, ownerMethod );
+						root.addMethod( methodName, ownerMethod );
 					}
 
 					/*
@@ -554,7 +551,7 @@ var State = ( function () {
 			 * Creates a state from the supplied `stateDefinition` and adds it as a substate of
 			 * this state. If a substate with the same `stateName` already exists, it is first
 			 * destroyed and then replaced. If the new substate is being added to the controller's
-			 * default state, a reference is added directly on the controller itself as well.
+			 * root state, a reference is added directly on the controller itself as well.
 			 */
 			return function (
 				/*String*/ stateName,
@@ -580,7 +577,7 @@ var State = ( function () {
 				this[ stateName ] = substates[ stateName ] = substate;
 				
 				controller = this.controller();
-				controller.defaultState() === this && ( controller[ stateName ] = substate );
+				controller.root() === this && ( controller[ stateName ] = substate );
 				
 				return substate;
 			};
@@ -615,7 +612,7 @@ var State = ( function () {
 
 				delete substates[ stateName ];
 				delete this[ stateName ];
-				controller.defaultState() === this && delete controller[ stateName ];
+				controller.root() === this && delete controller[ stateName ];
 
 				return substate;
 			};
@@ -681,7 +678,7 @@ var State = ( function () {
 					superstate.removeSubstate( this.name() );
 				} else {
 					/*
-					 * This is the default state, so restore any original methods to the owner and
+					 * This is the root state, so restore any original methods to the owner and
 					 * delete any delegators.
 					 */
 					for ( methodName in methods ) {
@@ -763,11 +760,11 @@ var State = ( function () {
 			}
 		},
 		
-		/** Gets the default state, i.e. the top-level superstate of this state. */
-		defaultState: function () {
+		/** Gets the root state, i.e. the top-level superstate of this state. */
+		root: function () {
 			var controller = this.controller();
 			if ( controller ) {
-				return controller.defaultState();
+				return controller.root();
 			}
 		},
 		
@@ -811,7 +808,7 @@ var State = ( function () {
 					Z.isFunction( fn = prototype[ controllerName ] ) &&
 					( c = fn.apply( prototype ) ) &&
 					c instanceof State ?
-						c.defaultState() :
+						c.root() :
 						null;
 			}
 			
@@ -830,7 +827,7 @@ var State = ( function () {
 		},
 		
 		/**
-		 * Returns an object array of this state's superstate chain, starting after the default
+		 * Returns an object array of this state's superstate chain, starting after the root
 		 * state and ending at `this`.
 		 * 
 		 * @param byName Returns a string array of the states' names, rather than references
@@ -843,7 +840,7 @@ var State = ( function () {
 		},
 		
 		/**
-		 * Returns the number of superstates this state has. The root default state returns `0`, its
+		 * Returns the number of superstates this state has. The root state returns `0`, its
 		 * immediate substates return `1`, etc.
 		 */
 		depth: function () {
@@ -927,7 +924,7 @@ var State = ( function () {
 			owner = this.owner();
 			ownerMethod = owner[ methodName ];
 			context = mc.context;
-			if ( ownerMethod && ownerMethod.original && context === this.defaultState() ) {
+			if ( ownerMethod && ownerMethod.original && context === this.root() ) {
 				context = owner;
 			}
 
@@ -1023,7 +1020,7 @@ var State = ( function () {
 			var	parts = expr && expr.split('.'),
 				cursor = parts && parts.length && parts[0] === '' ?
 					( parts.shift(), this ) :
-					this.defaultState(),
+					this.root(),
 				cursorSubstate, result, i, l, name;
 			
 			if ( !( parts && parts.length ) ) return cursor;
@@ -1158,16 +1155,16 @@ var StateController = ( function () {
 		}
 		
 		var	self = this,
-			defaultState, currentState, transition;
+			root, current, transition;
 		
-		function setCurrentState ( value ) { return currentState = value; }
+		function setCurrent ( value ) { return current = value; }
 		function setTransition ( value ) { return transition = value; }
 		
 		/**
 		 * An object's interface to its implemented state.
 		 */
 		function accessor () {
-			var controller, defaultState, key, method;
+			var controller, root, key, method;
 
 			if ( this === owner ) {
 				return arguments.length ? self.get.apply( self, arguments ) : self.current();
@@ -1182,16 +1179,16 @@ var StateController = ( function () {
 				!Z.hasOwn( this, name )
 			) {
 				controller = new StateController( this, name, null, self.current().toString() );
-				defaultState = controller.defaultState();
+				root = controller.root();
 
 				/*
 				 * Any methods of `this` that have stateful implementations located higher in the
-				 * prototype chain must be copied into the default state.
+				 * prototype chain must be copied into the root state.
 				 */
 				for ( key in this ) if ( Z.hasOwn.call( this, key ) ) {
 					method = this[ key ];
-					if ( Z.isFunction( method ) && defaultState.method( key, false ) ) {
-						defaultState.addMethod( key, method );
+					if ( Z.isFunction( method ) && root.method( key, false ) ) {
+						root.addMethod( key, method );
 					}
 				}
 
@@ -1210,7 +1207,7 @@ var StateController = ( function () {
 
 		// Expose these in debug mode
 		Z.env.debug && Z.assign( this.__private__ = {}, {
-			defaultState: defaultState,
+			root: root,
 			owner: owner,
 			options: options
 		});
@@ -1218,9 +1215,9 @@ var StateController = ( function () {
 		Z.assign( this, {
 			owner: function () { return owner; },
 			name: Z.stringFunction( function () { return name; } ),
-			defaultState: function () { return defaultState; },
-			current: Z.assign( function () { return currentState; }, {
-				toString: function () { return currentState ? currentState.toString() : undefined; }
+			root: function () { return root; },
+			current: Z.assign( function () { return current; }, {
+				toString: function () { return current ? current.toString() : undefined; }
 			}),
 			transition: Z.assign( function () { return transition; }, {
 				toString: function () { return transition ? transition.toString() : ''; }
@@ -1228,20 +1225,20 @@ var StateController = ( function () {
 		});
 		
 		Z.privilege( this, StateController.privileged, {
-			'change' : [ setCurrentState, setTransition ]
+			'change' : [ setCurrent, setTransition ]
 		});
 		
-		// Instantiate the default state and initialize it as the root of the state hierarchy
-		defaultState = Z.assign( new State, {
+		// Instantiate the root state and initialize it as the root of the state hierarchy
+		root = Z.assign( new State, {
 			controller: function () { return self; }
 		});
-		defaultState.init( definition );
+		root.init( definition );
 		
 		// Establish the initial current state
-		currentState = options.initialState ?
-			defaultState.match( options.initialState ) : defaultState;
-		currentState.controller() === this ||
-			( currentState = virtualize.call( this, currentState ) );
+		current = options.initialState ?
+			root.match( options.initialState ) : root;
+		current.controller() === this ||
+			( current = virtualize.call( this, current ) );
 	}
 
 	/**
@@ -1258,7 +1255,7 @@ var StateController = ( function () {
 			protostate.owner().isPrototypeOf( this.owner() ) &&
 			( derivation = protostate.derivation( true ) ).length
 		) {
-			for ( state = this.defaultState(), iterate(); next; state = next, iterate() );
+			for ( state = this.root(), iterate(); next; state = next, iterate() );
 			while ( name ) {
 				state = new State( state, name, { attributes: STATE_ATTRIBUTES.VIRTUAL } );
 				name = derivation.shift();
@@ -1295,10 +1292,10 @@ var StateController = ( function () {
 		 * 			Callback to be executed upon successful completion of the change.
 		 * 		failure:Function
 		 * 			Callback to be executed if the change is blocked by a guard.
-		 * @param setCurrentState:Function
+		 * @param setCurrent:Function
 		 * @param setTransition:Function
 		 */
-		change: function ( setCurrentState, setTransition ) {
+		change: function ( setCurrent, setTransition ) {
 			return function ( target, options ) {
 				var	owner, transition, targetOwner, source, origin, domain, info, state,
 					transitionDefinition,
@@ -1314,7 +1311,7 @@ var StateController = ( function () {
 
 				// Resolve `target` argument to a proper `State` object if necessary.
 				target instanceof State ||
-					( target = target ? this.get( target ) : this.defaultState() );
+					( target = target ? this.get( target ) : this.root() );
 			
 				if ( !target ||
 						( targetOwner = target.owner() ) !== owner &&
@@ -1359,7 +1356,7 @@ var StateController = ( function () {
 					// Walk up to the top of the domain, beginning with a 'depart' event, and
 					// bubbling 'exit' events at each step along the way.
 					source.trigger( 'depart', info );
-					setCurrentState( transition );
+					setCurrent( transition );
 					transition.trigger( 'enter' );
 					while ( state !== domain ) {
 						state.trigger( 'exit', info );
@@ -1381,7 +1378,7 @@ var StateController = ( function () {
 							state.trigger( 'enter', info );
 						}
 						transition.trigger( 'exit' );
-						setCurrentState( target );
+						setCurrent( target );
 						this.current().trigger( 'arrive', info );
 						
 						if ( origin.isVirtual() ) {
@@ -1453,8 +1450,8 @@ var StateController = ( function () {
 				origin !== target && search( origin ) ||
 
 				// 3. superstates of `target`
-				search( target.superstate(), this.defaultState() ) ||
-					search( this.defaultState() ) ||
+				search( target.superstate(), this.root() ) ||
+					search( this.root() ) ||
 				
 				// 4. superstates of `origin`
 				!target.isIn( origin ) && search( origin.superstate(), origin.common( target ) ) ||
@@ -1464,11 +1461,11 @@ var StateController = ( function () {
 		},
 		
 		addState: function ( stateName, stateDefinition ) {
-			return this.defaultState().addSubstate( stateName, stateDefinition );
+			return this.root().addSubstate( stateName, stateDefinition );
 		},
 		
 		removeState: function ( stateName ) {
-			return this.defaultState().removeSubstate( stateName );
+			return this.root().removeSubstate( stateName );
 		},
 		
 		method: function ( methodName ) {
@@ -1481,7 +1478,7 @@ var StateController = ( function () {
 		},
 		
 		destroy: function () {
-			return this.defaultState().destroy() && delete this.owner()[ this.name() ];
+			return this.root().destroy() && delete this.owner()[ this.name() ];
 		}
 	});
 

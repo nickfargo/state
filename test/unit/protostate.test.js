@@ -75,10 +75,10 @@ test( "Bird", function () {
 	var prototype = bird.constructor.prototype;
 	assert.ok( prototype instanceof Animal && !( prototype instanceof Bird ) );
 	
-	var protostate = bird.state().defaultState().protostate();
+	var protostate = bird.state().root().protostate();
 	assert.ok( protostate );
 	assert.ok( protostate.owner() === prototype );
-	assert.ok( protostate.controller().defaultState() === protostate );
+	assert.ok( protostate.controller().root() === protostate );
 	
 	assert.strictEqual( bird.move(), false );
 	assert.strictEqual( bird.getThis(), bird.state('Stationary') );

@@ -61,7 +61,7 @@ function TestObject ( initialState ) {
 			 * counterpart `state` in determining its ruling
 			 */
 			release: function ( state ) {
-				return this.defaultState().isSuperstateOf( state ); /* always true */
+				return this.root().isSuperstateOf( state ); /* always true */
 			},
 			
 			// a **substate**, with its own nested definition
@@ -185,7 +185,7 @@ function TestObject ( initialState ) {
 							// ".." references parent state ('Finished')
 							'..': true,
 
-							// "..." references root default state ('' == controller().defaultState())
+							// "..." references root default state ('' == controller().root())
 
 							// ".*" references any child state of parent state
 							'.*': function () { return false; },
