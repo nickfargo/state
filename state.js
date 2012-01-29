@@ -781,6 +781,30 @@ var State = ( function () {
 		},
 
 		/**
+		 * Performs breadth-first traversal to locate the leftmost deepest state marked 'initial',
+		 * recursing into the protostate only if no local states are marked 'initial'.
+		 */
+		initialSubstate: function ( viaProto ) {
+			var	queue = [ this ],
+				subject, substates, i, l, s, p;
+			
+			while ( subject = queue.shift() ) {
+				substates = subject.substates();
+				for ( i = 0, l = substates.length; i < l; i++ ) {
+					s = substates[i];
+					if ( s.isInitial() ) {
+						return s.initialSubstate( false ) || s;
+					}
+					queue.push( s );
+				}
+			}
+
+			if ( ( viaProto || viaProto === undefined ) && ( p = this.protostate() ) ) {
+				return p.initialSubstate( true );
+			}
+		},
+
+		/**
 		 * Returns the **protostate**, the state analogous to `this` found in the next object in the
 		 * owner's prototype chain that has one. A state inherits from both its protostate and
 		 * superstate, *in that order*.
@@ -1203,7 +1227,7 @@ var StateController = ( function () {
 		name || ( name = 'state' );
 		definition instanceof StateDefinition ||
 			( definition = new StateDefinition( definition ) );
-		!options && ( options = {} ) ||
+		options === undefined && ( options = {} ) ||
 			typeof options === 'string' && ( options = { initialState: options } );
 		
 		owner[ name ] = accessor;
@@ -1238,10 +1262,9 @@ var StateController = ( function () {
 		root.init( definition );
 		
 		// Establish the initial current state
-		current = options.initialState ?
-			root.match( options.initialState ) : root;
-		current.controller() === this ||
-			( current = virtualize.call( this, current ) );
+		current = root.initialSubstate() || root;
+		options.initialState !== undefined && ( current = root.match( options.initialState ) );
+		current.controller() === this || ( current = virtualize.call( this, current ) );
 	}
 
 	/**

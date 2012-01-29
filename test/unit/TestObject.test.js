@@ -261,7 +261,7 @@ function TestObject ( initialState ) {
 				}
 			}
 		}
-	}, initialState === undefined ? 'Waiting' : initialState );
+	}, initialState );
 }
 window.TestObject = TestObject;
 

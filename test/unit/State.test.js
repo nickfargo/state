@@ -64,6 +64,57 @@ test( "substates()", function () {
 	assert.ok( ( states.length == 8 ) );
 });
 
+test( "initialSubstate()", function () {
+	function Foo () {}
+	state( Foo.prototype, {
+		Fizzy: state('initial'),
+		Buzzy: {}
+	});
+
+	Z.inherit( Bar, Foo );
+	function Bar () { this.state(); }
+	state( Bar.prototype, {
+		Fizzy: {
+			Fuzzy: state('initial')
+		}
+	});
+
+	Z.inherit( Baz, Bar );
+	function Baz () { this.state(); }
+	state( Baz.prototype, {
+		Buzzy: {
+			Bizzy: state('initial')
+		}
+	});
+
+	Z.inherit( Qux, Baz );
+	function Qux () { this.state(); }
+	state( Qux.prototype, {
+		Wizzy: {
+			Wuzzy: {}
+		}
+	});
+
+	var	foo = new Foo,
+		bar = new Bar,
+		baz = new Baz,
+		qux = new Qux;
+	
+	assert.strictEqual( foo.state().name(), 'Fizzy' );
+	assert.strictEqual( bar.state().name(), 'Fuzzy' );
+	assert.strictEqual( baz.state().name(), 'Bizzy' );
+	assert.strictEqual( qux.state().name(), 'Bizzy' );
+	assert.ok( foo.state().change('Buzzy') );
+	assert.strictEqual( foo.state().name(), 'Buzzy' );
+	assert.ok( bar.state().change('Buzzy') );
+	assert.strictEqual( bar.state().name(), 'Buzzy' );
+	assert.ok( baz.state().change('Fizzy') );
+	assert.strictEqual( baz.state().name(), 'Fizzy' );
+	assert.ok( qux.state().change('Fizzy') );
+	assert.ok( qux.state().isVirtual() );
+	assert.strictEqual( qux.state().name(), 'Fizzy' );
+});
+
 test( "depth()", function () {
 	var x = new TestObject;
 	assert.equal( x.state().root().depth(), 0 );
