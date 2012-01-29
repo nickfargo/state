@@ -344,8 +344,7 @@ var State = ( function () {
 			 * be referenced by `this` within the function.
 			 */
 			return function ( methodName, /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
-				var	superstate, protostate, method,
-					result = {};
+				var	superstate, protostate, method, result;
 		
 				viaSuper === undefined && ( viaSuper = true );
 				viaProto === undefined && ( viaProto = true );
@@ -353,17 +352,17 @@ var State = ( function () {
 				methods && ( method = methods[ methodName ] );
 
 				return (
-					( result.method = method ) && method !== Z.noop &&
-							( result.context = this, result )
+					method && method !== Z.noop && { method: method, context: this }
 						||
 					viaProto && ( protostate = this.protostate() ) &&
-							( result = protostate.methodAndContext( methodName, false, true ) ) &&
-							( result.context = this, result )
+							( method = protostate.method( methodName, false, true ) ) &&
+							{ method: method, context: this }
 						||
-					viaSuper && ( superstate = this.superstate() ) &&
-							superstate.methodAndContext( methodName, true, viaProto )
+					viaSuper && ( superstate = this.superstate() ) && ( result =
+							superstate.methodAndContext( methodName, true, viaProto ) ).method &&
+							result
 						||
-					result
+					{ method: method, context: null }
 				);
 			};
 		},
@@ -525,12 +524,14 @@ var State = ( function () {
 					if ( ss === this && s.name() === stateName ) return s; 
 				}
 
-				return substates[ stateName ] ||
-					viaProto && (
-						( protostate = this.protostate() ) ?
-							protostate.substate( stateName ) :
-							undefined
-					);
+				return (
+					substates && substates[ stateName ]
+						||
+					viaProto && ( protostate = this.protostate() ) &&
+							protostate.substate( stateName )
+						||
+					undefined
+				);
 			};
 		},
 
@@ -721,7 +722,7 @@ var State = ( function () {
 		 removeMethod \
 		 event removeEvent emit trigger \
 		 guard removeGuard \
-		 substate removeSubstate \
+		 removeSubstate \
 		 transition removeTransition' :
 			Z.noop,
 		
@@ -735,7 +736,7 @@ var State = ( function () {
 		 method methodAndContext addMethod \
 		 addEvent \
 		 addGuard \
-		 addSubstate \
+		 substate addSubstate \
 		 addTransition' :
 			[ null ]
 	});
@@ -920,7 +921,8 @@ var State = ( function () {
 				method = mc.method,
 				owner, ownerMethod, context;
 			
-			if ( !method ) throw new TypeError;
+			if ( !method ) throw new TypeError( "State '" + this + "' cannot resolve method '" +
+				methodName + "'" );
 
 			owner = this.owner();
 			ownerMethod = owner[ methodName ];
