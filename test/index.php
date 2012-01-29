@@ -22,6 +22,7 @@ require '../build/combine.php';
 		
 		<!-- tests -->
 		<script src="unit/TestObject.test.js"></script>
+		<script src="unit/TextDocument.test.js"></script>
 		<script src="unit/State.Definition.test.js"></script>
 		<script src="unit/State.object.test.js"></script>
 		<script src="unit/State.test.js"></script>
