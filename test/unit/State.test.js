@@ -72,7 +72,7 @@ test( "initialSubstate()", function () {
 	});
 
 	Z.inherit( Bar, Foo );
-	function Bar () { this.state(); }
+	function Bar () {}
 	state( Bar.prototype, {
 		Fizzy: {
 			Fuzzy: state('initial')
@@ -80,7 +80,7 @@ test( "initialSubstate()", function () {
 	});
 
 	Z.inherit( Baz, Bar );
-	function Baz () { this.state(); }
+	function Baz () {}
 	state( Baz.prototype, {
 		Buzzy: {
 			Bizzy: state('initial')
@@ -88,7 +88,7 @@ test( "initialSubstate()", function () {
 	});
 
 	Z.inherit( Qux, Baz );
-	function Qux () { this.state(); }
+	function Qux () {}
 	state( Qux.prototype, {
 		Wizzy: {
 			Wuzzy: {}
