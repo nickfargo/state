@@ -104,6 +104,7 @@ test( "initialSubstate()", function () {
 	assert.strictEqual( bar.state().name(), 'Fuzzy' );
 	assert.strictEqual( baz.state().name(), 'Bizzy' );
 	assert.strictEqual( qux.state().name(), 'Bizzy' );
+
 	assert.ok( foo.state().change('Buzzy') );
 	assert.strictEqual( foo.state().name(), 'Buzzy' );
 	assert.ok( bar.state().change('Buzzy') );

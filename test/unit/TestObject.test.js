@@ -167,7 +167,7 @@ function TestObject ( initialState ) {
 					},
 					guards: {
 						release: {
-							// empty string references the controller's default state
+							// empty string references the root state
 							'': function ( state ) {
 								// "this" references current state ('Finished.Terminated')
 								// "state" references state to which controller is being changed ('')
@@ -185,7 +185,7 @@ function TestObject ( initialState ) {
 							// ".." references parent state ('Finished')
 							'..': true,
 
-							// "..." references root default state ('' == controller().root())
+							// "..." references root state ('' == .root())
 
 							// ".*" references any child state of parent state
 							'.*': function () { return false; },

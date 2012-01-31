@@ -122,7 +122,7 @@ var State = ( function () {
 		var	destroyed = false,
 			data = {},
 			methods = {},
-			events = Z.assign( STATE_EVENT_TYPES, null ),
+			events = {},
 			guards = {},
 			substates = {},
 			transitions = {};
@@ -159,9 +159,9 @@ var State = ( function () {
 			'guard addGuard removeGuard' : [ guards ],
 			'substate substates addSubstate removeSubstate' : [ substates ],
 			'transition transitions addTransition' : [ transitions ],
-			'destroy' : [ setSuperstate, setDestroyed, methods, substates ]
+			'destroy' : [ setSuperstate, setDestroyed, methods, events, substates ]
 		});
-		Z.alias( this, { addEvent: 'on', emit: 'trigger' } );
+		Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
 
 		/*
 		 * If no superstate, e.g. a root state being created by a `StateController`, then
@@ -439,18 +439,15 @@ var State = ( function () {
 			 * for the handler. Recognized event types are listed at `StateEvent.types`.
 			 * @see StateEvent
 			 */
-			return function ( /*String*/ eventType, /*Function*/ fn ) {
+			return function ( /*String*/ eventType, /*Function*/ fn, /*Object*/ context ) {
 				if ( this.isVirtual() ) {
 					return this.reify().addEvent( eventType, fn );
 				}
 
-				if ( eventType in events ) {
-					events[ eventType ] ||
-						( events[ eventType ] = new StateEventCollection( this, eventType ) );
-					return events[ eventType ].add( fn );
-				} else {
-					throw new Error( "Invalid event type" );
-				}
+				Z.hasOwn.call( events, eventType ) ||
+					( events[ eventType ] = new StateEventCollection( this, eventType ) );
+				
+				return events[ eventType ].add( fn, context );
 			};
 		},
 
@@ -465,10 +462,31 @@ var State = ( function () {
 		},
 
 		emit: function ( events ) {
-			/** Invokes an event type's handlers at the appropriate time. */
-			return function ( /*String*/ eventType, /*Object*/ data ) {
-				var e;
-				return eventType in events && ( e = events[ eventType ] ) && e.emit( data ) && this;
+			/** Invokes all bound handlers for the given event type. */
+			return function ( /*String*/ eventType, args, context, viaSuper, viaProto ) {
+				var e, protostate, superstate;
+
+				if ( typeof eventType !== 'string' ) {
+					return;
+				}
+				typeof args === 'boolean' &&
+					( viaProto = viaSuper, viaSuper = context, context = args, args = undefined );
+				typeof context === 'boolean' &&
+					( viaProto = viaSuper, viaSuper = context, context = undefined );
+
+				e = events[ eventType ];
+				!args && ( args = [] ) || Z.isArray( args ) || ( args = [ args ] );
+				context || ( context = this );
+				viaSuper === undefined && ( viaSuper = true );
+				viaProto === undefined && ( viaProto = true );
+
+				e && e.emit( args, context );
+
+				viaProto && ( protostate = this.protostate() ) &&
+					protostate.emit( eventType, args, protostate, false );
+
+				viaSuper && ( superstate = this.superstate() ) &&
+					superstate.emit( eventType, args, superstate );
 			};
 		},
 
@@ -649,7 +667,7 @@ var State = ( function () {
 			};
 		},
 
-		destroy: function ( setSuperstate, setDestroyed, methods, substates ) {
+		destroy: function ( setSuperstate, setDestroyed, methods, events, substates ) {
 			/**
 			 * Attempts to cleanly destroy this state and all of its substates. A 'destroy' event is
 			 * issued to each state after it is destroyed.
@@ -659,21 +677,24 @@ var State = ( function () {
 					controller = this.controller(),
 					owner = controller.owner(),
 					transition = controller.transition(),
-					origin, target, methodName, delegator, method, stateName;
+					origin, target, key, methodName, delegator, method, stateName;
 		
 				if ( transition ) {
-					origin = transition.origin();
-					target = transition.target();
-					if (
-						this === origin || this.isSuperstateOf( origin )
-							||
-						this === target || this.isSuperstateOf( target )
-					) {
-						// TODO: instead of failing, defer destroy() until after transition.end()
+					origin = transition.origin(), target = transition.target();
+
+					// TODO: instead of failing, defer destroy() until after transition.end()
+					if ( this === origin || this.isSuperstateOf( origin )  ||
+							this === target || this.isSuperstateOf( target ) ) {
 						return false;
 					}
 				}
-		
+
+				this.emit( 'destroy' );
+				for ( key in events ) {
+					events[ key ].destroy();
+					delete events[ key ];
+				}
+
 				if ( superstate ) {
 					superstate.removeSubstate( this.name() );
 				} else {
@@ -697,8 +718,7 @@ var State = ( function () {
 				}
 				setSuperstate( undefined );
 				setDestroyed( true );
-				this.emit( 'destroy' );
-		
+
 				return true;
 			};
 		}
@@ -1210,7 +1230,7 @@ var StateController = ( function () {
 
 				/*
 				 * Any methods of `this` that have stateful implementations located higher in the
-				 * prototype chain must be copied into the root state.
+				 * prototype chain must be copied into the root state to be used as defaults.
 				 */
 				for ( key in this ) if ( Z.hasOwn.call( this, key ) ) {
 					method = this[ key ];
@@ -1381,11 +1401,11 @@ var StateController = ( function () {
 					
 					// Walk up to the top of the domain, beginning with a 'depart' event, and
 					// bubbling 'exit' events at each step along the way.
-					source.trigger( 'depart', info );
+					source.emit( 'depart', info, false );
 					setCurrent( transition );
-					transition.trigger( 'enter' );
+					transition.emit( 'enter', false );
 					while ( state !== domain ) {
-						state.trigger( 'exit', info );
+						state.emit( 'exit', info, false );
 						transition.attachTo( state = state.superstate() );
 					}
 					
@@ -1401,11 +1421,11 @@ var StateController = ( function () {
 						}
 						while ( pathToState.length ) {
 							transition.attachTo( state = pathToState.pop() );
-							state.trigger( 'enter', info );
+							state.emit( 'enter', info, false );
 						}
-						transition.trigger( 'exit' );
+						transition.emit( 'exit', false );
 						setCurrent( target );
-						this.current().trigger( 'arrive', info );
+						this.current().emit( 'arrive', info, false );
 						
 						if ( origin.isVirtual() ) {
 							annihilate.call( this, origin );
@@ -1515,7 +1535,7 @@ var StateEvent = ( function () {
 	function StateEvent ( state, type ) {
 		Z.extend( this, {
 			target: state,
-			name: state.name,
+			name: state.toString(),
 			type: type
 		});
 	}
@@ -1549,59 +1569,96 @@ var StateEventCollection = ( function () {
 		guid: function () {
 			return ( ++guid ).toString();
 		},
+
 		get: function ( id ) {
 			return this.items[id];
 		},
+
 		key: function ( listener ) {
 			var i, items = this.items;
 			for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
 				if ( items[i] === listener ) return i;
 			}
 		},
+
 		keys: function () {
 			var i, items = this.items, result = [];
+
 			result.toString = function () { return '[' + result.join() + ']'; };
 			for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
 				result.push( items[i] );
 			}
 			return result;
 		},
-		add: function ( fn ) {
+
+		add: function ( fn, context ) {
 			var id = this.guid();
-			this.items[id] = fn;
+			this.items[id] = typeof context === 'object' ? [ fn, context ] : fn;
 			this.length++;
 			return id;
 		},
+
 		remove: function ( id ) {
-			var items = this.items, fn = items[id];
-			if ( fn ) {
-				delete items[id];
-				this.length--;
-				return fn;
-			}
-			return false;
-		},
-		empty: function () {
-			var i, items = this.items;
-			if ( this.length ) {
-				for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
-					delete items[i];
+			var	fn, i, l,
+				items = this.items;
+			
+			if ( typeof id === 'function' ) {
+				for ( i = 0, l = items.length; i < l; i++ ) {
+					if ( id === items[i] && ( fn = id ) ) {
+						break;
+					}
 				}
-				this.length = 0;
-				return true;
 			} else {
+				fn = items[id];
+			}
+			if ( !fn ) {
 				return false;
 			}
+
+			delete items[id];
+			this.length--;
+			return fn;
 		},
-		emit: function ( data ) {
-			var i, items = this.items, state = this.state, type = this.type;
+
+		empty: function () {
+			var i, items = this.items;
+
+			if ( !this.length ) return false;
+
+			for ( i in items ) if ( Z.hasOwn.call( items, i ) ) delete items[i];
+			this.length = 0;
+			return true;
+		},
+
+		emit: function ( args, state ) {
+			var	i, item, fn, context,
+				items = this.items, type = this.type;
+			
+			state || ( state = this.state );
+
 			for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
-				items[i].apply( state, [ Z.extend( new StateEvent( state, type ), data ) ] );
+				item = items[i];
+				
+				if ( typeof item === 'function' ) {
+					fn = item, context = state;
+				} else if ( Z.isArray( item ) ) {
+					fn = item[0], context = item[1];
+				}
+
+				args.unshift( new StateEvent( state, type ) );
+				fn && fn.apply( context, args );
 			}
+		},
+
+		destroy: function () {
+			this.empty();
+			delete this.state, delete this.type, delete this.items, delete this.length;
+			return true;
 		}
 	});
 	Z.alias( StateEventCollection.prototype, {
-		add: 'on',
+		add: 'on bind',
+		remove: 'off unbind',
 		emit: 'trigger'
 	});
 
@@ -1619,7 +1676,7 @@ var Transition = ( function () {
 		
 		var	self = this,
 			methods = {},
-			events = Z.assign( TRANSITION_EVENT_TYPES, null ),
+			events = {},
 			guards = {},
 			action = definition.action,
 			attachment = source,
@@ -1693,14 +1750,12 @@ var Transition = ( function () {
 				target = attachment = controller = null;
 			}
 		});
-
 		Z.privilege( this, State.privileged, {
 			'init' : [ TransitionDefinition ],
 			'method methodAndContext methodNames addMethod removeMethod' : [ methods ],
 			'event addEvent removeEvent emit' : [ events ],
 		});
-
-		Z.alias( this, { addEvent: 'on', emit: 'trigger' } );
+		Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
 		
 		this.init( definition );
 		definition = null;
