@@ -1,5 +1,4 @@
 node_modules/*
-docs/*
 .tmp*
 examples/*
 test/.gitignore

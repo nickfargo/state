@@ -5,10 +5,17 @@ module( "StateController" );
 
 test( "isInState()", function () {
 	var x = new TestObject('Waiting');
+	
 	assert.ok( x.state().isIn('Waiting') );
-	assert.ok( x.state().change('Active').isIn('Active') );
-	assert.ok( x.state().change('Finished'), !x.state().isIn('Finished') ); // false because change('Finished') is delayed
-	assert.ok( x.state().change('Finished.CleaningUp').isIn('Finished') );
+	
+	x.state().change('Active');
+	assert.ok( x.state().isIn('Active') );
+	
+	x.state().change('Finished');
+	assert.ok( !x.state().isIn('Finished') ); // false because change('Finished') is delayed
+	
+	x.state().change('Finished.CleaningUp');
+	assert.ok( x.state().isIn('Finished') );
 	assert.ok( x.state().isIn('Finished.CleaningUp') );
 });
 

@@ -24,7 +24,8 @@ test( "Object creation", function () {
 
 test( "Null state change", function () {
 	var x = new TestObject;
-	assert.ok( x.state().change( x.state() ).is('Waiting'), "StateController.change() to current state" );
+	x.state().change( x.state() );
+	assert.ok( x.state().is('Waiting'), "StateController.change() to current state" );
 	assert.ok( x.state() === x.state().select(), "State.select() on current state" );
 });
 
@@ -75,7 +76,8 @@ test( "Method resolutions", function () {
 	assert.notEqual( x.methodOne(), 'Finished.methodOne' ); // fails because change('Finished') is delayed
 	assert.equal( x.methodTwo(), 'methodTwo' ); // passes because `methodTwo` isn't overridden by Finished
 	assert.notEqual( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' ); // fails, idem
-	assert.ok( x.state().change('Finished.CleaningUp').is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
+	x.state().change('Finished.CleaningUp');
+	assert.ok( x.state().is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
 	assert.equal( x.methodOne(), 'Finished.methodOne' );
 	assert.equal( x.methodTwo(), 'Finished.CleaningUp.methodTwo' );
 	assert.ok( ( x.terminate(), x.state().is('Finished.Terminated') ), "State 'Finished.Terminated'" );
