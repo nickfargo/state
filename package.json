@@ -1,6 +1,6 @@
 {
 	"name"          : "state",
-	"version"       : "0.0.1",
+	"version"       : "0.0.2",
 	"description"   : "",
 	"homepage"      : "",
 	"keywords"      : [ "state", "transition", "state transition system", "fsm", "state machine", "behavior" ],
