@@ -5,6 +5,30 @@ var	global = this,
 
 	// ### State attributes
 	STATE_ATTRIBUTES = {
+function state (
+	                  /*Object*/ owner,      // optional
+	                  /*String*/ attributes, // optional
+	/*StateDefinition | Object*/ definition, // optional
+	         /*Object | String*/ options     // optional
+) {
+	if ( arguments.length < 2 ) {
+		typeof owner === 'string' ? ( attributes = owner ) : ( definition = owner );
+		owner = undefined;
+	} else {
+		typeof owner === 'string' &&
+			( options = definition, definition = attributes, attributes = owner,
+				owner = undefined );
+		typeof attributes === 'string' ||
+			( options = definition, definition = attributes, attributes = undefined );
+	}
+
+	definition = new StateDefinition( attributes, definition );
+
+	return owner ?
+		new StateController( owner, definition, options ).current() :
+		definition;
+}
+
 		NORMAL      : 0x0,
 
 		// A **virtual state** is a lightweight inheritor of a **protostate** located higher in the
@@ -71,18 +95,6 @@ var	global = this,
 // With two object-typed arguments, the second of the two similarly specifies a `StateDefinition`,
 // while the first object specifies an `owner` object to which a new state implementation created
 // from that definition will be applied. The function returns the owner's initial `State`.
-
-function state ( attributes, owner, name, definition, options ) {
-	typeof attributes === 'string' || ( options = definition, definition = name, name = owner,
-		owner = attributes, attributes = null );
-	if ( name === undefined && definition === undefined && options === undefined ) {
-		return new StateDefinition( attributes, definition = owner )
-	}
-
-	typeof name === 'string' || ( options = definition, definition = name, name = null );
-	return ( new StateController( owner, name || 'state',
-		new StateDefinition( attributes, definition ), options ) ).current();
-}
 
 Z.env.server && ( module.exports = exports = state );
 Z.env.client && ( global['state'] = state );
