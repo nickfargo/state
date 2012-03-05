@@ -36,16 +36,6 @@ test( "Simple state change", function () {
 	assert.ok( x.state().change(), "Change to default state" );
 });
 
-// ( function () {
-// 	var x = new TestObject;
-// 	test( "Async transition to 'Finished'", function () {
-// 		assert.ok( x.state().change('Finished') );
-// 	});
-// 	test( "Post transition to 'Finished'", function () {
-// 		assert.equal( x.state90.current(), x.state('Finished') );
-// 	});
-// })();
-
 test( "State changes from parent state into child state", function () {
 	var x = new TestObject(''), result;
 	assert.ok( x.state().is(''), "Initialized to default state" );
