@@ -86,12 +86,93 @@ test( "Rules", function () {
 });
 
 test( "Data", function () {
-	var x = new TestObject;
-	assert.ok( x.state('Finished').data(), "Data accessible from `data()`" );
-	assert.equal( x.state('Finished').data().c, x.state('Finished').Terminated.data().c, "Substate inherits data member from superstate" );
-	assert.notEqual( x.state('Finished').data().a, x.state('Finished').Terminated.data().a, "Substate overrides data member of superstate" );
-	assert.equal( x.state('Finished').data().d.a, x.state('Finished').Terminated.data().d.a, "Substate inherits data member from superstate one level deep" );
-	assert.notEqual( x.state('Finished').data().d.b, x.state('Finished').Terminated.data().d.b, "Substate overrides data member of superstate one level deep" );
+	var NIL = Z.NIL;
+
+	function Class () {
+		state( this, {
+			data: {
+				a: 1,
+				b: "2",
+				c: [ 3, "4", { 5: "foo" } ],
+				d: {},
+				e: {
+					f: 6,
+					g: "7",
+					h: [ 8, 9 ]
+				}
+			},
+			State1: {
+				data: {
+					b: 2,
+					c: [ undefined, undefined, { 5: "bar" } ]
+				}
+			},
+			State2: {
+				data: {}
+			}
+		});
+	}
+	state( Class.prototype, {
+		mutate: function ( event, mutation, delta ) {
+			assert.ok( true, "mutate event" );
+		}
+	});
+	var o = new Class;
+	
+	assert.ok( o.state().data(), "Data accessible from `data()`" );
+	assert.strictEqual(
+		o.state('').data().a,
+		o.state('State1').data().a,
+		"Substate data inherits primitive-typed data member from superstate"
+	);
+	assert.notStrictEqual(
+		o.state('').data().b,
+		o.state('State1').data().b,
+		"Substate data overrides primitive-typed data member of superstate"
+	);
+	assert.strictEqual(
+		o.state('State1').data().c[1],
+		"4",
+		"Substate data inherits data member from superstate through own sparse array"
+	);
+
+	o.state('').data({
+		a: NIL,
+		d: { a: 1 },
+		e: {
+			g: NIL,
+			h: [ undefined, "nine" ]
+		}
+	});
+	assert.deepEqual(
+		o.state('').data(),
+		{
+			b: "2",
+			c: [ 3, "4", { 5: "foo" } ],
+			d: { a: 1 },
+			e: { f: 6, h: [ 8, "nine" ] }
+		},
+		""
+	);
+	assert.deepEqual(
+		o.state('State1').data(),
+		{
+			b: 2,
+			c: [ 3, "4", { 5: "bar" } ],
+			d: { a: 1 },
+			e: { f: 6, h: [ 8, "nine" ] }
+		},
+		""
+	);
+
+	// var x = new TestObject;
+	// assert.ok( x.state('Finished').data(), "Data accessible from `data()`" );
+	// assert.equal( x.state('Finished').data().c, x.state('Finished.Terminated').data().c, "Substate inherits data member from superstate" );
+	// assert.notEqual( x.state('Finished').data().a, x.state('Finished.Terminated').data().a, "Substate overrides data member of superstate" );
+	// assert.equal( x.state('Finished').data().d.a, x.state('Finished.Terminated').data().d.a, "Substate inherits data member from superstate one level deep" );
+	// assert.notEqual( x.state('Finished').data().d.b, x.state('Finished.Terminated').data().d.b, "Substate overrides data member of superstate one level deep" );
+
+	assert.expect( 7 );
 });
 
 test( "Destroy", function () {
