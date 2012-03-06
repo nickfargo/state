@@ -108,7 +108,8 @@ table td {
       border: 1px solid rgba( 255, 255, 255, 0.05 );
       border-radius: 4px;
       font-size: 14px;
-      padding: 0.15em 0.4em;
+      padding: 0.15em 0.3em;
+      margin: 0 -0.1em;
     }
     .docs a tt, .docs a code {
       text-decoration: none;
