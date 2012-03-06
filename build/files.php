@@ -1,9 +1,9 @@
 <?php
 $files = array(
 	'state',
-	'state-definition',
+	'state-expression',
 	'state-controller',
 	'state-event',
 	'transition',
-	'transition-definition'
+	'transition-expression'
 );

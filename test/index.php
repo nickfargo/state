@@ -24,10 +24,10 @@ require '../build/combine.php';
 		<!-- tests -->
 		<script src="unit/TestObject.test.js"></script>
 		<script src="unit/TextDocument.test.js"></script>
-		<script src="unit/State.Definition.test.js"></script>
-		<script src="unit/State.object.test.js"></script>
+		<script src="unit/state-expression.test.js"></script>
+		<script src="unit/object.test.js"></script>
 		<script src="unit/State.test.js"></script>
-		<script src="unit/State.Controller.test.js"></script>
+		<script src="unit/state-controller.test.js"></script>
 		<script src="unit/protostate.test.js"></script>
 	</head>
 	<body>
