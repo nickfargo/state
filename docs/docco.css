@@ -3,8 +3,13 @@ body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 15px;
   line-height: 23px;
+  background: #3c3c3c;
   color: #f0f0f0;
   margin: 0; padding: 0;
+}
+strong {
+  color: #ffffff;
+  font-size: 105%;
 }
 a {
   text-decoration: none;
@@ -22,9 +27,11 @@ h1, h2, h3, h4, h5, h6 {
   h1 {
     margin-top: 40px;
     font-size: 300%;
+    text-shadow: 0 3px 6px rgba( 0, 0, 0, 0.5 );
   }
   h2 {
     font-size: 200%;
+    text-shadow: 0 2px 4px rgba( 0, 0, 0, 0.5 );
   }
   h3 {
     font-size: 133%;
@@ -41,8 +48,6 @@ h1, h2, h3, h4, h5, h6 {
 #background {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: #3c3c3c;
-  border-left: 1px solid #e5e5ee;
   z-index: -1;
 }
 #jump_to, #jump_page {
@@ -89,7 +94,7 @@ table td {
     max-width: 400px;
     min-width: 400px;
     min-height: 5px;
-    padding: 10px 20px 1px 24px;
+    padding: 10px 20px 5px 24px;
     overflow-x: hidden;
     vertical-align: top;
     text-align: left;
@@ -113,7 +118,8 @@ table td {
     }
     .docs a tt, .docs a code {
       text-decoration: none;
-      background: rgba( 255, 255, 192, 0.2 );
+      background: rgba( 255, 247, 192, 0.2 );
+      border: 1px solid rgba( 255, 240, 128, 0.17 );
     }
     .docs a:hover tt, .docs a:hover code {
       background: rgba( 255, 255, 128, 0.33 );
