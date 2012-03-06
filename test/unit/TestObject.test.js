@@ -11,7 +11,6 @@ function TestObject ( initialState ) {
 	 */
 	this.methodOne = function () { return this instanceof TestObject /* always true */ && 'methodOne'; };
 	
-	// State definitions
 	state( this, {
 		/*
 		 * A method defined on the default state. This implementation will be situated alongside
@@ -64,7 +63,7 @@ function TestObject ( initialState ) {
 				return this.root().isSuperstateOf( state ); /* always true */
 			},
 			
-			// a **substate**, with its own nested definition
+			// a **substate**, with its own nested expression
 			Hyperactive: {
 				// some stateful **data**
 				data: {

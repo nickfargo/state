@@ -4,46 +4,51 @@
 
 var global = this,
 
-    // The lone dependency of `state` is [`zcore`](http://github.com/zvector/zcore), a small
-    // collection of utility functions.
+    // The lone dependency of the **State** module is
+    // [**Zcore**](http://github.com/zvector/zcore), a library that assists with tasks such as
+    // object manipulation, differential operations, facilitating prototypal inheritance, etc.
     Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
 
 // <a id="module" />
 
-// ## state()
+// ## state( ... )
 // 
-// The `state` module is exported as a function. This function can be used either to create and
-// return a `StateDefinition`, or to apply a new state implementation to an arbitrary owner
-// object, in which case the owner’s initial `State` is returned.
+// The `state` module is exported as a function. This can be used globally, in either of two
+// capacities: (1) to generate a formal `StateExpression`; or (2) to apply a new implementation of
+// state, based on the supplied `expression`, to an arbitrary `owner` object, in which
+// case the newly stateful owner’s initial `State` is returned.
 // 
-// All of the function’s arguments are optional. If both an `owner` and `definition` are provided,
-// the initial `State` in the owner’s new state implementation is returned; otherwise, the
-// function returns a `StateDefinition`. The `options` parameter applies only in the former case.
+// All of the function’s arguments are optional. If both an `owner` and `expression` are provided,
+// `state` acts in the second capacity, causing `owner` to become stateful; otherwise, `state`
+// simply returns a `StateExpression`. The `attributes` parameter may include any of the words
+// defined in `STATE_ATTRIBUTE_MODIFIERS`; these are applied to the provided `expression`, and
+// will be used to further specify the expressed state’s functionality, or to impose constraints
+// on how that state may be used by its owner. (See `STATE_ATTRIBUTES` object below.)
 // 
-// *See also:* [`State`](#state), [`StateDefinition`](#state-definition),
+// *See also:* [`State`](#state), [`StateExpression`](#state-expression),
 // [`StateController`](#state-controller)
 function state (
                       /*Object*/ owner,      // optional
                       /*String*/ attributes, // optional
-    /*StateDefinition | Object*/ definition, // optional
+    /*StateExpression | Object*/ expression, // optional
              /*Object | String*/ options     // optional
 ) {
     if ( arguments.length < 2 ) {
-        typeof owner === 'string' ? ( attributes = owner ) : ( definition = owner );
+        typeof owner === 'string' ? ( attributes = owner ) : ( expression = owner );
         owner = undefined;
     } else {
         typeof owner === 'string' &&
-            ( options = definition, definition = attributes, attributes = owner,
+            ( options = expression, expression = attributes, attributes = owner,
                 owner = undefined );
         typeof attributes === 'string' ||
-            ( options = definition, definition = attributes, attributes = undefined );
+            ( options = expression, expression = attributes, attributes = undefined );
     }
 
-    definition = new StateDefinition( attributes, definition );
+    expression = new StateExpression( attributes, expression );
 
     return owner ?
-        new StateController( owner, definition, options ).current() :
-        definition;
+        new StateController( owner, expression, options ).current() :
+        expression;
 }
 
 // ### Module-level constants
@@ -121,7 +126,7 @@ var STATE_ATTRIBUTES = {
         'initial final abstract default sealed retained history shallow versioned regioned',
     
     // 
-    STATE_DEFINITION_CATEGORIES =
+    STATE_EXPRESSION_CATEGORIES =
         'data methods events guards states transitions',
     
     STATE_EVENT_TYPES =
@@ -133,7 +138,7 @@ var STATE_ATTRIBUTES = {
     TRANSITION_PROPERTIES =
         'origin source target action conjugate',
     
-    TRANSITION_DEFINITION_CATEGORIES =
+    TRANSITION_EXPRESSION_CATEGORIES =
         'methods events',
     
     TRANSITION_EVENT_TYPES =
@@ -179,12 +184,12 @@ var State = ( function () {
     Z.assign( State, SA );
 
     // ### Constructor
-    function State ( superstate, name, definition ) {
+    function State ( superstate, name, expression ) {
         if ( !( this instanceof State ) ) {
-            return new State( superstate, name, definition );
+            return new State( superstate, name, expression );
         }
         
-        var attributes = definition && definition.attributes || SA.NORMAL;
+        var attributes = expression && expression.attributes || SA.NORMAL;
         
         // #### attributes
         // 
@@ -207,12 +212,12 @@ var State = ( function () {
             // `reify` method allows a virtual state to transform itself at some later time into a
             // “real” state, with its own set of closed properties and methods, existing thereafter
             // as an abiding member of its superstate’s set of substates.
-            this.reify = function ( definition ) {
+            this.reify = function ( expression ) {
                 delete this.reify;
                 attributes &= ~SA.VIRTUAL;
 
                 superstate.addSubstate( name, this ) &&
-                    reify.call( this, superstate, attributes, definition );
+                    reify.call( this, superstate, attributes, expression );
                 
                 return this;
             };
@@ -220,7 +225,7 @@ var State = ( function () {
 
         // Do the full setup required for a real state.
         else {
-            reify.call( this, superstate, attributes, definition );
+            reify.call( this, superstate, attributes, expression );
         }
     }
 
@@ -230,7 +235,7 @@ var State = ( function () {
     // 
     // The reification procedure is offloaded from the constructor, allowing for construction of
     // virtual `State` instances that inherit all of their functionality from protostates.
-    function reify ( superstate, attributes, definition ) {
+    function reify ( superstate, attributes, expression ) {
         var data = {},
             methods = {},
             events = {},
@@ -256,7 +261,7 @@ var State = ( function () {
         // `this`, each of which is a partial application of its corresponding method factory at
         // `State.privileged`.
         Z.privilege( this, State.privileged, {
-            'init' : [ StateDefinition ],
+            'init' : [ StateExpression ],
             'superstate' : [ superstate ],
             'data' : [ data ],
             'method methodNames addMethod removeMethod' : [ methods ],
@@ -273,7 +278,7 @@ var State = ( function () {
 
         // If no superstate is given, e.g. for a root state being created by a `StateController`,
         // then `init()` must be called later by the implementor.
-        superstate && this.init( definition );
+        superstate && this.init( expression );
 
         return this;
     }
@@ -314,18 +319,18 @@ var State = ( function () {
 
         // #### init
         // 
-        // Builds out the state’s members based on the contents of the supplied definition.
-        init: function ( /*Function*/ definitionConstructor ) {
-            return function ( /*<definitionConstructor> | Object*/ definition ) {
+        // Builds out the state’s members based on the expression provided.
+        init: function ( /*Function*/ expressionConstructor ) {
+            return function ( /*<expressionConstructor> | Object*/ expression ) {
                 var category,
                     self = this;
                 
-                definition instanceof definitionConstructor ||
-                    ( definition = definitionConstructor( definition ) );
+                expression instanceof expressionConstructor ||
+                    ( expression = expressionConstructor( expression ) );
                 
                 this.initializing = true;
 
-                definition.data && this.data( definition.data );
+                expression.data && this.data( expression.data );
                 Z.forEach({
                     methods: function ( methodName, fn ) {
                         self.addMethod( methodName, fn );
@@ -340,19 +345,19 @@ var State = ( function () {
                     guards: function ( guardType, guard ) {
                         self.addGuard( guardType, guard );
                     },
-                    states: function ( stateName, stateDefinition ) {
-                        self.addSubstate( stateName, stateDefinition );
+                    states: function ( stateName, stateExpression ) {
+                        self.addSubstate( stateName, stateExpression );
                     },
-                    transitions: function ( transitionName, transitionDefinition ) {
-                        self.addTransition( transitionName, transitionDefinition );
+                    transitions: function ( transitionName, transitionExpression ) {
+                        self.addTransition( transitionName, transitionExpression );
                     }
                 }, function ( fn, category ) {
-                    definition[ category ] && Z.each( definition[ category ], fn );
+                    expression[ category ] && Z.each( expression[ category ], fn );
                 });
         
                 delete this.initializing;
 
-                this.emit( 'construct', { definition: definition }, false );
+                this.emit( 'construct', { expression: expression }, false );
         
                 return this;
             };
@@ -687,19 +692,19 @@ var State = ( function () {
 
         // #### addSubstate
         // 
-        // Creates a state from the supplied `stateDefinition` and adds it as a substate of
+        // Creates a state from the supplied `stateExpression` and adds it as a substate of
         // this state. If a substate with the same `stateName` already exists, it is first
         // destroyed and then replaced. If the new substate is being added to the controller’s
         // root state, a reference is added directly on the controller itself as well.
         addSubstate: function ( substates ) {
             return function (
                 /*String*/ stateName,
-                /*StateDefinition | Object | State*/ stateDefinition
+                /*StateExpression | Object | State*/ stateExpression
             ) {
                 var substate, controller;
                 
                 if ( this.isVirtual() ) {
-                    return this.reify().addSubstate( stateName, stateDefinition );
+                    return this.reify().addSubstate( stateName, stateExpression );
                 }
                 if ( this.isSealed() ) {
                     throw new Error;
@@ -707,9 +712,9 @@ var State = ( function () {
 
                 ( substate = substates[ stateName ] ) && substate.destroy();
                 
-                substate = stateDefinition instanceof State ?
-                    stateDefinition.superstate() === this && stateDefinition.reify() :
-                    new State( this, stateName, stateDefinition );
+                substate = stateExpression instanceof State ?
+                    stateExpression.superstate() === this && stateExpression.reify() :
+                    new State( this, stateName, stateExpression );
                 
                 if ( !substate ) return;
                 
@@ -761,7 +766,7 @@ var State = ( function () {
 
         // #### transition
         // 
-        // Returns the named transition definition held on this state.
+        // Returns the named transition expression held on this state.
         transition: function ( transitions ) {
             return function ( /*String*/ transitionName ) {
                 return transitions[ transitionName ];
@@ -770,7 +775,7 @@ var State = ( function () {
 
         // #### transitions
         // 
-        // Returns an object containing all the transition definitions held on this state.
+        // Returns an object containing all of the transition expressions defined on this state.
         transitions: function ( transitions ) {
             return function () {
                 return Z.clone( transitions );
@@ -779,20 +784,20 @@ var State = ( function () {
 
         // #### addTransition
         // 
-        // Registers a transition definition to this state.
+        // Registers a transition expression to this state.
         addTransition: function ( transitions ) {
             return function (
                 /*String*/ transitionName,
-                /*TransitionDefinition | Object*/ transitionDefinition
+                /*TransitionExpression | Object*/ transitionExpression
             ) {
                 if ( this.isVirtual() ) {
-                    return this.reify().addTransition( transitionName, transitionDefinition );
+                    return this.reify().addTransition( transitionName, transitionExpression );
                 }
 
-                transitionDefinition instanceof TransitionDefinition ||
-                    ( transitionDefinition = TransitionDefinition( transitionDefinition ) );
+                transitionExpression instanceof TransitionExpression ||
+                    ( transitionExpression = TransitionExpression( transitionExpression ) );
                 
-                return transitions[ transitionName ] = transitionDefinition;
+                return transitions[ transitionName ] = transitionExpression;
             };
         },
 
@@ -1404,36 +1409,37 @@ var State = ( function () {
 })();
 
 
-// <a id="state-definition" />
+// <a id="state-expression" />
 
-// ## StateDefinition
+// ## StateExpression
 // 
-// A state **definition** is a formalization of a state’s contents. States are declared by calling
-// the module’s exported `state()` function and passing it an object map containing the definition.
-// This input may be expressed in a shorthand format, which the `StateDefinition` constructor
-// rewrites into unambiguous long form, which can be used later to create `State` instances.
+// A **state expression** formalizes a definition of a state’s contents. States are declared by
+// calling the module’s exported `state()` function and passing it an object map containing the
+// definition. This input may be expressed in a shorthand format, which the `StateExpression`
+// constructor rewrites into unambiguous long form, which can be used later to create `State`
+// instances.
 
-var StateDefinition = ( function () {
+var StateExpression = ( function () {
     var attributeMap   = Z.forEach( Z.assign( STATE_ATTRIBUTE_MODIFIERS ),
             function ( value, key, object ) { object[ key ] = key.toUpperCase(); }),
-        categoryMap    = Z.assign( STATE_DEFINITION_CATEGORIES ),
+        categoryMap    = Z.assign( STATE_EXPRESSION_CATEGORIES ),
         eventTypes     = Z.assign( STATE_EVENT_TYPES ),
         guardActions   = Z.assign( GUARD_ACTIONS );
 
     // ### Constructor
-    function StateDefinition (
+    function StateExpression (
         /*String | Object*/ attributes, // optional
                  /*Object*/ map
     ) {
-        if ( !( this instanceof StateDefinition ) ) {
-            return new StateDefinition( attributes, map );
+        if ( !( this instanceof StateExpression ) ) {
+            return new StateExpression( attributes, map );
         }
 
         typeof attributes === 'string' ?
             map || ( map = {} ) :
             map || ( map = attributes, attributes = undefined );
         
-        Z.extend( true, this, map instanceof StateDefinition ? map : interpret( map ) );
+        Z.extend( true, this, map instanceof StateExpression ? map : interpret( map ) );
 
         attributes == null ?
             map && ( attributes = map.attributes ) :
@@ -1464,19 +1470,19 @@ var StateDefinition = ( function () {
 
     // #### interpret
     // 
-    // Transforms a plain object map into a well-formed `StateDefinition`, making the appropriate
+    // Transforms a plain object map into a well-formed `StateExpression`, making the appropriate
     // inferences for any shorthand notation encountered.
     function interpret ( /*Object*/ map ) {
         var key, value, object, category,
-            result = Z.assign( STATE_DEFINITION_CATEGORIES, null );
+            result = Z.assign( STATE_EXPRESSION_CATEGORIES, null );
         
         for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
             value = map[ key ];
             
-            // **Priority 1:** Do a nominative type match for explicit definition instances.
+            // **Priority 1:** Do a nominative type match for explicit expression instances.
             category =
-                value instanceof StateDefinition && 'states' ||
-                value instanceof TransitionDefinition && 'transitions';
+                value instanceof StateExpression && 'states' ||
+                value instanceof TransitionExpression && 'transitions';
             if ( category ) {
                 ( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
             }
@@ -1504,20 +1510,20 @@ var StateDefinition = ( function () {
         
         object = result.transitions;
         for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
-            ( value = object[ key ] ) instanceof TransitionDefinition ||
-                ( object[ key ] = new TransitionDefinition( value ) );
+            ( value = object[ key ] ) instanceof TransitionExpression ||
+                ( object[ key ] = new TransitionExpression( value ) );
         }
         
         object = result.states;
         for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
-            ( value = object[ key ] ) instanceof StateDefinition ||
-                ( object[ key ] = new StateDefinition( value ) );
+            ( value = object[ key ] ) instanceof StateExpression ||
+                ( object[ key ] = new StateExpression( value ) );
         }
         
         return result;
     }
 
-    return StateDefinition;
+    return StateExpression;
 })();
 
 
@@ -1536,11 +1542,11 @@ var StateController = ( function () {
     // ### Constructor
     function StateController (
                           /*Object*/ owner,      // = {}
-        /*StateDefinition | Object*/ definition, // optional
+        /*StateExpression | Object*/ expression, // optional
                           /*Object*/ options     // optional
     ) {
         if ( !( this instanceof StateController ) ) {
-            return new StateController( owner, definition, options );
+            return new StateController( owner, expression, options );
         }
         
         var self = this,
@@ -1552,8 +1558,8 @@ var StateController = ( function () {
         
         // Validate arguments.
         owner || ( owner = {} );
-        definition instanceof StateDefinition ||
-            ( definition = new StateDefinition( definition ) );
+        expression instanceof StateExpression ||
+            ( expression = new StateExpression( expression ) );
         options === undefined && ( options = {} ) ||
             typeof options === 'string' && ( options = { initialState: options } );
         
@@ -1602,10 +1608,10 @@ var StateController = ( function () {
         
         // Instantiate the root state, adding a redefinition of the `controller` method that points
         // directly to this controller, along with all of the members and substates outlined in
-        // `definition`.
-        root = new State( undefined, undefined, definition );
+        // `expression`.
+        root = new State( undefined, undefined, expression );
         root.controller = function () { return self; };
-        root.init( definition );
+        root.init( expression );
         
         // Establish which state should be the initial state and set the current state to that.
         current = root.initialSubstate() || root;
@@ -1742,7 +1748,7 @@ var StateController = ( function () {
                 if ( !reentrant ) return;
 
                 var owner, transition, targetOwner, source, origin, domain, info, state,
-                    transitionDefinition,
+                    transitionExpression,
                     self = this;
 
                 owner = this.owner();
@@ -1804,12 +1810,12 @@ var StateController = ( function () {
                 // target.
                 domain = source.common( target );
                 
-                // Retrieve the appropriate transition definition for this origin/target pairing;
+                // Retrieve the appropriate transition expression for this origin/target pairing;
                 // if none is defined, then an actionless default transition will cause the
                 // callback to return immediately.
-                transitionDefinition = this.getTransitionDefinitionFor( target, origin );
+                transitionExpression = this.getTransitionExpressionFor( target, origin );
                 transition = setTransition( new Transition( target, source,
-                    transitionDefinition ));
+                    transitionExpression ));
                 info = { transition: transition, forced: !!options.forced };
                 
                 // Preparation for the transition begins by emitting a `depart` event on the
@@ -1894,25 +1900,25 @@ var StateController = ( function () {
             return this.current().toString();
         },
 
-        // #### getTransitionDefinitionFor
+        // #### getTransitionExpressionFor
         // 
-        // Finds the appropriate transition definition for the given origin and target states. If
+        // Finds the appropriate transition expression for the given origin and target states. If
         // no matching transitions are defined in any of the states, returns a generic actionless
-        // transition definition for the origin/target pair.
-        getTransitionDefinitionFor: function ( target, origin ) {
+        // transition expression for the origin/target pair.
+        getTransitionExpressionFor: function ( target, origin ) {
             origin || ( origin = this.current() );
             
             function search ( state, until ) {
                 var result;
                 for ( ; state && state !== until; state = until ? state.superstate() : undefined ) {
-                    Z.each( state.transitions(), function ( i, definition ) {
+                    Z.each( state.transitions(), function ( i, expression ) {
                         return !(
-                            ( definition.target ?
-                                state.match( definition.target, target ) :
+                            ( expression.target ?
+                                state.match( expression.target, target ) :
                                 state === target )
                                     &&
-                            ( !definition.origin || state.match( definition.origin, origin ) ) &&
-                        ( result = definition ) );
+                            ( !expression.origin || state.match( expression.origin, origin ) ) &&
+                        ( result = expression ) );
                     });
                 }
                 return result;
@@ -1929,7 +1935,7 @@ var StateController = ( function () {
                 search( target.superstate(), this.root() ) ||
                     search( this.root() ) ||
                 !target.isIn( origin ) && search( origin.superstate(), origin.common( target ) ) ||
-                new TransitionDefinition
+                new TransitionExpression
             );
         },
         
@@ -2127,9 +2133,9 @@ var Transition = ( function () {
     Z.inherit( Transition, State );
 
     // ### Constructor
-    function Transition ( target, source, definition, callback ) {
+    function Transition ( target, source, expression, callback ) {
         if ( !( this instanceof Transition ) ) {
-            return TransitionDefinition.apply( this, arguments );
+            return TransitionExpression.apply( this, arguments );
         }
         
         var self = this,
@@ -2139,7 +2145,7 @@ var Transition = ( function () {
             // The **action** of a transition is a function that will be called after the
             // transition has been `start`ed. This function, if provided, is responsible for
             // calling `end()` on the transition at some point in the future.
-            action = definition.action,
+            action = expression.action,
 
             attachment = source,
             controller, aborted;
@@ -2252,14 +2258,14 @@ var Transition = ( function () {
             }
         });
         Z.privilege( this, State.privileged, {
-            'init' : [ TransitionDefinition ],
+            'init' : [ TransitionExpression ],
             'method methodNames addMethod removeMethod' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
         });
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
         
-        this.init( definition );
-        definition = null;
+        this.init( expression );
+        expression = null;
     }
 
     Transition.prototype.depth = function () {
@@ -2274,29 +2280,29 @@ var Transition = ( function () {
     return Transition;
 })();
 
-// ## TransitionDefinition
+// ## TransitionExpression
 // 
-// A state may hold **transition definitions** that describe the transition that will take place
+// A state may hold **transition expressions** that describe the transition that will take place
 // between any two given **origin** and **target** states.
 
-var TransitionDefinition = ( function () {
+var TransitionExpression = ( function () {
     var properties = Z.assign( TRANSITION_PROPERTIES, null ),
-        categories = Z.assign( TRANSITION_DEFINITION_CATEGORIES, null ),
+        categories = Z.assign( TRANSITION_EXPRESSION_CATEGORIES, null ),
         eventTypes = Z.assign( TRANSITION_EVENT_TYPES );
     
     // ### Constructor
-    function TransitionDefinition ( map ) {
-        if ( !( this instanceof TransitionDefinition ) ) {
-            return new TransitionDefinition( map );
+    function TransitionExpression ( map ) {
+        if ( !( this instanceof TransitionExpression ) ) {
+            return new TransitionExpression( map );
         }
-        Z.extend( true, this, map instanceof TransitionDefinition ? map : interpret( map ) );
+        Z.extend( true, this, map instanceof TransitionExpression ? map : interpret( map ) );
     }
 
     // ### Static functions
 
     // #### interpret
     // 
-    // Rewrites a plain object map as a well-formed `TransitionDefinition`, making the appropriate
+    // Rewrites a plain object map as a well-formed `TransitionExpression`, making the appropriate
     // inferences for any shorthand notation encountered.
     function interpret ( map ) {
         var result = Z.extend( {}, properties, categories ),
@@ -2322,19 +2328,19 @@ var TransitionDefinition = ( function () {
         return result;
     }
 
-    return TransitionDefinition;
+    return TransitionExpression;
 })();
 
 
 // Make the set of defined classes available as members of the exported module.
 Z.assign( state, {
     State: State,
-    StateDefinition: StateDefinition,
+    StateExpression: StateExpression,
     StateController: StateController,
     StateEvent: StateEvent,
     StateEventCollection: StateEventCollection,
     Transition: Transition,
-    TransitionDefinition: TransitionDefinition
+    TransitionExpression: TransitionExpression
 });
 
 }).call( this );
