@@ -1,5 +1,6 @@
 <?php
 require '../build/combine.php';
+// require './build/combine.php';
 ?>
 
 <!DOCTYPE html>
