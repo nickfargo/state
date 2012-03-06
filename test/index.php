@@ -10,7 +10,7 @@ require '../build/combine.php';
 		<link rel="stylesheet" media="screen" href="../../qunit/qunit/qunit.css" />
 		
 		<!-- libs -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
 		<script src="../../qunit/qunit/qunit.js"></script>
 		
 		<!-- includes -->
