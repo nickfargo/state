@@ -1640,10 +1640,10 @@ var StateController = ( function () {
                 fn = arguments[0];
 
             if ( this === owner ) {
-                current = self.current();
                 if ( Z.isFunction( fn ) ) {
-                    return self.change.call( current, fn.call( this ) );
+                    return self.change( fn.call( this ) );
                 }
+                current = self.current();
                 return arguments.length ? current.match.apply( current, arguments ) : current;
             }
 
