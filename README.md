@@ -346,6 +346,59 @@ This system of protostates and virtual states allows an object’s state impleme
 <a id="concepts--attributes" />
 ### Attributes
 
+State expressions may include **attributes** as a string argument that precedes the object map provided to a `state()` call:
+
+```javascript
+state( obj, 'abstract history', {
+    Alive: state( 'default initial', {
+        update: function () { /*...*/ }
+    }),
+    Dead state( 'final', {
+        update: function () { /*...*/ }
+    })
+});
+```
+```coffeescript
+state obj, 'abstract history',
+  Alive: state 'default initial'
+    update: -> # ...
+  Dead: state 'final'
+    update: -> # ...
+```
+
+Available attributes include:
+
+* **initial** — Marking a state `initial` specifies which state a newly instantiated `StateController`
+should assume.
+
+* **final** — Once a state marked `final` is entered, no further outbound transitions within its local
+region are allowed.
+
+* **abstract** — An **abstract state** cannot itself be current. Consequently a transition target that
+points to a state marked `abstract` is redirected to one of its substates.
+
+* **default** — Marking a state `default` designates it as the actual target for any transition that
+targets its abstract superstate.
+
+* **sealed** — A state marked `sealed` cannot have substates.
+
+* **retained** — A `retained` state is one that preserves its own internal state, such that, after the
+state has become no longer active, a subsequent transition targeting that particular
+state will automatically be redirected to whichever of its descendant states was most
+recently current. *(Reserved; not presently implemented.)*
+
+* **history** — Marking a state with the `history` attribute causes its internal state to be recorded
+in a sequential **history**. Whereas a `retained` state is concerned only with the most
+recent internal state, a state’s history can be traversed and altered, resulting in
+transitions back or forward to previously or subsequently held internal states.
+*(Reserved; not presently implemented.)*
+
+* **shallow** — Normally, states that are `retained` or that keep a `history` persist their internal
+state *deeply*, i.e., with a scope extending over all of the state’s descendant states.
+Marking a state `shallow` limits the scope of its persistence to its immediate
+substates only.
+
+
 
 <a id="concepts--data" />
 ### Data
