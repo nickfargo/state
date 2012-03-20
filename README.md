@@ -59,11 +59,11 @@ state obj,
     greet: -> "Hi!"
 
 obj.greet() # "Hello."
-obj.state().change 'Formal'
+obj.state -> 'Formal'
 obj.greet() # "How do you do?"
-obj.state().change 'Informal'
+obj.state -> 'Informal'
 obj.greet() # "Hi!"
-obj.state().change ''
+obj.state -> ''
 obj.greet() # "Hello."
 ```
 
