@@ -116,6 +116,7 @@ A **state expression** is the formal type used to define the contents and struct
 The contents of a state expression decompose into six categories: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
 To express the state implementation of the introductory example above, we could write:
+
 ```javascript
 var longformExpression = state({
     methods: {
