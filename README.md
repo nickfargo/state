@@ -203,7 +203,7 @@ Below is the internal procedure for interpreting `StateExpression` input:
 
 #### Nesting states
 
-In similar fashion to classes or prototypal objects, states use a nesting model to express ever greater specificity of their owner’s behavior and condition, whereby a **superstate** contains zero or more **substates**. This model yields a *tree structure*, with a single **root state** as the basis for the object’s stateful implementation.
+As with classes or prototypal objects, states are modeled hierarchically, where a **superstate** contains zero or more **substates** that express ever greater specificity of their owner’s behavior and condition.
 
 ```javascript
 var obj = {
@@ -258,7 +258,9 @@ state obj,
           me.kiss betterHalf
 ```
 
-One noteworthy quality is that, while its place in the expression does not bear a name, the root state is not anonymous; its name is always the empty string `''`, which may be used by an object to change its state so as to exhibit its default behavior.
+The state model is a classic tree structure, with a single **root state** as the basis for the object’s stateful implementation.
+
+One noteworthy quality of the root state is that, while its place in the expression does not bear a name, it is not anonymous; the root state’s name is always the empty string `''`, which may be used by an object to change its state so as to exhibit its default behavior.
 
 ```javascript
 obj.state().root() === obj.state('')    // true
@@ -266,7 +268,7 @@ obj.state().change('')                  // State ''
 ```
 ```coffeescript
 obj.state().root() is obj.state ''      # true
-obj.state -> ''                         // State ''
+obj.state -> ''                         # State ''
 ```
 
 In addition to being the top-level node of the tree from which all of an object’s states inherit, the root state acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegator pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined within the current state or its superstates, **State** will as a last resort resolve the call to the original implementation held within the root state.
