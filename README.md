@@ -1,6 +1,30 @@
 # State.js
 
-**State** is a micro-framework for expressing, manipulating, and recording the *state* of any JavaScript object. Stateful objects can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
+**State** is a micro-framework for expressing, manipulating, and recording *state* for any JavaScript object. Stateful objects can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
+
+#### Installation
+
+The lone dependency of **State** is [**Zcore**](http://github.com/zvector/zcore/), a small library module that assists with object manipulation tasks such as differential operations and facilitating prototypal inheritance, and provides various other general-purpose functions.
+
+**State** can be installed via [**npm**](http://npmjs.org/):
+
+```
+$ npm install state
+```
+```javascript
+var state = require('state');
+```
+
+or included in the browser:
+
+```html
+<script src="zcore.js"></script>
+<script src="state.js"></script>
+```
+
+which will expose the module at `window.state` (this can be reclaimed with a call to `state.noConflict();`).
+
+#### Quick intro
 
 ```javascript
 var obj = {
@@ -26,7 +50,7 @@ obj.greet(); // "Hello."
 ```
 
 ```coffeescript
-obj = greet: -> "Hello"
+obj = greet: -> "Hello."
 
 state obj,
   Formal:
@@ -52,6 +76,8 @@ obj.greet() # "Hello."
 
 * [Inheritance](#concepts--inheritance) — States are hierarchically nested in a tree structure: the **owner** object is given exactly one *root* state, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
 
+* [Attributes](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will allow no further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
+
 * [Data](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly.
 
 * [Methods](#concepts--methods) — Behavior is modeled by defining state **methods** that override the object’s methods *opaquely* with respect to consumers of the object, which need not be aware of the object’s current state, or even that a concept of state exists at all. State methods are invoked in the context of the state in which the method is defined, allowing for polymorphic features like invoking the overridden methods of a superstate.
@@ -60,11 +86,9 @@ obj.greet() # "Hello."
 
 * [Events](#concepts--events) — Listeners for specific **event** types can be bound to a state, which will be called in the context of the bound state as it is affected by a progressing transition (`depart`, `exit`, `enter`, `arrive`), as data bound to the state changes (`mutate`), or upon the state’s construction or destruction (`construct`, `destroy`). **State** also allows for custom typed events, which can be emitted from a particular state and propagated to listeners bound to the state itself as well as its protostates and superstates.
 
-* [Guards](#concepts--guards) — A state may be outfitted with **guards** to govern their viability as transition targets, dependent on the outgoing state and any other conditions that may be defined. Guards are evaluated as either boolean values or predicates (boolean-valued functions).
+* [Guards](#concepts--guards) — A state may be outfitted with **guards** to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Guards are evaluated as either boolean values or predicates (boolean-valued functions).
 
-* [History](#concepts--history) — Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition reenters a **retained** superstate, it will use its history to redirect the transition back to whichever of its substates was most recently current.
-
-* [Attributes](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will allow no further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
+* [History](#concepts--history) — Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 
 <a id="overview--design-goals" />
 ### Design goals
@@ -87,88 +111,81 @@ Apart from the addition of the `object.state()` method, a call to `state()` make
 <a id="concepts--expressions" />
 ### Expressions
 
-A **state expression** is the formal type used to define the contents and structure of a `State` instance. They are most easily constructed by using the exported `state()` function, and providing a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
+A **state expression** is the formal type used to define the contents and structure of a `State` instance. A `StateExpression` object is most easily constructed by using the exported `state()` function, and providing a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
 
-The contents of a state expression decompose into six categories: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. This structure can be fully reflected within the object map as supplied to the `state()` call, or alternatively pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
+The contents of a state expression decompose into six categories: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
+To express the state implementation of the introductory example above, we could write:
 ```javascript
-state({
-    greet: function () { return "Hello."; },
-
-    Formal: {
-        greet: function () { return "How do you do?"; }
-    },
-    Informal: {
-        greet: function () { return "Hi!"; }
-    }
-});
-
-state({
-    data: {},
+var longformExpression = state({
     methods: {
         greet: function () { return "Hello."; }
     },
-    events: {},
-    guards: {},
     states: {
         Formal: {
-            data: {},
             methods: {
                 greet: function () { return "How do you do?"; }
             },
-            events: {},
-            guards: {},
-            states: {},
-            transitions: {}
+            events: {
+                enter: function ( event ) { this.owner().wearTuxedo(); }
+            }
         },
         Informal: {
-            data: {},
             methods: {
                 greet: function () { return "Hi!"; }
             },
-            events: {},
-            guards: {},
-            states: {},
-            transitions: {}
+            events: {
+                enter: function ( event ) { this.owner().wearJeans(); }
+            }
         }
-    },
-    transitions: {}
+    }
 });
 ```
-
 ```coffeescript
-state
-  greet: -> "Hello."
-  Formal:   greet: -> "How do you do?"
-  Informal: greet: -> "Hi!"
-
-state
-  data: {}
+longformExpression = state
   methods:
     greet: -> "Hello."
-  events: {}
-  guards: {}
   states:
     Formal:
-      data: {}
       methods:
         greet: -> "How do you do?"
-      events: {}
-      guards: {}
-      states: {}
-      transitions: {}
+      events:
+        enter: ( event ) -> @owner().wearTuxedo()
     Informal:
-      data: {}
       methods:
         greet: -> "Hi!"
-      events: {}
-      guards: {}
-      states: {}
-      transitions: {}
-  transitions: {}
+      events:
+        enter: ( event ) -> @owner().wearJeans()
 ```
 
-The internal `interpret` function iterates through an object map like so:
+Or we can cut out some of the explicit structure and allow the `StateExpression` interpreter to make some inferences about our abbreviated input:
+
+```javascript
+var shorthandExpression = state({
+    greet: function () { return "Hello."; },
+
+    Formal: {
+        enter: function ( event ) { this.owner().wearTuxedo(); },
+        greet: function () { return "How do you do?"; }
+    },
+    Informal: {
+        enter: function ( event ) { this.owner().wearJeans(); },
+        greet: function () { return "Hi!"; }
+    }
+});
+```
+```coffeescript
+shorthandExpression = state
+  greet: -> "Hello."
+  Formal:
+    enter: ( event ) -> @owner().wearTuxedo()
+    greet: -> "How do you do?"
+  Informal:
+    enter: ( event ) -> @owner().wearJeans()
+    greet: -> "Hi!"
+```
+
+Below is the internal procedure for interpreting `StateExpression` input:
 
 1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, it is interpreted as such.
 
@@ -186,7 +203,7 @@ The internal `interpret` function iterates through an object map like so:
 
 #### Nesting states
 
-In similar fashion to classes or prototypal objects, states use a nesting model to express ever greater specificity of their owner’s behavior and condition, whereby a **superstate** contains zero or more **substates**. This model yields a *tree structure*, with a single anonymous **root state**, which is the basis for the object’s stateful implementation.
+In similar fashion to classes or prototypal objects, states use a nesting model to express ever greater specificity of their owner’s behavior and condition, whereby a **superstate** contains zero or more **substates**. This model yields a *tree structure*, with a single **root state** as the basis for the object’s stateful implementation.
 
 ```javascript
 var obj = {
@@ -236,12 +253,23 @@ state obj,
       Intimate:
         kiss: ( betterHalf ) -> ### ... ### this
         greet: ( betterHalf ) ->
-          me = @owner() ; 
+          me = @owner()
           me.hug betterHalf
           me.kiss betterHalf
 ```
 
-The root state is not only the top-level node of the tree from which all of an object’s states inherit, but it also serves as the *default method store*, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations somewhere within the state tree. This allows the delegator pattern to work by always forwarding a method call on the object to the object’s current state; if no overriding stateful implementation is defined for that method within the current state or any of its superstates, **State** will call the original implementation.
+One noteworthy quality is that, while its place in the expression does not bear a name, the root state is not anonymous; its name is always the empty string `''`, which may be used by an object to change its state so as to exhibit its default behavior.
+
+```javascript
+obj.state().root() === obj.state('')    // true
+obj.state().change('')                  // State ''
+```
+```coffeescript
+obj.state().root() is obj.state ''      # true
+obj.state -> ''                         // State ''
+```
+
+In addition to being the top-level node of the tree from which all of an object’s states inherit, the root state acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegator pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined within the current state or its superstates, **State** will as a last resort resolve the call to the original implementation held within the root state.
 
 #### Inheriting states across prototypes
 
@@ -276,7 +304,7 @@ host = new Host
 
 Since the instance object `host` in the code above inherits from `Host.prototype`, given what’s been covered to this point, it may be expected that instigating a transition via `host.state().change('Formal')` would take effect on `Host.prototype`, in turn affecting all other instances of `Host` as well. While it is desirable to share stateful behavior through prototypes, each instance must be able to maintain state and undergo changes to its state independently.
 
-**State** addresses this by lazily outfitting each instance with its own state implementation when one does not exist already. This will itself be empty, but will inherit all state content from the state implementation of the prototype. Most importantly, it allows the instance to experience its own state changes, without also indirectly affecting all of its fellow inheritors.
+**State** addresses this by lazily outfitting each instance with its own state implementation when one does not exist already. This new implementation will itself be empty, but will inherit all content from the state implementation of the prototype. Most importantly, it allows the instance to experience its own state changes, without also indirectly affecting all of its fellow inheritors.
 
 ```javascript
 Host.prototype.state();              // State ''
@@ -290,16 +318,7 @@ host.state().change('Informal');     // State 'Informal'
 host.state().isVirtual();            // true
 host.greet();                        // "Hi!"
 Host.prototype.state();              // State ''
-
-var fancypants = new Host;
-state( fancypants, { Formal: state('initial') } );
-
-fancypants.hasOwnProperty('state');  // true
-fancypants.greet();                  // "How do you do?"
-fancypants.state();                  // State 'Formal'
-fancypants.state().isVirtual();      // false
 ```
-
 ```coffeescript
 Host::state()                        # State ''
 'state' of host                      # true
@@ -312,21 +331,17 @@ host.state -> 'Informal'             # State 'Informal'
 host.state().isVirtual()             # true
 host.greet()                         # "Hi!"
 Host::state()                        # State ''
-
-fancypants = new Host
-state fancypants, Formal: state 'initial'
-
-fancypants.hasOwnProperty 'state'    # true
-fancypants.greet()                   # "How do you do?"
-fancypants.state()                   # State 'Formal'
-fancypants.state().isVirtual()       # false
 ```
 
 When an accessor method (`obj.state()`) is called, it checks the context object (`obj`) to ensure that it has its own accessor method. If it doesn’t, and is instead inheriting from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding accessor method (`obj.state()`), to which the original call is then forwarded.
 
-Even though the inheritor’s state implementation is empty, it identifies the prototype’s states as its **protostates**, from which it inherits all methods, data, events, etc. contained within. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate. 
+Even though the inheritor’s state implementation is empty, it identifies the prototype’s states as its **protostates**, from which it inherits all methods, data, events, etc. contained within. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate.
 
-This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without having to maintain any formal prototypal relationship between themselves.
+This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without the states themselves having to maintain any direct prototypal relationship with each other.
+
+
+<a id="concepts--attributes" />
+### Attributes
 
 
 <a id="concepts--data" />
@@ -344,7 +359,7 @@ Whenever an object’s current state changes, a **transition** state is created,
 
 A state expression may include any number of **transition expressions**, which define some **action** to be performed, either synchronously or asynchronously, along with definitions for `origin` and `target` states to which the transition should apply. When an object undergoes a state change, it finds the appropriate transition expression for the given origin and target, and from that creates a new `Transition` instance.
 
-The transition procedure can be thought of as a stepwise traversal through the state tree, from the `source` node to the `target` node, where the **domain** of the transition is represented by the state that is the least common ancestor node of the `source` and `target`. At each step in the traversal, the transition instance acts as a temporary substate of the local state, such that event listeners may expect to inherit from the states in which they are declared.
+The lifecycle of a transition consists of a stepwise traversal through the state tree, from the `source` node to the `target` node, where the **domain** of the transition is represented by the state that is the least common ancestor node between `source` and `target`. At each step in the traversal, the transition instance acts as a temporary substate of the local state, such that event listeners may expect to inherit from the states in which they are declared.
 
 The traversal sequence is decomposable into an ascending phase, an action phase, and a descending phase. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition. The transition then reaches the top of the domain and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state.
 
@@ -379,6 +394,3 @@ Through exposure of the `emit` method, state instances allow any type of event t
 
 <a id="concepts--history" />
 ### History
-
-<a id="concepts--attributes" />
-### Attributes
