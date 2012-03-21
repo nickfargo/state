@@ -293,7 +293,6 @@ var State = ( function () {
         });
     }
 
-
     // #### createDelegator
     // 
     // Creates a function that will serve as a **delegator** method on an owner object. For each
@@ -956,13 +955,13 @@ var State = ( function () {
         }
     };
 
-    createReifier( State.prototype, 'addMethod addEvent addGuard addSubstate addTransition' );
-
     // ### Prototype methods
     // 
     // Entries for instance and privileged methods defined above are also included here as no-ops
     // or defaults, so as to provide virtual states with a conformant `State` interface despite
     // not (yet) having been reified.
+    createReifier( State.prototype, 'addMethod addEvent addGuard addSubstate addTransition' );
+    Z.privilege( State.prototype, State.privileged, { 'data method substate' : [ null ] } );
     Z.assign( State.prototype, {
         attributes: Z.thunk( SA.NORMAL ),
         isVirtual:   function () { return !!( this.attributes() & SA.VIRTUAL ); },
@@ -1415,7 +1414,6 @@ var State = ( function () {
                 false;
         }
     });
-    Z.privilege( State.prototype, State.privileged, { 'data method substate' : [ null ] } );
     Z.alias( State.prototype, { addEvent: 'on bind', removeEvent: 'off unbind' } );
 
     return State;
@@ -1799,7 +1797,8 @@ var StateController = ( function () {
                     if ( !target ) return null;
                 }
                 
-                options || ( options = {} );
+                !options && ( options = {} ) ||
+                    Z.isArray( options ) && ( options = { arguments: options } );
 
                 // If any guards are in place for the given `origin` and `target` states, they must
                 // consent to the transition, unless we specify that it be `forced`.
@@ -2238,14 +2237,13 @@ var Transition = ( function () {
             // for declaring an end to the transition by calling `end()`. Otherwise, the
             // transition is necessarily synchronous and is concluded immediately.
             start: function () {
-                var self = this;
                 aborted = false;
                 this.emit( 'start', false );
-                if ( Z.isFunction( action ) ) {
+                if ( action && Z.isFunction( action ) ) {
                     action.apply( this, arguments );
-                } else {
-                    return this.end();
+                    return this;
                 }
+                return this.end.apply( this, arguments );
             },
             
             // #### abort
