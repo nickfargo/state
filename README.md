@@ -397,6 +397,8 @@ When state is applied to an object, any methods already present on the object fo
 
 Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local inheriting state. Using the state as the method’s context allows for polymorphic idioms such as calling up to a superstate’s implementation of the method. Despite this change in context, the owner object remains available from inside the method by calling `this.owner()`.
 
+This example of a simple `Document` class demonstrates method inheritance and polymorphism. 
+
 ```javascript
 var fs = require('fs'),
     state = require('state');
@@ -441,7 +443,6 @@ state( Document.prototype, 'abstract', {
             this.change( 'Dirty' );
             return result;
         },
-        save: function () {},
 
         Frozen: state( 'final', {
             edit: function () {},
@@ -471,7 +472,7 @@ class Document
       this
 
   state @::, 'abstract',
-    freeze: -> [3]
+    freeze: -> # [3]
       result = @call 'save' # [4]
       @change 'Saved.Frozen'
       result
@@ -489,7 +490,6 @@ class Document
         result = @superstate().apply 'edit', arguments # [2]
         @change 'Dirty'
         result
-      save: ->
 
       Frozen: state 'final',
         edit: ->
@@ -498,6 +498,17 @@ class Document
     transitions:
       Writing: origin: 'Dirty', target: 'Saved', action: ->
 ```
+
+Points of interest pertaining to method structure include:
+
+1. A “privileged” method `edit` is defined inside the constructor, closing over a private variable `text` to which it requires access. Later, when state is applied to the object, this method will be moved to the root state and replaced by a delegator.
+
+2. An overridden implementation of `edit`, while not closed over the constructor’s private variable `text`, is able to call up to the original implementation using `this.superstate().apply('edit')`.
+
+3. The `freeze` method is declared on the abstract root state, callable from states `Dirty` and `Saved` (but not `Frozen`, where it is overridden with a no-op).
+
+4. The `save` method, which only appears in the `Dirty` state, is still callable from other states, as its presence in `Dirty` causes a no-op version of the method to be automatically added to the root state. This allows `freeze` to safely call `save` despite the possiblity of being in a state (`Saved`) with no such method.
+
 
 <a id="concepts--transitions" />
 ### Transitions
