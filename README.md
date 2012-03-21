@@ -24,7 +24,7 @@ or included in the browser:
 
 which will expose the module at `window.state` (this can be reclaimed with a call to `state.noConflict();`).
 
-#### Quick intro
+#### Quick example
 
 ```javascript
 var obj = {
@@ -78,7 +78,7 @@ obj.greet() # "Hello."
 
 * [Attributes](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will allow no further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
 
-* [Data](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly.
+* [Data](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
 
 * [Methods](#concepts--methods) — Behavior is modeled by defining state **methods** that override the object’s methods *opaquely* with respect to consumers of the object, which need not be aware of the object’s current state, or even that a concept of state exists at all. State methods are invoked in the context of the state in which the method is defined, allowing for polymorphic features like invoking the overridden methods of a superstate.
 
@@ -111,7 +111,7 @@ Apart from the addition of the `object.state()` method, a call to `state()` make
 <a id="concepts--expressions" />
 ### Expressions
 
-A **state expression** is the formal type used to define the contents and structure of a `State` instance. A `StateExpression` object is most easily constructed by using the exported `state()` function, and providing a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
+A **state expression** defines the contents and structure of a `State` instance. A `StateExpression` object can be created using the exported `state()` function, and providing it a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
 
 The contents of a state expression decompose into six categories: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
@@ -188,15 +188,15 @@ shorthandExpression = state
 
 Below is the internal procedure for interpreting `StateExpression` input:
 
-1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, it is interpreted as such.
+1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, interpret it as such.
 
 2. Otherwise, if an entry’s key is a category name, its value must be either `null` or an object to be interpreted in longform.
 
-3. Otherwise an entry is interpreted as an event listener (or array thereof) if its key matches a built-in event type.
+3. Otherwise, if an entry’s key matches a built-in event type, interpret the value as an event listener (or array of event listeners) to be bound to that event type.
 
-4. Otherwise an entry is interpreted as a guard condition (or array thereof) if its key matches a guard action.
+4. Otherwise, if an entry’s key matches a guard action (i.e., `admit`, `release`), interpret the value as a guard condition (or array of guard conditions).
 
-5. Otherwise, if its value is a function, the entry is interpreted as a method, or if its value is an object, it is interpreted as a substate.
+5. Otherwise, if an entry’s value is a function, interpret it as a method whose name is the key, or if the entry’s value is an object, interpret it as a substate whose name is the key.
 
 
 <a id="concepts--inheritance" />
@@ -353,7 +353,7 @@ state( obj, 'abstract history', {
     Alive: state( 'default initial', {
         update: function () { /*...*/ }
     }),
-    Dead state( 'final', {
+    Dead: state( 'final', {
         update: function () { /*...*/ }
     })
 });
@@ -368,35 +368,21 @@ state obj, 'abstract history',
 
 Available attributes include:
 
-* **initial** — Marking a state `initial` specifies which state a newly instantiated `StateController`
-should assume.
+* **initial** — Marking a state `initial` specifies which state a newly instantiated `StateController` should assume.
 
-* **final** — Once a state marked `final` is entered, no further outbound transitions within its local
-region are allowed.
+* **final** — Once a state marked `final` is entered, no further outbound transitions within its local region are allowed.
 
-* **abstract** — An **abstract state** cannot itself be current. Consequently a transition target that
-points to a state marked `abstract` is redirected to one of its substates.
+* **abstract** — An abstract state cannot itself be current. Consequently a transition target that points to a state marked `abstract` is redirected to one of its substates.
 
-* **default** — Marking a state `default` designates it as the actual target for any transition that
-targets its abstract superstate.
+* **default** — Marking a state `default` designates it as the actual target for any transition that targets its abstract superstate.
 
 * **sealed** — A state marked `sealed` cannot have substates.
 
-* **retained** — A `retained` state is one that preserves its own internal state, such that, after the
-state has become no longer active, a subsequent transition targeting that particular
-state will automatically be redirected to whichever of its descendant states was most
-recently current. *(Reserved; not presently implemented.)*
+* *retained* — *(Reserved; not presently implemented.)* A `retained` state is one that preserves its own internal state, such that, after the state has become no longer active, a subsequent transition targeting that particular state will automatically be redirected to whichever of its descendant states was most recently current.
 
-* **history** — Marking a state with the `history` attribute causes its internal state to be recorded
-in a sequential **history**. Whereas a `retained` state is concerned only with the most
-recent internal state, a state’s history can be traversed and altered, resulting in
-transitions back or forward to previously or subsequently held internal states.
-*(Reserved; not presently implemented.)*
+* *history* — *(Reserved; not presently implemented.)* Marking a state with the `history` attribute causes its internal state to be recorded in a sequential history. Whereas a `retained` state is concerned only with the most recent internal state, a state’s history can be traversed and altered, resulting in transitions back or forward to previously or subsequently held internal states.
 
-* **shallow** — Normally, states that are `retained` or that keep a `history` persist their internal
-state *deeply*, i.e., with a scope extending over all of the state’s descendant states.
-Marking a state `shallow` limits the scope of its persistence to its immediate
-substates only.
+* *shallow* — *(Reserved; not presently implemented.)* Normally, states that are `retained` or that keep a `history` persist their internal state *deeply*, i.e., with a scope extending over all of the state’s descendant states. Marking a state `shallow` limits the scope of its persistence to its immediate substates only.
 
 
 
@@ -407,6 +393,111 @@ substates only.
 <a id="concepts--methods" />
 ### Methods
 
+When state is applied to an object, any methods already present on the object for which there exist one or more stateful implementations within the state expression will be relocated to the root state and replaced on the object with a special **delegator** method. This delegator redirects any incoming calls to the object’s current state, which will locate and invoke the proper stateful implementation of the method. Should no active states contain an implemenation for a called method, the original implementation is still guaranteed to be available on the root state.
+
+Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local inheriting state. Using the state as the method’s context allows for polymorphic idioms such as calling up to a superstate’s implementation of the method. Despite this change in context, the owner object remains available from inside the method by calling `this.owner()`.
+
+```javascript
+var fs = require('fs'),
+    state = require('state');
+
+function Document ( location, text ) {
+    this.location = function () {
+        return location;
+    };
+    this.read = function () {
+        return text;
+    };
+    this.edit = function ( newText ) { // [1]
+        text = newText;
+        return this;
+    };
+}
+state( Document.prototype, 'abstract', {
+    freeze: function () { // [3]
+        var result = this.call( 'save' ); // [4]
+        this.change( 'Saved.Frozen' );
+        return result;
+    },
+
+    Dirty: {
+        save: function () {
+            var transition,
+                self = this.owner();
+
+            function callback ( err ) {
+                if ( err ) return transition.abort( err ).change( 'Dirty' );
+                return transition.end();
+            }
+            
+            fs.writeFile( self.location(), self.read(), callback );
+            transition = this.change( 'Saved' );
+            return self;
+        }
+    },
+    Saved: state( 'initial', {
+        edit: function () {
+            var result = this.superstate().apply( 'edit', arguments ); // [2]
+            this.change( 'Dirty' );
+            return result;
+        },
+        save: function () {},
+
+        Frozen: state( 'final', {
+            edit: function () {},
+            freeze: function () {},
+        })
+    }),
+
+    transitions: {
+        Writing: {
+            origin: 'Dirty',
+            target: 'Saved',
+            action: function () {}
+        }
+    }
+});
+```
+```coffeescript
+fs = require 'fs'
+state = require 'state'
+
+class Document
+  constructor: ( location, text ) ->
+    @location = -> location
+    @read = -> text
+    @edit = ( newText ) -> # [1]
+      text = newText
+      this
+
+  state @::, 'abstract',
+    freeze: -> [3]
+      result = @call 'save' # [4]
+      @change 'Saved.Frozen'
+      result
+
+    Dirty:
+      save: ->
+        self = @owner()
+        fs.writeFile self.location(), self.read(), ( err ) ->
+          if err then return transition.abort( err ).change 'Dirty'
+          do transition.end
+        transition = @change 'Saved'
+        self
+    Saved: state 'initial',
+      edit: ->
+        result = @superstate().apply 'edit', arguments # [2]
+        @change 'Dirty'
+        result
+      save: ->
+
+      Frozen: state 'final',
+        edit: ->
+        freeze: ->
+
+    transitions:
+      Writing: origin: 'Dirty', target: 'Saved', action: ->
+```
 
 <a id="concepts--transitions" />
 ### Transitions
