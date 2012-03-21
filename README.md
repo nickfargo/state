@@ -349,7 +349,7 @@ This system of protostates and virtual states allows an object’s state impleme
 State expressions may include **attributes** as a string argument that precedes the object map provided to a `state()` call:
 
 ```javascript
-state( obj, 'abstract history', {
+state( obj, 'abstract', {
     Alive: state( 'default initial', {
         update: function () { /*...*/ }
     }),
@@ -359,7 +359,7 @@ state( obj, 'abstract history', {
 });
 ```
 ```coffeescript
-state obj, 'abstract history',
+state obj, 'abstract',
   Alive: state 'default initial'
     update: -> # ...
   Dead: state 'final'
