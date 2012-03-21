@@ -2,7 +2,7 @@
 
 **State** is a micro-framework for expressing, manipulating, and recording *state* for any JavaScript object. Stateful objects can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
 
-#### Installation
+### Installation
 
 The lone dependency of **State** is [**Zcore**](http://github.com/zvector/zcore/), a small library module that assists with object manipulation tasks such as differential operations and facilitating prototypal inheritance, and provides various other general-purpose functions.
 
@@ -24,7 +24,7 @@ or included in the browser:
 
 which will expose the module at `window.state` (this can be reclaimed with a call to `state.noConflict();`).
 
-#### Quick example
+### Quick example
 
 ```javascript
 var obj = {
@@ -91,17 +91,17 @@ obj.greet() # "Hello."
 * [History](#concepts--history) — Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 
 <a id="overview--design-goals" />
-### Design goals
+## Design goals
 
-#### Minimal incursion
+### Minimal incursion
 
 All functionality of **State** is instigated through the exported `state` function — depending on the arguments provided, `state()` can be used either to generate state expressions, or to implement expressed states into an existing JavaScript object. In the latter case, the newly implemented system of states is thereafter accessed from a single `object.state()` method on the affected object.
 
-#### Black-box opacity
+### Black-box opacity
 
 Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods of the object that are reimplemented within the state expression are replaced on the object itself with special **delegator** functions, which will forward method calls to the appropriate state’s version of that method. This feature is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().destroy()` at any time will restore the object to its original condition.
 
-#### Expressive power
+### Expressive power
 
 **State** aims to *feel* as close as possible like a feature of the language. Packing everything into `state()` and `object.state()` makes code more declarative and easier to write and understand. Whenever convenient, state expressions may be written in a shorthand format that is interpreted into a formal `StateExpression` type. Individual state expressions can also optionally accept an argument of whitespace-delimited attribute keywords that provide further control over a state’s composition. Taken together, these features allow for JavaScript code that is powerful yet elegantly concise (and particularly so for those who prefer more depunctuated, syntactically terse dialects of JavaScript, such as CoffeeScript).
 
