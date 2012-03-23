@@ -67,7 +67,7 @@ obj.state -> ''
 obj.greet() # "Hello."
 ```
 
-<a id="overview" />
+<a name="overview" />
 ## Overview
 
 * Any JavaScript object can be augmented by **State**.
@@ -90,7 +90,7 @@ obj.greet() # "Hello."
 
 * [History](#concepts--history) — Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 
-<a id="overview--design-goals" />
+<a name="overview--design-goals" />
 ## Design goals
 
 ### Minimal incursion
@@ -105,10 +105,10 @@ Apart from the addition of the `object.state()` method, a call to `state()` make
 
 **State** aims to *feel* as much as possible like a feature of the language. Packing everything into `state()` and `object.state()` makes code more declarative and easier to write and understand. Whenever convenient, state expressions may be written in a shorthand format that is interpreted into a formal `StateExpression` type. A state’s composition can be precisely controlled simply by preceding a state expression with a string containing a set of attribute keywords. And adopters of terse, depunctuated JavaScript dialects like CoffeeScript will see this structural elegance and concision compounded even further.
 
-<a id="concepts" />
+<a name="concepts" />
 ## Concepts
 
-<a id="concepts--expressions" />
+<a name="concepts--expressions" />
 ### Expressions
 
 A **state expression** defines the contents and structure of a `State` instance. A `StateExpression` object can be created using the exported `state()` function, and providing it a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
@@ -199,7 +199,7 @@ Below is the internal procedure for interpreting `StateExpression` input:
 5. Otherwise, if an entry’s value is a function, interpret it as a method whose name is the key, or if the entry’s value is an object, interpret it as a substate whose name is the key.
 
 
-<a id="concepts--inheritance" />
+<a name="concepts--inheritance" />
 ### Inheritance
 
 #### Nesting states
@@ -343,7 +343,7 @@ Even though the inheritor’s state implementation is empty, it identifies the p
 This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without the states themselves having to maintain any direct prototypal relationship with each other.
 
 
-<a id="concepts--attributes" />
+<a name="concepts--attributes" />
 ### Attributes
 
 State expressions may include **attributes** as a string argument that precedes the object map provided to a `state()` call:
@@ -360,9 +360,9 @@ state( obj, 'abstract', {
 ```
 ```coffeescript
 state obj, 'abstract',
-  Alive: state 'default initial'
+  Alive: state 'default initial',
     update: -> # ...
-  Dead: state 'final'
+  Dead: state 'final',
     update: -> # ...
 ```
 
@@ -386,11 +386,13 @@ Available attributes include:
 
 
 
-<a id="concepts--data" />
+<a name="concepts--data" />
 ### Data
 
+Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
 
-<a id="concepts--methods" />
+
+<a name="concepts--methods" />
 ### Methods
 
 When state is applied to an object, any methods already present on the object for which there exist one or more stateful implementations within the state expression will be relocated to the root state and replaced on the object with a special **delegator** method. This delegator redirects any incoming calls to the object’s current state, which will locate and invoke the proper stateful implementation of the method. Should no active states contain an implemenation for a called method, the original implementation is still guaranteed to be available on the root state.
@@ -509,8 +511,9 @@ Points of interest pertaining to method structure include:
 
 4. The `save` method, which only appears in the `Dirty` state, is still callable from other states, as its presence in `Dirty` causes a no-op version of the method to be automatically added to the root state. This allows `freeze` to safely call `save` despite the possiblity of being in a state (`Saved`) with no such method.
 
+An existing state’s methods can be 
 
-<a id="concepts--transitions" />
+<a name="concepts--transitions" />
 ### Transitions
 
 Whenever an object’s current state changes, a **transition** state is created, which temporarily assumes the role of the current state while the object is travelling from its source state to its target state.
@@ -523,7 +526,7 @@ The traversal sequence is decomposable into an ascending phase, an action phase,
 
 Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, and will keep the same `origin` state as that of the aborted transition. Further redirections of pending transitions will continue to grow this `source` chain until a transition finally arrives at its `target` state.
 
-<a id="concepts--events" />
+<a name="concepts--events" />
 ### Events
 
 #### State creation and destruction
@@ -547,8 +550,8 @@ When a state’s data or other contents change, it emits a `mutate` event contai
 Through exposure of the `emit` method, state instances allow any type of event to be broadcast and consumed.
 
 
-<a id="concepts--guards" />
+<a name="concepts--guards" />
 ### Guards
 
-<a id="concepts--history" />
+<a name="concepts--history" />
 ### History
