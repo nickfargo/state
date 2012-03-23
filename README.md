@@ -537,7 +537,15 @@ A state is properly deallocated with a call to `destroy()`, either on itself or 
 
 #### Transition event sequence
 
-As alluded to above, during a transition’s progression from its origin state to its target state, all affected states along the way emit any of four types of events — `depart`, `exit`, `enter`, and `arrive` — that describe their relation to the transition. Exactly one `depart` event is always emitted from the origin state, and marks the beginning of the transition. It is followed by zero or more `exit` events, one each from amongst the origin state and any of its superstates that will no longer be active as a result of the transition. Likewise, zero or more `enter` events are emitted, one for each state that will become newly active. Finally, an `arrive` event will occur exactly once, specifically at the target state.
+As alluded to above, during a transition’s progression from its origin state to its target state, all affected states along the way emit any of four types of events that describe their relation to the transition.
+
+* **depart** — Exactly one `depart` event is always emitted from the origin state, and marks the beginning of the transition.
+
+* **exit** — It is followed by zero or more `exit` events, one each from amongst the origin state and any of its superstates that will no longer be active as a result of the transition.
+
+* **enter** — Likewise, zero or more `enter` events are emitted, one for each state that will become newly active.
+
+* **arrive** — Finally, an `arrive` event will occur exactly once, specifically at the target state.
 
 Given this scheme, a few noteworthy cases stand out. A “non-exiting” transition is one that only *descends* in the state tree, i.e. it progresses from a superstate to a substate of that superstate, emitting one `depart`, zero `exit`s, one or more `enter`s, and one `arrive`. Conversely, a “non-entering” transition is one that only *ascends* in the state tree, progressing from a substate to a superstate thereof, emitting one `depart`, one or more `exit`s, zero `enter`s, and one `arrive`. For a reflexive transition, which is one whose target is its origin, the event sequence consists only of one `depart` and one `arrive`, both emitted from the same state.
 
