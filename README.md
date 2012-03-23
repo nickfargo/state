@@ -391,6 +391,63 @@ Available attributes include:
 
 Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
 
+```javascript
+function Boss () {
+    state( this, {
+        Enraged: {
+            Thermonuclear: {
+                data: {
+                    action: 'destroy',
+                    budget: Infinity
+                }
+            }
+        }
+    })
+}
+state( Boss.prototype, {
+    data: {
+        budget: 1e10
+    },
+    Enraged: {
+        data: {
+            target: 'Qooqel, Inc',
+            action: 'beat'
+        }
+    }
+}
+
+var ceo = new Boss;
+ceo.state().data();               // { budget: 10000000000 }
+ceo.state().be('Enraged');
+ceo.state().data();               // { target: 'Qooqel, Inc', action: 'beat', budget: 10000000000 }
+ceo.state().go('Thermonuclear');
+ceo.state().data();               // { target: 'Qooqel, Inc', action: 'destroy', budget: Infinity }
+```
+```coffeescript
+class Boss
+  constructor: ->
+    state this,
+      Enraged:
+        Thermonuclear:
+          data:
+            action: 'destroy'
+            budget: Infinity
+  state @::,
+    data:
+      budget: 1e10
+    Enraged:
+      data:
+        target: 'Qooqle, Inc'
+        action: 'beat'
+
+ceo = new Boss
+ceo.state().data()                 # { budget: 10000000000 }
+ceo.state().be 'Enraged'
+ceo.state().data()                 # { target: 'Qooqel, Inc', action: 'beat', budget: 10000000000 }
+ceo.state().go 'Thermonuclear'
+ceo.state().data()                 # { target: 'Qooqel, Inc', action: 'destroy', budget: Infinity }
+```
+
 
 <a name="concepts--methods" />
 ### Methods
@@ -511,7 +568,6 @@ Points of interest pertaining to method structure include:
 
 4. The `save` method, which only appears in the `Dirty` state, is still callable from other states, as its presence in `Dirty` causes a no-op version of the method to be automatically added to the root state. This allows `freeze` to safely call `save` despite the possiblity of being in a state (`Saved`) with no such method.
 
-An existing state’s methods can be 
 
 <a name="concepts--transitions" />
 ### Transitions
@@ -522,19 +578,21 @@ A state expression may include any number of **transition expressions**, which d
 
 The lifecycle of a transition consists of a stepwise traversal through the state tree, from the `source` node to the `target` node, where the **domain** of the transition is represented by the state that is the least common ancestor node between `source` and `target`. At each step in the traversal, the transition instance acts as a temporary substate of the local state, such that event listeners may expect to inherit from the states in which they are declared.
 
-The traversal sequence is decomposable into an ascending phase, an action phase, and a descending phase. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition. The transition then reaches the top of the domain and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state.
+The traversal sequence is decomposable into an ascending phase, an action phase, and a descending phase. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition. The transition then reaches the top of the domain and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state. (*See section [Transition event sequence](#concepts--events--transition-event-sequence)*.)
 
 Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, and will keep the same `origin` state as that of the aborted transition. Further redirections of pending transitions will continue to grow this `source` chain until a transition finally arrives at its `target` state.
 
 <a name="concepts--events" />
 ### Events
 
+<a name="concepts--events--state-creation-and-destruction" />
 #### State creation and destruction
 
 Once a state has been instantiated, it emits a `construct` event. Since a state is not completely constructed until its substates have themselves been constructed, the full `construct` event sequence proceeds in a bottom-up manner.
 
 A state is properly deallocated with a call to `destroy()`, either on itself or on a superstate. This causes a `destroy` event to be emitted immediately prior to the state and its contents being cleared.
 
+<a name="concepts--events--transition-event-sequence" />
 #### Transition event sequence
 
 As alluded to above, during a transition’s progression from its origin state to its target state, all affected states along the way emit any of four types of events that describe their relation to the transition.
@@ -545,14 +603,16 @@ As alluded to above, during a transition’s progression from its origin state t
 
 * **enter** — Likewise, zero or more `enter` events are emitted, one for each state that will become newly active.
 
-* **arrive** — Finally, an `arrive` event will occur exactly once, specifically at the target state.
+* **arrive** — Finally, an `arrive` event will occur exactly once, specifically at the target state, marking the end of the transition.
 
 Given this scheme, a few noteworthy cases stand out. A “non-exiting” transition is one that only *descends* in the state tree, i.e. it progresses from a superstate to a substate of that superstate, emitting one `depart`, zero `exit`s, one or more `enter`s, and one `arrive`. Conversely, a “non-entering” transition is one that only *ascends* in the state tree, progressing from a substate to a superstate thereof, emitting one `depart`, one or more `exit`s, zero `enter`s, and one `arrive`. For a reflexive transition, which is one whose target is its origin, the event sequence consists only of one `depart` and one `arrive`, both emitted from the same state.
 
+<a name="concepts--events--mutation" />
 #### Mutation
 
 When a state’s data or other contents change, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
+<a name="concepts--events--custom-events" />
 #### Custom events
 
 Through exposure of the `emit` method, state instances allow any type of event to be broadcast and consumed.
