@@ -70,7 +70,17 @@ obj.greet() # "Hello."
 <a name="overview" />
 ## Overview
 
-* Any JavaScript object can be augmented by **State**.
+* **State** can augment any JavaScript object with a state implementation, using the exported `state` function in the form
+
+```javascript
+state( object, expression )
+```
+
+* Subsequent to the `state` application, the object’s state implementation is exposed at
+
+```javascript
+object.state()
+```
 
 * [Expressions](#concepts--expressions) — States and their contents are expressed using concise object literals, along with an optional set of attribute keywords, which together are interpreted into formal **state expressions**.
 
