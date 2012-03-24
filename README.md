@@ -27,42 +27,41 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 <a name="overview" />
 ## Overview
 
-### Quick intro
+### Four-step intro to State
 
 1. **State** can augment any JavaScript object with a state implementation. This is done using the exported `state` function, in the form:
 
-```javascript
-state( object, expression );
-```
+    ```javascript
+    state( object, expression );
+    ```
 
 2. The `expression` can be an object literal that describes states, methods, and other features that will be governed by the state implementation of `object`:
 
-```javascript
-{
-    Formal: {
-        greet: function () { return "How do you do?"; }
-    },
-    Informal: {
-        greet: function () { return "Hi!"; }
-    }
-}
-```
+    ```javascript
+    var object = { method: function () { return "default"; } },
+        expression = {
+            State: {
+                method: function () { return "stateful!"; }
+            }
+        };
+    ```
 
 3. Subsequent to the `state` application, the object’s state implementation is exposed at:
 
-```javascript
-object.state();
-```
+    ```javascript
+    state( object, expression );
+    object.state();
+    ```
 
 4. This returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**; this can be done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
 
-```javascript
-object.state().change('NameOfNewState');
-```
+    ```javascript
+    object.method();                 // "default"
+    object.state().change('State');
+    object.method();                 // "stateful!"
+    ```
 
-### Quick example
-
-Putting this together, then, we can create an object that changes its behavior using **delegator**:
+### Example
 
 *(Hereafter example code will be presented in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
 
@@ -292,7 +291,7 @@ obj.state().root() is obj.state ''      # true
 obj.state -> ''                         # State ''
 ```
 
-In addition to being the top-level node of the tree from which all of an object’s states inherit, the root state acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegator pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined within the current state or its superstates, **State** will as a last resort resolve the call to the original implementation held within the root state.
+In addition to being the top-level node of the tree from which all of an object’s states inherit, the root state acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined within the current state or its superstates, **State** will as a last resort resolve the call to the original implementation held within the root state.
 
 #### Inheriting states across prototypes
 
@@ -583,7 +582,7 @@ class Document
       Writing: origin: 'Dirty', target: 'Saved', action: ->
 ```
 
-1. A “privileged” method `edit` is defined inside the constructor, closing over a private variable `text` to which it requires access. Later, when state is applied to the object, this method will be moved to the root state and replaced by a delegator.
+1. A “privileged” method `edit` is defined inside the constructor, closing over a private variable `text` to which it requires access. Later, when state is applied to the object, this method will be moved to the root state, and a delegator will be added to the object in its place.
 
 2. An overridden implementation of `edit`, while not closed over the constructor’s private variable `text`, is able to call up to the original implementation using `this.superstate().apply('edit')`.
 
@@ -744,7 +743,7 @@ All functionality of **State** is instigated through the exported `state` functi
 
 ### Black-box opacity
 
-Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods of the object that are reimplemented within the state expression are replaced on the object itself with special **delegator** functions, which will forward method calls to the appropriate state’s version of that method. This feature is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original condition.
+Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods are replaced with delegators, which forward method calls to the current state. This is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original condition.
 
 ### Expressive power
 
