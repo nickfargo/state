@@ -24,6 +24,25 @@ or included in the browser:
 
 which will expose the module at `window.state` (this can be reclaimed with a call to `state.noConflict();`).
 
+<a name="overview" />
+## Overview
+
+**State** can augment any JavaScript object with a state implementation, using the exported `state` function, in the form:
+
+```javascript
+state( object, 'optional attribute list', expression )
+```
+
+Subsequent to the `state` application, the object’s state implementation is exposed at:
+
+```javascript
+object.state()
+```
+
+which returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**, which is done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
+
+*Hereafter example code is provided in both JavaScript and [CoffeeScript](http://coffeescript.org/) — follow/ignore either according to taste.*
+
 ### Quick example
 
 ```javascript
@@ -67,20 +86,8 @@ obj.state -> ''
 obj.greet() # "Hello."
 ```
 
-<a name="overview" />
-## Overview
-
-* **State** can augment any JavaScript object with a state implementation, using the exported `state` function in the form
-
-```javascript
-state( object, expression )
-```
-
-* Subsequent to the `state` application, the object’s state implementation is exposed at
-
-```javascript
-object.state()
-```
+<a name="concepts" />
+## Concepts
 
 * [Expressions](#concepts--expressions) — States and their contents are expressed using concise object literals, along with an optional set of attribute keywords, which together are interpreted into formal **state expressions**.
 
@@ -99,9 +106,6 @@ object.state()
 * [Guards](#concepts--guards) — A state may be outfitted with **guards** to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Guards are evaluated as either boolean values or predicates (boolean-valued functions).
 
 * [History](#concepts--history) — Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
-
-<a name="concepts" />
-## Concepts
 
 <a name="concepts--expressions" />
 ### Expressions
