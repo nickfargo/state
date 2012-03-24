@@ -640,7 +640,7 @@ state( Kid.prototype, {
 
 var junior = new Kid;
 
-// We could add stuff this way also
+// We could have added listeners this way also
 junior.state().on( 'mutate', function ( event, edit, delta ) { /* ... */ });
 
 junior.whim();  // "I hate chocolate, I want strawberry!"
@@ -659,11 +659,11 @@ class Kid
       @data favorite: flavors[ Math.random() * flavors.length >>> 0 ]
     whine: ( whine ) -> console?.log whine
     mutate: ( event, edit, delta ) ->
-      "I hate #{delta.favorite}, I want #{edit.favorite}!"
+      "I hate #{ delta.favorite }, I want #{ edit.favorite }!"
 
 junior = new Kid
 
-# We could add stuff this way also
+# We could have added listeners this way also
 junior.state().on 'mutate', ( event, edit, delta ) -> # ...
 
 do junior.whim   # "I hate chocolate, I want strawberry!"
