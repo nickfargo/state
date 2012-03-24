@@ -2,7 +2,7 @@
 
 **State** is a micro-framework for expressing, manipulating, and recording *state* for any JavaScript object. Stateful objects can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
 
-**[Installation](#installation)** | **[Overview](#overview)** | **[Concepts](#concepts)** | **[Design Goals](#design-goals)** | **[Future Directions](#future-directions)**
+**[Installation](#installation)** — **[Overview](#overview)** — **[Concepts](#concepts)** — **[Design Goals](#design-goals)** — **[Future Directions](#future-directions)**
 
 
 
@@ -230,7 +230,7 @@ Below is the internal procedure for interpreting `StateExpression` input:
 
 #### Nesting states
 
-As with classes or prototypal objects, states are modeled hierarchically, where a **superstate** contains zero or more **substates** that express ever greater specificity of their owner’s behavior and condition.
+As with classes or prototypal objects, states are modeled hierarchically, where a state may serve as a **superstate** of one or more **substates** that express ever greater specificity of their owner’s behavior and condition.
 
 ```javascript
 var obj = {
