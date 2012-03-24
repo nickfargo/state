@@ -45,9 +45,9 @@ This returns a `State` instance that is the object’s **current state**. The cu
 object.state().change('NameOfNewState');
 ```
 
-Putting this together, then, we have:
+Putting this together, then, we can create an object that changes its behavior:
 
-*Hereafter example code will be provided in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.*
+*(Hereafter example code will be presented in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
 
 ```javascript
 var obj = {
