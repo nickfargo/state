@@ -415,7 +415,7 @@ state( Boss.prototype, {
     },
     Enraged: {
         data: {
-            target: 'Qooqel, Inc',
+            target: 'Qooqol, Inc',
             action: 'beat'
         }
     }
@@ -424,9 +424,9 @@ state( Boss.prototype, {
 var ceo = new Boss;
 ceo.state().data();               // { budget: 10000000000 }
 ceo.state().be('Enraged');
-ceo.state().data();               // { target: 'Qooqel, Inc', action: 'beat', budget: 10000000000 }
+ceo.state().data();               // { target: 'Qooqol, Inc', action: 'beat', budget: 10000000000 }
 ceo.state().go('Thermonuclear');
-ceo.state().data();               // { target: 'Qooqel, Inc', action: 'destroy', budget: Infinity }
+ceo.state().data();               // { target: 'Qooqol, Inc', action: 'destroy', budget: Infinity }
 ```
 ```coffeescript
 class Boss
@@ -442,15 +442,15 @@ class Boss
       budget: 1e10
     Enraged:
       data:
-        target: 'Qooqle, Inc'
+        target: 'Qooqol, Inc'
         action: 'beat'
 
 ceo = new Boss
 ceo.state().data()                 # { budget: 10000000000 }
 ceo.state().be 'Enraged'
-ceo.state().data()                 # { target: 'Qooqel, Inc', action: 'beat', budget: 10000000000 }
+ceo.state().data()                 # { target: 'Qooqol, Inc', action: 'beat', budget: 10000000000 }
 ceo.state().go 'Thermonuclear'
-ceo.state().data()                 # { target: 'Qooqel, Inc', action: 'destroy', budget: Infinity }
+ceo.state().data()                 # { target: 'Qooqol, Inc', action: 'destroy', budget: Infinity }
 ```
 
 
