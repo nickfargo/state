@@ -2,9 +2,12 @@
 
 **State** is a micro-framework for expressing, manipulating, and recording *state* for any JavaScript object. Stateful objects can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
 
-**[Overview](#overview)** | **[Concepts](#concepts)** | **[Design Goals](#design-goals)** | **[Future Directions](#future-directions)**
+**[Installation](#installation)** | **[Overview](#overview)** | **[Concepts](#concepts)** | **[Design Goals](#design-goals)** | **[Future Directions](#future-directions)**
 
-### Installation
+
+
+<a name="installation" />
+## Installation
 
 The lone dependency of **State** is [**Zcore**](http://github.com/zvector/zcore/), a small library module that assists with object manipulation tasks such as differential operations and facilitating prototypal inheritance, and provides various other general-purpose functions.
 
@@ -25,6 +28,8 @@ or included in the browser:
 ```
 
 which will expose the module at `window.state` (this can be reclaimed with a call to `state.noConflict();`).
+
+
 
 <a name="overview" />
 ## Overview
