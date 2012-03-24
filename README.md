@@ -465,7 +465,7 @@ When state is applied to an object, any methods already present on the object fo
 
 Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local inheriting state. Using the state as the method’s context allows for polymorphic idioms such as calling up to a superstate’s implementation of the method. Despite this change in context, the owner object remains available from inside the method by calling `this.owner()`.
 
-This example of a simple `Document` class demonstrates method inheritance and polymorphism. 
+This example of a simple `Document` class demonstrates method inheritance and polymorphism. Note the points of interest that are numbered in trailing comments and explained below:
 
 ```javascript
 var fs = require('fs'),
@@ -566,8 +566,6 @@ class Document
     transitions:
       Writing: origin: 'Dirty', target: 'Saved', action: ->
 ```
-
-Points of interest pertaining to method structure include:
 
 1. A “privileged” method `edit` is defined inside the constructor, closing over a private variable `text` to which it requires access. Later, when state is applied to the object, this method will be moved to the root state and replaced by a delegator.
 
