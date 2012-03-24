@@ -430,13 +430,6 @@ ceo.state().data();               // { target: 'Qooqol, Inc', action: 'destroy',
 ```
 ```coffeescript
 class Boss
-  constructor: ->
-    state this,
-      Enraged:
-        Thermonuclear:
-          data:
-            action: 'destroy'
-            budget: Infinity
   state @::,
     data:
       budget: 1e10
@@ -444,6 +437,14 @@ class Boss
       data:
         target: 'Qooqol, Inc'
         action: 'beat'
+
+  constructor: ->
+    state this,
+      Enraged:
+        Thermonuclear:
+          data:
+            action: 'destroy'
+            budget: Infinity
 
 ceo = new Boss
 ceo.state().data()                 # { budget: 10000000000 }
