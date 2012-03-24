@@ -659,7 +659,7 @@ class Kid
       @data favorite: flavors[ Math.random() * flavors.length >>> 0 ]
     whine: ( whine ) -> console?.log whine
     mutate: ( event, edit, delta ) ->
-      "I hate #{ delta.favorite }, I want #{ edit.favorite }!"
+      @owner.whine "I hate #{ delta.favorite }, I want #{ edit.favorite }!"
 
 junior = new Kid
 
