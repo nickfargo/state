@@ -41,9 +41,7 @@ object.state()
 
 which returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**, which is done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
 
-*Hereafter example code is provided in both JavaScript and [CoffeeScript](http://coffeescript.org/) — follow/ignore either according to taste.*
-
-### Quick example
+*Hereafter example code will be provided in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.*
 
 ```javascript
 var obj = {
