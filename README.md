@@ -619,10 +619,96 @@ Given this scheme, a few noteworthy cases stand out. A “non-exiting” transit
 
 When a state’s data or other contents change, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
+```javascript
+var flavors = [ 'vanilla', 'chocolate', 'strawberry', 'Americone Dream' ];
+
+function Kid () {}
+state( Kid.prototype, {
+    data: {
+        favorite: 'chocolate'
+    },
+    whim: function () {
+        this.data({ favorite: flavors[ Math.random() * flavors.length >>> 0 ] });
+    },
+    whine: function ( whine ) {
+        typeof console !== 'undefined' && console.log( whine );
+    },
+    mutate: function ( event, edit, delta ) {
+        this.owner().whine( "I hate " + delta.favorite + ", I want " + edit.favorite + "!" );
+    }
+});
+
+var junior = new Kid;
+
+// We could add stuff this way also
+junior.state().on( 'mutate', function ( event, edit, delta ) { /* ... */ });
+
+junior.whim();  // "I hate chocolate, I want strawberry!"
+junior.whim();  // "I hate strawberry, I want chocolate!"
+junior.whim();  // undefined -- No whining! On a whim, junior stood pat this time.
+junior.whim();  // "I hate chocolate, I want Americone Dream!"
+```
+```coffeescript
+flavors = [ 'vanilla', 'chocolate', 'strawberry', 'Americone Dream' ]
+
+class Kid
+  state @::,
+    data:
+      favorite: 'chocolate'
+    whim: ->
+      @data favorite: flavors[ Math.random() * flavors.length >>> 0 ]
+    whine: ( whine ) -> console?.log whine
+    mutate: ( event, edit, delta ) ->
+      "I hate #{delta.favorite}, I want #{edit.favorite}!"
+
+junior = new Kid
+
+# We could add stuff this way also
+junior.state().on 'mutate', ( event, edit, delta ) -> # ...
+
+do junior.whim   # "I hate chocolate, I want strawberry!"
+do junior.whim   # "I hate strawberry, I want chocolate!"
+do junior.whim   # undefined -- No whining! On a whim, junior stood pat this time.
+do junior.whim   # "I hate chocolate, I want Americone Dream!"
+```
+
 <a name="concepts--events--custom-events" />
 #### Custom events
 
 Through exposure of the `emit` method, state instances allow any type of event to be broadcast and consumed.
+
+```javascript
+function Kid () {}
+state( Kid.prototype, {
+    Happy: state(),
+    Sad: state(),
+    events: {
+        gotIceCream: function ( event ) { return 'Happy'; },
+        spilledIceCream: function ( event ) { return 'Sad'; }
+    }
+});
+
+var junior = new Kid;
+junior.state().emit('gotIceCream');
+junior.state();                          // State 'Happy'
+junior.state().emit('spilledIceCream');
+junior.state();                          // State 'Sad'
+```
+```coffeescript
+class Kid
+  state @::,
+    Happy: state()
+    Sad: state()
+    events:
+      gotIceCream: ( event ) -> 'Happy'
+      spilledIceCream: ( event ) -> 'Sad'
+
+junior = new Kid
+junior.state().emit 'gotIceCream'
+junior.state()                         # State 'Happy'
+junior.state().emit 'spilledIceCream'
+junior.state()                         # State 'Sad'
+```
 
 
 <a name="concepts--guards" />
