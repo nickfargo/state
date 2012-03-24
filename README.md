@@ -30,16 +30,20 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 **State** can augment any JavaScript object with a state implementation, using the exported `state` function, in the form:
 
 ```javascript
-state( object, 'optional attribute list', expression )
+state( object, expression );
 ```
 
 Subsequent to the `state` application, the object’s state implementation is exposed at:
 
 ```javascript
-object.state()
+object.state();
 ```
 
-which returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**, which is done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
+This returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**; this can be done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
+
+```javascript
+object.state().change('NameOfNewState');
+```
 
 *Hereafter example code will be provided in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.*
 
@@ -76,9 +80,9 @@ state obj,
     greet: -> "Hi!"
 
 obj.greet() # "Hello."
-obj.state -> 'Formal'
+obj.state().change 'Formal'
 obj.greet() # "How do you do?"
-obj.state -> 'Informal'
+obj.state -> 'Informal' # An alternate way to instigate transitions
 obj.greet() # "Hi!"
 obj.state -> ''
 obj.greet() # "Hello."
