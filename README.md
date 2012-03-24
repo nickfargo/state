@@ -643,10 +643,10 @@ var junior = new Kid;
 // We could have added listeners this way also
 junior.state().on( 'mutate', function ( event, edit, delta ) { /* ... */ });
 
-junior.whim();  // "I hate chocolate, I want strawberry!"
-junior.whim();  // "I hate strawberry, I want chocolate!"
-junior.whim();  // undefined -- No whining! On a whim, junior stood pat this time.
-junior.whim();  // "I hate chocolate, I want Americone Dream!"
+junior.whim();  // log <<< "I hate chocolate, I want strawberry!"
+junior.whim();  // log <<< "I hate strawberry, I want chocolate!"
+junior.whim();  // No whining! On a whim, junior stood pat this time.
+junior.whim();  // log <<< "I hate chocolate, I want Americone Dream!"
 ```
 ```coffeescript
 flavors = [ 'vanilla', 'chocolate', 'strawberry', 'Americone Dream' ]
@@ -666,10 +666,10 @@ junior = new Kid
 # We could have added listeners this way also
 junior.state().on 'mutate', ( event, edit, delta ) -> # ...
 
-do junior.whim   # "I hate chocolate, I want strawberry!"
-do junior.whim   # "I hate strawberry, I want chocolate!"
-do junior.whim   # undefined -- No whining! On a whim, junior stood pat this time.
-do junior.whim   # "I hate chocolate, I want Americone Dream!"
+do junior.whim   # log <<< "I hate chocolate, I want strawberry!"
+do junior.whim   # log <<< "I hate strawberry, I want chocolate!"
+do junior.whim   # No whining! On a whim, junior stood pat this time.
+do junior.whim   # log <<< "I hate chocolate, I want Americone Dream!"
 ```
 
 <a name="concepts--events--custom-events" />
