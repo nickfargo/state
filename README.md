@@ -100,21 +100,6 @@ object.state()
 
 * [History](#concepts--history) — Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 
-<a name="overview--design-goals" />
-## Design goals
-
-### Minimal incursion
-
-All functionality of **State** is instigated through the exported `state` function — depending on the arguments provided, `state()` can be used either to generate state expressions, or to implement expressed states into an existing JavaScript object. In the latter case, the newly implemented system of states is thereafter accessed from a single `object.state()` method on the affected object.
-
-### Black-box opacity
-
-Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods of the object that are reimplemented within the state expression are replaced on the object itself with special **delegator** functions, which will forward method calls to the appropriate state’s version of that method. This feature is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original condition.
-
-### Expressive power
-
-**State** aims to *feel* as much as possible like a feature of the language. Packing everything into `state()` and `object.state()` makes code more declarative and easier to write and understand. Whenever convenient, state expressions may be written in a shorthand format that is interpreted into a formal `StateExpression` type. A state’s composition can be precisely controlled simply by preceding a state expression with a string containing a set of attribute keywords. And adopters of terse, depunctuated JavaScript dialects like CoffeeScript will see this structural elegance and concision compounded even further.
-
 <a name="concepts" />
 ## Concepts
 
@@ -376,11 +361,13 @@ state obj, 'abstract',
     update: -> # ...
 ```
 
-Available attributes include:
+**Implemented** (and *proposed*) attributes include:
 
-* **initial** — Marking a state `initial` specifies which state a newly instantiated `StateController` should assume.
+* **initial** — Marking a state `initial` specifies which state be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
-* **final** — Once a state marked `final` is entered, no further outbound transitions within its local region are allowed.
+* **final** — Once a state marked `final` is entered, no further transitions are allowed.
+
+* *conclusive* — (Reserved; not presently implemented.) Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
 * **abstract** — An abstract state cannot itself be current. Consequently a transition target that points to a state marked `abstract` is redirected to one of its substates.
 
@@ -633,3 +620,28 @@ Through exposure of the `emit` method, state instances allow any type of event t
 
 <a name="concepts--history" />
 ### History
+
+
+
+<a name="design-goals" />
+## Design goals
+
+### Minimal incursion
+
+All functionality of **State** is instigated through the exported `state` function — depending on the arguments provided, `state()` can be used either to generate state expressions, or to implement expressed states into an existing JavaScript object. In the latter case, the newly implemented system of states is thereafter accessed from a single `object.state()` method on the affected object.
+
+### Black-box opacity
+
+Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods of the object that are reimplemented within the state expression are replaced on the object itself with special **delegator** functions, which will forward method calls to the appropriate state’s version of that method. This feature is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original condition.
+
+### Expressive power
+
+**State** aims to *feel* as much as possible like a feature of the language. Packing everything into `state()` and `object.state()` makes code more declarative and easier to write and understand. Whenever convenient, state expressions may be written in a shorthand format that is interpreted into a formal `StateExpression` type. A state’s composition can be precisely controlled simply by preceding a state expression with a string containing a set of attribute keywords. And adopters of terse, depunctuated JavaScript dialects like CoffeeScript will see this structural elegance and concision compounded even further.
+
+
+
+<a name="Future directions" />
+## Future directions
+
+### Concurrency
+
