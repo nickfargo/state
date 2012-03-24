@@ -394,22 +394,23 @@ state obj, 'abstract',
 <a name="concepts--data" />
 ### Data
 
-Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
+Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates. Data may be declared within an expression, and both read and written using the `data` method:
 
 ```javascript
-function Boss () {
+function Chief () {
     state( this, {
         Enraged: {
             Thermonuclear: {
                 data: {
-                    action: 'destroy',
-                    budget: Infinity
+                    action: 'destroy'
                 }
             }
         }
-    })
+    });
+
+    this.state('Thermonuclear').data({ budget: Infinity });
 }
-state( Boss.prototype, {
+state( Chief.prototype, {
     data: {
         budget: 1e10
     },
@@ -421,7 +422,7 @@ state( Boss.prototype, {
     }
 }
 
-var ceo = new Boss;
+var ceo = new Chief;
 ceo.state().data();               // { budget: 10000000000 }
 ceo.state().be('Enraged');
 ceo.state().data();               // { target: 'Qooqol, Inc', action: 'beat', budget: 10000000000 }
@@ -429,7 +430,7 @@ ceo.state().go('Thermonuclear');
 ceo.state().data();               // { target: 'Qooqol, Inc', action: 'destroy', budget: Infinity }
 ```
 ```coffeescript
-class Boss
+class Chief
   state @::,
     data:
       budget: 1e10
@@ -444,9 +445,11 @@ class Boss
         Thermonuclear:
           data:
             action: 'destroy'
-            budget: Infinity
 
-ceo = new Boss
+    @state('Thermonuclear').data
+      budget: Infinity
+
+ceo = new Chief
 ceo.state().data()                 # { budget: 10000000000 }
 ceo.state().be 'Enraged'
 ceo.state().data()                 # { target: 'Qooqol, Inc', action: 'beat', budget: 10000000000 }
