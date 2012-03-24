@@ -27,25 +27,42 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 <a name="overview" />
 ## Overview
 
-**State** can augment any JavaScript object with a state implementation, using the exported `state` function, in the form:
+### Quick intro
+
+1. **State** can augment any JavaScript object with a state implementation. This is done using the exported `state` function, in the form:
 
 ```javascript
 state( object, expression );
 ```
 
-Subsequent to the `state` application, the object’s state implementation is exposed at:
+2. The `expression` can be an object literal that describes states, methods, and other features that will be governed by the state implementation of `object`:
+
+```javascript
+{
+    Formal: {
+        greet: function () { return "How do you do?"; }
+    },
+    Informal: {
+        greet: function () { return "Hi!"; }
+    }
+}
+```
+
+3. Subsequent to the `state` application, the object’s state implementation is exposed at:
 
 ```javascript
 object.state();
 ```
 
-This returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**; this can be done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
+4. This returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**; this can be done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
 
 ```javascript
 object.state().change('NameOfNewState');
 ```
 
-Putting this together, then, we can create an object that changes its behavior:
+### Quick example
+
+Putting this together, then, we can create an object that changes its behavior using **delegator**:
 
 *(Hereafter example code will be presented in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
 
@@ -131,7 +148,7 @@ var longformExpression = state({
                 greet: function () { return "How do you do?"; }
             },
             events: {
-                enter: function ( event ) { this.owner().wearTuxedo(); }
+                enter: function ( event ) { this.owner().wearTux(); }
             }
         },
         Informal: {
@@ -154,7 +171,7 @@ longformExpression = state
       methods:
         greet: -> "How do you do?"
       events:
-        enter: ( event ) -> @owner().wearTuxedo()
+        enter: ( event ) -> @owner().wearTux()
     Informal:
       methods:
         greet: -> "Hi!"
@@ -169,7 +186,7 @@ var shorthandExpression = state({
     greet: function () { return "Hello."; },
 
     Formal: {
-        enter: function ( event ) { this.owner().wearTuxedo(); },
+        enter: function ( event ) { this.owner().wearTux(); },
         greet: function () { return "How do you do?"; }
     },
     Informal: {
@@ -182,7 +199,7 @@ var shorthandExpression = state({
 shorthandExpression = state
   greet: -> "Hello."
   Formal:
-    enter: ( event ) -> @owner().wearTuxedo()
+    enter: ( event ) -> @owner().wearTux()
     greet: -> "How do you do?"
   Informal:
     enter: ( event ) -> @owner().wearJeans()
@@ -416,7 +433,7 @@ state( Chief.prototype, {
     },
     Enraged: {
         data: {
-            target: 'Qooqol, Inc',
+            target: 'Qooqol',
             action: 'beat'
         }
     }
@@ -425,9 +442,9 @@ state( Chief.prototype, {
 var ceo = new Chief;
 ceo.state().data();               // { budget: 10000000000 }
 ceo.state().be('Enraged');
-ceo.state().data();               // { target: 'Qooqol, Inc', action: 'beat', budget: 10000000000 }
+ceo.state().data();               // { target: 'Qooqol', action: 'beat', budget: 10000000000 }
 ceo.state().go('Thermonuclear');
-ceo.state().data();               // { target: 'Qooqol, Inc', action: 'destroy', budget: Infinity }
+ceo.state().data();               // { target: 'Qooqol', action: 'destroy', budget: Infinity }
 ```
 ```coffeescript
 class Chief
@@ -436,7 +453,7 @@ class Chief
       budget: 1e10
     Enraged:
       data:
-        target: 'Qooqol, Inc'
+        target: 'Qooqol'
         action: 'beat'
 
   constructor: ->
@@ -446,15 +463,14 @@ class Chief
           data:
             action: 'destroy'
 
-    @state('Thermonuclear').data
-      budget: Infinity
+    @state('Thermonuclear').data budget: Infinity
 
 ceo = new Chief
 ceo.state().data()                 # { budget: 10000000000 }
 ceo.state().be 'Enraged'
-ceo.state().data()                 # { target: 'Qooqol, Inc', action: 'beat', budget: 10000000000 }
+ceo.state().data()                 # { target: 'Qooqol', action: 'beat', budget: 10000000000 }
 ceo.state().go 'Thermonuclear'
-ceo.state().data()                 # { target: 'Qooqol, Inc', action: 'destroy', budget: Infinity }
+ceo.state().data()                 # { target: 'Qooqol', action: 'destroy', budget: Infinity }
 ```
 
 
@@ -722,7 +738,7 @@ junior.state()                         # State 'Sad'
 <a name="design-goals" />
 ## Design goals
 
-### Minimal incursion
+### Minimal footprint
 
 All functionality of **State** is instigated through the exported `state` function — depending on the arguments provided, `state()` can be used either to generate state expressions, or to implement expressed states into an existing JavaScript object. In the latter case, the newly implemented system of states is thereafter accessed from a single `object.state()` method on the affected object.
 
@@ -732,7 +748,7 @@ Apart from the addition of the `object.state()` method, a call to `state()` make
 
 ### Expressive power
 
-**State** aims to *feel* as much as possible like a feature of the language. Packing everything into `state()` and `object.state()` makes code more declarative and easier to write and understand. Whenever convenient, state expressions may be written in a shorthand format that is interpreted into a formal `StateExpression` type. A state’s composition can be precisely controlled simply by preceding a state expression with a string containing a set of attribute keywords. And adopters of terse, depunctuated JavaScript dialects like CoffeeScript will see this structural elegance and concision compounded even further.
+**State** aims to feel as much as possible like a feature of the language. Packing everything into `state()` and `object.state()` allows code to be more declarative and easier to write and understand. Whenever convenient, state expressions may be written in the shorthand format that is interpreted into a formal `StateExpression` type. A state’s composition can be precisely controlled simply by using attributes. And adopters of terse, depunctuated JavaScript dialects like CoffeeScript will only see further gains in expressiveness.
 
 
 
