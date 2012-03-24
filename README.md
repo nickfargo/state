@@ -32,7 +32,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 1. **State** can augment any JavaScript object with a state implementation. This is done using the exported `state` function, in the form:
 
     ```javascript
-    state( object, expression );
+    state( object, expression )
     ```
 
 2. The `expression` can be an object literal that describes states, methods, and other features that will be governed by the state implementation of `object`:
@@ -46,14 +46,14 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
         };
     ```
 
-3. Subsequent to the `state` application, the object’s state implementation is exposed at:
+3. Subsequent to the `state` application, the object’s state implementation is exposed as a method on the object, called `state`:
 
     ```javascript
     state( object, expression );
     object.state();
     ```
 
-4. This returns a `State` instance that is the object’s **current state**. The current state may be changed by instigating a **transition**; this can be done using a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
+4. Calling this with no arguments returns a `State` instance that is the object’s **current state**. The current state may be changed by calling a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
 
     ```javascript
     object.method();                 // "default"
@@ -389,9 +389,9 @@ state obj, 'abstract',
 
 * **initial** — Marking a state `initial` specifies which state be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
-* **final** — Once a state marked `final` is entered, no further transitions are allowed.
-
 * *conclusive* — (Reserved; not presently implemented.) Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
+
+* **final** — Once a state marked `final` is entered, no further transitions are allowed.
 
 * **abstract** — An abstract state cannot itself be current. Consequently a transition target that points to a state marked `abstract` is redirected to one of its substates.
 
