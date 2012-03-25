@@ -36,41 +36,53 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 ### Four-step intro to State
 
-1. **State** can augment any JavaScript object with a state implementation. This is done using the exported `state` function, in the form:
+1. The **State** module is exported as a function called `state`. This can be used in one of two ways: either to create a **state expression**, or to augment any JavaScript object with a state implementation as defined by a state expression:
 
     ```javascript
+    // Returns a `StateExpression` based on the contents of `expression`.
+    state( expression )
+
+    // Creates a state implementation on `object` as defined by `expression`, and returns
+    // the object’s initial `State`.
     state( object, expression )
     ```
 
-2. The `expression` can be an object literal that describes states, methods, and other features that will be governed by the state implementation of `object`:
+2. The `expression` argument is an object literal that describes states, methods, and other features that will be governed by the state implementation of `object`:
 
     ```javascript
-    var object = { method: function () { return "default"; } },
+    var object = {
+            method: function () { return "default"; }
+        },
         expression = {
             State: {
                 method: function () { return "stateful!"; }
             }
         };
-    ```
 
-3. Subsequent to the `state` application, the object’s state implementation is exposed as a method on the object, called `state`:
-
-    ```javascript
     state( object, expression );
-    object.state();
     ```
 
-4. Calling this with no arguments returns a `State` instance that is the object’s **current state**. The current state may be changed by calling a method of `State` called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted.
+3. Subsequent to the call to `state`, the object’s new state implementation is exposed through an **accessor method** that has been added to the object, also named `state`. The accessor can be called with no arguments, which returns the `State` that is the object’s **current state**, or with a **selector** string, which returns the specific `State` named by the selector.
 
     ```javascript
-    object.method();                 // "default"
+    object.state();
+    object.state('State');
+
+    object.state().isCurrent();         // true
+    object.state('State').isCurrent();  // false
+    ```
+
+4. The current state may be changed by calling a method called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted. Changing an object’s state allows it to exhibit different behavior:
+
+    ```javascript
+    object.method();                     // "default"
     object.state().change('State');
-    object.method();                 // "stateful!"
+    object.method();                     // "stateful!"
     ```
 
 ### Example
 
-*(Hereafter example code will be presented in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
+*(Hereafter all example code will be presented in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
 
 ```javascript
 var obj = {
@@ -116,11 +128,11 @@ obj.greet() # "Hello."
 <a name="concepts" />
 ## Concepts
 
-* [Expressions](#concepts--expressions) — States and their contents are expressed using concise object literals, along with an optional set of attribute keywords, which together are interpreted into formal **state expressions**.
+* [Expressions](#concepts--expressions) — States and their contents can be concisely expressed using a plain object literal, which, along with an optional set of attribute keywords, is passed into the `state()` function and interpreted into a formal **state expression** type.
 
-* [Inheritance](#concepts--inheritance) — States are hierarchically nested in a tree structure: the **owner** object is given exactly one *root* state, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
+* [Inheritance](#concepts--inheritance) — States are hierarchically nested in a tree structure: the **owner** object is given exactly one **root state**, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
 
-* [Attributes](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will allow no further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
+* [Attributes](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will disallow any further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
 
 * [Data](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
 
@@ -394,7 +406,7 @@ state obj, 'abstract',
 
 **Implemented** (and *proposed*) attributes include:
 
-* **initial** — Marking a state `initial` specifies which state be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
+* **initial** — Marking a state `initial` specifies which state is to be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
 * *conclusive* — (Reserved; not presently implemented.) Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
