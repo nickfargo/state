@@ -638,23 +638,29 @@ Should a new transition be started while a transition is already in progress, an
 <a name="concepts--events" />
 ### Events
 
-In the typical “observer” or “publish-subscribe” model, an event *emitter* unidirectionally broadcasts instances of a certain event type, where any attached *listeners* for that event type are invoked and treated as a void-valued function, i.e., any value returned by a listener is discarded.
+Events in **State** follow a very familiar pattern: `State` exposes methods `emit` (aliased to `trigger`) for emitting typed events, and `addEvent`/`removeEvent` (aliased to `on`/`off` and `bind`/`unbind`) for assigning listeners to a particular event type.
 
-**State** employs a similar event model, except that event listeners may return a meaningful value that can affect the owner object’s state. For example, if a string is returned, it may be interpreted as a selector that names a target state for a consequent transition. This allows declared events to have a deterministic relationship with the states that describe them.
+<a name="concepts--events--determinism" />
+#### Determinism
 
-Otherwise, events in **State** follow a very familiar pattern and API; each `State` instance exposes methods `on`/`off` (aliased to `bind`/`unbind` or `addEvent`/`removeEvent`) for listeners, and `emit` (aliased to `trigger`) for emitters.
+In the typical “observer” or “publish-subscribe” model, an event emitter unidirectionally broadcasts instances of a certain event type, where any attached listeners for that event type are invoked and treated as a void-valued function, i.e., any value returned by a listener is discarded.
 
-The sections that follow describe the types of events emitted by a `State`:
+**State** employs a similar event model, except that event listeners may return a meaningful value that can affect the owner object’s state. For example, if a string is returned, it may be interpreted as a selector that names a target state for a consequent transition.
 
-<a name="concepts--events--state-creation-and-destruction" />
-#### State creation and destruction
+This allows states to use events *deterministically*, where the occurrence of a particular event type within a particular state has a definitive effect on the state of the object.
+
+<a name="concepts--events--types" />
+#### Types of events
+
+<a name="concepts--events--types--existential" />
+##### Existential events
 
 Once a state has been instantiated, it emits a `construct` event. Since a state is not completely constructed until its substates have themselves been constructed, the full `construct` event sequence proceeds in a bottom-up manner.
 
 A state is properly deallocated with a call to `destroy()`, either on itself or on a superstate. This causes a `destroy` event to be emitted immediately prior to the state and its contents being cleared.
 
-<a name="concepts--events--transition-event-sequence" />
-#### Transition event sequence
+<a name="concepts--events--types--transitional" />
+##### Transitional events
 
 As alluded to above, during a transition’s progression from its origin state to its target state, all affected states along the way emit any of four types of events that describe their relation to the transition.
 
@@ -668,8 +674,8 @@ As alluded to above, during a transition’s progression from its origin state t
 
 Given this scheme, a few noteworthy cases stand out. A “non-exiting” transition is one that only *descends* in the state tree, i.e. it progresses from a superstate to a substate of that superstate, emitting one `depart`, zero `exit` events, one or more `enter` events, and one `arrive`. Conversely, a “non-entering” transition is one that only *ascends* in the state tree, progressing from a substate to a superstate thereof, emitting one `depart`, one or more `exit` events, zero `enter` events, and one `arrive`. For a reflexive transition, which is one whose target is its origin, the event sequence consists only of one `depart` and one `arrive`, both emitted from the same state.
 
-<a name="concepts--events--mutation" />
-#### Mutation
+<a name="concepts--events--types--mutation" />
+##### Mutation
 
 When a state’s data or other contents change, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
@@ -726,8 +732,8 @@ do junior.whim   # No whining! On a whim, junior stood pat this time.
 do junior.whim   # log <<< "I hate chocolate, I want Americone Dream!"
 ```
 
-<a name="concepts--events--custom-events" />
-#### Custom events
+<a name="concepts--events--types--custom-event-types" />
+#### Custom event types
 
 Through exposure of the `emit` method, state instances allow any type of event to be broadcast and consumed.
 
