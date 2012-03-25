@@ -36,7 +36,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 ### Four-step intro to State
 
-1. The **State** module is exported as a function called `state`. This can be used in one of two ways: either to create a **state expression**, or to augment any JavaScript object with a state implementation as defined by a state expression:
+1. The **State** module is exported as a function called `state`. This can be used in one of two ways: either to create a **state expression**, or to augment any JavaScript object with a state implementation:
 
     ```javascript
     // Returns a `StateExpression` based on the contents of `expression`.
@@ -62,22 +62,21 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
     state( object, expression );
     ```
 
-3. Subsequent to the call to `state`, the object’s new state implementation is exposed through an **accessor method** that has been added to the object, also named `state`. The accessor can be called with no arguments, which returns the `State` that is the object’s **current state**, or with a **selector** string, which returns the specific `State` named by the selector.
+3. Subsequent to the call to `state`, the object’s new state implementation is exposed through an **accessor method**, also named `state`, that has been added to the object. Calling the accessor with no arguments queries the object for its **current state**, while providing a **selector** string queries the object for the specific `State` named by the selector.
 
     ```javascript
     object.state();
     object.state('State');
-
-    object.state().isCurrent();         // true
-    object.state('State').isCurrent();  // false
     ```
 
 4. The current state may be changed by calling a method called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted. Changing an object’s state allows it to exhibit different behavior:
 
     ```javascript
-    object.method();                     // "default"
-    object.state().change('State');
-    object.method();                     // "stateful!"
+    object.state();                  // State '' (the top-level *root state*)
+    object.method();                 // "default"
+    object.state().change('State');  // State 'State'
+    object.method();                 // "stateful!"
+    object.state();                  // State 'State'
     ```
 
 ### Example
