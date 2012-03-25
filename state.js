@@ -1516,7 +1516,13 @@ var StateExpression = ( function () {
         
         object = result.events;
         for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
-            Z.isFunction( value = object[ key ] ) && ( object[ key ] = [ value ] );
+            value = object[ key ];
+
+            // Converting a string to a function will allow `value` to be used as a transition
+            // target when the event listener’s application is interpreted deterministically.
+            typeof value === 'string' && ( value = Z.thunk( value ) );
+
+            Z.isFunction( value ) && ( object[ key ] = [ value ] );
         }
         
         object = result.transitions;
@@ -2238,12 +2244,13 @@ var Transition = ( function () {
             // transition is necessarily synchronous and is concluded immediately.
             start: function () {
                 aborted = false;
-                this.emit( 'start', false );
+                this.emit( 'start', arguments, false );
                 if ( action && Z.isFunction( action ) ) {
                     action.apply( this, arguments );
                     return this;
+                } else {
+                    return this.end.apply( this, arguments );
                 }
-                return this.end.apply( this, arguments );
             },
             
             // #### abort
@@ -2255,7 +2262,7 @@ var Transition = ( function () {
             abort: function () {
                 aborted = true;
                 callback = null;
-                this.emit( 'abort', false );
+                this.emit( 'abort', arguments, false );
                 return this;
             },
             
@@ -2265,7 +2272,7 @@ var Transition = ( function () {
             // transition is subsequently retired, along with any preceding aborted transitions.
             end: function () {
                 if ( !aborted ) {
-                    this.emit( 'end', false );
+                    this.emit( 'end', arguments, false );
                     callback && callback.apply( controller, arguments );
                 }
                 this.destroy();
