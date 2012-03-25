@@ -69,7 +69,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
     object.state('State');
     ```
 
-4. The current state may be changed by calling a method called `change()` (also aliased to `go()` and `be()`), to which is provided the name of the state to be targeted. Changing an object’s state allows it to exhibit different behavior:
+4. The current state may be changed by calling a method called `change()` (which is also aliased to `be()` and `go()`) and providing it the name of the state to be targeted. Changing an object’s state allows it to exhibit different behavior:
 
     ```javascript
     object.state();                  // State '' (the top-level *root state*)
