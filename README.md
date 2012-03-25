@@ -62,7 +62,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
     state( object, expression );
     ```
 
-3. Subsequent to the call to `state`, the object’s new state implementation is exposed through an **accessor method**, also named `state`, that has been added to the object. Calling the accessor with no arguments queries the object for its **current state**, while providing a **selector** string queries the object for the specific `State` named by the selector.
+3. Subsequent to the call to `state`, the object’s new state implementation is exposed through an **accessor method**, also named `state`, that has been added to the object. Calling the accessor with no arguments queries the object for its **current state**, while calling the accessor with a **selector** string queries the object for the specific `State` named by the selector.
 
     ```javascript
     object.state();
@@ -296,9 +296,9 @@ state obj,
           me.kiss betterHalf
 ```
 
-The state model is a classic tree structure, with a single **root state** as the basis for the object’s stateful implementation.
+An object’s state model is a classic tree structure, with a single **root state** as its basis, from which all of the object’s states inherit.
 
-One noteworthy quality of the root state is that, while its place in the expression does not bear a name, it is not anonymous; the root state’s name is always the empty string `''`, which may be used by an object to change its state so as to exhibit its default behavior.
+A noteworthy quality of the root state is that, while its place in the expression does not bear a name, it is not anonymous; the root state’s name is always the empty string `''`, which may be used by an object to change its state so as to exhibit its default behavior.
 
 ```javascript
 obj.state().root() === obj.state('')    // true
@@ -309,7 +309,7 @@ obj.state().root() is obj.state ''      # true
 obj.state -> ''                         # State ''
 ```
 
-In addition to being the top-level node of the tree from which all of an object’s states inherit, the root state acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined within the current state or its superstates, **State** will as a last resort resolve the call to the original implementation held within the root state.
+The root state also acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined for the current state, or for any of its superstates, then as a last resort **State** will resolve the call to the original implementation held within the root state.
 
 #### Inheriting states across prototypes
 
@@ -344,7 +344,7 @@ host = new Host
 
 Since the instance object `host` in the code above inherits from `Host.prototype`, given what’s been covered to this point, it may be expected that instigating a transition via `host.state().change('Formal')` would take effect on `Host.prototype`, in turn affecting all other instances of `Host` as well. While it is desirable to share stateful behavior through prototypes, each instance must be able to maintain state and undergo changes to its state independently.
 
-**State** addresses this by lazily outfitting each instance with its own state implementation when one does not exist already. This new implementation will itself be empty, but will inherit all content from the state implementation of the prototype. Most importantly, it allows the instance to experience its own state changes, without also indirectly affecting all of its fellow inheritors.
+**State** addresses this by outfitting each instance with its own state implementation whenever one is necessary but does not exist already. The new implementation will itself be empty, but will inherit from the state implementation of the prototype, as shown below. This approach allows the instance to experience its own state changes, without also indirectly affecting all of its fellow inheritors.
 
 ```javascript
 Host.prototype.state();              // State ''
@@ -496,7 +496,7 @@ ceo.state().data()                 # { target: 'Qooqol', action: 'destroy', budg
 
 When state is applied to an object, any methods already present on the object for which there exist one or more stateful implementations within the state expression will be relocated to the root state and replaced on the object with a special **delegator** method. This delegator redirects any incoming calls to the object’s current state, which will locate and invoke the proper stateful implementation of the method. Should no active states contain an implemenation for a called method, the original implementation is still guaranteed to be available on the root state.
 
-Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local inheriting state. This lexical approach of using the state rather than the object as the method’s context allows for polymorphic idioms such as calling up to a superstate’s implementation of the method. Despite the difference in context, however, the owner object always remains available from inside the method by calling `this.owner()`.
+Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. This lexical approach of using the state rather than the object as the method’s context allows for polymorphic idioms such as calling up to a superstate’s implementation of the method. Despite the difference in context, however, the owner object always remains available from inside the method by calling `this.owner()`.
 
 This example of a simple `Document` class demonstrates method inheritance and polymorphism. Note the points of interest that are numbered in trailing comments and explained below:
 
