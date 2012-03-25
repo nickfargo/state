@@ -640,15 +640,6 @@ Should a new transition be started while a transition is already in progress, an
 
 Events in **State** follow a very familiar pattern: `State` exposes methods `emit` (aliased to `trigger`) for emitting typed events, and `addEvent`/`removeEvent` (aliased to `on`/`off` and `bind`/`unbind`) for assigning listeners to a particular event type.
 
-<a name="concepts--events--determinism" />
-#### Determinism
-
-In the typical “observer” or “publish-subscribe” model, an event emitter unidirectionally broadcasts instances of a certain event type, where any attached listeners for that event type are invoked and treated as a void-valued function, i.e., any value returned by a listener is discarded.
-
-**State** employs a similar event model, except that event listeners may return a meaningful value that can affect the owner object’s state. For example, if a string is returned, it may be interpreted as a selector that names a target state for a consequent transition.
-
-This allows states to use events *deterministically*, where the occurrence of a particular event type within a particular state has a definitive effect on the state of the object.
-
 <a name="concepts--events--types" />
 #### Types of events
 
@@ -733,7 +724,7 @@ do junior.whim   # log <<< "I hate chocolate, I want Americone Dream!"
 ```
 
 <a name="concepts--events--types--custom-event-types" />
-#### Custom event types
+##### Custom event types
 
 Through exposure of the `emit` method, state instances allow any type of event to be broadcast and consumed.
 
@@ -743,8 +734,8 @@ state( Kid.prototype, {
     Happy: state(),
     Sad: state(),
     events: {
-        gotIceCream: function ( event ) { return 'Happy'; },
-        spilledIceCream: function ( event ) { return 'Sad'; }
+        gotIceCream: function ( event ) { this.be('Happy'); },
+        spilledIceCream: function ( event ) { this.be('Sad'); }
     }
 });
 
@@ -760,8 +751,8 @@ class Kid
     Happy: state()
     Sad: state()
     events:
-      gotIceCream: ( event ) -> 'Happy'
-      spilledIceCream: ( event ) -> 'Sad'
+      gotIceCream: ( event ) -> @be 'Happy'
+      spilledIceCream: ( event ) -> @be 'Sad'
 
 junior = new Kid
 junior.state().emit 'gotIceCream'
@@ -769,6 +760,55 @@ junior.state()                         # State 'Happy'
 junior.state().emit 'spilledIceCream'
 junior.state()                         # State 'Sad'
 ```
+
+<a name="concepts--events--determinism" />
+#### Determinism
+
+In the typical “observer” or “publish-subscribe” model, an event emitter unidirectionally broadcasts instances of a certain event type, where any attached listeners for that event type are invoked and treated as a void-valued function, i.e., any value returned by a listener is discarded.
+
+**State**’s event model is very similar, except that event listeners may return a meaningful value that can affect the owner object’s state. For example, if a string is returned, it may be interpreted as a selector that names a target state for a consequent transition.
+
+This allows states to concisely express *deterministic* behavior, where the occurrence of a particular event type within a particular state has a definitive effect on the state of the object.
+
+```javascript
+var device = {
+    method: function () {}
+};
+
+state( device, {
+    On: {
+        events: {
+            flip: function ( event ) { return 'Off'; }
+        }
+    },
+    Off: {
+        events: {
+            flip: function ( event ) { return 'On'; }
+        }
+    }
+});
+
+device.state().emit('flip');
+device.state().emit('flip');
+device.state().emit('flip');
+```
+```coffeescript
+device =
+  method: ->
+
+state device,
+  On:
+    events:
+      flip: ( event ) -> 'Off'
+  Off:
+    events:
+      flip: ( event ) -> 'On'
+
+device.state().emit 'flip'
+device.state().emit 'flip'
+device.state().emit 'flip'
+```
+
 
 
 <a name="concepts--guards" />
