@@ -494,9 +494,20 @@ ceo.state().data()                 # { target: 'Qooqol', action: 'destroy', budg
 <a name="concepts--methods" />
 ### Methods
 
-When state is applied to an object, any methods already present on the object for which there exist one or more stateful implementations within the state expression will be relocated to the root state and replaced on the object with a special **delegator** method. This delegator redirects any incoming calls to the object’s current state, which will locate and invoke the proper stateful implementation of the method. Should no active states contain an implemenation for a called method, the original implementation is still guaranteed to be available on the root state.
+<a name="concepts--methods--delegators" />
+#### Delegators
 
-Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. This lexical approach of using the state rather than the object as the method’s context allows for polymorphic idioms such as calling up to a superstate’s implementation of the method. Despite the difference in context, however, the owner object always remains available from inside the method by calling `this.owner()`.
+When state is applied to an object, any methods already present on the object for which there exist one or more stateful implementations within the state expression will be relocated to the root state and replaced on the object with a special **delegator** method. The delegator redirects calls it receives to the object’s current state, which will then locate and invoke the proper stateful implementation of the method. Should no active states contain an implemenation for a called method, then the call is forwarded to the object’s original implementation, which is still available on the root state.
+
+<a name="concepts--methods--context" />
+#### Context
+
+Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local state that inherits from that protostate.
+
+The lexical information afforded by binding state methods to their associated state rather than to the object allows state method code to exercise polymorphic idioms, such as calling up to a superstate’s implementation of the method. Despite the difference in context, however, the owner object always remains available from inside the method by calling `this.owner()`.
+
+<a name="concepts--methods--example" />
+#### Example
 
 This example of a simple `Document` class demonstrates method inheritance and polymorphism. Note the points of interest that are numbered in trailing comments and explained below:
 
