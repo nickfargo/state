@@ -778,12 +778,12 @@ var device = {
 state( device, {
     On: {
         events: {
-            flip: function ( event ) { return 'Off'; }
+            flip: 'Off'
         }
     },
     Off: {
         events: {
-            flip: function ( event ) { return 'On'; }
+            flip: 'On'
         }
     }
 });
@@ -799,10 +799,10 @@ device =
 state device,
   On:
     events:
-      flip: ( event ) -> 'Off'
+      flip: 'Off'
   Off:
     events:
-      flip: ( event ) -> 'On'
+      flip: 'On'
 
 device.state().emit 'flip'
 device.state().emit 'flip'
