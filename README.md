@@ -494,22 +494,24 @@ ceo.state().data()                 # { target: 'Qooqol', action: 'destroy', budg
 <a name="concepts--methods" />
 ### Methods
 
+A defining feature of **State** is the ability to have an object exhibit a variety of behaviors. A  state expresses behavior by defining **overrides** for any of its object’s methods.
+
 <a name="concepts--methods--delegators" />
 #### Delegators
 
-When state is applied to an object, any methods already present on the object for which there exist one or more stateful implementations within the state expression will be relocated to the root state and replaced on the object with a special **delegator** method. The delegator redirects calls it receives to the object’s current state, which will then locate and invoke the proper stateful implementation of the method. Should no active states contain an implemenation for a called method, then the call is forwarded to the object’s original implementation, which is still available on the root state.
+When state is applied to an object, **State** identifies any methods already present on the object for which there exists at least one override somewhere within the state expression. These methods will be relocated to the root state, and replaced on the object with a special **delegator** method. The delegator’s job is to redirect any subsequent calls it receives to the object’s current state, from which **State** will then locate and invoke the proper stateful implementation of the method. Should no active states contain an override for the called method, then the delegation defaults to the object’s original implementation.
 
 <a name="concepts--methods--context" />
 #### Context
 
-Whereas the context of a method invocation is normally the object to which the method belongs, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local state that inherits from that protostate.
+Normally, the context of a method invocation is the object to which the method belongs, or a prototypal inheritor of that object. However, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. While this difference in policy does mean that, within a state method, the owner object cannot be directly referenced by `this` as it normally would, it is still always accessible by calling `this.owner()`.
 
-The lexical information afforded by binding state methods to their associated state rather than to the object allows state method code to exercise polymorphic idioms, such as calling up to a superstate’s implementation of the method. Despite the difference in context, however, the owner object always remains available from inside the method by calling `this.owner()`.
+Of greater importance is the lexical information that is afforded by binding state methods to their associated state. This allows state method code to exercise useful polymorphic idioms, such as calling up to a superstate’s implementation of the method.
 
 <a name="concepts--methods--example" />
 #### Example
 
-This example of a simple `Document` class demonstrates method inheritance and polymorphism. Note the points of interest that are numbered in trailing comments and explained below:
+This example of a simple `Document` class demonstrates state method inheritance and polymorphism. Note the points of interest that are numbered in trailing comments and explained below:
 
 ```javascript
 var fs = require('fs'),
@@ -635,6 +637,14 @@ Should a new transition be started while a transition is already in progress, an
 
 <a name="concepts--events" />
 ### Events
+
+In the typical “observer” or “publish-subscribe” model, an event *emitter* unidirectionally broadcasts instances of a certain event type, where any attached *listeners* for that event type are invoked and treated as a void-valued function, i.e., any value returned by a listener is discarded.
+
+**State** employs a similar event model, except that event listeners may return a meaningful value that can affect the owner object’s state. For example, if a string is returned, it may be interpreted as a selector that names a target state for a consequent transition. This allows declared events to have a deterministic relationship with the states that describe them.
+
+Otherwise, events in **State** follow a very familiar pattern and API; each `State` instance exposes methods `on`/`off` (aliased to `bind`/`unbind` or `addEvent`/`removeEvent`) for listeners, and `emit` (aliased to `trigger`) for emitters.
+
+The sections that follow describe the types of events emitted by a `State`:
 
 <a name="concepts--events--state-creation-and-destruction" />
 #### State creation and destruction
