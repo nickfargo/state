@@ -822,7 +822,7 @@ var State = ( function () {
                 typeof flags === 'string' ||
                     ( data = transition, transition = state, state = flags, flags = undefined );
 
-                if ( !( state && state.isIn( this ) ) ) return;
+                if ( !( state instanceof State && state.isIn( this ) ) ) return;
 
                 flags = Z.assign( flags );
 
@@ -915,10 +915,7 @@ var State = ( function () {
                 if ( transition ) {
                     origin = transition.origin(), target = transition.target();
 
-                    if ( this === origin || this.isSuperstateOf( origin )  ||
-                            this === target || this.isSuperstateOf( target ) ) {
-                        return false;
-                    }
+                    if ( origin.isIn( this ) || target.isIn( this ) ) return false;
                 }
 
                 // Emit a `destroy` event on the local state.
@@ -957,9 +954,9 @@ var State = ( function () {
 
     // ### Prototype methods
     // 
-    // Entries for instance and privileged methods defined above are also included here as no-ops
-    // or defaults, so as to provide virtual states with a conformant `State` interface despite
-    // not (yet) having been reified.
+    // The instance methods defined above are also defined here, either as no-ops or defaults, so
+    // as to provide virtual states with a conformant `State` interface despite not (or not yet)
+    // having been reified.
     createReifier( State.prototype, 'addMethod addEvent addGuard addSubstate addTransition' );
     Z.privilege( State.prototype, State.privileged, { 'data method substate' : [ null ] } );
     Z.assign( State.prototype, {
@@ -1341,8 +1338,8 @@ var State = ( function () {
 
         // #### evaluateGuard
         // 
-        // Returns the Boolean result of the guard function at `guardName` defined on this state, as
-        // evaluated against `testState`, or `true` if no guard exists.
+        // Returns the Boolean result of the guard function at `guardName` defined on this state,
+        // as evaluated against `testState`, or `true` if no guard exists.
         evaluateGuard: function (
             /*String*/ guardName,
              /*State*/ testState   // optional
@@ -1351,19 +1348,19 @@ var State = ( function () {
                 guard = this.guard( guardName ),
                 result;
             
-            if ( guard ) {
-                Z.each( guard, function ( selector, value ) {
-                    Z.each( selector.split(','), function ( i, expr ) {
-                        if ( state.match( Z.trim( expr ), testState ) ) {
-                            result = !!( typeof value === 'function' ?
-                                value.apply( state, [ testState ] ) :
-                                value );
-                            return false; 
-                        }
-                    });
-                    return result === undefined;
+            if ( !guard ) return true;
+
+            Z.forEach( guard, function ( value, selector ) {
+                Z.forEach( selector.split( /\s*,+\s*/ ), function ( expr ) {
+                    if ( state.match( Z.trim( expr ), testState ) ) {
+                        result = !!( typeof value === 'function' ?
+                            value.call( state, testState ) :
+                            value );
+                        return false; 
+                    }
                 });
-            }
+                return result === undefined;
+            });
 
             return result === undefined || result;
         },
@@ -1379,12 +1376,15 @@ var State = ( function () {
             /*String*/ expr,
              /*State*/ testState // optional
         ) {
-            var parts = expr && expr.split('.'),
-                cursor = parts && parts.length && parts[0] === '' ?
-                    ( parts.shift(), this ) :
-                    this.root(),
-                cursorSubstate, result, i, l, name;
+            var parts, cursor, cursorSubstate, result, i, l, name;
             
+            if ( parts && parts.length && parts[0] === '' ) {
+                parts.shift();
+                cursor = this;
+            } else {
+                cursor = this.root();
+            }
+
             if ( !( parts && parts.length ) ) return cursor;
 
             for ( i = 0, l = parts.length; i < l; i++ ) {
@@ -1409,9 +1409,13 @@ var State = ( function () {
                 }
             }
 
-            return result !== undefined ? result :
-                !testState || cursor === testState ? cursor :
-                false;
+            if ( result !== undefined ) {
+                return result;
+            } else if ( !testState || cursor === testState ) {
+                return cursor;
+            }
+
+            return false;
         }
     });
     Z.alias( State.prototype, { addEvent: 'on bind', removeEvent: 'off unbind' } );
@@ -2162,8 +2166,8 @@ var StateEventCollection = ( function () {
 // A **transition** is a transient `State` adopted by a controller as it changes from one of its
 // proper `State`s to another.
 // 
-// A transition acts within the **domain** of the *least common ancestor* to its **origin** and
-// **target** states. During this time it behaves much as if it were a substate of that domain
+// A transition acts within the **domain** of the *least common ancestor* between its **origin**
+// and **target** states. During this time it behaves as if it were a substate of that domain
 // state, inheriting method calls and propagating events in the familiar fashion.
 
 var Transition = ( function () {
