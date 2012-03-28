@@ -6,3 +6,4 @@ test/.gitignore
 *.gz
 *.min.js
 *.tmp.js
+*.log
