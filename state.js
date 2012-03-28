@@ -1615,7 +1615,19 @@ var StateController = ( function () {
             // presently engaged in a transition.
             transition: Z.assign( function () { return transition; }, {
                 toString: function () { return transition ? transition.toString() : ''; }
-            })
+            }),
+
+            // #### destroy
+            // 
+            // Destroys this controller and all of its states, and returns the owner to its original
+            // condition.
+            destroy: function () {
+                var result;
+                root.destroy();
+                result = delete owner[ name ];
+                owner = self = root = current = transition = defaultSubstate = null;
+                return result;
+            }
         });
         
         // Assign partially applied external privileged methods.
@@ -1963,14 +1975,6 @@ var StateController = ( function () {
                 !target.isIn( origin ) && search( origin.superstate(), origin.common( target ) ) ||
                 new TransitionExpression
             );
-        },
-        
-        // #### destroy
-        // 
-        // Destroys this controller and all of its states, and returns the owner to its original
-        // condition.
-        destroy: function () {
-            return this.root().destroy() && delete this.owner()[ this.name() ];
         }
     });
 
