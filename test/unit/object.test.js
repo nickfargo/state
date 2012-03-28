@@ -63,9 +63,9 @@ test( "Method resolutions", function () {
 	assert.equal( x.methodOne(), 'methodOne' );
 	assert.equal( x.methodTwo(), 'Active.methodTwo' );
 	assert.ok( x.state().change('Finished'), "State 'Finished'" );
-	assert.notEqual( x.methodOne(), 'Finished.methodOne' ); // fails because change('Finished') is delayed
-	assert.equal( x.methodTwo(), 'methodTwo' ); // passes because `methodTwo` isn't overridden by Finished
-	assert.notEqual( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' ); // fails, idem
+	assert.notEqual( x.methodOne(), 'Finished.methodOne' ); // !==, because change('Finished') is delayed
+	assert.equal( x.methodTwo(), 'methodTwo' ); // ===, because `methodTwo` isn't overridden by Finished
+	assert.notEqual( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' ); // !==, idem
 	x.state().change('Finished.CleaningUp');
 	assert.ok( x.state().is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
 	assert.equal( x.methodOne(), 'Finished.methodOne' );
@@ -77,7 +77,7 @@ test( "Method resolutions", function () {
 	assert.equal( x.methodThree(1,2), 'Finished.Terminated.methodThree : Finished.methodThree uno=1 dos=2' );
 });
 
-test( "Rules", function () {
+test( "Guards", function () {
 	var x = new TestObject('Finished');
 	assert.ok( !x.state().change('Waiting'), "'Finished' to 'Waiting' disallowed" );
 	assert.ok( !x.state().change('Active'), "'Finished' to 'Active' disallowed" );
@@ -164,13 +164,6 @@ test( "Data", function () {
 		},
 		""
 	);
-
-	// var x = new TestObject;
-	// assert.ok( x.state('Finished').data(), "Data accessible from `data()`" );
-	// assert.equal( x.state('Finished').data().c, x.state('Finished.Terminated').data().c, "Substate inherits data member from superstate" );
-	// assert.notEqual( x.state('Finished').data().a, x.state('Finished.Terminated').data().a, "Substate overrides data member of superstate" );
-	// assert.equal( x.state('Finished').data().d.a, x.state('Finished.Terminated').data().d.a, "Substate inherits data member from superstate one level deep" );
-	// assert.notEqual( x.state('Finished').data().d.b, x.state('Finished.Terminated').data().d.b, "Substate overrides data member of superstate one level deep" );
 
 	assert.expect( 7 );
 });
