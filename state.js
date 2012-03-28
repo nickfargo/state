@@ -139,7 +139,7 @@ var STATE_ATTRIBUTES = {
         'origin source target action conjugate',
     
     TRANSITION_EXPRESSION_CATEGORIES =
-        'methods events',
+        'methods events guards',
     
     TRANSITION_EVENT_TYPES =
         'construct destroy enter exit start end abort';
@@ -1378,6 +1378,7 @@ var State = ( function () {
         ) {
             var parts, cursor, cursorSubstate, result, i, l, name;
             
+            parts = expr && expr.split('.');
             if ( parts && parts.length && parts[0] === '' ) {
                 parts.shift();
                 cursor = this;
@@ -2182,6 +2183,7 @@ var Transition = ( function () {
         var self = this,
             methods = {},
             events = {},
+            guards = {},
 
             // The **action** of a transition is a function that will be called after the
             // transition has been `start`ed. This function, if provided, is responsible for
@@ -2302,6 +2304,7 @@ var Transition = ( function () {
             'init' : [ TransitionExpression ],
             'method methodNames addMethod removeMethod' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
+            'guard addGuard removeGuard' : [ guards ]
         });
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
         
@@ -2327,9 +2330,10 @@ var Transition = ( function () {
 // between any two given **origin** and **target** states.
 
 var TransitionExpression = ( function () {
-    var properties = Z.assign( TRANSITION_PROPERTIES, null ),
-        categories = Z.assign( TRANSITION_EXPRESSION_CATEGORIES, null ),
-        eventTypes = Z.assign( TRANSITION_EVENT_TYPES );
+    var properties   = Z.assign( TRANSITION_PROPERTIES, null ),
+        categories   = Z.assign( TRANSITION_EXPRESSION_CATEGORIES, null ),
+        eventTypes   = Z.assign( TRANSITION_EVENT_TYPES ),
+        guardActions = Z.assign( GUARD_ACTIONS );
     
     // ### Constructor
     function TransitionExpression ( map ) {
@@ -2358,7 +2362,10 @@ var TransitionExpression = ( function () {
                 Z.extend( result[ key ], value );
             }
             else {
-                category = key in eventTypes ? 'events' : 'methods';
+                category =
+                    key in eventTypes ? 'events' :
+                    key in guardActions ? 'guards' :
+                    'methods';
                 ( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
             }
         }
