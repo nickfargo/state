@@ -28,6 +28,7 @@ require '../build/combine.php';
 		<script src="unit/object.test.js"></script>
 		<script src="unit/State.test.js"></script>
 		<script src="unit/state-controller.test.js"></script>
+		<script src="unit/state-event.test.js"></script>
 		<script src="unit/protostate.test.js"></script>
 		<script src="unit/state.history.test.js"></script>
 	</head>
