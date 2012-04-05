@@ -1,8 +1,14 @@
 # State.js
 
-**State** is a micro-framework for expressing, manipulating, and recording *state* for any JavaScript object. Stateful objects can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
+**State** is a micro-framework for implementing state directly into any JavaScript object. Objects that are made stateful can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
 
-**[Installation](#installation)** — **[Overview](#overview)** — **[Concepts](#concepts)** — **[Design Goals](#design-goals)** — **[Future Directions](#future-directions)**
+* **[Installation](#installation)**
+
+* **[Overview](#overview) —** [Intro](#overview--a-quick-four-step-introduction-to-state) – [Example](#overview--a-thoroughly-polite-example)
+
+* **[Concepts](#concepts) —** [Expressions](#concepts--expressions) – [Inheritance](#concepts--inheritance) – [Attributes](#concepts--attributes) – [Data](#concepts--data) – [Methods](#concepts--methods) – [Transitions](#concepts--transitions) – [Events](#concepts--events) – [Guards](#concepts--guards) – [History](#concepts--history)
+
+* **[About](#about) —** [Design goals](#about--design-goals) – [Future directions](#about--future-directions)
 
 
 
@@ -27,68 +33,82 @@ or included in the browser:
 <script src="state.js"></script>
 ```
 
-which will expose the module at `window.state` (this can be reclaimed with a call to `state.noConflict();`).
+which will expose the module at `window.state` (this can be reclaimed with a call to `state.noConflict()`).
 
 
 
 <a name="overview" />
 ## Overview
 
-### Four-step intro to State
+<a name="overview--a-quick-four-step-introduction-to-state" />
+### A quick four-step introduction to State
 
-1. The **State** module is exported as a function called `state`. This can be used in one of two ways: either to create a **state expression**, or to augment any JavaScript object with a state implementation:
+#### Step 1 — The declaration
 
-    ```javascript
-    // Returns a `StateExpression` based on the contents of `expression`.
-    state( expression )
-
-    // Creates a state implementation on `object` as defined by `expression`, and returns
-    // the object’s initial `State`.
-    state( object, expression )
-    ```
-
-2. The `expression` argument is an object literal that describes states, methods, and other features that will be governed by the state implementation of `object`:
-
-    ```javascript
-    var object = {
-            method: function () { return "default"; }
-        },
-        expression = {
-            State: {
-                method: function () { return "stateful!"; }
-            }
-        };
-
-    state( object, expression );
-    ```
-
-3. Subsequent to the call to `state`, the object’s new state implementation is exposed through an **accessor method**, also named `state`, that has been added to the object. Calling the accessor with no arguments queries the object for its **current state**, while calling the accessor with a **selector** string queries the object for the specific `State` named by the selector.
-
-    ```javascript
-    object.state();
-    object.state('State');
-    ```
-
-4. The current state may be changed by calling a method called `change()` (which is also aliased to `be()` and `go()`) and providing it the name of the state to be targeted. Changing an object’s state allows it to exhibit different behavior:
-
-    ```javascript
-    object.state();                  // State '' (the top-level *root state*)
-    object.method();                 // "default"
-    object.state().change('State');  // State 'State'
-    object.method();                 // "stateful!"
-    object.state();                  // State 'State'
-    ```
-
-### Example
-
-*(Hereafter all example code will be presented in both hand-rolled JavaScript and [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
+The **State** module is exported as a function called `state`, which can be used in one of two ways:
 
 ```javascript
-var obj = {
+state( [attributes], expression )
+```
+* Given a single `expression` object, `state` will create and return a [**state expression**](#concepts--expressions), based on the contents of `expression` (and any keywords included in the optional [`attributes`](#concepts--attributes) string).
+
+```javascript
+state( owner, [attributes], expression )
+```
+* Given two object-typed arguments, `state` will augment the `owner` object with its own working implementation of state, based on the state expression described by `expression` (and `attributes`), and will return the newly stateful object’s [**initial state**](#concepts--attributes).
+
+#### Step 2 — The expression
+
+The `expression` argument is an object literal that describes states, methods, and other features that will be governed by the state implementation of `owner`:
+
+```javascript
+var owner, expression;
+
+owner = {
+    aMethod: function () { return "default"; }
+};
+expression = {
+    aState: {
+        aMethod: function () { return "stateful!"; }
+    }
+};
+
+state( owner, expression );
+```
+
+#### Step 3 — The accessor
+
+After calling `state` to implement state into an `owner` object, this new state implementation will be exposed through an **accessor method**, also named `state`, that will be added to the object. Calling this accessor with no arguments queries the object for its **current state**.
+
+```javascript
+owner.state();                   // State '' (the top-level *root state*)
+```
+
+#### Step 4 — The transition
+
+The object’s current state may be reassigned to a different state by calling its `change()` method and providing it the name of a state to be targeted. Changing an object’s state allows it to exhibit different behavior:
+
+```javascript
+owner.state();                   // State ''
+owner.aMethod();                 // "default"
+owner.state().change('aState');  // State 'aState'
+owner.aMethod();                 // "stateful!"
+owner.state();                   // State 'aState'
+```
+
+<a name="overview--a-thoroughly-polite-example" />
+### A thoroughly polite example
+
+Putting this together, we can create a model of a simple yet genteel `person`, who will behave appropriately according to the state we give it:
+
+*(Note: all example code hereafter will be presented first in hand-rolled JavaScript, followed by [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
+
+```javascript
+var person = {
     greet: function () { return "Hello."; }
 };
 
-state( obj, {
+state( person, {
     Formal: {
         greet: function () { return "How do you do?"; }
     },
@@ -97,31 +117,33 @@ state( obj, {
     }
 });
 
-obj.greet(); // "Hello."
-obj.state().change('Formal');
-obj.greet(); // "How do you do?"
-obj.state().change('Informal');
-obj.greet(); // "Hi!"
-obj.state().change('');
-obj.greet(); // "Hello."
+person.greet();                     // "Hello."
+person.state().change('Formal');
+person.greet();                     // "How do you do?"
+person.state().change('Informal');
+person.greet();                     // "Hi!"
+person.state().change('');
+person.greet();                     // "Hello."
 ```
 
 ```coffeescript
-obj = greet: -> "Hello."
+person = greet: -> "Hello."
 
-state obj,
+state person,
   Formal:
     greet: -> "How do you do?"
   Informal:
     greet: -> "Hi!"
 
-obj.greet() # "Hello."
-obj.state().change 'Formal'
-obj.greet() # "How do you do?"
-obj.state -> 'Informal' # An alternate way to instigate transitions
-obj.greet() # "Hi!"
-obj.state -> ''
-obj.greet() # "Hello."
+person.greet()                      # "Hello."
+person.state().change 'Formal'
+person.greet()                      # "How do you do?"
+
+# `state` also accepts an alternative functional syntax, which is equivalent to `state().change()`.
+person.state -> 'Informal'
+person.greet()                      # "Hi!"
+person.state -> ''
+person.greet()                      # "Hello."
 ```
 
 <a name="concepts" />
@@ -142,8 +164,6 @@ obj.greet() # "Hello."
 * [Events](#concepts--events) — Listeners for specific **event** types can be bound to a state, which will be called in the context of the bound state as it is affected by a progressing transition (`depart`, `exit`, `enter`, `arrive`), as data bound to the state changes (`mutate`), or upon the state’s construction or destruction (`construct`, `destroy`). **State** also allows for custom typed events, which can be emitted from a particular state and propagated to listeners bound to the state itself as well as its protostates and superstates.
 
 * [Guards](#concepts--guards) — A state may be outfitted with **guards** to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Guards are evaluated as either boolean values or predicates (boolean-valued functions).
-
-* [History](#concepts--history) — Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 
 <a name="concepts--expressions" />
 ### Expressions
@@ -223,17 +243,19 @@ shorthandExpression = state
     greet: -> "Hi!"
 ```
 
-Below is the internal procedure for interpreting `StateExpression` input:
+#### Interpreting expression input
 
-1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, interpret it as such.
+Below is the procedure used to interpret an object as a `StateExpression`:
 
-2. Otherwise, if an entry’s key is a category name, its value must be either `null` or an object to be interpreted in longform.
+1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, interpret it a substate or transition expression, respectively.
+
+2. Otherwise, if an entry’s key is a category name, its value must be either `null` or an object to be interpreted as longform.
 
 3. Otherwise, if an entry’s key matches a built-in event type, interpret the value as an event listener (or array of event listeners) to be bound to that event type.
 
 4. Otherwise, if an entry’s key matches a guard action (i.e., `admit`, `release`), interpret the value as a guard condition (or array of guard conditions).
 
-5. Otherwise, if an entry’s value is a function, interpret it as a method whose name is the key, or if the entry’s value is an object, interpret it as a substate whose name is the key.
+5. Otherwise, if an entry’s value is a function, interpret it as a method whose name is the entry’s key, or if the entry’s value is an object, interpret it as a substate whose name is the entry’s key.
 
 
 <a name="concepts--inheritance" />
@@ -244,57 +266,74 @@ Below is the internal procedure for interpreting `StateExpression` input:
 As with classes or prototypal objects, states are modeled hierarchically, where a state may serve as a **superstate** of one or more **substates** that express ever greater specificity of their owner’s behavior and condition.
 
 ```javascript
-var obj = {
-    greet: function () { return "Hello."; }
-};
+function Person () {
+    this.give = function ( to, what ) {
+        to.receive( this, what );
+        return this;
+    };
+    this.receive = function ( from, what ) { return this; };
+    
+    this.greet = function () { return "Hello."; };
+    
+    state( this, {
+        Formal: {
+            greet: function () { return "How do you do?"; }
+        },
+        Informal: {
+            greet: function () { return "Hi!"; },
 
-state( obj, {
-    Formal: {
-        greet: function () { return "How do you do?"; }
-    },
-    Informal: {
-        greet: function () { return "Hi!"; },
+            Familiar: {
+                hug: function ( other ) {
+                    this.owner().give( other, 'O' );
+                    return this;
+                },
 
-        Familiar: {
-            hug: function ( other ) { /*...*/ return this; },
+                greet: function ( other ) {
+                    this.owner().hug( other );
+                },
 
-            greet: function ( other ) {
-                this.owner().hug( other );
-            },
+                Intimate: {
+                    kiss: function ( myBetterHalf ) {
+                        this.owner().give( myBetterHalf, 'X' );
+                        return this;
+                    },
 
-            Intimate: {
-                kiss: function ( betterHalf ) { /*...*/ return this; },
-
-                greet: function ( betterHalf ) {
-                    this.owner().hug( betterHalf ).kiss( betterHalf );
+                    greet: function ( myBetterHalf ) {
+                        this.owner().hug( myBetterHalf ).kiss( myBetterHalf );
+                    }
                 }
             }
         }
-    }
-});
+    });
+}
 ```
-
 ```coffeescript
-obj = greet: -> "Hello."
+class Person
+  constructor: ->
+    @give = ( to, what ) -> to.receive this, what; this
+    @receive = ( from, what ) -> this
+    @greet = -> "Hello."
 
-state obj,
-  Formal:
-    greet: -> "How do you do?"
-  
-  Informal:
-    greet: -> "Hi!"
-
-    Familiar:
-      hug: ( person ) -> ### ... ### this
-      greet: ( person ) -> @owner().hug person
-
-      Intimate:
-        kiss: ( betterHalf ) -> ### ... ### this
-        greet: ( betterHalf ) ->
-          me = @owner()
-          me.hug betterHalf
-          me.kiss betterHalf
+    state this,
+      Formal:
+        greet: -> "How do you do?"
+      
+      Informal:
+        greet: -> "Hi!"
+    
+        Familiar:
+          hug: ( other ) -> @owner().give other, 'O' ; this
+          greet: ( other ) -> @owner().hug other
+    
+          Intimate:
+            kiss: ( myBetterHalf ) -> @owner().give myBetterHalf, 'X' ; this
+            greet: ( myBetterHalf ) ->
+              I = @owner()
+              I.hug myBetterHalf
+              I.kiss myBetterHalf
 ```
+
+##### The root state
 
 An object’s state model is a classic tree structure, with a single **root state** as its basis, from which all of the object’s states inherit.
 
@@ -316,9 +355,9 @@ The root state also acts as the *default method store* for the object’s state 
 So far we’ve been creating stateful objects by applying the `state()` function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
 
 ```javascript
-function Host () {}
-Host.prototype.greet = function () { return "Hello."; };
-state( Host.prototype, {
+function Person () {}
+Person.prototype.greet = function () { return "Hello."; };
+state( Person.prototype, {
     Formal: {
         greet: function () { return "How do you do?"; }
     },
@@ -327,11 +366,11 @@ state( Host.prototype, {
     }
 });
 
-var host = new Host;
+var person = new Person;
 ```
 
 ```coffeescript
-class Host
+class Person
   greet: -> "Hello."
   state @::,
     Formal:
@@ -339,41 +378,41 @@ class Host
     Informal:
       greet: -> "Hi!"
 
-host = new Host
+person = new Person
 ```
 
-Since the instance object `host` in the code above inherits from `Host.prototype`, given what’s been covered to this point, it may be expected that instigating a transition via `host.state().change('Formal')` would take effect on `Host.prototype`, in turn affecting all other instances of `Host` as well. While it is desirable to share stateful behavior through prototypes, each instance must be able to maintain state and undergo changes to its state independently.
+Since the instance object `person` in the code above inherits from `Person.prototype`, given what’s been covered to this point, it may be expected that instigating a transition via `person.state().change('Formal')` would take effect on `Person.prototype`, in turn affecting all other instances of `Person` as well. While sharing stateful behavior through prototypes is desirable, it’s also essential that each instance be able to maintain state and undergo changes to its state independently.
 
-**State** addresses this by outfitting each instance with its own state implementation whenever one is necessary but does not exist already. The new implementation will itself be empty, but will inherit from the state implementation of the prototype, as shown below. This approach allows the instance to experience its own state changes, without also indirectly affecting all of its fellow inheritors.
+**State** addresses this problem by automatically outfitting each object instance with its own state implementation whenever one is necessary but does not exist already. This new implementation will itself be empty, but will inherit from the state implementation of the prototype, as shown below. This separation allows the instance to experience its own states and transitions, without also indirectly affecting all of its fellow inheritors.
 
 ```javascript
-Host.prototype.state();              // State ''
-'state' in host;                     // true
-host.hasOwnProperty('state');        // false
-host.state();                        // State ''
-host.hasOwnProperty('state');        // true
-host.state().isVirtual();            // false
-host.greet();                        // "Hello."
-host.state().change('Informal');     // State 'Informal'
-host.state().isVirtual();            // true
-host.greet();                        // "Hi!"
-Host.prototype.state();              // State ''
+Person.prototype.state();              // State ''
+'state' in person;                     // true
+person.hasOwnProperty('state');        // false
+person.state();                        // State ''
+person.hasOwnProperty('state');        // true
+person.state().isVirtual();            // false
+person.greet();                        // "Hello."
+person.state().change('Informal');     // State 'Informal'
+person.state().isVirtual();            // true
+person.greet();                        // "Hi!"
+Person.prototype.state();              // State ''
 ```
 ```coffeescript
-Host::state()                        # State ''
-'state' of host                      # true
-host.hasOwnProperty 'state'          # false
-host.state()                         # State ''
-host.hasOwnProperty 'state'          # true
-host.state().isVirtual()             # false
-host.greet()                         # "Hello."
-host.state -> 'Informal'             # State 'Informal'
-host.state().isVirtual()             # true
-host.greet()                         # "Hi!"
-Host::state()                        # State ''
+Person::state()                        # State ''
+'state' of person                      # true
+person.hasOwnProperty 'state'          # false
+person.state()                         # State ''
+person.hasOwnProperty 'state'          # true
+person.state().isVirtual()             # false
+person.greet()                         # "Hello."
+person.state -> 'Informal'             # State 'Informal'
+person.state().isVirtual()             # true
+person.greet()                         # "Hi!"
+Person::state()                        # State ''
 ```
 
-When an accessor method (`obj.state()`) is called, it checks the context object (`obj`) to ensure that it has its own accessor method. If it doesn’t, and is instead inheriting from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding accessor method (`obj.state()`), to which the original call is then forwarded.
+When an accessor method (`person.state()`) is called, it checks the context object (`person`) to ensure that it has its own accessor method. If it doesn’t, and is instead attempting to inherit `state` from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding new accessor method (`person.state()`), to which the original call is then forwarded.
 
 Even though the inheritor’s state implementation is empty, it identifies the prototype’s states as its **protostates**, from which it inherits all methods, data, events, etc. contained within. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate.
 
@@ -423,6 +462,10 @@ state obj, 'abstract',
 
 * *shallow* — (Reserved; not presently implemented.) Normally, states that are `retained` or that keep a `history` persist their internal state *deeply*, i.e., with a scope extending over all of the state’s descendant states. Marking a state `shallow` limits the scope of its persistence to its immediate substates only.
 
+* *versioned* — (Reserved; not presently implemented.) 
+
+* *concurrent* — (Reserved; not presently implemented.) 
+
 
 
 <a name="concepts--data" />
@@ -450,7 +493,7 @@ state( Chief.prototype, {
     },
     Enraged: {
         data: {
-            target: 'Qooqol',
+            target: 'Kookle',
             action: 'beat'
         }
     }
@@ -458,10 +501,10 @@ state( Chief.prototype, {
 
 var ceo = new Chief;
 ceo.state().data();               // { budget: 10000000000 }
-ceo.state().be('Enraged');
-ceo.state().data();               // { target: 'Qooqol', action: 'beat', budget: 10000000000 }
-ceo.state().go('Thermonuclear');
-ceo.state().data();               // { target: 'Qooqol', action: 'destroy', budget: Infinity }
+ceo.state().be('Enraged');        // (`be` is a built-in alias of `change`)
+ceo.state().data();               // { target: 'Kookle', action: 'beat', budget: 10000000000 }
+ceo.state().go('Thermonuclear');  // (`go` is also an alias of `change`)
+ceo.state().data();               // { target: 'Kookle', action: 'destroy', budget: Infinity }
 ```
 ```coffeescript
 class Chief
@@ -470,7 +513,7 @@ class Chief
       budget: 1e10
     Enraged:
       data:
-        target: 'Qooqol'
+        target: 'Kookle'
         action: 'beat'
 
   constructor: ->
@@ -484,10 +527,10 @@ class Chief
 
 ceo = new Chief
 ceo.state().data()                 # { budget: 10000000000 }
-ceo.state().be 'Enraged'
-ceo.state().data()                 # { target: 'Qooqol', action: 'beat', budget: 10000000000 }
-ceo.state().go 'Thermonuclear'
-ceo.state().data()                 # { target: 'Qooqol', action: 'destroy', budget: Infinity }
+ceo.state().be 'Enraged'           # (`be` is a built-in alias of `change`)
+ceo.state().data()                 # { target: 'Kookle', action: 'beat', budget: 10000000000 }
+ceo.state().go 'Thermonuclear'     # (`go` is also an alias of `change`)
+ceo.state().data()                 # { target: 'Kookle', action: 'destroy', budget: Infinity }
 ```
 
 
@@ -764,80 +807,86 @@ junior.state()                         # State 'Sad'
 <a name="concepts--events--determinism" />
 #### Determinism
 
-In the typical “observer” or “publish-subscribe” model, an event emitter unidirectionally broadcasts instances of a certain event type, where any attached listeners for that event type are invoked and treated as a void-valued function, i.e., any value returned by a listener is discarded.
-
-**State**’s event model is very similar, except that event listeners may return a meaningful value that can affect the owner object’s state. For example, if a string is returned, it may be interpreted as a selector that names a target state for a consequent transition.
-
-This allows states to concisely express *deterministic* behavior, where the occurrence of a particular event type within a particular state has a definitive effect on the state of the object.
+An event listener may also be expressed simply as a State name, which is interpreted as an order to transition to that State after all of an event’s callbacks have been invoked. This bit of shorthand allows for concise expression of *deterministic* behavior, where the occurrence of a particular event type within a particular State has a definitive, unambiguous effect on the state of the object.
 
 ```javascript
-var device = {
-    method: function () {}
-};
+function IsDivisibleByThreeComputer () {
+    state( this, 'abstract', {
+        0: state( 'default',
+           { events: { '0':'0', '1':'1' } } ),
+        1: { events: { '0':'2', '1':'0' } },
+        2: { events: { '0':'1', '1':'2' } },
 
-state( device, {
-    On: {
-        events: {
-            flip: 'Off'
+        compute: function ( number ) {
+            var i, l, binary = number.toString(2);
+            this.go('');
+            for ( i = 0, l = binary.length; i < l; i++ ) this.current().emit( binary[i] );
+            return this.current().name() === '0';
         }
-    },
-    Off: {
-        events: {
-            flip: 'On'
-        }
-    }
-});
+    });
+}
 
-device.state().emit('flip');
-device.state().emit('flip');
-device.state().emit('flip');
+var three = new IsDivisibleByThreeComputer;
+assert.equal( three.compute(8), false );
+assert.equal( three.compute(78), true );
+assert.equal( three.compute(1000), false );
+assert.equal( three.compute(504030201), true );
 ```
 ```coffeescript
-device =
-  method: ->
+class IsDivisibleByThreeComputer
+  constructor: ->
+    state this, 'abstract',
+      0: state( 'default',
+         events: '0':'0', '1':'1' )
+      1: events: '0':'2', '1':'0'
+      2: events: '0':'1', '1':'2'
+  
+      compute: ( number ) ->
+        @go ''
+        @emit symbol for symbol in number.toString 2
+        return do this.name is '0'
 
-state device,
-  On:
-    events:
-      flip: 'Off'
-  Off:
-    events:
-      flip: 'On'
-
-device.state().emit 'flip'
-device.state().emit 'flip'
-device.state().emit 'flip'
+three = new IsDivisibleByThreeComputer
+three.compute 8           # false
+three.compute 78          # true
+three.compute 1000        # false
+three.compute 504030201   # true
 ```
-
 
 
 <a name="concepts--guards" />
 ### Guards
 
-<a name="concepts--history" />
-### History
 
 
+<a name="about" />
+## About this project
 
-<a name="design-goals" />
-## Design goals
+<a name="about--design-goals" />
+### Design goals
 
-### Minimal footprint
+#### Minimal footprint
 
 All functionality of **State** is instigated through the exported `state` function — depending on the arguments provided, `state()` can be used either to generate state expressions, or to implement expressed states into an existing JavaScript object. In the latter case, the newly implemented system of states is thereafter accessed from a single `object.state()` method on the affected object.
 
-### Black-box opacity
+#### Expressive power
 
-Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods are replaced with delegators, which forward method calls to the current state. This is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original condition.
+As much as possible, **State** aims to look and feel like a feature of the language. The interpreted shorthand syntax, simple keyword attributes, and limited interface allow for production code that is declarative and easy to write and understand. Adopters of terse, depunctuated JavaScript dialects like CoffeeScript will only see further gains in expressiveness.
 
-### Expressive power
+#### Black-box opacity
 
-**State** aims to feel as much as possible like a feature of the language. Packing everything into `state()` and `object.state()` allows code to be more declarative and easier to write and understand. Whenever convenient, state expressions may be written in the shorthand format that is interpreted into a formal `StateExpression` type. A state’s composition can be precisely controlled simply by using attributes. And adopters of terse, depunctuated JavaScript dialects like CoffeeScript will only see further gains in expressiveness.
+Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods are replaced with delegators, which forward method calls to the current state. This is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original form.
 
 
+<a name="about--future-directions" />
+### Future directions
 
-<a name="future-directions" />
-## Future directions
+<a name="about--future-directions--history" />
+#### History
 
-### Concurrency
+Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 
+<a name="about--future-directions--concurrency" />
+#### Concurrency
+
+Whereas an object’s state is most typically conceptualized as an exclusive-OR operation (i.e., its current state is always fixed to exactly one state), a state may instead be defined as **concurrent**, relating its substates in an “AND” composition, where occupation of the concurrent state implies simultaneous occupation of each of its immediate substates.
