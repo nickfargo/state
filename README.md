@@ -841,16 +841,18 @@ three.compute( 504030201 );  // true
 class IsDivisibleByThreeComputer
   constructor: ->
     state this, 'abstract',
-      '0': state( 'default',
-           events: '0':'0', '1':'1' )
-      '1': events: '0':'2', '1':'0'
-      '2': events: '0':'1', '1':'2'
-  
       compute: ( number ) ->
         @current().emit symbol for symbol in number.toString 2
         result = do @current().name is '0'
         @current().emit 'end'
         result
+
+      events: end: '0'
+      
+      '0': state( 'default',
+           events: '0':'0', '1':'1' )
+      '1': events: '0':'2', '1':'0'
+      '2': events: '0':'1', '1':'2'
 
 three = new IsDivisibleByThreeComputer
 three.compute 8              # false
