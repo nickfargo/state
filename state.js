@@ -1033,6 +1033,16 @@ var State = ( function () {
             }
         },
         
+        // #### current
+        // 
+        // Gets the local controller’s current state.
+        current: function () {
+            var controller = this.controller();
+            if ( controller ) {
+                return this.controller().current();
+            }
+        },
+
         // #### defaultSubstate
         // 
         // Returns the first substate marked `default`, or simply the first substate.
