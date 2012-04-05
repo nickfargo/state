@@ -1530,12 +1530,9 @@ var StateExpression = ( function () {
         object = result.events;
         for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
             value = object[ key ];
-
-            // Converting a string to a function will allow `value` to be used as a transition
-            // target when the event listener’s application is interpreted deterministically.
-            typeof value === 'string' && ( value = Z.thunk( value ) );
-
-            Z.isFunction( value ) && ( object[ key ] = [ value ] );
+            if ( typeof value === 'function' || typeof value === 'string' ) {
+                object[ key ] = [ value ];
+            }
         }
         
         object = result.transitions;
@@ -2127,30 +2124,33 @@ var StateEventCollection = ( function () {
         // 
         // *Alias:* **trigger**
         emit: function ( args, state ) {
-            var i, item, fn, context, result, target,
+            var i, item, itemType, fn, context, target,
                 items = this.items, type = this.type;
             
             state || ( state = this.state );
 
             for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
-                item = items[i];
-                
-                if ( typeof item === 'function' ) {
+                item = items[i], itemType = Z.type( item );
+
+                if ( itemType === 'function' ) {
                     fn = item, context = state;
-                } else if ( Z.isArray( item ) ) {
+                }
+                else if ( itemType === 'array' ) {
                     fn = item[0], context = item[1];
                 }
 
-                args.unshift( new StateEvent( state, type ) );
-                fn && ( result = fn.apply( context, args ) );
+                // If `item` is a String or State, interpret this as an implied transition to be
+                // instigated after all of the callbacks have been invoked.
+                else if ( itemType === 'string' || item instanceof State ) {
+                    target = item;
+                    continue;
+                }
+
+                fn.apply( context, [ new StateEvent( state, type ) ].concat( args ) );
+                fn = context = null;
             }
 
-            // If `result` is a String or State, interpret this as an implied transition to be
-            // applied on this event’s state.
-            if ( typeof result === 'string' || result instanceof State ) {
-                target = state.match( result );
-                target && state.change( target );
-            }
+            target && state.change( target );
         },
 
         // #### destroy
