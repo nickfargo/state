@@ -49,23 +49,19 @@ test( "Transition executed after callbacks", 4, function () {
 test( "Deterministic FSM", function () {
     function IsDivisibleByThreeComputer () {
         state( this, 'abstract', {
-            compute: function ( number ) {
-                var i, l, binary = number.toString(2), result;
-                for ( i = 0, l = binary.length; i < l; i++ ) {
-                    this.current().emit( binary[i] );
-                }
-                result = this.current().name() === '0';
-                this.current().emit('end');
-                return result;
-            },
-
-            events: { end: '0' },
-
-            '0': state( 'initial default',
-                 { events: { '0':'0', '1':'1' } } ),
-            '1': { events: { '0':'2', '1':'0' } },
-            '2': { events: { '0':'1', '1':'2' } }
+            s0: state( 'initial default',
+                { events: { '0':'s0', '1':'s1' } } ),
+            s1: { events: { '0':'s2', '1':'s0' } },
+            s2: { events: { '0':'s1', '1':'s2' } }
         });
+    }
+    IsDivisibleByThreeComputer.prototype.compute = function ( number ) {
+        var i, l, binary = number.toString(2);
+        this.state().go('s0');
+        for ( i = 0, l = binary.length; i < l; i++ ) {
+            this.state().emit( binary[i] );
+        }
+        return this.state().is('s0');
     }
 
     var three = new IsDivisibleByThreeComputer;
