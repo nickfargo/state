@@ -1955,20 +1955,19 @@ var StateController = ( function () {
             origin || ( origin = this.current() );
             
             function search ( state, until ) {
-                var result;
+                var transitions, key, expression;
                 for ( ; state && state !== until; state = until ? state.superstate() : null ) {
-                    Z.forEach( state.transitions(), function ( expression ) {
+                    for ( key in transitions ) if ( Z.hasOwn.call( transitions, key ) ) {
+                        expression = transitions[ key ];
                         if ( ( expression.target ?
                                     state.match( expression.target, target ) :
                                     state === target )
                                 &&
                             ( !expression.origin || state.match( expression.origin, origin ) )
                         ) {
-                            result = expression;
-                            return false;
+                            return expression;
                         }
-                    });
-                    if ( result ) return result;
+                    }
                 }
             }
             
@@ -1980,8 +1979,7 @@ var StateController = ( function () {
             return (
                 search( target ) ||
                 origin !== target && search( origin ) ||
-                search( target.superstate(), this.root() ) ||
-                    search( this.root() ) ||
+                search( target.superstate(), this.root() ) || search( this.root() ) ||
                 !target.isIn( origin ) && search( origin.superstate(), origin.common( target ) ) ||
                 new TransitionExpression
             );
