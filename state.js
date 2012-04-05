@@ -1381,10 +1381,18 @@ var State = ( function () {
         // Returns the matched `State`, an `Array` containing the set of matched states, or a
         // `Boolean` indicating whether `testState` is a match or is included in the matched set.
         match: function (
-            /*String*/ expr,
-             /*State*/ testState // optional
+             /*String*/ expr,
+              /*State*/ testState, // optional
+            /*Boolean*/ descend, // = true
+            /*Boolean*/ ascend // = true
         ) {
-            var parts, cursor, cursorSubstate, result, i, l, name;
+            if ( typeof testState === 'boolean' ) {
+                ascend = descend, descend = testState, testState = undefined;
+            }
+            descend === undefined && ( descend = true );
+            ascend === undefined && ( ascend = true );
+
+            var parts, cursor, cursorSubstate, result, i, l, name, substates, superstate, s;
             
             parts = expr && expr.split('.');
             if ( parts && parts.length && parts[0] === '' ) {
@@ -1396,7 +1404,7 @@ var State = ( function () {
 
             if ( !( parts && parts.length ) ) return cursor;
 
-            for ( i = 0, l = parts.length; i < l; i++ ) {
+            for ( i = 0, l = parts.length; i < l && cursor; i++ ) {
                 name = parts[i];
                 if ( name === '' ) {
                     cursor = cursor.superstate();
@@ -1418,10 +1426,30 @@ var State = ( function () {
                 }
             }
 
-            if ( result !== undefined ) {
-                return result;
-            } else if ( !testState || cursor === testState ) {
-                return cursor;
+            if ( result !== undefined ) return result;
+            if ( !testState || cursor === testState ) return cursor;
+
+            // Recursively descend if no match found --- should be breadth not depth?
+            if ( descend ) {
+                substates = this.substates();
+                for ( i = 0, l = substates.length; i < l; i++ ) {
+                    s = substates[i];
+
+                    // `ascend` block uses `descend` param for substate that was already searched 
+                    if ( s === descend ) continue;
+
+                    result = this.match.call( s, expr, testState, true, false );
+                    if ( result ) return result;
+                }
+            }
+
+            // Recursively ascend if still no match found
+            if ( ascend ) {
+                superstate = this.superstate();
+                if ( superstate ) {
+                    result = this.match.call( superstate, expr, testState, this, true );
+                    if ( result ) return result;
+                }
             }
 
             return false;
@@ -1957,6 +1985,7 @@ var StateController = ( function () {
             function search ( state, until ) {
                 var transitions, key, expression;
                 for ( ; state && state !== until; state = until ? state.superstate() : null ) {
+                    transitions = state.transitions();
                     for ( key in transitions ) if ( Z.hasOwn.call( transitions, key ) ) {
                         expression = transitions[ key ];
                         if ( ( expression.target ?
