@@ -1097,7 +1097,7 @@ as evaluated against <code>testState</code>, or <code>true</code> if no guard ex
 first in the context of <code>this</code>, then its substates, and then its superstates, until
 all locations in the state tree have been searched for a match of <code>expr</code>.</p>
 
-<p>Returns the matched <code>State</code>, an <code>Array</code> containing the set of matched states. If a
+<p>Returns the matched <code>State</code>, or an <code>Array</code> containing the set of matched states. If a
 state to be tested <code>against</code> is provided, a <code>Boolean</code> is returned, indicating whether
 <code>against</code> is the matched state or is included in the matching set.</p>
 
@@ -1105,7 +1105,7 @@ state to be tested <code>against</code> is provided, a <code>Boolean</code> is r
 likewise setting <code>ascend</code> to <code>false</code> disables the subsequent recursion through its
 superstates.</p>
 
-<p><em>Alias:</em> <strong>$</strong>, <strong>match</strong></p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="s1">&#39;query $ match&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span>
+<p><em>Aliases:</em> <strong>$</strong>, <strong>match</strong></p>             </td>             <td class="code">               <div class="highlight"><pre>        <span class="s1">&#39;query $ match&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span>
              <span class="cm">/*String*/</span> <span class="nx">expr</span><span class="p">,</span>
               <span class="cm">/*State*/</span> <span class="nx">against</span><span class="p">,</span> <span class="c1">// optional</span>
             <span class="cm">/*Boolean*/</span> <span class="nx">descend</span><span class="p">,</span> <span class="c1">// = true</span>
