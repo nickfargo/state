@@ -1979,18 +1979,20 @@ var StateController = ( function () {
             origin || ( origin = this.current() );
             
             function search ( state, until ) {
-                var transitions, key, expression;
+                var transitions, key, expr;
                 for ( ; state && state !== until; state = until ? state.superstate() : null ) {
                     transitions = state.transitions();
                     for ( key in transitions ) if ( Z.hasOwn.call( transitions, key ) ) {
-                        expression = transitions[ key ];
                         if ( ( expression.target ?
-                                    state.match( expression.target, target ) :
-                                    state === target )
+                        expr = transitions[ key ];
+                        if (
+                            ( !expr.guard || expr.guard.call( origin, target ) )
                                 &&
-                            ( !expression.origin || state.match( expression.origin, origin ) )
+                            ( expr.target ? state.query( expr.target, target ) : state === target )
+                                &&
+                            ( !expr.origin || state.query( expr.origin, origin ) )
                         ) {
-                            return expression;
+                            return expr;
                         }
                     }
                 }
