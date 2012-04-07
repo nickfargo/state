@@ -212,19 +212,19 @@ var State = ( function () {
         if ( attributes & SA.VIRTUAL ) {
             this.superstate = State.privileged.superstate( superstate );
 
-            // #### reify
+            // #### realize
             // 
             // Virtual states are weakly bound to a state hierarchy by their reference held at
             // `superstate`; they are not proper members of the superstate’s set of substates. The
-            // `reify` method allows a virtual state to transform itself at some later time into a
-            // “real” state, with its own set of closed properties and methods, existing thereafter
-            // as an abiding member of its superstate’s set of substates.
-            this.reify = function ( expression ) {
-                delete this.reify;
+            // `realize` method allows a virtual state to transform itself at some later time into
+            // a “real” state, with its own set of closed properties and methods, existing
+            // thereafter as an abiding member of its superstate’s set of substates.
+            this.realize = function ( expression ) {
+                delete this.realize;
                 attributes &= ~SA.VIRTUAL;
 
                 superstate.addSubstate( name, this ) &&
-                    reify.call( this, superstate, attributes, expression );
+                    realize.call( this, superstate, attributes, expression );
                 
                 return this;
             };
@@ -232,17 +232,17 @@ var State = ( function () {
 
         // Do the full setup required for a real state.
         else {
-            reify.call( this, superstate, attributes, expression );
+            realize.call( this, superstate, attributes, expression );
         }
     }
 
     // ### Class-private functions
 
-    // #### reify
+    // #### realize
     // 
-    // The reification procedure is offloaded from the constructor, allowing for construction of
+    // The realization procedure is offloaded from the constructor, allowing for construction of
     // virtual `State` instances that inherit all of their functionality from protostates.
-    function reify ( superstate, attributes, expression ) {
+    function realize ( superstate, attributes, expression ) {
         var data = {},
             methods = {},
             events = {},
@@ -290,13 +290,13 @@ var State = ( function () {
         return this;
     }
 
-    // #### createReifier
+    // #### createRealizer
     // 
-    // Creates a method that will first reify the state and then, under the assumption that
-    // reification has produced a new method of the same name on the instance, invoke the method.
-    function createReifier ( obj, names ) {
+    // Creates a method that will first realize the state and then, under the assumption that
+    // realization has produced a new method of the same name on the instance, invoke the method.
+    function createRealizer ( obj, names ) {
         Z.forEach( Z.trim( names ).split( Z.regexp.whitespace ), function ( name ) {
-            obj[ name ] = function () { return this.reify()[ name ].apply( this, arguments ); };
+            obj[ name ] = function () { return this.realize()[ name ].apply( this, arguments ); };
         });
     }
 
@@ -430,7 +430,7 @@ var State = ( function () {
                 }
 
                 if ( edit && !Z.isEmpty( edit ) ) {
-                    if ( this.isVirtual() ) return this.reify().data( edit );
+                    if ( this.isVirtual() ) return this.realize().data( edit );
 
                     delta = Z.delta( data, edit );
                     if ( !this.atomic && delta && !Z.isEmpty( delta ) ) {
@@ -718,7 +718,7 @@ var State = ( function () {
                 var substate, controller;
                 
                 if ( this.isVirtual() ) {
-                    return this.reify().addSubstate( stateName, stateExpression );
+                    return this.realize().addSubstate( stateName, stateExpression );
                 }
                 if ( this.isSealed() ) {
                     throw new Error;
@@ -727,7 +727,7 @@ var State = ( function () {
                 ( substate = substates[ stateName ] ) && substate.destroy();
                 
                 substate = stateExpression instanceof State ?
-                    stateExpression.superstate() === this && stateExpression.reify() :
+                    stateExpression.superstate() === this && stateExpression.realize() :
                     new State( this, stateName, stateExpression );
                 
                 if ( !substate ) return;
@@ -963,8 +963,8 @@ var State = ( function () {
     // 
     // The instance methods defined above are also defined here, either as no-ops or defaults, so
     // as to provide virtual states with a conformant `State` interface despite not (or not yet)
-    // having been reified.
-    createReifier( State.prototype, 'addMethod addEvent addGuard addSubstate addTransition' );
+    // having been realized.
+    createRealizer( State.prototype, 'addMethod addEvent addGuard addSubstate addTransition' );
     Z.privilege( State.prototype, State.privileged, { 'data method substate' : [ null ] } );
     Z.assign( State.prototype, {
         attributes: Z.thunk( SA.NORMAL ),
@@ -989,7 +989,7 @@ var State = ( function () {
          transition removeTransition' :
             Z.noop,
         
-        reify: Z.getThis,
+        realize: Z.getThis,
 
         'methodNames substates': function () { return []; },
         transitions: function () { return {}; },
