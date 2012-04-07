@@ -26,7 +26,7 @@ test( "Null state change", function () {
 	var x = new TestObject;
 	x.state().change( x.state() );
 	assert.ok( x.state().is('Waiting'), "StateController.change() to current state" );
-	assert.ok( x.state() === x.state().select(), "State.select() on current state" );
+	assert.ok( x.state() === x.state().change( x.state() ), "State.select() on current state" );
 });
 
 test( "Simple state change", function () {

@@ -133,7 +133,7 @@ function TestObject ( initialState ) {
 					methodTwo: function () {
 						return 'Finished.CleaningUp.methodTwo';
 					},
-					terminate: function () { return this.select( '..Terminated' ); },
+					terminate: function () { return this.change( '..Terminated' ); },
 					
 					arrive: function ( event ) {
 						// event.log( "I'm an event" );
