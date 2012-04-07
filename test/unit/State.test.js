@@ -11,31 +11,31 @@ test( "superstate()", function () {
 	assert.strictEqual( x.state().root().superstate(), undefined );
 });
 
-test( "match()", function () {
+test( "query()", function () {
 	var x = new TestObject;
-	assert.ok( x.state().match( 'Finished.*', x.state('Finished.CleaningUp') ) );
-	assert.ok( x.state().match( 'Finished.*', x.state('Finished.Terminated') ) );
-	assert.ok( !x.state().match( 'Finished.*', x.state('Waiting') ) );
-	assert.ok( !x.state().match( 'Finished.*', x.state('Finished') ) );
-	assert.ok( x.state('Finished').match( '.Terminated', x.state('Finished.Terminated') ) );
-	assert.ok( x.state('Finished').match( '.*', x.state('Finished.CleaningUp') ) );
-	assert.ok( x.state('Finished').match( '.*', x.state('Finished.Terminated') ) );
-	assert.ok( x.state().match( '*', x.state('Finished') ) );
-	assert.ok( !x.state().match( '*', x.state('Finished.Terminated') ) );
-	assert.ok( x.state().match( '**', x.state('Finished.Terminated') ) );
-	assert.ok( x.state('Finished').match( '.*', x.state('Finished.Terminated') ) );
-	assert.ok( x.state('Finished').match( '.**', x.state('Finished.Terminated') ) );
+	assert.ok( x.state().query( 'Finished.*', x.state('Finished.CleaningUp') ) );
+	assert.ok( x.state().query( 'Finished.*', x.state('Finished.Terminated') ) );
+	assert.ok( !x.state().query( 'Finished.*', x.state('Waiting') ) );
+	assert.ok( !x.state().query( 'Finished.*', x.state('Finished') ) );
+	assert.ok( x.state('Finished').query( '.Terminated', x.state('Finished.Terminated') ) );
+	assert.ok( x.state('Finished').query( '.*', x.state('Finished.CleaningUp') ) );
+	assert.ok( x.state('Finished').query( '.*', x.state('Finished.Terminated') ) );
+	assert.ok( x.state().query( '*', x.state('Finished') ) );
+	assert.ok( !x.state().query( '*', x.state('Finished.Terminated') ) );
+	assert.ok( x.state().query( '**', x.state('Finished.Terminated') ) );
+	assert.ok( x.state('Finished').query( '.*', x.state('Finished.Terminated') ) );
+	assert.ok( x.state('Finished').query( '.**', x.state('Finished.Terminated') ) );
 	
-	assert.equal( x.state().match( 'Finished' ), x.state('Finished') );
-	assert.equal( x.state().match( '*' ).length, 3 );
-	assert.equal( x.state().match( '**' ).length, 8 );
-	assert.equal( x.state('Finished').match( '.Terminated' ), x.state('Finished.Terminated') );
-	assert.equal( x.state('Finished').match( '.*' ).length, 2 );
-	assert.strictEqual( x.state().match( '*', x.state('Finished') ), true );
-	assert.strictEqual( x.state().match( '*', x.state('Finished.CleaningUp') ), false );
-	assert.strictEqual( x.state().match( '**', x.state('Finished.CleaningUp') ), true );
-	assert.strictEqual( x.state().match( 'Finished.*', x.state('Finished.CleaningUp') ), true );
-	assert.strictEqual( x.state().match( 'Finished.*', x.state('Finished.Terminated') ), true );
+	assert.equal( x.state().query( 'Finished' ), x.state('Finished') );
+	assert.equal( x.state().query( '*' ).length, 3 );
+	assert.equal( x.state().query( '**' ).length, 8 );
+	assert.equal( x.state('Finished').query( '.Terminated' ), x.state('Finished.Terminated') );
+	assert.equal( x.state('Finished').query( '.*' ).length, 2 );
+	assert.strictEqual( x.state().query( '*', x.state('Finished') ), true );
+	assert.strictEqual( x.state().query( '*', x.state('Finished.CleaningUp') ), false );
+	assert.strictEqual( x.state().query( '**', x.state('Finished.CleaningUp') ), true );
+	assert.strictEqual( x.state().query( 'Finished.*', x.state('Finished.CleaningUp') ), true );
+	assert.strictEqual( x.state().query( 'Finished.*', x.state('Finished.Terminated') ), true );
 
 	x.state().go('Waiting');
 	assert.ok( x.state('ReallyDead') === x.state('Finished.Terminated.ReallyDead') );
