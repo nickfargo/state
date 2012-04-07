@@ -17,7 +17,7 @@ test( "Object creation", function () {
 	assert.equal( x.methodOne(), 'Waiting.methodOne', "methodOne() on TestObject returns proper method for state 'Waiting'" );
 	
 	assert.ok( x.state('Active') instanceof State );
-	assert.ok( x.state('Active.Hyperactive') instanceof State );
+	assert.ok( x.state('Hyperactive') instanceof State );
 	assert.ok( !x.state('Active').method( 'methodOne', false, false ) );
 	assert.ok( x.state('Active').method( 'methodTwo', false, false ) );
 });
@@ -48,7 +48,7 @@ test( "State changes from one child state sibling to another", function () {
 	var x = new TestObject('Finished');
 	assert.ok( x.state().is('Finished'), "Initialized to state 'Finished'" );
 	assert.ok( s = x.state().change('Finished'), "Asynchronous state change" );
-	assert.ok( x.state().change('Finished.CleaningUp'), "Aborted transition redirected to child state" );
+	assert.ok( x.state().change('CleaningUp'), "Aborted transition redirected to child state" );
 	assert.ok( x.state().change('..Terminated'), "Change to sibling state using relative selector syntax" );
 });
 
@@ -66,12 +66,11 @@ test( "Method resolutions", function () {
 	assert.notEqual( x.methodOne(), 'Finished.methodOne' ); // !==, because change('Finished') is delayed
 	assert.equal( x.methodTwo(), 'methodTwo' ); // ===, because `methodTwo` isn't overridden by Finished
 	assert.notEqual( x.methodThree(1,2), 'Finished.methodThree uno=1 dos=2' ); // !==, idem
-	x.state().change('Finished.CleaningUp');
-	assert.ok( x.state().is('Finished.CleaningUp'), "State 'Finished.CleaningUp'" );
+	x.state().change('CleaningUp');
+	assert.ok( x.state().is('CleaningUp'), "State 'Finished.CleaningUp'" );
 	assert.equal( x.methodOne(), 'Finished.methodOne' );
 	assert.equal( x.methodTwo(), 'Finished.CleaningUp.methodTwo' );
-	assert.ok( ( x.terminate(), x.state().is('Finished.Terminated') ), "State 'Finished.Terminated'" );
-	// assert.ok( x.state().change('..Terminated').state().is('Finished.Terminated'), "State 'Finished.Terminated'" );
+	assert.ok( ( x.terminate(), x.state().is('Terminated') ), "State 'Finished.Terminated'" );
 	assert.equal( x.methodOne(), 'Finished.methodOne' );
 	assert.equal( x.methodTwo(), 'Finished.Terminated.methodTwo' );
 	assert.equal( x.methodThree(1,2), 'Finished.Terminated.methodThree : Finished.methodThree uno=1 dos=2' );
