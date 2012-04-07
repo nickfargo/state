@@ -1142,7 +1142,7 @@ var State = ( function () {
         // of `other`, or vice versa, that ancestor is returned.
         common: function ( /*State | String*/ other ) {
             var state;
-            other instanceof State || ( other = this.match( other ) );
+            other instanceof State || ( other = this.query( other ) );
             for (
                 this.depth() > other.depth() ?
                     ( state = other, other = this ) :
@@ -1158,7 +1158,7 @@ var State = ( function () {
         // 
         // Determines whether `this` is `state`.
         is: function ( /*State | String*/ state ) {
-            state instanceof State || ( state = this.match( state ) );
+            state instanceof State || ( state = this.query( state ) );
             return state === this;
         },
 
@@ -1166,7 +1166,7 @@ var State = ( function () {
         // 
         // Determines whether `this` is or is a substate of `state`.
         isIn: function ( /*State | String*/ state ) {
-            state instanceof State || ( state = this.match( state ) );
+            state instanceof State || ( state = this.query( state ) );
             return state === this || state.isSuperstateOf( this );
         },
         
@@ -1175,7 +1175,7 @@ var State = ( function () {
         // Determines whether `this` is a superstate of `state`.
         isSuperstateOf: function ( /*State | String*/ state ) {
             var superstate;
-            state instanceof State || ( state = this.match( state ) );
+            state instanceof State || ( state = this.query( state ) );
             
             return ( superstate = state.superstate() ) ?
                 this === superstate || this.isSuperstateOf( superstate )
@@ -1189,7 +1189,7 @@ var State = ( function () {
         // chain of `state`’s owner.
         isProtostateOf: function ( /*State | String*/ state ) {
             var protostate;
-            state instanceof State || ( state = this.match( state ) );
+            state instanceof State || ( state = this.query( state ) );
 
             return ( protostate = state.protostate() ) ?
                 this === protostate || this.isProtostateOf( protostate )
@@ -1260,7 +1260,7 @@ var State = ( function () {
         select: function ( /*State | String*/ state ) {
             state === undefined ?
                 ( state = this ) :
-                state instanceof State || ( state = this.match( state ) );
+                state instanceof State || ( state = this.query( state ) );
             return this.controller().change( state ) && state;
         },
 
@@ -1302,7 +1302,7 @@ var State = ( function () {
 
             if ( historian ) {
                 // Before delegating to the historian, `state` must be resolved locally.
-                state instanceof State || ( state = this.match( state ) );
+                state instanceof State || ( state = this.query( state ) );
 
                 if ( state && state.isIn( this ) ) {
                     return historian.push( flags, state, transition, data );
@@ -1315,7 +1315,7 @@ var State = ( function () {
 
             if ( historian ) {
                 // Before delegating to the historian, `state` must be resolved locally.
-                state instanceof State || ( state = this.match( state ) );
+                state instanceof State || ( state = this.query( state ) );
 
                 if ( state && state.isIn( this ) ) {
                     return historian.push( flags, state, transition, data );
@@ -1355,7 +1355,7 @@ var State = ( function () {
 
             Z.forEach( guard, function ( value, selector ) {
                 Z.forEach( selector.split( /\s*,+\s*/ ), function ( expr ) {
-                    if ( state.match( Z.trim( expr ), testState ) ) {
+                    if ( state.query( Z.trim( expr ), testState ) ) {
                         result = !!( typeof value === 'function' ?
                             value.call( state, testState ) :
                             value
@@ -1369,7 +1369,7 @@ var State = ( function () {
             return result === undefined || result;
         },
 
-        // #### match
+        // #### query
         // 
         // Matches a string expression `expr` with the state or states it represents, evaluated
         // first in the context of `this`, then its substates, and then its superstates, until
@@ -1383,8 +1383,8 @@ var State = ( function () {
         // likewise setting `ascend` to `false` disables the subsequent recursion through its
         // superstates.
         // 
-        // *Alias:* **$**
-        'match $': function (
+        // *Alias:* **$**, **match**
+        'query $ match': function (
              /*String*/ expr,
               /*State*/ against, // optional
             /*Boolean*/ descend, // = true
@@ -1404,7 +1404,7 @@ var State = ( function () {
 
             // If `expr` is an absolute path, evaluate it from the root state as a relative path.
             if ( expr.charAt(0) !== '.' ) {
-                return this.root().match( '.' + expr, against, descend, false );
+                return this.root().query( '.' + expr, against, descend, false );
             }
 
             // Split `expr` into tokens, parse, and return any matching state or set of states.
@@ -1447,7 +1447,7 @@ var State = ( function () {
                         // already been searched.
                         if ( state === descend ) continue;
 
-                        result = state.match( expr, against, false, false );
+                        result = state.query( expr, against, false, false );
                         if ( result ) return result;
 
                         queue.push( state );
@@ -1458,12 +1458,12 @@ var State = ( function () {
             // If a match still hasn’t been found, then recursively ascend, passing `this` as a
             // domain to be skipped during the superstate’s subsequent descent.
             if ( ascend && ( superstate = this.superstate() ) ) {
-                result = superstate.match( expr, against, this, true );
+                result = superstate.query( expr, against, this, true );
                 if ( result ) return result;
             }
 
             // No matches here.
-            return false;
+            return null;
         }
     });
     Z.alias( State.prototype, { addEvent: 'on bind', removeEvent: 'off unbind' } );
