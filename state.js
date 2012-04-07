@@ -1983,7 +1983,6 @@ var StateController = ( function () {
                 for ( ; state && state !== until; state = until ? state.superstate() : null ) {
                     transitions = state.transitions();
                     for ( key in transitions ) if ( Z.hasOwn.call( transitions, key ) ) {
-                        if ( ( expression.target ?
                         expr = transitions[ key ];
                         if (
                             ( !expr.guard || expr.guard.call( origin, target ) )
