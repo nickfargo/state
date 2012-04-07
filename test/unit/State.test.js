@@ -5,10 +5,10 @@ module( "State" );
 
 test( "superstate()", function () {
 	var x = new TestObject;
-	strictEqual( x.state('Finished.Terminated.ReallyDead').superstate('Finished'), x.state('Finished') );
-	strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(''), x.state().root() );
-	strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(), x.state('Finished.Terminated') );
-	strictEqual( x.state().root().superstate(), undefined );
+	assert.strictEqual( x.state('Finished.Terminated.ReallyDead').superstate('Finished'), x.state('Finished') );
+	assert.strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(''), x.state().root() );
+	assert.strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(), x.state('Finished.Terminated') );
+	assert.strictEqual( x.state().root().superstate(), undefined );
 });
 
 test( "match()", function () {
@@ -31,11 +31,36 @@ test( "match()", function () {
 	assert.equal( x.state().match( '**' ).length, 8 );
 	assert.equal( x.state('Finished').match( '.Terminated' ), x.state('Finished.Terminated') );
 	assert.equal( x.state('Finished').match( '.*' ).length, 2 );
-	strictEqual( x.state().match( '*', x.state('Finished') ), true );
-	strictEqual( x.state().match( '*', x.state('Finished.CleaningUp') ), false );
-	strictEqual( x.state().match( '**', x.state('Finished.CleaningUp') ), true );
-	strictEqual( x.state().match( 'Finished.*', x.state('Finished.CleaningUp') ), true );
-	strictEqual( x.state().match( 'Finished.*', x.state('Finished.Terminated') ), true );
+	assert.strictEqual( x.state().match( '*', x.state('Finished') ), true );
+	assert.strictEqual( x.state().match( '*', x.state('Finished.CleaningUp') ), false );
+	assert.strictEqual( x.state().match( '**', x.state('Finished.CleaningUp') ), true );
+	assert.strictEqual( x.state().match( 'Finished.*', x.state('Finished.CleaningUp') ), true );
+	assert.strictEqual( x.state().match( 'Finished.*', x.state('Finished.Terminated') ), true );
+
+	x.state().go('Waiting');
+	assert.ok( x.state('ReallyDead') === x.state('Finished.Terminated.ReallyDead') );
+	assert.ok( x.state('Tweaked') === x.state('Active.Hyperactive.Tweaked') );
+	x.state().go('');
+	assert.ok( x.state('ReallyDead') === x.state('Finished.Terminated.ReallyDead') );
+	assert.ok( x.state('Tweaked') === x.state('Active.Hyperactive.Tweaked') );
+	x.state().go('Tweaked');
+
+	function Foo () {
+		state( this, {
+			A: state( 'initial', {
+				B: {}
+			}),
+			B: {},
+			C: {}
+		});
+	}
+	var foo = new Foo;
+	assert.ok( foo.state('B').superstate() === foo.state('') );
+	assert.ok( foo.state('B').superstate() !== foo.state('A') );
+	assert.ok( foo.state('.B').superstate() === foo.state('A') );
+	foo.state().go('');
+	assert.ok( foo.state('.B').superstate() === foo.state('') );
+	assert.ok( foo.state('.C').superstate() === foo.state('') );
 });
 
 test( "isIn()", function () {
