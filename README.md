@@ -550,9 +550,27 @@ When state is applied to an object, **State** identifies any methods already pre
 <a name="concepts--methods--context" />
 #### Context
 
-Normally, the context of a method invocation is the object to which the method belongs, or a prototypal inheritor of that object. However, a state method is invoked in the context of the *state* to which it belongs, or if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. While this difference in policy does mean that, within a state method, the owner object cannot be directly referenced by `this` as it normally would, it is still always accessible by calling `this.owner()`.
+When an owner object’s delegated state method is called, it is invoked not in the context of its owner, but rather of the state in which it is declared, or, if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. This subtle difference in policy does mean that, within a state method, the owner cannot be directly referenced by `this` as it normally would; however, it is still always accessible by calling `this.owner()`.
 
-Of greater importance is the lexical information that is afforded by binding state methods to their associated state. This allows state method code to exercise useful polymorphic idioms, such as calling up to a superstate’s implementation of the method.
+Of greater importance is the lexical information afforded by binding state methods to their associated state. This allows state method code to exercise useful polymorphic idioms, such as calling up to a superstate’s implementation of the method.
+
+```javascript
+state( owner, {
+    A: {
+        bang: function ( arg1, arg2 ) { /* ... */ }
+        B: {
+            bang: function () { return this.superstate().apply( 'bang', arguments ); }
+        }
+    }
+});
+```
+```coffeescript
+state owner,
+  A:
+    bang: ( arg1, arg2 ) -> # ...
+    B:
+      bang: -> @superstate().apply 'bang', arguments
+```
 
 <a name="concepts--methods--example" />
 #### Example
@@ -578,23 +596,14 @@ function Document ( location, text ) {
 state( Document.prototype, 'abstract', {
     freeze: function () { // [3]
         var result = this.call( 'save' ); // [4]
-        this.change( 'Saved.Frozen' );
+        this.change( 'Frozen' );
         return result;
     },
 
     Dirty: {
         save: function () {
-            var transition,
-                self = this.owner();
-
-            function callback ( err ) {
-                if ( err ) return transition.abort( err ).change( 'Dirty' );
-                return transition.end();
-            }
-            
-            fs.writeFile( self.location(), self.read(), callback );
-            transition = this.change( 'Saved' );
-            return self;
+            this.change( 'Saved' ); // [5]
+            return this.owner();
         }
     },
     Saved: state( 'initial', {
@@ -614,7 +623,15 @@ state( Document.prototype, 'abstract', {
         Writing: {
             origin: 'Dirty',
             target: 'Saved',
-            action: function () {}
+            action: function () {
+                var transition = this,
+                    self = this.owner();
+
+                return fs.writeFile self.location(), self.read(), function ( err ) {
+                    if ( err ) return transition.abort( err ).go( 'Dirty' );
+                    transition.end();
+                }
+            }
         }
     }
 });
@@ -634,17 +651,14 @@ class Document
   state @::, 'abstract',
     freeze: -> # [3]
       result = @call 'save' # [4]
-      @change 'Saved.Frozen'
+      @change 'Frozen'
       result
 
     Dirty:
       save: ->
-        self = @owner()
-        fs.writeFile self.location(), self.read(), ( err ) ->
-          if err then return transition.abort( err ).change 'Dirty'
-          do transition.end
-        transition = @change 'Saved'
-        self
+        @go 'Saved' [5]
+        @owner()
+    
     Saved: state 'initial',
       edit: ->
         result = @superstate().apply 'edit', arguments # [2]
@@ -657,6 +671,9 @@ class Document
 
     transitions:
       Writing: origin: 'Dirty', target: 'Saved', action: ->
+        fs.writeFile @owner().location(), @owner().read(), ( err ) =>
+          return @abort( err ).go 'Dirty' if err
+          do @end
 ```
 
 1. A “privileged” method `edit` is defined inside the constructor, closing over a private variable `text` to which it requires access. Later, when state is applied to the object, this method will be moved to the root state, and a delegator will be added to the object in its place.
@@ -666,6 +683,8 @@ class Document
 3. The `freeze` method is declared on the abstract root state, callable from states `Dirty` and `Saved` (but not `Frozen`, where it is overridden with a no-op).
 
 4. The `save` method, which only appears in the `Dirty` state, is still callable from other states, as its presence in `Dirty` causes a no-op version of the method to be automatically added to the root state. This allows `freeze` to safely call `save` despite the possiblity of being in a state (`Saved`) with no such method.
+
+5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked.
 
 
 <a name="concepts--transitions" />
@@ -677,7 +696,7 @@ A state expression may include any number of **transition expressions**, which d
 
 The lifecycle of a transition consists of a stepwise traversal through the state tree, from the `source` node to the `target` node, where the **domain** of the transition is represented by the state that is the least common ancestor node between `source` and `target`. At each step in the traversal, the transition instance acts as a temporary substate of the local state, such that event listeners may expect to inherit from the states in which they are declared.
 
-The traversal sequence is decomposable into an ascending phase, an action phase, and a descending phase. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition. The transition then reaches the top of the domain and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state. (*See section [Transition event sequence](#concepts--events--transition-event-sequence)*.)
+The traversal sequence is decomposable into an ascending phase, an action phase, and a descending phase. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition. The transition then reaches the top of the domain and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state. (*See section on [transitional events](#concepts--events--types--transitional)*.)
 
 Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, and will keep the same `origin` state as that of the aborted transition. Further redirections of pending transitions will continue to grow this `source` chain until a transition finally arrives at its `target` state.
 
