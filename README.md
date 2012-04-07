@@ -170,7 +170,7 @@ person.greet()                      # "Hello."
 
 A **state expression** defines the contents and structure of a `State` instance. A `StateExpression` object can be created using the exported `state()` function, and providing it a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
 
-The contents of a state expression decompose into six categories: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
+The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
 To express the state implementation of the introductory example above, we could write:
 
@@ -208,12 +208,12 @@ longformExpression = state
       methods:
         greet: -> "How do you do?"
       events:
-        enter: ( event ) -> @owner().wearTux()
+        enter: ( event ) -> do @owner().wearTux
     Informal:
       methods:
         greet: -> "Hi!"
       events:
-        enter: ( event ) -> @owner().wearJeans()
+        enter: ( event ) -> do @owner().wearJeans
 ```
 
 Or we can cut out some of the explicit structure and allow the `StateExpression` interpreter to make some inferences about our abbreviated input:
@@ -236,10 +236,10 @@ var shorthandExpression = state({
 shorthandExpression = state
   greet: -> "Hello."
   Formal:
-    enter: ( event ) -> @owner().wearTux()
+    enter: ( event ) -> do @owner().wearTux
     greet: -> "How do you do?"
   Informal:
-    enter: ( event ) -> @owner().wearJeans()
+    enter: ( event ) -> do @owner().wearJeans
     greet: -> "Hi!"
 ```
 
@@ -247,20 +247,21 @@ shorthandExpression = state
 
 Below is the procedure used to interpret an object as a `StateExpression`:
 
-1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, interpret it a substate or transition expression, respectively.
+1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, interpret it as a substate or transition expression, respectively.
 
-2. Otherwise, if an entry’s key is a category name, its value must be either `null` or an object to be interpreted as longform.
+2. Otherwise, if an entry’s key is a [category](#concepts--expressions) name, its value must be either `null` or an object to be interpreted as longform.
 
-3. Otherwise, if an entry’s key matches a built-in event type, interpret the value as an event listener (or array of event listeners) to be bound to that event type.
+3. Otherwise, if an entry’s key matches a [built-in event type](#concepts--events--types), interpret the value as either an event listener function, an array of event listeners, or a [named transition target](#concepts--events--expressing-determinism) to be bound to that event type.
 
-4. Otherwise, if an entry’s key matches a guard action (i.e., `admit`, `release`), interpret the value as a guard condition (or array of guard conditions).
+4. Otherwise, if an entry’s key matches a [guard action](#concepts--guards) (i.e., `admit`, `release`), interpret the value as a guard condition (or array of guard conditions).
 
-5. Otherwise, if an entry’s value is a function, interpret it as a method whose name is the entry’s key, or if the entry’s value is an object, interpret it as a substate whose name is the entry’s key.
+5. Otherwise, if an entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key, or if the entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key.
 
 
 <a name="concepts--inheritance" />
 ### Inheritance
 
+<a name="concepts--inheritance--nesting-states" />
 #### Nesting states
 
 As with classes or prototypal objects, states are modeled hierarchically, where a state may serve as a **superstate** of one or more **substates** that express ever greater specificity of their owner’s behavior and condition.
@@ -277,19 +278,19 @@ function Person () {
     
     state( this, {
         Formal: {
-            greet: function () { return "How do you do?"; }
+            greet: function ( other ) { return "How do you do?"; }
         },
         Informal: {
-            greet: function () { return "Hi!"; },
+            greet: function ( friend ) { return "Hi!"; },
 
             Familiar: {
-                hug: function ( other ) {
-                    this.owner().give( other, 'O' );
+                hug: function ( relative ) {
+                    this.owner().give( relative, 'O' );
                     return this;
                 },
 
-                greet: function ( other ) {
-                    this.owner().hug( other );
+                greet: function ( relative ) {
+                    this.owner().hug( relative );
                 },
 
                 Intimate: {
@@ -316,14 +317,14 @@ class Person
 
     state this,
       Formal:
-        greet: -> "How do you do?"
+        greet: ( other ) -> "How do you do?"
       
       Informal:
-        greet: -> "Hi!"
+        greet: ( friend ) -> "Hi!"
     
         Familiar:
-          hug: ( other ) -> @owner().give other, 'O' ; this
-          greet: ( other ) -> @owner().hug other
+          hug: ( relative ) -> @owner().give relative, 'O' ; this
+          greet: ( relative ) -> @owner().hug relative
     
           Intimate:
             kiss: ( myBetterHalf ) -> @owner().give myBetterHalf, 'X' ; this
@@ -333,6 +334,7 @@ class Person
               I.kiss myBetterHalf
 ```
 
+<a name="concepts--inheritance--nesting-states--the-root-state" />
 ##### The root state
 
 An object’s state model is a classic tree structure, with a single **root state** as its basis, from which all of the object’s states inherit.
@@ -350,6 +352,7 @@ obj.state -> ''                         # State ''
 
 The root state also acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined for the current state, or for any of its superstates, then as a last resort **State** will resolve the call to the original implementation held within the root state.
 
+<a name="concepts--inheritance--inheriting-states-across-prototypes" />
 #### Inheriting states across prototypes
 
 So far we’ve been creating stateful objects by applying the `state()` function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
@@ -804,8 +807,8 @@ junior.state().emit 'spilledIceCream'
 junior.state()                         # State 'Sad'
 ```
 
-<a name="concepts--events--determinism" />
-#### Determinism
+<a name="concepts--events--expressing-determinism" />
+#### Expressing determinism
 
 An event listener may also be expressed simply as a State name, which is interpreted as an order to transition to that State after all of an event’s callbacks have been invoked. This bit of shorthand allows for concise expression of *deterministic* behavior, where the occurrence of a particular event type within a particular State has a definitive, unambiguous effect on the state of the object.
 
@@ -837,7 +840,7 @@ three.compute( 504030201 );  // true
 class IsDivisibleByThreeComputer
   constructor: ->
     state this, 'abstract',
-      s0: state( 'default',
+      s0: state( 'initial default',
           events: '0':'s0', '1':'s1' )
       s1: events: '0':'s2', '1':'s0'
       s2: events: '0':'s1', '1':'s2'
