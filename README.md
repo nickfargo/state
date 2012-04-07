@@ -149,21 +149,23 @@ person.greet()                      # "Hello."
 <a name="concepts" />
 ## Concepts
 
-* [Expressions](#concepts--expressions) — States and their contents can be concisely expressed using a plain object literal, which, along with an optional set of attribute keywords, is passed into the `state()` function and interpreted into a formal **state expression** type.
+* [**Expressions**](#concepts--expressions) — States and their contents can be concisely expressed using a plain object literal, which, along with an optional set of attribute keywords, is passed into the `state()` function and interpreted into a formal **state expression** type.
 
-* [Inheritance](#concepts--inheritance) — States are hierarchically nested in a tree structure: the **owner** object is given exactly one **root state**, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
+* [**Inheritance**](#concepts--inheritance) — States are hierarchically nested in a tree structure: the **owner** object is given exactly one **root state**, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
 
-* [Attributes](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will disallow any further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
+* [**Selectors**](#concepts--selectors) — A stateful object exposes an accessor method as `object.state()`, which is called without arguments to retrieve the object’s current state, or if provided a **selector** string, to retrieve a specific `State` of the object.
 
-* [Data](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
+* [**Attributes**](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will disallow any further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
 
-* [Methods](#concepts--methods) — Behavior is modeled by defining state **methods** that override the object’s methods *opaquely* with respect to consumers of the object, which need not be aware of the object’s current state, or even that a concept of state exists at all. State methods are invoked in the context of the state in which the method is defined, allowing for polymorphic features like invoking the overridden methods of a superstate.
+* [**Data**](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
 
-* [Transitions](#concepts--transitions) — When an object is directed to change from one state to another, it does so by temporarily entering into a **transition** state. A state expression may include **transition expressions** that describe, given a specific pairing of origin and target states, a synchronous or asynchronous **action** to be performed over the duration of the transition.
+* [**Methods**](#concepts--methods) — Behavior is modeled by defining state **methods** that override the object’s methods *opaquely* with respect to consumers of the object, which need not be aware of the object’s current state, or even that a concept of state exists at all. State methods are invoked in the context of the state in which the method is defined, allowing for polymorphic features like invoking the overridden methods of a superstate.
 
-* [Events](#concepts--events) — Listeners for specific **event** types can be bound to a state, which will be called in the context of the bound state as it is affected by a progressing transition (`depart`, `exit`, `enter`, `arrive`), as data bound to the state changes (`mutate`), or upon the state’s construction or destruction (`construct`, `destroy`). **State** also allows for custom typed events, which can be emitted from a particular state and propagated to listeners bound to the state itself as well as its protostates and superstates.
+* [**Transitions**](#concepts--transitions) — When an object is directed to change from one state to another, it does so by temporarily entering into a **transition** state. A state expression may include **transition expressions** that describe, given a specific pairing of origin and target states, a synchronous or asynchronous **action** to be performed over the duration of the transition.
 
-* [Guards](#concepts--guards) — A state may be outfitted with **guards** to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Guards are evaluated as either boolean values or predicates (boolean-valued functions).
+* [**Events**](#concepts--events) — Listeners for specific **event** types can be bound to a state, which will be called in the context of the bound state as it is affected by a progressing transition (`depart`, `exit`, `enter`, `arrive`), as data bound to the state changes (`mutate`), or upon the state’s construction or destruction (`construct`, `destroy`). **State** also allows for custom typed events, which can be emitted from a particular state and propagated to listeners bound to the state itself as well as its protostates and superstates.
+
+* [**Guards**](#concepts--guards) — A state may be outfitted with **guards** to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Guards are evaluated as either boolean values or predicates (boolean-valued functions).
 
 <a name="concepts--expressions" />
 ### Expressions
@@ -422,6 +424,74 @@ Even though the inheritor’s state implementation is empty, it identifies the p
 This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without the states themselves having to maintain any direct prototypal relationship with each other.
 
 
+<a name="concepts--selectors" />
+### Selectors
+
+The accessor method of a stateful object (`object.state()`) returns its current state if called with no arguments. If a **selector** string argument is provided, the accessor will query the object’s state tree for any matching states.
+
+**State** uses a simple selector format:
+
+1. Substate names are delimited with the dot (`.`) character.
+
+2. A selector that begins with `.` will be evaluated *relative* to the local context, while a selector that begins with a name will be evaluated as *absolute*, i.e., relative to the root state.
+
+3. An absolute fully-qualified name is not necessary except for disambiguation: `'A.B.C'` and `'C'` will both resolve to the deep substate named `C` provided that there is no other state named `C` located higher in the state tree.
+
+4. Special cases: empty-string `''` references the root state; single-dot `.` references the local context state; double-dot `..` references its immediate superstate, etc.
+
+5. Querying a selector ending in `*` returns an array of the immediate substates of that level, while `**` returns a flattened array of all descendant substates of that level.
+
+```javascript
+var o = {};
+state( o, {
+    A: {
+        AA: state('initial', {
+            AAA: {}
+        }),
+        AB: {}
+    },
+    B: {}
+});
+
+o.state();            // State 'AA'
+o.state('');          // State ''
+o.state('A.AA.AAA');  // State 'AAA'
+o.state('.');         // State 'A'
+o.state('..');        // State ''
+o.state('.AB');       // State 'AB'
+o.state('..B');       // State 'B'
+o.state('AAA');       // State 'AAA'
+o.state('.*');        // [ State 'AAA' ]
+o.state('AAA.*');     // []
+o.state('*');         // [ State 'A', State 'B' ]
+o.state('**');        // [ State 'A', State 'AA', State 'AAA', State 'AB', State 'B' ]
+```
+```coffeescript
+o = {}
+state o,
+  A:
+    AA: state 'initial',
+      AAA: {}
+    AB: {}
+  B: {}
+
+o.state()             # State 'AA'
+o.state ''            # State ''
+o.state 'A.AA.AAA'    # State 'AAA'
+o.state '.'           # State 'A'
+o.state '..'          # State ''
+o.state '.AB'         # State 'AB'
+o.state '..B'         # State 'B'
+o.state 'AAA'         # State 'AAA'
+o.state '.*'          # [ State 'AAA' ]
+o.state 'AAA.*'       # []
+o.state '*'           # [ State 'A', State 'B' ]
+o.state '**'          # [ State 'A', State 'AA', State 'AAA', State 'AB', State 'B' ]
+```
+
+Selectors are similarly put to use elsewhere as well: for example, a [transition](#)’s `origin` and `target` properties are evaluated as selectors, and several `State` methods, including [`change`](#), [`is`](#), [`isIn`](#), [`isSuperstateOf`](#), and [`isProtostateOf`](#), accept a selector as their main argument.
+
+
 <a name="concepts--attributes" />
 ### Attributes
 
@@ -656,7 +726,7 @@ class Document
 
     Dirty:
       save: ->
-        @go 'Saved' [5]
+        @go 'Saved' # [5]
         @owner()
     
     Saved: state 'initial',
