@@ -1714,13 +1714,10 @@ var StateController = ( function () {
     // implementation of its state.
     function createAccessor ( owner, name, self ) {
         function accessor () {
-            var current, controller, root, key, method,
-                fn = arguments[0];
+            var fn, current, controller, root, key, method;
 
             if ( this === owner ) {
-                if ( Z.isFunction( fn ) ) {
-                    return self.change( fn.call( this ) );
-                }
+                if ( Z.isFunction( fn = arguments[0] ) ) return self.change( fn.call( this ) );
                 current = self.current();
                 return arguments.length ? current.match.apply( current, arguments ) : current;
             }
