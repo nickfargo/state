@@ -1008,9 +1008,7 @@ var State = ( function () {
         // Gets the `StateController` to which this state belongs.
         controller: function () {
             var superstate = this.superstate();
-            if ( superstate ) {
-                return superstate.controller();
-            }
+            if ( superstate ) return superstate.controller();
         },
         
         // #### owner
@@ -1018,9 +1016,7 @@ var State = ( function () {
         // Gets the owner object to which this state’s controller belongs.
         owner: function () {
             var controller = this.controller();
-            if ( controller ) {
-                return controller.owner();
-            }
+            if ( controller ) return controller.owner();
         },
         
         // #### root
@@ -1028,9 +1024,7 @@ var State = ( function () {
         // Gets the root state, i.e. the top-level superstate of this state.
         root: function () {
             var controller = this.controller();
-            if ( controller ) {
-                return controller.root();
-            }
+            if ( controller ) return controller.root();
         },
         
         // #### current
@@ -1038,9 +1032,7 @@ var State = ( function () {
         // Gets the local controller’s current state.
         current: function () {
             var controller = this.controller();
-            if ( controller ) {
-                return this.controller().current();
-            }
+            if ( controller ) return this.controller().current();
         },
 
         // #### defaultSubstate
@@ -1049,11 +1041,7 @@ var State = ( function () {
         defaultSubstate: function () {
             var substates = this.substates(), i = 0, l = substates && substates.length;
             if ( !l ) return;
-            for ( ; i < l; i++ ) {
-                if ( substates[i].isDefault() ) {
-                    return substates[i];
-                }
-            }
+            for ( ; i < l; i++ ) if ( substates[i].isDefault() ) return substates[i];
             return substates[0];
         },
 
@@ -1066,28 +1054,26 @@ var State = ( function () {
             /*Boolean*/ viaProto // = true
         ) {
             var queue = [ this ],
-                subject, substates, i, l, s, p;
+                subject, substates, i, l, state, protostate;
             
             while ( subject = queue.shift() ) {
                 substates = subject.substates();
                 for ( i = 0, l = substates.length; i < l; i++ ) {
-                    s = substates[i];
-                    if ( s.isInitial() ) {
-                        return s.initialSubstate( false ) || s;
-                    }
-                    queue.push( s );
+                    state = substates[i];
+                    if ( state.isInitial() ) return state.initialSubstate( false ) || state;
+                    queue.push( state );
                 }
             }
 
-            if ( ( viaProto || viaProto === undefined ) && ( p = this.protostate() ) ) {
-                return p.initialSubstate( true );
+            if ( ( viaProto || viaProto === undefined ) && ( protostate = this.protostate() ) ) {
+                return protostate.initialSubstate( true );
             }
         },
 
         // #### protostate
         // 
-        // Returns the **protostate**, the state analogous to `this` found in the next object in the
-        // owner’s prototype chain that has one. A state inherits from both its protostate and
+        // Returns the **protostate**, the state analogous to `this` found in the next object in
+        // the owner’s prototype chain that has one. A state inherits from both its protostate and
         // superstate, *in that order*.
         // 
         // If the owner does not share an analogous `StateController` with its prototype, or if no
