@@ -3,14 +3,6 @@
 
 module( "State" );
 
-test( "superstate()", function () {
-	var x = new TestObject;
-	assert.strictEqual( x.state('Finished.Terminated.ReallyDead').superstate('Finished'), x.state('Finished') );
-	assert.strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(''), x.state().root() );
-	assert.strictEqual( x.state('Finished.Terminated.ReallyDead').superstate(), x.state('Finished.Terminated') );
-	assert.strictEqual( x.state().root().superstate(), undefined );
-});
-
 test( "query()", function () {
 	var x = new TestObject;
 	assert.ok( x.state().query( 'Finished.*', x.state('Finished.CleaningUp') ) );
@@ -61,6 +53,14 @@ test( "query()", function () {
 	foo.state().go('');
 	assert.ok( foo.state('.B').superstate() === foo.state('') );
 	assert.ok( foo.state('.C').superstate() === foo.state('') );
+});
+
+test( "superstate()", function () {
+	var x = new TestObject;
+	assert.strictEqual( x.state('ReallyDead').superstate('Finished'), x.state('Finished') );
+	assert.strictEqual( x.state('ReallyDead').superstate(''), x.state().root() );
+	assert.strictEqual( x.state('ReallyDead').superstate(), x.state('Terminated') );
+	assert.strictEqual( x.state().root().superstate(), undefined );
 });
 
 test( "isIn()", function () {
