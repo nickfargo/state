@@ -240,8 +240,9 @@ var State = ( function () {
 
     // #### realize
     // 
-    // The realization procedure is offloaded from the constructor, allowing for construction of
-    // virtual `State` instances that inherit all of their functionality from protostates.
+    // Much of the initialization for `State` is offloaded from the constructor, allowing for
+    // creation of lightweight virtual `State` instances that inherit all of their functionality
+    // from protostates, but can also be converted later to a real `State` if necessary.
     function realize ( superstate, attributes, expression ) {
         var data = {},
             methods = {},
@@ -1178,8 +1179,7 @@ var State = ( function () {
             state instanceof State || ( state = this.query( state ) );
             
             return ( superstate = state.superstate() ) ?
-                this === superstate || this.isSuperstateOf( superstate )
-                :
+                this === superstate || this.isSuperstateOf( superstate ) :
                 false;
         },
 
@@ -1192,8 +1192,7 @@ var State = ( function () {
             state instanceof State || ( state = this.query( state ) );
 
             return ( protostate = state.protostate() ) ?
-                this === protostate || this.isProtostateOf( protostate )
-                :
+                this === protostate || this.isProtostateOf( protostate ) :
                 false;
         },
 
