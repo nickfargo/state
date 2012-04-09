@@ -737,9 +737,7 @@ var State = ( function () {
                 if ( this.isVirtual() ) {
                     return this.realize().addSubstate( stateName, stateExpression );
                 }
-                if ( this.isSealed() ) {
-                    throw new Error;
-                }
+                if ( this.isSealed() ) return null;
 
                 ( substate = substates[ stateName ] ) && substate.destroy();
                 
@@ -1219,14 +1217,15 @@ var State = ( function () {
         // will either be the state in which the method is defined, or if the implementation
         // resides in a protostate, the corresponding virtual state in the calling controller.
         apply: function ( /*String*/ methodName, /*Array*/ args ) {
-            var owner, ownerMethod,
-                out = { method: undefined, context: undefined },
-                method = this.method( methodName, true, true, out ),
-                context = out.context;
+            var out, method, context, owner, ownerMethod;
+
+            out = { method: undefined, context: undefined },
+            method = this.method( methodName, true, true, out ),
             
-            if ( !method ) throw new TypeError( "State '" + this + "' cannot resolve method '" +
+            if ( !method ) throw new TypeError( "State '" + this + "' has no method '" +
                 methodName + "'" );
 
+            context = out.context;
             owner = this.owner();
             ownerMethod = owner[ methodName ];
             if ( ownerMethod && ownerMethod.original && context === this.root() ) {
