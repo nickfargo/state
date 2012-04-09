@@ -4,26 +4,38 @@
 
 var global = this,
 
+    meta = {
+        VERSION: '0.0.3',
+
+        noConflict: ( function () {
+            var original = global.state;
+            return function () {
+                global.state = original;
+                return this;
+            };
+        })()
+    },
+
     // The lone dependency of the **State** module is
     // [**Zcore**](http://github.com/zvector/zcore), a library that assists with tasks such as
     // object manipulation, differential operations, facilitating prototypal inheritance, etc.
     Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
 
+
 // <a id="module" />
 
 // ## state( ... )
 // 
-// The `state` module is exported as a function. This can be used globally, in either of two
-// capacities: (1) to generate a formal `StateExpression`; or (2) to apply a new implementation of
-// state, based on the supplied `expression`, to an arbitrary `owner` object, in which
-// case the newly stateful owner’s initial `State` is returned.
+// The `state` module is exported as a function. This is used either: (1) to generate a formal
+// `StateExpression`; or (2) to bestow an arbitrary `owner` object with a new implementation of
+// state based on the supplied `expression`, returning the owner’s initial `State`.
 // 
-// All of the function’s arguments are optional. If both an `owner` and `expression` are provided,
-// `state` acts in the second capacity, causing `owner` to become stateful; otherwise, `state`
-// simply returns a `StateExpression`. The `attributes` parameter may include any of the words
-// defined in `STATE_ATTRIBUTE_MODIFIERS`; these are applied to the provided `expression`, and
-// will be used to further specify the expressed state’s functionality, or to impose constraints
-// on how that state may be used by its owner. (See `STATE_ATTRIBUTES` object below.)
+// All arguments are optional. If both an `owner` and `expression` are provided, `state` acts in
+// the second capacity, causing `owner` to become stateful; otherwise, `state` simply returns a
+// `StateExpression`. The `attributes` parameter may include any of the words defined in
+// `STATE_ATTRIBUTE_MODIFIERS`; these are applied to the provided `expression`, and will be used
+// to further specify the expressed state’s functionality, or to impose constraints on how that
+// state may be used by its owner. (See `STATE_ATTRIBUTES` object below.)
 // 
 // *See also:* [`State`](#state), [`StateExpression`](#state-expression),
 // [`StateController`](#state-controller)
@@ -43,13 +55,12 @@ function state (
         typeof attributes === 'string' ||
             ( options = expression, expression = attributes, attributes = undefined );
     }
-
     expression = new StateExpression( attributes, expression );
-
-    return owner ?
-        new StateController( owner, expression, options ).current() :
-        expression;
+    return owner ? new StateController( owner, expression, options ).current() : expression;
 }
+
+Z.assign( state, meta );
+
 
 // ### Module-level constants
 
@@ -136,35 +147,29 @@ var STATE_ATTRIBUTES = {
     STATE_EXPRESSION_CATEGORIES =
         'data methods events guards states transitions',
     
+    // 
     STATE_EVENT_TYPES =
         'construct depart exit enter arrive destroy mutate',
     
+    // 
     GUARD_ACTIONS =
         'admit release',
     
+    // 
     TRANSITION_PROPERTIES =
         'origin source target action conjugate',
     
+    // 
     TRANSITION_EXPRESSION_CATEGORIES =
         'methods events guards',
     
+    // 
     TRANSITION_EVENT_TYPES =
         'construct destroy enter exit start end abort';
 
+// 
 Z.env.server && ( module.exports = exports = state );
 Z.env.client && ( global['state'] = state );
-
-Z.assign( state, {
-    VERSION: '0.0.3',
-
-    noConflict: ( function () {
-        var autochthon = global.state;
-        return function () {
-            global.state = autochthon;
-            return this;
-        };
-    })()
-});
 
 // <a id="state" />
 
