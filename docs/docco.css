@@ -1,9 +1,9 @@
 /*--------------------- Layout and Typography ----------------------------*/
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 15px;
-  line-height: 23px;
-  background: #3c3c3c;
+  font-size: 10pt;
+  line-height: 16pt;
+  background: #262626;
   color: #f0f0f0;
   margin: 0; padding: 0;
 }
@@ -11,12 +11,12 @@ strong {
   color: #ffffff;
   font-size: 105%;
 }
-a {
+p a {
   text-decoration: none;
-  color: #261a3b;
+  color: #ffffff;
 }
-  a:visited {
-    color: #261a3b;
+  p a:visited {
+    color: #ffffff;
   }
 p {
   margin: 0 0 15px 0;
@@ -91,8 +91,7 @@ table td {
   outline: 0;
 }
   td.docs, th.docs {
-    max-width: 400px;
-    min-width: 400px;
+    min-width: 350px;
     min-height: 5px;
     padding: 10px 20px 5px 24px;
     overflow-x: hidden;
@@ -110,20 +109,29 @@ table td {
     .docs p tt, .docs p code {
       background: rgba( 255, 255, 255, 0.1 );
       color: #ffffff;
-      border: 1px solid rgba( 255, 255, 255, 0.05 );
+      border: 1px solid rgba( 255, 255, 255, 0 );
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 9pt;
       padding: 0.15em 0.3em;
       margin: 0 -0.1em;
     }
-    .docs a tt, .docs a code {
+    .docs a {
       text-decoration: none;
-      background: rgba( 255, 247, 192, 0.2 );
-      border: 1px solid rgba( 255, 240, 128, 0.17 );
+      background: rgba( 255, 247, 192, 0.05 );
+      border: 1px solid rgba( 255, 240, 128, 0.05 );
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 105%;
+      padding: 1px 4px;
     }
-    .docs a:hover tt, .docs a:hover code {
-      background: rgba( 255, 255, 128, 0.33 );
-      -webkit-transition: opacity 0.2s linear;
+    .docs a:hover {
+      background: rgba( 255, 255, 128, 0.20 );
+      border: 1px solid rgba( 255, 240, 128, 0.1 );
+     -webkit-transition: opacity 0.2s linear;
+    }
+    .docs a tt, .docs a code {
+      background: transparent;
+      border: none;
     }
     .pilwrap {
       position: relative;
@@ -133,16 +141,16 @@ table td {
         text-decoration: none;
         color: #ffffff;
         position: absolute;
-        top: 3px; left: -16px;
+        top: 3px; left: -20px;
         padding: 1px 2px;
         opacity: 0;
         -webkit-transition: opacity 0.2s linear;
       }
-        td.docs:hover .pilcrow {
-          opacity: 1;
+        .pilcrow:hover {
+          opacity: 0.4;
         }
   td.code, th.code {
-    padding: 14px 15px 16px 25px;
+    padding: 14px 0px 16px 25px;
     width: 100%;
     vertical-align: top;
     background: #f1f1f1;
