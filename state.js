@@ -1807,6 +1807,33 @@ var StateController = ( function () {
         }
     }
     
+    // #### evaluateGuard
+    // 
+    // Returns the Boolean result of the guard function at `guardName` defined on this state,
+    // as evaluated against `testState`, or `true` if no guard exists.
+    function evaluateGuard ( guard, against ) {
+        var key, value, valueIsFn, selectors, selector, expr,
+            result = true;
+
+        typeof guard === 'string' && ( guard = this.guard( guard ) );
+
+        if ( !guard ) return true;
+
+        for ( key in guard ) if ( Z.hasOwn.call( guard, key ) ) {
+            selectors = key.split( /\s*,+\s*/ );
+            value = guard[ key ], valueIsFn = typeof value === 'function';
+            for ( selector in selectors ) if ( Z.hasOwn.call( selectors, selector ) ) {
+                expr = selectors[ selector ];
+                if ( this.query( Z.trim( expr ), against ) ) {
+                    result = !!( valueIsFn ? value.call( this, against ) : value );
+                    break;
+                }
+            }
+            if ( !result ) break;
+        }
+        return result;
+    }
+
     // ### External privileged methods
 
     StateController.privileged = {
@@ -1890,8 +1917,8 @@ var StateController = ( function () {
                 // If any guards are in place for the given `origin` and `target` states, they must
                 // consent to the transition, unless we specify that it be `forced`.
                 if ( !options.forced && (
-                        !origin.evaluateGuard( 'release', target ) ||
-                        !target.evaluateGuard( 'admit', origin )
+                        !evaluateGuard.call( origin, 'release', target ) ||
+                        !evaluateGuard.call( target, 'admit', origin )
                 ) ) {
                     typeof options.failure === 'function' && options.failure.call( this );
                     return null;
