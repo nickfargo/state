@@ -31,15 +31,13 @@ var global = this,
     Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
 
 
-// <a id="module" />
-
 // ## state( ... )
 // 
 // The `state` module is exported as a function. This is used either: (1) to generate a formal
 // `StateExpression`; or (2) to bestow an arbitrary `owner` object with a new implementation of
 // state based on the supplied `expression`, returning the owner’s initial `State`.
 // 
-// All arguments are optional. If both an `owner` and `expression` are provided, `state` acts in
+// All arguments are optional: if both an `owner` and `expression` are provided, `state` acts in
 // the second capacity, causing `owner` to become stateful; otherwise, `state` simply returns a
 // `StateExpression`. The `attributes` parameter may include any of the words defined in
 // `STATE_ATTRIBUTE_MODIFIERS`; these are applied to the provided `expression`, and will be used
@@ -180,8 +178,6 @@ var STATE_ATTRIBUTES = {
 Z.env.server && ( module.exports = exports = state );
 Z.env.client && ( global['state'] = state );
 
-// <a id="state" />
-
 // ## State
 // 
 // A **state** models a set of behaviors for an owner object. The owner may undergo **transitions**
@@ -192,8 +188,8 @@ Z.env.client && ( global['state'] = state );
 // calls made on the owner will be redirected so long as a state remains current.
 // 
 // States are nested hierarchically in a tree structure, with **substates** that inherit from their 
-// **superstate**. While a substate is current, both it and the transitive closure of its
-// superstates (i.e., its “ancestor superstates”) are considered to be **active**.
+// **superstate**. While a substate is current, it and all of its ancestor superstates are
+// considered to be **active**.
 // 
 // In addition, a state also recognizes the owner object’s prototypal inheritance, identifying an
 // identically named and positioned state in the prototype as its **protostate**. Behavior is
@@ -582,7 +578,7 @@ var State = ( function () {
         // #### addEvent
         // 
         // Binds an event handler to the specified `eventType` and returns a unique identifier
-        // for the handler. Recognized event types are listed at `StateEvent.types`.
+        // for the handler. Built-in event types are listed at `StateEvent.types`.
         // 
         // *Aliases:* **on**, **bind**
         addEvent: function ( events ) {
@@ -611,7 +607,14 @@ var State = ( function () {
 
         // #### emit
         // 
-        // Invokes all bound handlers for the given event type.
+        // Invokes all callbacks bound to the given event type.
+        //
+        // Arguments for the callbacks can be passed as an array to the `args` parameter.
+        // 
+        // Callbacks are invoked in the context of `this`, or as specified by `context`.
+        // 
+        // Callbacks bound to superstates and protostates are also invoked, unless otherwise
+        // directed by setting `viaSuper` or `viaProto` to `false`.
         // 
         // *Alias:* **trigger**
         emit: function ( events ) {
@@ -715,7 +718,8 @@ var State = ( function () {
 
         // #### substates
         // 
-        // Returns an `Array` of this state’s substates.
+        // Returns an `Array` of this state’s substates. If the boolean `deep` argument is `true`,
+        // returns a depth-first flattened array containing all of this state’s descendant states.
         substates: function ( substates ) {
             return function ( /*Boolean*/ deep ) {
                 var result = [],
@@ -1154,10 +1158,8 @@ var State = ( function () {
         // Returns the number of superstates this state has. The root state returns `0`, its
         // immediate substates return `1`, etc.
         depth: function () {
-            for ( var count = 0, state = this, superstate;
-                    superstate = state.superstate();
-                    count++, state = superstate );
-            return count;
+            for ( var n = 0, s = this, ss; ss = s.superstate(); s = ss, n++ );
+            return n;
         },
 
         // #### common
@@ -1430,7 +1432,7 @@ var State = ( function () {
                 return this.root().query( '.' + expr, against, descend, false );
             }
 
-            // Split `expr` into tokens, parse, and return any matching state or set of states.
+            // Split `expr` into tokens, parse, and match to the expressed state or set of states.
             ( parts = expr.split('.') ).shift();
             if ( !( l = parts.length ) ) return this;
             for ( i = 0, cursor = this; ; i++ ) {
@@ -1494,8 +1496,6 @@ var State = ( function () {
     return State;
 })();
 
-
-// <a id="state-expression" />
 
 // ## StateExpression
 // 
@@ -1615,8 +1615,6 @@ var StateExpression = ( function () {
     return StateExpression;
 })();
 
-
-// <a id="state-controller" />
 
 // ## StateController
 // 
@@ -1857,6 +1855,7 @@ var StateController = ( function () {
         //   transition.
         // * `failure` : `Function` — callback to be executed if the transition attempt is blocked
         //   by a guard.
+        // * `arguments` : `Array` — arguments to be passed to a transition’s `action` function.
         change: function ( setCurrent, setTransition ) {
             var reentrant = true;
 
@@ -2077,8 +2076,6 @@ var StateController = ( function () {
 
     return StateController;
 })();
-
-// <a id="state-event" />
 
 // ## StateEvent
 // 
