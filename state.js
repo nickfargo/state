@@ -1486,7 +1486,7 @@ var State = ( function () {
             }
 
             // No matches here.
-            return null;
+            return against ? false : null;
         }
     });
     Z.alias( State.prototype, { addEvent: 'on bind', removeEvent: 'off unbind' } );
