@@ -153,7 +153,7 @@ person.greet()                      # "Hello."
 
 * [**Inheritance**](#concepts--inheritance) — States are hierarchically nested in a tree structure: the **owner** object is given exactly one **root state**, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
 
-* [**Selectors**](#concepts--selectors) — A stateful object exposes an accessor method as `object.state()`, which is called without arguments to retrieve the object’s current state, or if provided a **selector** string, to retrieve a specific `State` of the object.
+* [**Selectors**](#concepts--selectors) — A stateful object exposes an accessor method as `object.state()`, which is called without arguments to retrieve the object’s current state, or if provided a **selector** string, to retrieve a specific `State` of the object, or set of states.
 
 * [**Attributes**](#concepts--attributes) — A state expression may include **attributes** that can specially designate or constrain a state’s usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will disallow any further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
 
@@ -672,7 +672,9 @@ state( Document.prototype, 'abstract', {
 
     Dirty: {
         save: function () {
-            this.change( 'Saved' ); // [5]
+            this.change( 'Saved', { arguments: [
+                this.owner().location(), this.owner().read()
+            ] }); // [5]
             return this.owner();
         }
     },
@@ -693,14 +695,12 @@ state( Document.prototype, 'abstract', {
         Writing: {
             origin: 'Dirty',
             target: 'Saved',
-            action: function () {
-                var transition = this,
-                    self = this.owner();
-
-                return fs.writeFile self.location(), self.read(), function ( err ) {
+            action: function ( location, text ) {
+                var transition = this;
+                return fs.writeFile( location, text, function ( err ) {
                     if ( err ) return transition.abort( err ).go( 'Dirty' );
                     transition.end();
-                }
+                });
             }
         }
     }
@@ -726,7 +726,7 @@ class Document
 
     Dirty:
       save: ->
-        @go 'Saved' # [5]
+        @go 'Saved', arguments: [ @owner.location(), @owner().read() ] # [5]
         @owner()
     
     Saved: state 'initial',
@@ -740,8 +740,8 @@ class Document
         freeze: ->
 
     transitions:
-      Writing: origin: 'Dirty', target: 'Saved', action: ->
-        fs.writeFile @owner().location(), @owner().read(), ( err ) =>
+      Writing: origin: 'Dirty', target: 'Saved', action: ( location, text ) ->
+        fs.writeFile location, text, ( err ) =>
           return @abort( err ).go 'Dirty' if err
           do @end
 ```
@@ -754,7 +754,7 @@ class Document
 
 4. The `save` method, which only appears in the `Dirty` state, is still callable from other states, as its presence in `Dirty` causes a no-op version of the method to be automatically added to the root state. This allows `freeze` to safely call `save` despite the possiblity of being in a state (`Saved`) with no such method.
 
-5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked.
+5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked with the arguments provided by the `change` call.
 
 
 <a name="concepts--transitions" />
@@ -806,7 +806,7 @@ Given this scheme, a few noteworthy cases stand out. A “non-exiting” transit
 When a state’s data or other contents change, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
 ```javascript
-var flavors = [ 'vanilla', 'chocolate', 'strawberry', 'Americone Dream' ];
+var flavors = [ 'vanilla', 'chocolate', 'strawberry', 'Stephen Colbert’s Americone Dream' ];
 
 function Kid () {}
 state( Kid.prototype, {
@@ -832,10 +832,10 @@ junior.state().on( 'mutate', function ( event, edit, delta ) { /* ... */ });
 junior.whim();  // log <<< "I hate chocolate, I want strawberry!"
 junior.whim();  // log <<< "I hate strawberry, I want chocolate!"
 junior.whim();  // No whining! On a whim, junior stood pat this time.
-junior.whim();  // log <<< "I hate chocolate, I want Americone Dream!"
+junior.whim();  // log <<< "I hate chocolate, I want Stephen Colbert’s Americone Dream!"
 ```
 ```coffeescript
-flavors = [ 'vanilla', 'chocolate', 'strawberry', 'Americone Dream' ]
+flavors = [ 'vanilla', 'chocolate', 'strawberry', 'Stephen Colbert’s Americone Dream' ]
 
 class Kid
   state @::,
@@ -855,7 +855,7 @@ junior.state().on 'mutate', ( event, edit, delta ) -> # ...
 do junior.whim   # log <<< "I hate chocolate, I want strawberry!"
 do junior.whim   # log <<< "I hate strawberry, I want chocolate!"
 do junior.whim   # No whining! On a whim, junior stood pat this time.
-do junior.whim   # log <<< "I hate chocolate, I want Americone Dream!"
+do junior.whim   # log <<< "I hate chocolate, I want Stephen Colbert’s Americone Dream!"
 ```
 
 <a name="concepts--events--types--custom-event-types" />
