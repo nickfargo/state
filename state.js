@@ -1194,6 +1194,14 @@ var State = ( function () {
             return state === this || state.isSuperstateOf( this );
         },
         
+        // #### has
+        // 
+        // Determines whether `this` is or is a superstate of `state`.
+        has: function ( /*State | String */ state ) {
+            state instanceof State || ( state = this.query( state ) );
+            return this === state || this.isSuperstateOf( state );
+        },
+
         // #### isSuperstateOf
         // 
         // Determines whether `this` is a superstate of `state`.
