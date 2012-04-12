@@ -201,6 +201,14 @@ function TestObject ( initialState ) {
 				}
 			},
 			transitions: {
+				'fiercelyGuardedTransition': {
+					origin: '*',
+					admit: {
+						'*': function ( target ) {
+							return false;
+						}
+					}
+				},
 				'transitionName': {
 					origin: '*',
 					// /*

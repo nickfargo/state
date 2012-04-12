@@ -2054,8 +2054,9 @@ var StateController = ( function () {
                     for ( key in transitions ) if ( Z.hasOwn.call( transitions, key ) ) {
                         expr = transitions[ key ];
                         if (
-                            ( !expr.guards || Z.isEmpty( expr.guards ) ||
-                                    evaluateGuard.call( origin, expr.guards, target ) )
+                            ( !expr.guards || !expr.guards.admit ||
+                                    Z.isEmpty( expr.guards.admit ) ||
+                                    evaluateGuard.call( origin, expr.guards.admit, target ) )
                                 &&
                             ( expr.target ? state.query( expr.target, target ) : state === target )
                                 &&
@@ -2459,7 +2460,7 @@ var TransitionExpression = ( function () {
                 result[ key ] = value;
             }
             else if ( key in categories ) {
-                Z.extend( result[ key ], value );
+                result[ key ] = Z.extend( result[ key ], value );
             }
             else {
                 category =
