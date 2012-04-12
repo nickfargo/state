@@ -950,7 +950,9 @@ three.compute 504030201      # true
 <a name="concepts--guards" />
 ### Guards
 
+For a transition to be allowed to proceed, it must first have satisfied any **guards** imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object to the intended *target* at which it will arrive, and likewise the *target* must also agree to `admit` the object from the departed origin.
 
+Transition expressions may also include `admit` guards. These can serve to resolve nondeterminism by specifying one transition amongst possibly several that is to be executed as an object changes its state between a given `origin` and `target`.
 
 <a name="about" />
 ## About this project
