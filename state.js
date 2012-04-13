@@ -1589,7 +1589,7 @@ var StateExpression = ( function () {
             // **Priority 3:** Use keys and value types to infer implicit categorization.
             else {
                 category =
-                    key in eventTypes ? 'events' :
+                    key in eventTypes || typeof value === 'string' ? 'events' :
                     key in guardActions ? 'guards' :
                     Z.isPlainObject( value ) ? 'states' :
                     'methods';
