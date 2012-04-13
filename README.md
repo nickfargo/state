@@ -168,7 +168,9 @@ A **state expression** defines the contents and structure of a `State` instance.
 
 The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
-To express the state implementation of the introductory example above, we could write:
+#### The long way <a name="concepts--expressions--the-long-way" href"#concepts--expressions--the-long-way">&#x1f517;</a>
+
+Building upon the state implementation of the introductory example above, we might write a state expression that looks like this:
 
 ```javascript
 var longformExpression = state({
@@ -181,7 +183,7 @@ var longformExpression = state({
                 greet: function () { return "How do you do?"; }
             },
             events: {
-                enter: function ( event ) { this.owner().wearTux(); }
+                enter: function () { this.owner().wearTux(); }
             }
         },
         Informal: {
@@ -189,7 +191,7 @@ var longformExpression = state({
                 greet: function () { return "Hi!"; }
             },
             events: {
-                enter: function ( event ) { this.owner().wearJeans(); }
+                enter: function () { this.owner().wearJeans(); }
             }
         }
     }
@@ -204,26 +206,28 @@ longformExpression = state
       methods:
         greet: -> "How do you do?"
       events:
-        enter: ( event ) -> do @owner().wearTux
+        enter: -> do @owner().wearTux
     Informal:
       methods:
         greet: -> "Hi!"
       events:
-        enter: ( event ) -> do @owner().wearJeans
+        enter: -> do @owner().wearJeans
 ```
 
-Or we can cut out some of the explicit structure and allow the `StateExpression` interpreter to make some inferences about our abbreviated input:
+#### The short way <a name="concepts--expressions--the-short-way" href"#concepts--expressions--the-short-way">&#x1f517;</a>
+
+We can also provide more concise input and still produce the same `StateExpression`:
 
 ```javascript
 var shorthandExpression = state({
     greet: function () { return "Hello."; },
 
     Formal: {
-        enter: function ( event ) { this.owner().wearTux(); },
+        enter: function () { this.owner().wearTux(); },
         greet: function () { return "How do you do?"; }
     },
     Informal: {
-        enter: function ( event ) { this.owner().wearJeans(); },
+        enter: function () { this.owner().wearJeans(); },
         greet: function () { return "Hi!"; }
     }
 });
@@ -232,26 +236,26 @@ var shorthandExpression = state({
 shorthandExpression = state
   greet: -> "Hello."
   Formal:
-    enter: ( event ) -> do @owner().wearTux
+    enter: -> do @owner().wearTux
     greet: -> "How do you do?"
   Informal:
-    enter: ( event ) -> do @owner().wearJeans
+    enter: -> do @owner().wearJeans
     greet: -> "Hi!"
 ```
 
-#### Interpreting expression input
+#### Interpreting expression input <a name="concepts--expressions--interpreting-expression-input" href="#concepts--expressions--interpreting-expression-input">&#x1f517;</a>
 
-Below is the procedure used to interpret an object as a `StateExpression`:
+Expression input provided to `state()` is interpreted according to the following rules:
 
 1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, interpret it as a substate or transition expression, respectively.
 
 2. Otherwise, if an entry’s key is a [category](#concepts--expressions) name, its value must be either `null` or an object to be interpreted as longform.
 
-3. Otherwise, if an entry’s key matches a [built-in event type](#concepts--events--types), interpret the value as either an event listener function, an array of event listeners, or a [named transition target](#concepts--events--expressing-determinism) to be bound to that event type.
+3. Otherwise, if an entry’s key matches a [built-in event type](#concepts--events--types) or if its value is a string, then interpret the value as either an event listener function, an array of event listeners, or a [named transition target](#concepts--events--expressing-determinism) to be bound to that event type.
 
 4. Otherwise, if an entry’s key matches a [guard action](#concepts--guards) (i.e., `admit`, `release`), interpret the value as a guard condition (or array of guard conditions).
 
-5. Otherwise, if an entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key, or if the entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key.
+5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
 
 
 ### Inheritance <a name="concepts--inheritance" href="#concepts--inheritance">&#x1f517;</a>
@@ -376,9 +380,9 @@ class Person
 person = new Person
 ```
 
-Since the instance object `person` in the code above inherits from `Person.prototype`, given what’s been covered to this point, it may be expected that instigating a transition via `person.state().change('Formal')` would take effect on `Person.prototype`, in turn affecting all other instances of `Person` as well. While sharing stateful behavior through prototypes is desirable, it’s also essential that each instance be able to maintain state and undergo changes to its state independently.
+Since the instance object `person` in the code above inherits from `Person.prototype`, given what’s been covered to this point, it may be expected that instigating a transition via `person.state().change('Formal')` would take effect on `Person.prototype`, in turn affecting all other instances of `Person` as well. However, while sharing stateful behavior through prototypes is desirable, it’s also essential that each instance be able to maintain state and undergo changes to its state independently.
 
-**State** addresses this problem by automatically outfitting each object instance with its own state implementation whenever one is necessary but does not exist already. This new implementation will itself be empty, but will inherit from the state implementation of the prototype, as shown below. This separation allows the instance to experience its own states and transitions, without also indirectly affecting all of its fellow inheritors.
+**State** addresses this problem by automatically outfitting each inheriting object with its own state implementation whenever one is necessary but does not exist already. This new implementation will itself be empty, but will inherit from the state implementation of the prototype, thus allowing the object to experience its own states and transitions, without also indirectly affecting all of its fellow inheritors.
 
 ```javascript
 Person.prototype.state();              // State ''
@@ -845,8 +849,8 @@ state( Kid.prototype, {
     Happy: state(),
     Sad: state(),
     events: {
-        gotIceCream: function ( event ) { this.be('Happy'); },
-        spilledIceCream: function ( event ) { this.be('Sad'); }
+        gotIceCream: function () { this.be('Happy'); },
+        spilledIceCream: function () { this.be('Sad'); }
     }
 });
 
@@ -862,8 +866,8 @@ class Kid
     Happy: state()
     Sad: state()
     events:
-      gotIceCream: ( event ) -> @be 'Happy'
-      spilledIceCream: ( event ) -> @be 'Sad'
+      gotIceCream: -> @be 'Happy'
+      spilledIceCream: -> @be 'Sad'
 
 junior = new Kid
 junior.state().emit 'gotIceCream'
@@ -877,15 +881,15 @@ junior.state()                         # State 'Sad'
 An event listener may also be expressed simply as a State name, which is interpreted as an order to transition to that State after all of an event’s callbacks have been invoked. This bit of shorthand allows for concise expression of *deterministic* behavior, where the occurrence of a particular event type within a particular State has a definitive, unambiguous effect on the state of the object.
 
 ```javascript
-function IsDivisibleByThreeComputer () {
+function DivisibleByThreeComputer () {
     state( this, 'abstract', {
         s0: state( 'initial default',
-            { events: { '0':'s0', '1':'s1' } } ),
-        s1: { events: { '0':'s2', '1':'s0' } },
-        s2: { events: { '0':'s1', '1':'s2' } }
+            { '0':'s0', '1':'s1' } ),
+        s1: { '0':'s2', '1':'s0' },
+        s2: { '0':'s1', '1':'s2' }
     });
 }
-IsDivisibleByThreeComputer.prototype.compute = function ( number ) {
+DivisibleByThreeComputer.prototype.compute = function ( number ) {
     var i, l, binary = number.toString(2);
     this.state().go('s0');
     for ( i = 0, l = binary.length; i < l; i++ ) {
@@ -894,27 +898,27 @@ IsDivisibleByThreeComputer.prototype.compute = function ( number ) {
     return this.state().is('s0');
 }
 
-var three = new IsDivisibleByThreeComputer;
+var three = new DivisibleByThreeComputer;
 three.compute( 8 );          // false
 three.compute( 78 );         // true
 three.compute( 1000 );       // false
 three.compute( 504030201 );  // true
 ```
 ```coffeescript
-class IsDivisibleByThreeComputer
+class DivisibleByThreeComputer
   constructor: ->
     state this, 'abstract',
       s0: state( 'initial default',
-          events: '0':'s0', '1':'s1' )
-      s1: events: '0':'s2', '1':'s0'
-      s2: events: '0':'s1', '1':'s2'
+            '0':'s0', '1':'s1' )
+      s1:   '0':'s2', '1':'s0'
+      s2:   '0':'s1', '1':'s2'
 
   compute: ( number ) ->
     @state -> 's0'
     @state().emit symbol for symbol in number.toString 2
     @state().is 's0'
 
-three = new IsDivisibleByThreeComputer
+three = new DivisibleByThreeComputer
 three.compute 8              # false
 three.compute 78             # true
 three.compute 1000           # false
@@ -926,7 +930,17 @@ three.compute 504030201      # true
 
 For a transition to be allowed to proceed, it must first have satisfied any **guards** imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object to the intended *target* at which it will arrive, and likewise the *target* must also agree to `admit` the object from the departed origin.
 
+```javascript
+```
+```coffeescript
+```
+
 Transition expressions may also include `admit` guards. These can serve to resolve nondeterminism by specifying one transition amongst possibly several that is to be executed as an object changes its state between a given `origin` and `target`.
+
+```javascript
+```
+```coffeescript
+```
 
 
 
@@ -942,7 +956,7 @@ All functionality of **State** is instigated through the exported `state` functi
 
 As much as possible, **State** aims to look and feel like a feature of the language. The interpreted shorthand syntax, simple keyword attributes, and limited interface allow for production code that is declarative and easy to write and understand. Adopters of terse, depunctuated JavaScript dialects like CoffeeScript will only see further gains in expressiveness.
 
-#### Black-box opacity
+#### Opacity
 
 Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods are replaced with delegators, which forward method calls to the current state. This is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original form.
 
