@@ -1542,7 +1542,7 @@ var StateExpression = ( function () {
         this.attributes = attributes || STATE_ATTRIBUTES.NORMAL;
     }
 
-    // ### Static functions
+    // ### Class-private functions
 
     // #### encodeAttributes
     // 
@@ -1735,7 +1735,7 @@ var StateController = ( function () {
         });
     }
 
-    // ### Static functions
+    // ### Class-private functions
 
     // #### createAccessor
     // 
@@ -2444,7 +2444,7 @@ var TransitionExpression = ( function () {
         Z.extend( true, this, map instanceof TransitionExpression ? map : interpret( map ) );
     }
 
-    // ### Static functions
+    // ### Class-private functions
 
     // #### interpret
     // 
