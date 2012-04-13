@@ -18,11 +18,11 @@ test( "query()", function () {
 	assert.ok( x.state('Finished').query( '.*', x.state('Finished.Terminated') ) );
 	assert.ok( x.state('Finished').query( '.**', x.state('Finished.Terminated') ) );
 	
-	assert.equal( x.state().query( 'Finished' ), x.state('Finished') );
-	assert.equal( x.state().query( '*' ).length, 3 );
-	assert.equal( x.state().query( '**' ).length, 8 );
-	assert.equal( x.state('Finished').query( '.Terminated' ), x.state('Finished.Terminated') );
-	assert.equal( x.state('Finished').query( '.*' ).length, 2 );
+	assert.strictEqual( x.state().query( 'Finished' ), x.state('Finished') );
+	assert.strictEqual( x.state().query( '*' ).length, 3 );
+	assert.strictEqual( x.state().query( '**' ).length, 8 );
+	assert.strictEqual( x.state('Finished').query( '.Terminated' ), x.state('Finished.Terminated') );
+	assert.strictEqual( x.state('Finished').query( '.*' ).length, 2 );
 	assert.strictEqual( x.state().query( '*', x.state('Finished') ), true );
 	assert.strictEqual( x.state().query( '*', x.state('Finished.CleaningUp') ), false );
 	assert.strictEqual( x.state().query( '**', x.state('Finished.CleaningUp') ), true );
@@ -66,20 +66,20 @@ test( "superstate()", function () {
 test( "isIn()", function () {
 	var x = new TestObject;
 	assert.ok( x.state('Waiting').isIn( x.state().root() ) );
-	assert.ok( x.state('Finished.CleaningUp').isIn( x.state().root() ) );
-	assert.ok( x.state('Finished.CleaningUp').isIn( x.state('Finished') ) );
-	assert.ok( !x.state('Finished.CleaningUp').isIn( x.state('Waiting') ) );
+	assert.ok( x.state('CleaningUp').isIn( x.state().root() ) );
+	assert.ok( x.state('CleaningUp').isIn( x.state('Finished') ) );
+	assert.ok( !x.state('CleaningUp').isIn( x.state('Waiting') ) );
 	assert.ok( x.state('Finished').isIn( x.state('Finished') ) );
-	assert.ok( !x.state('Finished').isIn( x.state('Finished.CleaningUp') ) );
-	assert.ok( !x.state('Finished').isIn( 'Finished.CleaningUp' ) );
-	assert.ok( x.state('Finished.CleaningUp').isIn( '.' ) );
+	assert.ok( !x.state('Finished').isIn( x.state('CleaningUp') ) );
+	assert.ok( !x.state('Finished').isIn( 'CleaningUp' ) );
+	assert.ok( x.state('CleaningUp').isIn( '.' ) );
 });
 
 test( "isSuperstateOf()", function () {
 	var x = new TestObject;
 	assert.ok( x.state().root().isSuperstateOf( x.state('Waiting') ) );
-	assert.ok( x.state().root().isSuperstateOf( x.state('Finished.CleaningUp') ) );
-	assert.ok( x.state('Finished').isSuperstateOf( x.state('Finished.CleaningUp') ) );
+	assert.ok( x.state().root().isSuperstateOf( x.state('CleaningUp') ) );
+	assert.ok( x.state('Finished').isSuperstateOf( x.state('CleaningUp') ) );
 	assert.ok( !x.state('Finished').isSuperstateOf( x.state('Active') ) );
 });
 
@@ -149,13 +149,13 @@ test( "depth()", function () {
 
 test( "common()", function () {
 	var x = new TestObject;
-	assert.equal( x.state('Finished.Terminated').common( x.state('Finished') ), x.state('Finished') );
-	assert.equal( x.state('Finished.Terminated').common( x.state('Finished.CleaningUp') ), x.state('Finished') );
-	assert.equal( x.state('Finished.Terminated').common( x.state('Active') ), x.state().root() );
+	assert.equal( x.state('Terminated').common( x.state('Finished') ), x.state('Finished') );
+	assert.equal( x.state('Terminated').common( x.state('CleaningUp') ), x.state('Finished') );
+	assert.equal( x.state('Terminated').common( x.state('Active') ), x.state().root() );
 	assert.equal( x.state().root().common( x.state().root() ), x.state().root() );
-	assert.equal( x.state('Active').common( x.state('Finished.Terminated') ), x.state().root() );
+	assert.equal( x.state('Active').common( x.state('Terminated') ), x.state().root() );
 	assert.equal( x.state('Waiting').common( x.state('Waiting') ), x.state('Waiting') );
-	assert.equal( x.state('Finished').common( x.state('Finished.CleaningUp') ), x.state('Finished') );
+	assert.equal( x.state('Finished').common( x.state('CleaningUp') ), x.state('Finished') );
 });
 
 test( "removeState()", function () {
