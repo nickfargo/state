@@ -60,7 +60,7 @@ function TestObject ( initialState ) {
 			 * counterpart `state` in determining its ruling
 			 */
 			release: function ( state ) {
-				return this.root().isSuperstateOf( state ); /* always true */
+				return this.root().has( state ); /* always true */
 			},
 			
 			// a **substate**, with its own nested expression

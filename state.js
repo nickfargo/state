@@ -1604,6 +1604,14 @@ var StateExpression = ( function () {
                 object[ key ] = [ value ];
             }
         }
+
+        object = result.guards;
+        for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
+            value = object[ key ];
+            if ( !Z.isPlainObject( value ) ) {
+                object[ key ] = { '*': value };
+            }
+        }
         
         object = result.transitions;
         for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
@@ -1818,7 +1826,7 @@ var StateController = ( function () {
     // Returns the Boolean result of the guard function at `guardName` defined on this state,
     // as evaluated against `testState`, or `true` if no guard exists.
     function evaluateGuard ( guard, against ) {
-        var key, value, valueIsFn, selectors, selector, expr,
+        var key, value, valueIsFn, args, selectors, i, l,
             result = true;
 
         typeof guard === 'string' && ( guard = this.guard( guard ) );
@@ -1826,12 +1834,12 @@ var StateController = ( function () {
         if ( !guard ) return true;
 
         for ( key in guard ) if ( Z.hasOwn.call( guard, key ) ) {
-            selectors = key.split( /\s*,+\s*/ );
             value = guard[ key ], valueIsFn = typeof value === 'function';
-            for ( selector in selectors ) if ( Z.hasOwn.call( selectors, selector ) ) {
-                expr = selectors[ selector ];
-                if ( this.query( Z.trim( expr ), against ) ) {
-                    result = !!( valueIsFn ? value.apply( this, arguments ) : value );
+            valueIsFn && ( args || ( args = Z.slice.call( arguments, 1 ) ) );
+            selectors = Z.trim( key ).split( /\s*,+\s*/ );
+            for ( i = 0, l = selectors.length; i < l; i++ ) {
+                if ( this.query( selectors[i], against ) ) {
+                    result = !!( valueIsFn ? value.apply( this, args ) : value );
                     break;
                 }
             }
@@ -2054,8 +2062,7 @@ var StateController = ( function () {
                     for ( key in transitions ) if ( Z.hasOwn.call( transitions, key ) ) {
                         expr = transitions[ key ];
                         if (
-                            ( !( guards = expr.guards ) ||
-                                    !( admit = guards.admit ) ||
+                            ( !( guards = expr.guards ) || !( admit = guards.admit ) ||
                                     Z.isEmpty( admit ) ||
                                     evaluateGuard.call( origin, admit, target, origin ) )
                                 &&
