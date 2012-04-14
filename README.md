@@ -1003,10 +1003,8 @@ The result of this fanciful convolution is that `object` is initially constraine
 Transition expressions may also include `admit` and `release` guards. Transition guards are used to decide which one transition amongst possibly several is to be executed as an object changes its state between a given `origin` and `target`.
 
 ```javascript
-var scholar = {};
-state( scholar, 'abstract', {
-    data: { gpa: 3.4999 },
-
+function Scholar () {}
+state( Scholar.prototype, 'abstract', {
     Matriculated: state( 'initial', {
         graduate: function ( gpa ) {
             this.owner().gpa = gpa;
@@ -1044,7 +1042,8 @@ state( scholar, 'abstract', {
     }
 });
 
-scholar.state().change('Graduated');
+var scholar = new Scholar;
+scholar.graduate( 3.4999 );
 ```
 ```coffeescript
 class Scholar
