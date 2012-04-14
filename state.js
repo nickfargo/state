@@ -1419,8 +1419,8 @@ var State = ( function () {
         // likewise setting `ascend` to `false` disables the subsequent recursion through its
         // superstates.
         // 
-        // *Aliases:* **$**, **match**
-        'query $ match': function (
+        // *Alias:* **match**
+        'query match': function (
              /*String*/ expr,
               /*State*/ against, // optional
             /*Boolean*/ descend, // = true
@@ -1511,6 +1511,21 @@ var State = ( function () {
 
             // No matches here.
             return against ? false : null;
+        },
+
+        // #### $
+        // 
+        // Convenience method that aliases to `change` if passed a function for the first
+        // argument and aliases to `query` if passed a string, thus mimicking the behavior of
+        // the object’s accessor method.
+        $: function ( expr ) {
+            var args;
+            if ( typeof expr === 'function' ) {
+                args = Z.slice.call( arguments );
+                args[0] = expr = expr();
+                if ( expr ) return this.change.apply( this, args );
+            }
+            else return this.query.apply( this, arguments );
         }
     });
     Z.alias( State.prototype, { addEvent: 'on bind', removeEvent: 'off unbind' } );
