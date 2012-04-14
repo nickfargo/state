@@ -31,7 +31,7 @@ var global = this,
     Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
 
 
-// ## state( ... )
+// ## state( ... ) <a name="module" href="#module">&#x1f517;</a>
 // 
 // The `state` module is exported as a function. This is used either: (1) to generate a formal
 // `StateExpression`; or (2) to bestow an arbitrary `owner` object with a new implementation of
@@ -178,7 +178,7 @@ var STATE_ATTRIBUTES = {
 Z.env.server && ( module.exports = exports = state );
 Z.env.client && ( global['state'] = state );
 
-// ## State
+// ## State <a name="state" href="#state">&#x1f517;</a>
 // 
 // A **state** models a set of behaviors for an owner object. The owner may undergo **transitions**
 // that change its **current** state from one to another, and in so doing adopt a different set of
@@ -697,10 +697,7 @@ var State = ( function () {
                 keys = Z.flatten( Z.slice.call( arguments, 1 ) );
                 for ( i = 0, l = keys.length; i < l; i++ ) {
                     key = keys[i];
-                    if ( typeof key === 'string' ) {
-                        entry = guard[ key ];
-                        if ( delete guard[ key ] ) return entry;
-                    }
+                    if ( typeof key === 'string' && delete( entry = guard[ key ] ) ) return entry;
                 }
             };
         },
@@ -1522,7 +1519,7 @@ var State = ( function () {
 })();
 
 
-// ## StateExpression
+// ## StateExpression <a name="state-expression" href="#state-expression">&#x1f517;</a>
 // 
 // A **state expression** formalizes a definition of a state’s contents. States are declared by
 // calling the module’s exported `state()` function and passing it an object map containing the
@@ -1649,7 +1646,7 @@ var StateExpression = ( function () {
 })();
 
 
-// ## StateController
+// ## StateController <a name="state-controller" href="#state-controller">&#x1f517;</a>
 // 
 // A state **controller** is the mediator between an owner object and its implementation of state.
 // The controller maintains the identity of the owner’s active state, and facilitates transitions
@@ -2111,7 +2108,7 @@ var StateController = ( function () {
     return StateController;
 })();
 
-// ## StateEvent
+// ## StateEvent <a name="state-event" href="#state-event">&#x1f517;</a>
 // 
 // When an event is emitted from a state, it passes a `StateEvent` object to any bound listeners,
 // containing the `type` string and a reference to the contextual `state`.
@@ -2134,9 +2131,7 @@ var StateEvent = ( function () {
     return StateEvent;
 })();
 
-// <a id="state-event-collection" />
-
-// ## StateEventCollection
+// ## StateEventCollection <a name="state-event-collection" href="#state-event-collection">&#x1f517;</a>
 // 
 // A state holds event listeners for each of its various event types in a `StateEventCollection`
 // instance.
@@ -2288,7 +2283,7 @@ var StateEventCollection = ( function () {
 })();
 
 
-// ## Transition
+// ## Transition <a name="transition" href="#transition">&#x1f517;</a>
 // 
 // A **transition** is a transient `State` adopted by a controller as it changes from one of its
 // proper `State`s to another.
@@ -2450,7 +2445,7 @@ var Transition = ( function () {
     return Transition;
 })();
 
-// ## TransitionExpression
+// ## TransitionExpression <a name="transition-expression" href="#transition-expression">&#x1f517;</a>
 // 
 // A state may hold **transition expressions** that describe the transition that will take place
 // between any two given **origin** and **target** states.
