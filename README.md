@@ -891,7 +891,7 @@ function DivisibleByThreeComputer () {
 }
 DivisibleByThreeComputer.prototype.compute = function ( number ) {
     var i, l, binary = number.toString(2);
-    this.state().go('s0');
+    this.state().go(''); // reset
     for ( i = 0, l = binary.length; i < l; i++ ) {
         this.state().emit( binary[i] );
     }
@@ -914,7 +914,7 @@ class DivisibleByThreeComputer
       s2:   '0':'s1', '1':'s2'
 
   compute: ( number ) ->
-    @state -> 's0'
+    @state -> '' # reset
     @state().emit symbol for symbol in number.toString 2
     @state().is 's0'
 
@@ -928,14 +928,78 @@ three.compute 504030201      # true
 
 ### Guards <a name="concepts--guards" href="#concepts--guards">&#x1f517;</a>
 
+States and transitions can use **guards** to dictate how they may be used.
+
+#### State guards
+
 For a transition to be allowed to proceed, it must first have satisfied any **guards** imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object to the intended *target* at which it will arrive, and likewise the *target* must also agree to `admit` the object from the departed origin.
 
 ```javascript
+state( object, {
+    A: state( 'initial', {
+        admit: false,
+        release: { D: false }
+    }),
+    B: {
+        data: { bleep: 'bleep' },
+        release: {
+            'C, D': function ( toState ) { return true; },
+            'C.**': function ( toState ) { return false; }
+        }
+    },
+    C: {
+        data: { blorp: 'blorp' },
+        admit: true,
+        C1: {
+            C1a: {}
+        },
+        C2: {}
+    },
+    D: {
+        enter: function () { this.$('B').removeGuard( 'admit' ); }
+        admit: function ( fromState ) { return 'blorp' in fromState.data() },
+        release: function ( toState ) { return 'bleep' in toState.data() }
+    }
+})
 ```
 ```coffeescript
+state object,
+  A: state( 'initial',
+    admit: false
+    release: D: false
+  )
+  B:
+    admit: false
+    release:
+      'C, D': ( toState ) -> true
+      'C.**': ( toState ) -> false
+    data: bleep: 'bleep'
+  C:
+    data: blorp: 'blorp'
+    C1:
+        C1a: {}
+    C2: {}
+  D:
+    enter: -> @$('B').removeGuard 'admit'
+    admit: ( fromState ) -> true if 'blorp' of fromState.data()
+    release: ( toState ) -> true if 'bleep' of toState.data()
 ```
 
-Transition expressions may also include `admit` guards. These can serve to resolve nondeterminism by specifying one transition amongst possibly several that is to be executed as an object changes its state between a given `origin` and `target`.
+Here we observe state guards imposing the following restrictions:
+
+* `object` initializes into state `A`, but upon leaving it may never return; we’ve also specifically disallowed direct transitions from `A` to `D`.
+
+* State `B` disallows entry from anywhere (for now), and releases conditionally to `C` or `D` but not directly to any descendant states of `C`; we also note its data item `bleep`.
+
+* State `C` imposes no guards, but we note its data item `blorp`.
+
+* State `D` “unlocks” state `B`; it is also guarded by checking the opposing state’s data, allowing admission only from states with a data item keyed `blorp`, and releasing only to states with data item `bleep`.
+
+The result of this fanciful convolution is that `object` is initially constrained to a progression from state `A` to `C` or its descendant states; leaving the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`; while `B` insists on returning the object only to its sibling states `C` or `D`.
+
+#### Transition guards
+
+Transition expressions may include `admit` guards. These can serve to resolve nondeterminism by specifying one transition amongst possibly several that is to be executed as an object changes its state between a given `origin` and `target`.
 
 ```javascript
 ```
