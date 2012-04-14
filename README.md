@@ -928,13 +928,14 @@ three.compute 504030201      # true
 
 ### Guards <a name="concepts--guards" href="#concepts--guards">&#x1f517;</a>
 
-States and transitions can use **guards** to dictate how they may be used.
+States and transitions can be outfitted with **guards** that dictate how they may be used.
 
-#### State guards
+#### State guards <a name="concepts--state-guards" href="#concepts--state-guards">&#x1f517;</a>
 
-For a transition to be allowed to proceed, it must first have satisfied any **guards** imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object to the intended *target* at which it will arrive, and likewise the *target* must also agree to `admit` the object from the departed origin.
+For a transition to be allowed to proceed, it must first have satisfied any guards imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object to the intended *target* at which it will arrive, and likewise the *target* must also agree to `admit` the object from the departed origin.
 
 ```javascript
+var object = {};
 state( object, {
     A: state( 'initial', {
         admit: false,
@@ -943,8 +944,8 @@ state( object, {
     B: {
         data: { bleep: 'bleep' },
         release: {
-            'C, D': function ( toState ) { return true; },
-            'C.**': function ( toState ) { return false; }
+            'C, D': true,
+            'C.**': false
         }
     },
     C: {
@@ -963,7 +964,7 @@ state( object, {
 })
 ```
 ```coffeescript
-state object,
+state object = {},
   A: state( 'initial',
     admit: false
     release: D: false
@@ -971,8 +972,8 @@ state object,
   B:
     admit: false
     release:
-      'C, D': ( toState ) -> true
-      'C.**': ( toState ) -> false
+      'C, D': true
+      'C.**': false
     data: bleep: 'bleep'
   C:
     data: blorp: 'blorp'
@@ -993,17 +994,88 @@ Here we observe state guards imposing the following restrictions:
 
 * State `C` imposes no guards, but we note its data item `blorp`.
 
-* State `D` “unlocks” state `B`; it is also guarded by checking the opposing state’s data, allowing admission only from states with a data item keyed `blorp`, and releasing only to states with data item `bleep`.
+* State `D` “unlocks” `B`; it is also guarded by checking the opposing state’s `data`, allowing admission only from states with a data item keyed `blorp`, and releasing only to states with data item `bleep`.
 
-The result of this fanciful convolution is that `object` is initially constrained to a progression from state `A` to `C` or its descendant states; leaving the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`; while `B` insists on returning the object only to its sibling states `C` or `D`.
+The result of this fanciful convolution is that `object` is initially constrained to a progression from state `A` to `C` or its descendant states; leaving the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`, while `B` insists on directly returning the object’s state only to one of its siblings `C` or `D`.
 
-#### Transition guards
+#### Transition guards <a name="concepts--transition-guards" href="#concepts--transition-guards">&#x1f517;</a>
 
-Transition expressions may include `admit` guards. These can serve to resolve nondeterminism by specifying one transition amongst possibly several that is to be executed as an object changes its state between a given `origin` and `target`.
+Transition expressions may also include `admit` and `release` guards. Transition guards are used to decide which one transition amongst possibly several is to be executed as an object changes its state between a given `origin` and `target`.
 
 ```javascript
+var scholar = {};
+state( scholar, 'abstract', {
+    data: { gpa: 3.4999 },
+
+    Matriculated: state( 'initial', {
+        graduate: function ( gpa ) {
+            this.owner().gpa = gpa;
+            this.change( 'Graduated' );
+        }
+    }),
+    Graduated: state( 'final' ),
+
+    transitions: {
+        Summa: {
+            origin: 'Matriculated', target: 'Graduated',
+            admit: function () { return this.data().gpa >= 3.95; }
+            action: function () { /* swat down offers */ }
+        },
+        Magna: {
+            origin: 'Matriculated', target: 'Graduated',
+            admit: function () {
+                var gpa = this.data().gpa;
+                return gpa >= 3.75 && gpa < 3.95;
+            },
+            action: function () { /* choose favorite internship */ }
+        },
+        Laude: {
+            origin: 'Matriculated', target: 'Graduated',
+            admit: function () {
+                var gpa = this.data().gpa;
+                return gpa >= 3.50 && gpa < 3.75;
+            },
+            action: function () { /* pad résumé, brag to the cat */ }
+        }
+        '': {
+            origin: 'Matriculated', target: 'Graduated',
+            action: function () { /* blame rounding error, grab another beer */ }
+        }
+    }
+});
+
+scholar.state().change('Graduated');
 ```
 ```coffeescript
+class Scholar
+  state @::, 'abstract'
+    Matriculated: state 'initial'
+      graduate: ( gpa ) ->
+        @owner().gpa = gpa
+        @$ -> 'Graduated' # (a CS-friendly alternate syntax for `@change 'Graduated'`)
+
+    Graduated: state 'final'
+  
+    transitions: do ->
+      t = ( o ) -> o[k] = v for k,v of origin: 'Matriculated', target: 'Graduated'; o
+  
+      Summa: t
+        admit: -> @owner().gpa >= 3.95
+        action: -> # swat down offers
+  
+      Magna: t
+        admit: -> 3.75 <= @owner().gpa < 3.95
+        action: -> # choose favorite internship
+  
+      Laude: t
+        admit: -> 3.50 <= @owner().gpa < 3.75
+        action: -> # pad résumé, brag to the cat
+  
+      '': t
+        action: -> # blame rounding error, grab another beer
+
+scholar = new Scholar
+scholar.graduate 3.4999
 ```
 
 
