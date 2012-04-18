@@ -279,7 +279,8 @@ var State = ( function () {
         // `this`, each of which is a partial application of its corresponding method factory at
         // `State.privileged`.
         Z.privilege( this, State.privileged, {
-            'init' : [ StateExpression ],
+            'init mutate' : [ StateExpression ],
+            'express' : [ StateExpression, data, methods, events, guards, substates, transitions ],
             'superstate' : [ superstate ],
             'data' : [ data ],
             'method methodNames addMethod removeMethod' : [ methods ],
@@ -350,33 +351,82 @@ var State = ( function () {
         // Builds out the state’s members based on the expression provided.
         init: function ( /*Function*/ expressionConstructor ) {
             return function ( /*<expressionConstructor> | Object*/ expression ) {
-                var map, category,
-                    self = this;
-                
+                this.mutate( expression );
+                this.emit( 'construct', { expression: expression }, false );
+                return this;
+            };
+        },
+
+        // #### express
+        // 
+        // Returns an expression that describes the state’s contents.
+        express: function (
+            /*Function*/ expressionConstructor,
+              /*Object*/ data, methods, events, guards, substates, transitions
+        ) {
+            function clone ( obj ) {
+                var result = Z.clone( obj );
+                return Z.isEmpty( result ) ? null : result;
+            }
+
+            return function ( /*Boolean*/ formally ) {
+                var expr = {
+                    attributes: this.attributes(),
+                    data: clone( data ),
+                    methods: clone( methods ),
+                    events: ( function ( out ) {
+                        Z.forEach( events, function ( collection, type ) {
+                            ( out || ( out = {} ) )[ type ] = collection.getAll();
+                        });
+                        return out || null;
+                    })(),
+                    guards: clone( guards ),
+                    states: ( function ( out ) {
+                        Z.forEach( substates, function ( substate, name ) {
+                            ( out || ( out = {} ) )[ name ] = substate.express();
+                        });
+                        return out || null;
+                    })(),
+                    transitions: clone( transitions )
+                };
+
+                return formally ? new StateExpression( expr ) : expr;
+            };
+        },
+
+        // #### mutate
+        // 
+        // Mutates the state by adding items as specified in `expression`.
+        mutate: function ( /*Function*/ expressionConstructor ) {
+            return function ( /*<expressionConstructor> | Object*/ expression ) {
                 expression instanceof expressionConstructor ||
                     ( expression = expressionConstructor( expression ) );
                 
-                map = {
-                    methods: function ( methodName, fn ) {
-                        self.addMethod( methodName, fn );
-                    },
-                    events: function ( eventType, fn ) {
-                        var i, l;
-                        Z.isArray( fn ) || ( fn = [ fn ] );
-                        for ( i = 0, l = fn.length; i < l; i++ ) {
-                            self.addEvent( eventType, fn[i] );
+                var self = this,
+                    map = {
+                        methods: function ( methodName, fn ) {
+                            self.addMethod( methodName, fn );
+                        },
+                        events: function ( eventType, fn ) {
+                            var i, l;
+                            if ( Z.isArray( fn ) ) {
+                                for ( i = 0, l = fn.length; i < l; i++ ) {
+                                    self.addEvent( eventType, fn[i] );
+                                }
+                            } else {
+                                self.addEvent( eventType, fn );
+                            }
+                        },
+                        guards: function ( guardType, guard ) {
+                            self.addGuard( guardType, guard );
+                        },
+                        states: function ( stateName, stateExpression ) {
+                            self.addSubstate( stateName, stateExpression );
+                        },
+                        transitions: function ( transitionName, transitionExpression ) {
+                            self.addTransition( transitionName, transitionExpression );
                         }
-                    },
-                    guards: function ( guardType, guard ) {
-                        self.addGuard( guardType, guard );
-                    },
-                    states: function ( stateName, stateExpression ) {
-                        self.addSubstate( stateName, stateExpression );
-                    },
-                    transitions: function ( transitionName, transitionExpression ) {
-                        self.addTransition( transitionName, transitionExpression );
-                    }
-                };
+                    };
 
                 this.atomic = true;
 
@@ -385,10 +435,8 @@ var State = ( function () {
                     expression[ category ] && Z.each( expression[ category ], fn );
                 });
         
-                delete this.atomic;
+                this.atomic = false;
 
-                this.emit( 'construct', { expression: expression }, false );
-        
                 return this;
             };
         },
@@ -570,8 +618,13 @@ var State = ( function () {
         // 
         // Gets a registered event handler.
         event: function ( events ) {
-            return function ( /*String*/ eventType, /*String*/ id ) {
-                return events[ eventType ].get( id );
+            return function (
+                        /*String*/ eventType,
+             /*String | Function*/ id
+            ) {
+                var collection = events[ eventType ];
+                typeof id === 'function' && ( id = collection.key( id ) );
+                return collection.get( id );
             };
         },
 
@@ -871,7 +924,7 @@ var State = ( function () {
                 typeof flags === 'string' ||
                     ( data = transition, transition = state, state = flags, flags = undefined );
 
-                if ( !( state instanceof State && state.isIn( this ) ) ) return;
+                if ( !( state instanceof State && this.has( state ) ) ) return;
 
                 flags = Z.assign( flags );
 
@@ -904,7 +957,7 @@ var State = ( function () {
                     ( superstate = superstate.historian() ) &&
                     superstate.push( state, transition, flags, data );
 
-                0 && this.goTo( state );
+                1 || state.isCurrent() || this.goTo( state );
 
                 return history.length;
             };
@@ -1412,7 +1465,7 @@ var State = ( function () {
             // Absolute wildcard expressions compared against the root state pass immediately.
             if ( against && against === this.root() && expr.search(/^\*+$/) === 0 ) return true;
 
-            // Wildcard-only expressions should not be recursed.
+            // Wildcard-only expressions need not be recursed.
             expr.search(/^\.?\*+$/) === 0 && ( descend = ascend = false );
 
             // If `expr` is an absolute path, evaluate it from the root state as a relative path.
@@ -1486,7 +1539,7 @@ var State = ( function () {
         // #### $
         // 
         // Convenience method that aliases to `change` if passed a function for the first
-        // argument and aliases to `query` if passed a string, thus mimicking the behavior of
+        // argument or aliases to `query` if passed a string, thus mimicking the behavior of
         // the object’s accessor method.
         $: function ( expr ) {
             var args;
@@ -2107,7 +2160,6 @@ var StateController = ( function () {
 // 
 // When an event is emitted from a state, it passes a `StateEvent` object to any bound listeners,
 // containing the `type` string and a reference to the contextual `state`.
-
 var StateEvent = ( function () {
 
     // ### Constructor
@@ -2130,7 +2182,6 @@ var StateEvent = ( function () {
 // 
 // A state holds event listeners for each of its various event types in a `StateEventCollection`
 // instance.
-
 var StateEventCollection = ( function () {
     var guid = 0;
 
@@ -2142,26 +2193,37 @@ var StateEventCollection = ( function () {
         this.length = 0;
     }
 
+    // ### Prototype methods
     Z.assign( StateEventCollection.prototype, {
+
         // #### guid
         // 
         // Produces a unique numeric string, to be used as a key for bound event listeners.
         guid: function () {
-            return ( ++guid ).toString();
+            return ( guid += 1 ).toString();
         },
 
         // #### get
         // 
         // Retrieves a bound listener associated with the provided `id` string as returned by
         // the prior call to `add`.
-        get: function ( id ) {
+        get: function ( /*String*/ id ) {
             return this.items[id];
+        },
+
+        // #### getAll
+        // 
+        // Returns an array of all bound listeners.
+        getAll: function () {
+            var i, items = this.items, result = [];
+            for ( i in items ) result.push( items[i] );
+            return result;
         },
 
         // #### key
         // 
         // Retrieves the `id` string associated with the provided listener.
-        key: function ( listener ) {
+        key: function ( /*Function*/ listener ) {
             var i, items = this.items;
             for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
                 if ( items[i] === listener ) return i;
@@ -2188,7 +2250,7 @@ var StateEventCollection = ( function () {
         // `remove` the listener.
         // 
         // *Aliases:* **on bind**
-        add: function (
+        'add on bind': function (
             /*Function*/ fn,
               /*Object*/ context  // optional
         ) {
@@ -2204,7 +2266,7 @@ var StateEventCollection = ( function () {
         // to the function itself.
         // 
         // *Aliases:* **off unbind**
-        remove: function ( /*Function | String*/ id ) {
+        'remove off unbind': function ( /*Function | String*/ id ) {
             var fn, i, l,
                 items = this.items;
             
@@ -2216,6 +2278,7 @@ var StateEventCollection = ( function () {
         },
 
         // #### empty
+        // 
         empty: function () {
             var i, items = this.items;
 
@@ -2231,7 +2294,7 @@ var StateEventCollection = ( function () {
         // Emits a `StateEvent` to all bound listeners.
         // 
         // *Alias:* **trigger**
-        emit: function ( args, state ) {
+        'emit trigger': function ( args, state ) {
             var i, item, itemType, fn, context, target,
                 items = this.items, type = this.type;
             
@@ -2248,7 +2311,7 @@ var StateEventCollection = ( function () {
                 }
 
                 // If `item` is a String or State, interpret this as an implied transition to be
-                // instigated after all of the callbacks have been invoked.
+                // instigated from the client `State` after all the callbacks have been invoked.
                 else if ( itemType === 'string' || item instanceof State ) {
                     target = item;
                     continue;
@@ -2262,16 +2325,12 @@ var StateEventCollection = ( function () {
         },
 
         // #### destroy
+        // 
         destroy: function () {
             this.empty();
-            delete this.state, delete this.type, delete this.items, delete this.length;
+            delete this.state, delete this.items;
             return true;
         }
-    });
-    Z.alias( StateEventCollection.prototype, {
-        add: 'on bind',
-        remove: 'off unbind',
-        emit: 'trigger'
     });
 
     return StateEventCollection;
@@ -2417,7 +2476,7 @@ var Transition = ( function () {
             }
         });
         Z.privilege( this, State.privileged, {
-            'init' : [ TransitionExpression ],
+            'init mutate' : [ TransitionExpression ],
             'method methodNames addMethod removeMethod' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
             'guard addGuard removeGuard' : [ guards ]
