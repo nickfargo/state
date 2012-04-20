@@ -1645,8 +1645,11 @@ var StateExpression = ( function () {
                     key in eventTypes || typeof value === 'string' ? 'events' :
                     key in guardActions ? 'guards' :
                     Z.isPlainObject( value ) ? 'states' :
-                    'methods';
-                ( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
+                    Z.isFunction( value ) ? 'methods' :
+                    undefined;
+                if ( category ) {
+                    ( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
+                }
             }
         }
         
@@ -2541,8 +2544,11 @@ var TransitionExpression = ( function () {
                 category =
                     key in eventTypes ? 'events' :
                     key in guardActions ? 'guards' :
-                    'methods';
-                ( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
+                    Z.isFunction( value ) ? 'methods' :
+                    undefined;
+                if ( category ) {
+                    ( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
+                }
             }
         }
         for ( key in ( events = result.events ) ) {
