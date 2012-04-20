@@ -369,7 +369,7 @@ var State = ( function () {
                 return Z.isEmpty( result ) ? null : result;
             }
 
-            return function ( /*Boolean*/ formally ) {
+            return function ( /*Boolean*/ typed ) {
                 var expr = {
                     attributes: this.attributes(),
                     data: clone( data ),
@@ -390,17 +390,18 @@ var State = ( function () {
                     transitions: clone( transitions )
                 };
 
-                return formally ? new StateExpression( expr ) : expr;
+                return typed ? new expressionConstructor( expr ) : expr;
             };
         },
 
         // #### mutate
         // 
-        // Mutates the state by adding items as specified in `expression`.
+        // Transactionally mutates the state by adding or removing items as specified in
+        // `expression`. 
         mutate: function ( /*Function*/ expressionConstructor ) {
             return function ( /*<expressionConstructor> | Object*/ expression ) {
                 expression instanceof expressionConstructor ||
-                    ( expression = expressionConstructor( expression ) );
+                    ( expression = new expressionConstructor( expression ) );
                 
                 var self = this,
                     map = {
@@ -989,8 +990,8 @@ var State = ( function () {
                 current.state = state.toString();
                 delta = ( flags.relative ? Z.delta : Z.diff )( current.data, data );
                 if ( !Z.isEmpty( delta ) ) {
-                    previous && Z.extend( true, previous.data, delta );
-                    next && Z.extend( true, next.data, delta );
+                    previous && Z.edit( true, previous.data, delta );
+                    next && Z.edit( true, next.data, delta );
                 }
                 current.data = Z.clone( data );
 
