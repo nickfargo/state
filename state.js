@@ -1585,7 +1585,7 @@ var StateExpression = ( function () {
             map || ( map = {} ) :
             map || ( map = attributes, attributes = undefined );
         
-        Z.extend( true, this, map instanceof StateExpression ? map : interpret( map ) );
+        Z.edit( 'deep all', this, map instanceof StateExpression ? map : interpret( map ) );
 
         attributes == null ?
             map && ( attributes = map.attributes ) :
@@ -1635,7 +1635,7 @@ var StateExpression = ( function () {
             
             // **Priority 2:** Recognize an explicitly named category object.
             else if ( key in result ) {
-                result[ key ] = Z.extend( result[ key ], value );
+                result[ key ] = Z.edit( 'deep all', result[ key ], value );
             }
             
             // **Priority 3:** Use keys and value types to infer implicit categorization.
@@ -2515,7 +2515,7 @@ var TransitionExpression = ( function () {
         if ( !( this instanceof TransitionExpression ) ) {
             return new TransitionExpression( map );
         }
-        Z.extend( true, this, map instanceof TransitionExpression ? map : interpret( map ) );
+        Z.edit( 'deep all', this, map instanceof TransitionExpression ? map : interpret( map ) );
     }
 
     // ### Class-private functions
@@ -2525,7 +2525,7 @@ var TransitionExpression = ( function () {
     // Rewrites a plain object map as a well-formed `TransitionExpression`, making the appropriate
     // inferences for any shorthand notation encountered.
     function interpret ( map ) {
-        var result = Z.extend( {}, properties, categories ),
+        var result = Z.assign( {}, properties, categories ),
             key, value, category, events;
         
         for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
@@ -2534,7 +2534,7 @@ var TransitionExpression = ( function () {
                 result[ key ] = value;
             }
             else if ( key in categories ) {
-                result[ key ] = Z.extend( result[ key ], value );
+                result[ key ] = Z.edit( 'deep all', result[ key ], value );
             }
             else {
                 category =
