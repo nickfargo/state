@@ -365,8 +365,7 @@ var State = ( function () {
               /*Object*/ data, methods, events, guards, substates, transitions
         ) {
             function clone ( obj ) {
-                var result = Z.clone( obj );
-                return Z.isEmpty( result ) ? null : result;
+                return Z.isEmpty( obj = Z.clone( obj ) ) ? null : obj;
             }
 
             return function ( /*Boolean*/ typed ) {
