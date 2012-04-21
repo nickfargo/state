@@ -1549,7 +1549,7 @@ var State = ( function () {
             // but also passing `this` as a domain to be skipped during the superstate’s
             // subsequent descent.
             if ( ascend && ( superstate = this.superstate() ) ) {
-                result = superstate.query( expr, against, this, true );
+                result = superstate.query( expr, against, descend && this, true );
                 if ( result ) return result;
             }
 
