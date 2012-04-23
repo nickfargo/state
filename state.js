@@ -2408,6 +2408,7 @@ var Transition = ( function () {
         Z.env.debug && Z.assign( this.__private__ = {}, {
             methods: methods,
             events: events,
+            guards: guards,
             action: action
         });
 
