@@ -1,10 +1,10 @@
 # State.js
 
-**State** is a micro-framework for implementing state directly into any JavaScript object. Objects that are made stateful can be used to model behavior, construct automata, and reason about changes undergone by the object over time.
+**State** is a micro-framework for implementing states directly into any JavaScript object.
 
 * **[Installation](#installation)**
 
-* **[Overview](#overview) —** [Intro](#overview--a-quick-four-step-introduction-to-state) – [Example](#overview--a-thoroughly-polite-example)
+* **[Overview](#overview) —** [Getting started](#overview--getting-started) – [Example](#overview--a-thoroughly-polite-example)
 
 * **[Concepts](#concepts) —** [Expressions](#concepts--expressions) – [Inheritance](#concepts--inheritance) – [Attributes](#concepts--attributes) – [Data](#concepts--data) – [Methods](#concepts--methods) – [Transitions](#concepts--transitions) – [Events](#concepts--events) – [Guards](#concepts--guards) – [History](#concepts--history)
 
@@ -14,7 +14,7 @@
 
 ## Installation <a name="installation" href="#installation">&#x1f517;</a>
 
-The lone dependency of **State** is [**Zcore**](http://github.com/zvector/zcore/), a small library module that assists with object manipulation tasks such as differential operations and facilitating prototypal inheritance, and provides various other general-purpose functions.
+The lone dependency of **State** is a small utility library called [**Zcore**](http://github.com/zvector/zcore/).
 
 **State** can be installed via [**npm**](http://npmjs.org/):
 
@@ -38,7 +38,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 ## Overview <a name="overview" href="#overview">&#x1f517;</a>
 
-### A quick four-step introduction to State <a name="overview--a-quick-four-step-introduction-to-state" href="#overview--a-quick-four-step-introduction-to-state">&#x1f517;</a>
+### Getting started: a quick four-step introduction to State <a name="overview--getting-started" href="#overview--getting-started">&#x1f517;</a>
 
 #### Step 1 — The declaration
 
@@ -134,9 +134,7 @@ state person,
 person.greet()                      # "Hello."
 person.state().change 'Formal'
 person.greet()                      # "How do you do?"
-
-# `state` also accepts an alternative functional syntax, which is equivalent to `state().change()`.
-person.state -> 'Informal'
+person.state -> 'Informal' # a sugary alternative to `.state().change()`
 person.greet()                      # "Hi!"
 person.state -> ''
 person.greet()                      # "Hello."
@@ -1116,3 +1114,13 @@ Any state may be ordered to keep a **history** of its own internal state. Entrie
 #### Concurrency <a name="about--future-directions--concurrency" href="#about--future-directions--concurrency">&#x1f517;</a>
 
 Whereas an object’s state is most typically conceptualized as an exclusive-OR operation (i.e., its current state is always fixed to exactly one state), a state may instead be defined as **concurrent**, relating its substates in an “AND” composition, where occupation of the concurrent state implies simultaneous occupation of each of its immediate substates.
+
+#### Potential optimization pathways
+
+* **Forego hidden references in favor of plain public properties** on members such as `superstate`, `controller`, etc., to simplify the code base and avoid costs of closures.
+
+* **Further granularize the `State realize` function** such that each of the internal data, methods, etc. objects, and their associated per-instance methods, would be dynamically added only as needed.
+
+* **Memoize protostate references** on the assumption that owner objects will never have their prototypes forcibly altered by setting `__proto__`. (Arguably desirable also to preserve inheritance and expected behavior should the state implementation of an object’s prototype ever be unexpectedly `destroy`ed.)
+
+* **Keep a hashtable on the root state** of common `query` input strings, to avoid repeated recursive searches.
