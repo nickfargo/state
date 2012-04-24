@@ -2188,7 +2188,6 @@ var StateController = ( function () {
                     for ( state = origin; state.isVirtual(); state = superstate ) {
                         superstate = state.superstate();
                         state.destroy();
-                        state = superstate;
                     }
 
                     // Now complete, the `Transition` instance can be discarded.
