@@ -546,41 +546,41 @@ function Chief () {
             Thermonuclear: {
                 data: {
                     action: 'destroy'
+                    budget: Infinity
                 }
             }
         }
     });
-
-    this.state('Thermonuclear').data({ budget: Infinity });
 }
 state( Chief.prototype, {
     data: {
+        action: 'innovate',
         budget: 1e10
     },
     Enraged: {
         data: {
-            target: 'Kookle',
-            action: 'beat'
+            action: 'compete'
         }
     }
 }
 
 var ceo = new Chief;
-ceo.state().data();               // { budget: 10000000000 }
-ceo.state().be('Enraged');        // (`be` is a built-in alias of `change`)
-ceo.state().data();               // { target: 'Kookle', action: 'beat', budget: 10000000000 }
-ceo.state().go('Thermonuclear');  // (`go` is also an alias of `change`)
-ceo.state().data();               // { target: 'Kookle', action: 'destroy', budget: Infinity }
+ceo.state().data();             // >>> { action: 'innovate', budget: 10000000000 }
+ceo.state().be('Enraged');      // `be` and `go` are built-in aliases of `change`
+ceo.state().data({ target: 'Kookle' });
+ceo.state().data();             // >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
+ceo.state().go('Thermonuclear');
+ceo.state().data();             // >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
 ```
 ```coffeescript
 class Chief
   state @::,
     data:
+      action: 'innovate'
       budget: 1e10
     Enraged:
       data:
-        target: 'Kookle'
-        action: 'beat'
+        action: 'compete'
 
   constructor: ->
     state this,
@@ -588,21 +588,21 @@ class Chief
         Thermonuclear:
           data:
             action: 'destroy'
-
-    @state('Thermonuclear').data budget: Infinity
+            budget: Infinity
 
 ceo = new Chief
-ceo.state().data()                 # { budget: 10000000000 }
-ceo.state().be 'Enraged'           # (`be` is a built-in alias of `change`)
-ceo.state().data()                 # { target: 'Kookle', action: 'beat', budget: 10000000000 }
-ceo.state().go 'Thermonuclear'     # (`go` is also an alias of `change`)
-ceo.state().data()                 # { target: 'Kookle', action: 'destroy', budget: Infinity }
+ceo.state().data()               # >>> { action: 'innovate', budget: 10000000000 }
+ceo.state().be 'Enraged'         # `be` and `go` are built-in aliases of `change`
+ceo.state().data target: 'Kookle'
+ceo.state().data()               # >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
+ceo.state().go 'Thermonuclear'
+ceo.state().data()               # >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
 ```
 
 
 ### Methods <a name="concepts--methods" href="#concepts--methods">&#x1f517;</a>
 
-A defining feature of **State** is the ability to have an object exhibit a variety of behaviors. A  state expresses behavior by defining **overrides** for any of its object’s methods.
+A defining feature of **State** is the ability for an object to exhibit a variety of behaviors. A  state expresses behavior by defining **overrides** for any of its object’s methods.
 
 #### Delegators <a name="concepts--methods--delegators" href="#concepts--methods--delegators">&#x1f517;</a>
 
