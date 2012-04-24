@@ -487,6 +487,8 @@ var State = ( function () {
                     } else if ( Z.isPlainObject( value ) ) {
                         edit( value );
                     }
+
+                    eventCollection.length || eventCollection.destroy() && delete events[ type ];
                 });
 
                 // Guards are stored as simple objects, and altering them causes no side-effects,
