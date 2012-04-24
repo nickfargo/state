@@ -263,9 +263,25 @@ Expression input provided to `state()` is interpreted according to the following
 
 ### Inheritance <a name="concepts--inheritance" href="#concepts--inheritance">&#x1f517;</a>
 
-#### Nesting states <a name="concepts--inheritance--nesting-states" href="#concepts--inheritance--nesting-states">&#x1f517;</a>
+The state model is a classic tree structure: any state may serve as a **superstate** of one or more **substates**, which express ever greater specificity of their owner’s behavior and condition.
 
-As with classes or prototypal objects, states are modeled hierarchically, where a state may serve as a **superstate** of one or more **substates** that express ever greater specificity of their owner’s behavior and condition.
+#### The root state <a name="concepts--inheritance--the-root-state" href="#concepts--inheritance--the-root-state">&#x1f517;</a>
+For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. An empty-string selector may be used by an object to change its current state to the root state, so as to exhibit the object’s default behavior.
+
+```javascript
+obj.state().root() === obj.state('')    // true
+obj.state().change('')                  // State ''
+```
+```coffeescript
+obj.state().root() is obj.state ''      # true
+obj.state -> ''                         # State ''
+```
+
+The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by forwarding a method call made on the object to the object’s current state, with the assurance that the call will be resolved *somewhere* in the state tree: if an override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the original implementation held within the root state.
+
+#### Behavior nesting using substates <a name="concepts--inheritance--behavior-nesting-using-substates" href="#concepts--inheritance--behavior-nesting-using-substates">&#x1f517;</a>
+
+Substates help to express ever greater specificity of their owner’s behavior and condition.
 
 ```javascript
 function Person () {
@@ -335,26 +351,9 @@ class Person
               I.kiss myBetterHalf
 ```
 
-##### The root state <a name="concepts--inheritance--nesting-states--the-root-state" href="#concepts--inheritance--nesting-states--the-root-state">&#x1f517;</a>
-
-An object’s state model is a classic tree structure, with a single **root state** as its basis, from which all of the object’s states inherit.
-
-A noteworthy quality of the root state is that, while its place in the expression does not bear a name, it is not anonymous; the root state’s name is always the empty string `''`, which may be used by an object to change its state so as to exhibit its default behavior.
-
-```javascript
-obj.state().root() === obj.state('')    // true
-obj.state().change('')                  // State ''
-```
-```coffeescript
-obj.state().root() is obj.state ''      # true
-obj.state -> ''                         # State ''
-```
-
-The root state also acts as the *default method store* for the object’s state implementation, containing methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by always forwarding a method call on the object to the object’s current state; if no corresponding method override is defined for the current state, or for any of its superstates, then as a last resort **State** will resolve the call to the original implementation held within the root state.
-
 #### Inheriting states across prototypes <a name="concepts--inheritance--inheriting-states-across-prototypes" href="#concepts--inheritance--inheriting-states-across-prototypes">&#x1f517;</a>
 
-So far we’ve been creating stateful objects by applying the `state()` function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
+The examples so far have created stateful objects by applying the `state()` function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
 
 ```javascript
 function Person () {}
@@ -414,9 +413,9 @@ person.greet()                         # "Hi!"
 Person::state()                        # State ''
 ```
 
-When an accessor method (`person.state()`) is called, it checks the context object (`person`) to ensure that it has its own accessor method. If it doesn’t, and is instead attempting to inherit `state` from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding new accessor method (`person.state()`), to which the original call is then forwarded.
+When an accessor method (`person.state()`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it doesn’t, and is instead attempting to inherit `state` from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding new accessor method (`person.state()`), to which the original call is then forwarded.
 
-Even though the inheritor’s state implementation is empty, it identifies the prototype’s states as its **protostates**, from which it inherits all methods, data, events, etc. contained within. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate.
+Even though the inheritor’s state implementation is empty, it identifies the prototype’s states as its **protostates**, from which it inherits all methods, data, events, etc. contained within. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate. Virtual states are extant only so long as they are active; once the object transitions elsewhere, any previously active virtual states are automatically destroyed.
 
 This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without the states themselves having to maintain any direct prototypal relationship with each other.
 
