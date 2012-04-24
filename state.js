@@ -377,9 +377,9 @@ var State = ( function () {
 
             function cloneEvents () {
                 if ( events === undefined ) return;
-                var out = null, key, value;
-                for ( key in events ) if ( value = events[ key ] ) {
-                    ( out || ( out = {} ) )[ key ] = Z.clone( value );
+                var out = null, type, collection;
+                for ( type in events ) if ( collection = events[ type ] ) {
+                    ( out || ( out = {} ) )[ type ] = Z.clone( collection.items );
                 }
                 return out;
             }
