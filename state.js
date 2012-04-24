@@ -1437,9 +1437,12 @@ var State = ( function () {
         // #### change
         // 
         // Forwards a `change` command to the state’s controller and returns its result.
+        // Calling with no arguments directs the controller to change to `this` state.
         // 
         // *Aliases:* **be**, **become**, **go**, **goTo**
         'change be become go goTo': function () {
+        //
+        // *See also:* [`StateController.privileged.change`](#state-controller--privileged--change)
             var controller = this.controller();
             return arguments.length ?
                 controller.change.apply( controller, arguments ) :
@@ -2017,6 +2020,8 @@ var StateController = ( function () {
     StateController.privileged = {
 
         // #### change
+        // <a name="state-controller--privileged--change"
+        //    href="#state-controller--privileged--change">&#x1f517;</a>
         // 
         // Attempts to execute a state transition. Handles asynchronous transitions, generation of
         // appropriate events, and construction of any necessary temporary virtual states. Respects
