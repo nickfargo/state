@@ -708,13 +708,22 @@ var State = ( function () {
 
         // #### event
         // 
-        // Gets a registered event handler.
+        // Returns a registered event listener, or the number of listeners registered, for a given
+        // event `type`.
+        // 
+        // If an `id` as returned by `addEvent` is provided, the event listener associated with
+        // that `id` is returned. If no `id` is provided, the number of event listeners registered
+        // to `type` is returned.
         event: function ( events ) {
             return function (
                         /*String*/ eventType,
              /*String | Function*/ id
             ) {
                 var collection = events[ eventType ];
+                
+                if ( collection == null ) return;
+                if ( id === undefined ) return collection.length;
+
                 typeof id === 'function' && ( id = collection.key( id ) );
                 return collection.get( id );
             };
