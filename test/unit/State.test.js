@@ -55,6 +55,58 @@ test( "query()", function () {
 	assert.ok( foo.state('.C').superstate() === foo.state('') );
 });
 
+test( "express() / mutate()", function () {
+	var o = {}, keys, id, list;
+	function f ( n ) { return f[n] = function () {}; }
+	state( o, {
+		data: { a:1, b:'two' },
+		mutate: function ( event, expr, before, after, delta ) {
+			assert.ok( true, "mutate event at root state" );
+		},
+		S1: {
+			data: { a:3, b:'four' },
+			run: function () { return 'foo'; },
+			tap: 'S2',
+			mutate: function ( event, expr, before, after, delta ) {
+				assert.ok( true, "mutate event at substate" );
+			}
+		},
+		S2: {
+			data: { a:5, b:'six' },
+			run: function () { return 'bar'; },
+			tap: 'S1'
+		}
+	});
+	
+	id = o.state('S1').on( 'mutate', function ( event, expr, before, after, delta ) {
+		var index = Z.keys( delta.events.tap )[0],
+			compare = { events: { tap: {} } };
+		compare.events.tap[ index ] = Z.NIL;
+		assert.deepEqual( delta, compare, "delta.events.tap[" + index + "]:NIL" );
+	});
+	o.state().mutate({ S1:{ events:{ tap:'S3' } } });
+	assert.strictEqual( o.state('S1').event('tap'), 2 );
+	o.state('S1').off( 'mutate', id );
+
+	keys = Z.keys( o.state('S1').express().events.tap );
+	assert.strictEqual( o.state('S1').express().events.tap[ keys[0] ], 'S2' );
+	assert.strictEqual( o.state('S1').express().events.tap[ keys[1] ], 'S3' );
+
+	list = {};
+	list[ keys[0] ] = list[ keys[1] ] = Z.NIL;
+	o.state('S1').mutate({
+		events: {
+			tap: [ f(0), f(1), f(2), list ]
+		}
+	});
+	assert.strictEqual( o.state('S1').event('tap'), 3 );
+
+	keys = Z.keys( o.state('S1').express().events.tap );
+	assert.strictEqual( o.state('S1').express().events.tap[ keys[0] ], f[0] );
+	assert.strictEqual( o.state('S1').express().events.tap[ keys[1] ], f[1] );
+	assert.strictEqual( o.state('S1').express().events.tap[ keys[2] ], f[2] );
+});
+
 test( "superstate()", function () {
 	var x = new TestObject;
 	assert.strictEqual( x.state('ReallyDead').superstate('Finished'), x.state('Finished') );
