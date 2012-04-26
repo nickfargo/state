@@ -425,9 +425,11 @@ var State = ( function () {
                 
                 var self = this,
                     NIL = Z.NIL,
-                    delta, collection, name, value;
+                    before, collection, name, value, after, delta;
 
-                this.__initializing__ || ( delta = Z.diff( expr, this.express() ) );
+                if ( !this.__initializing__ ) {
+                    before = this.express();
+                }
 
                 this.__atomic__ = true;
 
@@ -527,7 +529,13 @@ var State = ( function () {
         
                 delete this.__atomic__;
 
-                delta && !Z.isEmpty( delta ) && this.emit( 'mutate', [ expr, delta ], false );
+                if ( before ) {
+                    after = this.express();
+                    delta = Z.diff( before, after );
+                    if ( !Z.isEmpty( delta ) ) {
+                        this.emit( 'mutate', [ expr, before, after, delta ], false );
+                    }
+                }
 
                 return this;
             };
