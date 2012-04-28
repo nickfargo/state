@@ -1571,15 +1571,15 @@ var State = ( function () {
             var parts, cursor, next, result, i, l, name,
                 queue, subject, substates, state, superstate;
             
-            // A few exceptional cases may be resolved early.
-            if ( expr == null ) return false;
-            if ( expr === '' ) return this.root();
-
             if ( typeof against === 'boolean' ) {
                 ascend = descend, descend = against, against = undefined;
             }
             descend === undefined && ( descend = true );
             ascend === undefined && ( ascend = true );
+
+            // A few exceptional cases may be resolved early.
+            if ( expr == null ) return against ? false : null;
+            if ( expr === '' ) return against ? against === this.root() : this.root();
 
             // Absolute wildcard expressions compared against the root state pass immediately.
             if ( against && against === this.root() && expr.search(/^\*+$/) === 0 ) return true;
