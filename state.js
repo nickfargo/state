@@ -1319,24 +1319,26 @@ var State = ( function () {
             for ( iterate(); protostate; iterate() ) {
                 for ( i = 0, l = derivation.length; i < l; i++ ) {
                     protostate = protostate.substate( derivation[i], false );
-                    if ( !protostate ) return;
+                    if ( !protostate ) break;
                 }
 
-                // Before returning the located protostate, memoize any subsequent lookups by
-                // adding an instance method that closes over the protostate reference.
-                this.protostate = function () {
-                    if ( protostate.destroyed ) {
-                        // If `destroyed` has been set, it means we’re hanging onto an invalid
-                        // reference, so clear it for GC, and relay this invocation back up to
-                        // `State.prototype`.
-                        protostate = null;
-                        delete this.protostate;
-                        return this.protostate();
-                    }
-                    else return protostate;
-                };
+                if ( protostate ) {
+                    // Before returning the located protostate, memoize any subsequent lookups by
+                    // adding an instance method that closes over the protostate reference.
+                    this.protostate = function () {
+                        if ( protostate.destroyed ) {
+                            // If `destroyed` has been set, it means we’re hanging onto an invalid
+                            // reference, so clear it for GC, and relay this invocation back up to
+                            // `State.prototype`.
+                            protostate = null;
+                            delete this.protostate;
+                            return this.protostate();
+                        }
+                        else return protostate;
+                    };
 
-                return protostate;
+                    return protostate;
+                }
             }
         },
 
