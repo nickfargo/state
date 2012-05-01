@@ -1129,7 +1129,14 @@ var State = ( function () {
                     if ( origin.isIn( this ) || target.isIn( this ) ) return false;
                 }
 
-                // Emit a `destroy` event on the local state.
+                // Set a flag that can be observed later by anything retaining a reference to this
+                // state (e.g. a memoization) which would be withholding it from being
+                // garbage-collected; a well-behaved reference holder would check this flag each
+                // time to reassert the validity of its reference, and discard the reference if
+                // `destroyed` is `true`.
+                this.destroyed = true;
+
+                // Emit a final event `destroy`.
                 this.emit( 'destroy', false );
                 for ( key in events ) {
                     events[ key ].destroy();
@@ -1314,6 +1321,21 @@ var State = ( function () {
                     protostate = protostate.substate( derivation[i], false );
                     if ( !protostate ) return;
                 }
+
+                // Before returning the located protostate, memoize any subsequent lookups by
+                // adding an instance method that closes over the protostate reference.
+                this.protostate = function () {
+                    if ( protostate.destroyed ) {
+                        // If `destroyed` has been set, it means we’re hanging onto an invalid
+                        // reference, so clear it for GC, and relay this invocation back up to
+                        // `State.prototype`.
+                        protostate = null;
+                        delete this.protostate;
+                        return this.protostate();
+                    }
+                    else return protostate;
+                };
+
                 return protostate;
             }
         },
