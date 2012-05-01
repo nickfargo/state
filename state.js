@@ -1297,26 +1297,27 @@ var State = ( function () {
         protostate: function () {
             var derivation = this.derivation( true ),
                 controller = this.controller(),
-                controllerName, owner, prototype, protostate, i, l, stateName;
-            
-            function iterate () {
-                var fn, c;
-                prototype = Z.getPrototypeOf( prototype );
-                protostate = prototype &&
-                    typeof prototype === 'object' &&
-                    Z.isFunction( fn = prototype[ controllerName ] ) &&
-                    ( c = fn.apply( prototype ) ) &&
-                    c instanceof State ?
-                        c.root() :
-                        null;
-            }
+                controllerName, owner, prototype, iterate, protostate, i, l;
             
             if ( !controller ) return;
 
             controllerName = controller.name();
             prototype = owner = controller.owner();
+            
+            iterate = function () {
+                var fn, s;
+                prototype = Z.getPrototypeOf( prototype );
+                return (
+                    prototype &&
+                    typeof prototype === 'object' &&
+                    Z.isFunction( fn = prototype[ controllerName ] ) &&
+                    ( s = fn.apply( prototype ) ) &&
+                    s instanceof State &&
+                    s.root()
+                );
+            };
         
-            for ( iterate(); protostate; iterate() ) {
+            for ( protostate = iterate(); protostate; protostate = iterate() ) {
                 for ( i = 0, l = derivation.length; i < l; i++ ) {
                     protostate = protostate.substate( derivation[i], false );
                     if ( !protostate ) break;
