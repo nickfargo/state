@@ -81,55 +81,61 @@ var STATE_ATTRIBUTES = {
         // owner object’s prototype chain.
         VIRTUAL     : 0x1,
 
+        // A `mutable` state is allowed to change its data, methods, guards, substates, or
+        // transitions after it has been initialized. Mutability is implicitly inherited by all
+        // descendant states.
+        // *(Reserved; not presently implemented.)*
+        MUTABLE     : 0x2,
+
         // Marking a state `initial` specifies which state a newly instantiated `StateController`
         // should assume.
-        INITIAL     : 0x2,
+        INITIAL     : 0x4,
 
         // Once a state marked `conclusive` is entered, it cannot be exited, although transitions
         // may still freely traverse within its substates.
-        CONCLUSIVE  : 0x4,
+        CONCLUSIVE  : 0x8,
 
         // Once a state marked `final` is entered, no further outbound transitions within its local
         // region are allowed.
-        FINAL       : 0x8,
+        FINAL       : 0x10,
 
         // An **abstract state** cannot itself be current. Consequently a transition target that
         // points to a state marked `abstract` is redirected to one of its substates.
-        ABSTRACT    : 0x10,
+        ABSTRACT    : 0x20,
 
         // Marking a state `default` designates it as the actual target for any transition that
         // targets its abstract superstate.
-        DEFAULT     : 0x20,
+        DEFAULT     : 0x40,
 
         // A state marked `sealed` cannot have substates.
-        SEALED      : 0x40,
+        SEALED      : 0x80,
 
         // A `retained` state is one that preserves its own internal state, such that, after the
         // state has become no longer active, a subsequent transition targeting that particular
         // state will automatically be redirected to whichever of its descendant states was most
         // recently current.
         // *(Reserved; not presently implemented.)*
-        RETAINED    : 0x80,
+        RETAINED    : 0x100,
 
         // Marking a state with the `history` attribute causes its internal state to be recorded
         // in a sequential **history**. Whereas a `retained` state is concerned only with the most
         // recent internal state, a state’s history can be traversed and altered, resulting in
         // transitions back or forward to previously or subsequently held internal states.
         // *(Reserved; not presently implemented.)*
-        HISTORY     : 0x100,
+        HISTORY     : 0x200,
 
         // Normally, states that are `retained` or that keep a `history` persist their internal
         // state *deeply*, i.e., with a scope extending over all of the state’s descendant states.
         // Marking a state `shallow` limits the scope of its persistence to its immediate
         // substates only.
         // *(Reserved; not presently implemented.)*
-        SHALLOW     : 0x200,
+        SHALLOW     : 0x400,
 
         // Causes alterations to a state to result in a reflexive transition, with a delta object
         // distinguishing the prior version of the state from its new version. Should also add a
         // history entry wherever appropriate, representing the prior version and the delta.
         // *(Reserved; not presently implemented.)*
-        VERSIONED   : 0x400,
+        VERSIONED   : 0x800,
 
         // In a state marked `concurrent`, the substates are considered **concurrent orthogonal
         // regions**. Upon entering a concurrent state, the controller creates a new set of
@@ -138,12 +144,13 @@ var STATE_ATTRIBUTES = {
         // reduction function is associated with the given method, the call is repeated for each
         // region and the results reduced accordingly on their way back to the owner.
         // *(Reserved; not presently implemented.)*
-        CONCURRENT  : 0x800
+        CONCURRENT  : 0x1000
     },
 
     // The subset of attributes that are valid keywords for the `attributes` argument in a call to
     // the exported `state` function.
     STATE_ATTRIBUTE_MODIFIERS = [
+        'mutable',
         'initial conclusive final',
         'abstract default sealed',
         'retained history shallow versioned',
@@ -1251,6 +1258,7 @@ var State = ( function () {
     Z.assign( State.prototype, {
         attributes: Z.thunk( SA.NORMAL ),
         isVirtual:    function () { return !!( this.attributes() & SA.VIRTUAL ); },
+        isMutable:    function () { return !!( this.attributes() & SA.MUTABLE ); },
         isInitial:    function () { return !!( this.attributes() & SA.INITIAL ); },
         isDefault:    function () { return !!( this.attributes() & SA.DEFAULT ); },
         isConclusive: function () { return !!( this.attributes() & SA.CONCLUSIVE ); },
