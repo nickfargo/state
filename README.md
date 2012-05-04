@@ -78,7 +78,7 @@ state( owner, expression );
 After calling `state` to implement state into an `owner` object, this new state implementation will be exposed through an **accessor method**, also named `state`, that will be added to the object. Calling this accessor with no arguments queries the object for its **current state**.
 
 ```javascript
-owner.state();                   // State '' (the top-level *root state*)
+owner.state();                   // >>> State '' (the top-level *root state*)
 ```
 
 #### Step 4 — The transition
@@ -86,11 +86,11 @@ owner.state();                   // State '' (the top-level *root state*)
 The object’s current state may be reassigned to a different state by calling its `change()` method and providing it the name of a state to be targeted. Changing an object’s state allows it to exhibit different behavior:
 
 ```javascript
-owner.state();                   // State ''
-owner.aMethod();                 // "default"
-owner.state().change('aState');  // State 'aState'
-owner.aMethod();                 // "stateful!"
-owner.state();                   // State 'aState'
+owner.state();                   // >>> State ''
+owner.aMethod();                 // >>> "default"
+owner.state().change('aState');  // >>> State 'aState'
+owner.aMethod();                 // >>> "stateful!"
+owner.state();                   // >>> State 'aState'
 ```
 
 ### A thoroughly polite example <a name="overview--a-thoroughly-polite-example" href="#overview--a-thoroughly-polite-example">&#x1f517;</a>
@@ -113,13 +113,17 @@ state( person, {
     }
 });
 
-person.greet();                     // "Hello."
+person.greet();
+// >>> "Hello."
 person.state().change('Formal');
-person.greet();                     // "How do you do?"
+person.greet();
+// >>> "How do you do?"
 person.state().change('Informal');
-person.greet();                     // "Hi!"
+person.greet();
+// >>> "Hi!"
 person.state().change('');
-person.greet();                     // "Hello."
+person.greet();
+// >>> "Hello."
 ```
 
 ```coffeescript
@@ -131,13 +135,17 @@ state person,
   Informal:
     greet: -> "Hi!"
 
-person.greet()                      # "Hello."
+person.greet()
+# >>> "Hello."
 person.state().change 'Formal'
-person.greet()                      # "How do you do?"
+person.greet()
+# >>> "How do you do?"
 person.state -> 'Informal' # a sugary alternative to `.state().change()`
-person.greet()                      # "Hi!"
+person.greet()
+# >>> "Hi!"
 person.state -> ''
-person.greet()                      # "Hello."
+person.greet()
+# >>> "Hello."
 ```
 
 ## Concepts <a name="concepts" href="#concepts">&#x1f517;</a>
@@ -146,7 +154,7 @@ A **state** is an instance of `State` which encapsulates all or part of an **own
 
 Features of states and their usage are summarized here and discussed in further detail below:
 
-* [**Expressions**](#concepts--expressions) — The contents of states can be concisely expressed using a plain object literal, which, along with an optional set of attribute keywords, is passed into the `state()` function and interpreted into a formal **state expression** type.
+* [**Expressions**](#concepts--expressions) — The contents of states can be concisely expressed using a plain object literal, which, along with an optional set of attribute keywords, is passed into the `state()` function and interpreted into a formally typed **state expression**.
 
 * [**Inheritance**](#concepts--inheritance) — States are hierarchically nested in a tree structure: the owner object is given exactly one **root state**, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
 
@@ -269,12 +277,12 @@ The state model is a classic tree structure: any state may serve as a **supersta
 For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. An empty-string selector may be used by an object to change its current state to the root state, so as to exhibit the object’s default behavior.
 
 ```javascript
-obj.state().root() === obj.state('')    // true
-obj.state().change('')                  // State ''
+obj.state().root() === obj.state('')    // >>> true
+obj.state().change('')                  // >>> State ''
 ```
 ```coffeescript
-obj.state().root() is obj.state ''      # true
-obj.state -> ''                         # State ''
+obj.state().root() is obj.state ''      # >>> true
+obj.state -> ''                         # >>> State ''
 ```
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by forwarding a method call made on the object to the object’s current state, with the assurance that the call will be resolved *somewhere* in the state tree: if an override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the original implementation held within the root state.
@@ -382,35 +390,35 @@ class Person
 person = new Person
 ```
 
-Since the instance object `person` in the code above inherits from `Person.prototype`, given what’s been covered to this point, it may be expected that instigating a transition via `person.state().change('Formal')` would take effect on `Person.prototype`, in turn affecting all other instances of `Person` as well. However, while sharing stateful behavior through prototypes is desirable, it’s also essential that each instance be able to maintain state and undergo changes to its state independently.
+Since the `person` object in the code above inherits from `Person.prototype`, given what’s been covered to this point, it may be expected that a transition instigated using `person.state().change('Formal')` would take effect on `Person.prototype`, in turn affecting all other instances of `Person` as well. However, while sharing stateful behavior through prototypes is desirable, it is also essential that each instance be able to maintain state and undergo changes to its state independently.
 
-**State** addresses this problem by automatically outfitting each inheriting object with its own state implementation whenever one is necessary but does not exist already. This new implementation will itself be empty, but will inherit from the state implementation of the prototype, thus allowing the object to experience its own states and transitions, without also indirectly affecting all of its fellow inheritors.
+**State** addresses this problem by automatically outfitting each inheriting object with its own state implementation whenever one is necessary but does not exist already. This new implementation will itself be empty, but will inherit from the state implementation of the prototype, thus allowing the object to experience its own states and transitions without also indirectly affecting all of its fellow inheritors.
 
 ```javascript
-Person.prototype.state();              // State ''
-'state' in person;                     // true
-person.hasOwnProperty('state');        // false
-person.state();                        // State ''
-person.hasOwnProperty('state');        // true
-person.state().isVirtual();            // false
-person.greet();                        // "Hello."
-person.state().change('Informal');     // State 'Informal'
-person.state().isVirtual();            // true
-person.greet();                        // "Hi!"
-Person.prototype.state();              // State ''
+Person.prototype.state();              // >>> State ''
+'state' in person;                     // >>> true
+person.hasOwnProperty('state');        // >>> false
+person.state();                        // >>> State ''
+person.hasOwnProperty('state');        // >>> true
+person.state().isVirtual();            // >>> false
+person.greet();                        // >>> "Hello."
+person.state().change('Informal');     // >>> State 'Informal'
+person.state().isVirtual();            // >>> true
+person.greet();                        // >>> "Hi!"
+Person.prototype.state();              // >>> State ''
 ```
 ```coffeescript
-Person::state()                        # State ''
-'state' of person                      # true
-person.hasOwnProperty 'state'          # false
-person.state()                         # State ''
-person.hasOwnProperty 'state'          # true
-person.state().isVirtual()             # false
-person.greet()                         # "Hello."
-person.state -> 'Informal'             # State 'Informal'
-person.state().isVirtual()             # true
-person.greet()                         # "Hi!"
-Person::state()                        # State ''
+Person::state()                        # >>> State ''
+'state' of person                      # >>> true
+person.hasOwnProperty 'state'          # >>> false
+person.state()                         # >>> State ''
+person.hasOwnProperty 'state'          # >>> true
+person.state().isVirtual()             # >>> false
+person.greet()                         # >>> "Hello."
+person.state -> 'Informal'             # >>> State 'Informal'
+person.state().isVirtual()             # >>> true
+person.greet()                         # >>> "Hi!"
+Person::state()                        # >>> State ''
 ```
 
 When an accessor method (`person.state()`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it doesn’t, and is instead attempting to inherit `state` from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding new accessor method (`person.state()`), to which the original call is then forwarded.
@@ -426,7 +434,7 @@ The accessor method of a stateful object (`object.state()`) returns its current 
 
 **State** uses a simple selector format:
 
-1. Substate names are delimited with the dot (`.`) character.
+1. State names are delimited from their member substates with the dot (`.`) character.
 
 2. A selector that begins with `.` will be evaluated *relative* to the local context, while a selector that begins with a name will be evaluated as *absolute*, i.e., relative to the root state.
 
@@ -440,7 +448,7 @@ The accessor method of a stateful object (`object.state()`) returns its current 
 var o = {};
 state( o, {
     A: {
-        AA: state('initial', {
+        AA: state( 'initial', {
             AAA: {}
         }),
         AB: {}
@@ -448,18 +456,20 @@ state( o, {
     B: {}
 });
 
-o.state();            // State 'AA'
-o.state('');          // State ''
-o.state('A.AA.AAA');  // State 'AAA'
-o.state('.');         // State 'A'
-o.state('..');        // State ''
-o.state('.AB');       // State 'AB'
-o.state('..B');       // State 'B'
-o.state('AAA');       // State 'AAA'
-o.state('.*');        // [ State 'AAA' ]
-o.state('AAA.*');     // []
-o.state('*');         // [ State 'A', State 'B' ]
-o.state('**');        // [ State 'A', State 'AA', State 'AAA', State 'AB', State 'B' ]
+o.state();            // >>> State 'AA'
+o.state('');          // >>> State ''
+o.state('A.AA.AAA');  // >>> State 'AAA'
+o.state('.');         // >>> State 'AA'
+o.state('..');        // >>> State 'A'
+o.state('...');       // >>> State ''
+o.state('.AAA');      // >>> State 'AAA'
+o.state('..AB');      // >>> State 'AB'
+o.state('...B');      // >>> State 'B'
+o.state('AAA');       // >>> State 'AAA'
+o.state('.*');        // >>> [ State 'AAA' ]
+o.state('AAA.*');     // >>> []
+o.state('*');         // >>> [ State 'A', State 'B' ]
+o.state('**');        // >>> [ State 'A', State 'AA', State 'AAA', State 'AB', State 'B' ]
 ```
 ```coffeescript
 o = {}
@@ -470,21 +480,23 @@ state o,
     AB: {}
   B: {}
 
-o.state()             # State 'AA'
-o.state ''            # State ''
-o.state 'A.AA.AAA'    # State 'AAA'
-o.state '.'           # State 'A'
-o.state '..'          # State ''
-o.state '.AB'         # State 'AB'
-o.state '..B'         # State 'B'
-o.state 'AAA'         # State 'AAA'
-o.state '.*'          # [ State 'AAA' ]
-o.state 'AAA.*'       # []
-o.state '*'           # [ State 'A', State 'B' ]
-o.state '**'          # [ State 'A', State 'AA', State 'AAA', State 'AB', State 'B' ]
+o.state()             # >>> State 'AA'
+o.state ''            # >>> State ''
+o.state 'A.AA.AAA'    # >>> State 'AAA'
+o.state '.'           # >>> State 'AA'
+o.state '..'          # >>> State 'A'
+o.state '...'         # >>> State ''
+o.state '.AAA'        # >>> State 'AAA'
+o.state '..AB'        # >>> State 'AB'
+o.state '...B'        # >>> State 'B'
+o.state 'AAA'         # >>> State 'AAA'
+o.state '.*'          # >>> [ State 'AAA' ]
+o.state 'AAA.*'       # >>> []
+o.state '*'           # >>> [ State 'A', State 'B' ]
+o.state '**'          # >>> [ State 'A', State 'AA', State 'AAA', State 'AB', State 'B' ]
 ```
 
-Selectors are similarly put to use elsewhere as well: for example, a [transition](#)’s `origin` and `target` properties are evaluated as selectors, and several `State` methods, including [`change`](#), [`is`](#), [`isIn`](#), [`isSuperstateOf`](#), and [`isProtostateOf`](#), accept a selector as their main argument.
+Selectors are similarly put to use elsewhere as well: for example, a [transition](#)’s `origin` and `target` properties are evaluated as selectors, and several `State` methods, including [`change`](#), [`is`](#), [`isIn`](#), [`has`](#), [`isSuperstateOf`](#), and [`isProtostateOf`](#), accept a selector as their main argument.
 
 
 ### Attributes <a name="concepts--attributes" href="#concepts--attributes">&#x1f517;</a>
@@ -510,6 +522,8 @@ state obj, 'abstract',
 ```
 
 **Implemented** (and *proposed*) attributes include:
+
+* *mutable* — (Reserved; not presently implemented.) By default a state’s data, methods, guards, substates, and transitions cannot be altered after its has been constructed; the `mutable` attribute lifts this restriction, both for the state to which it is applied and all of its descendant states.
 
 * **initial** — Marking a state `initial` specifies which state is to be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
@@ -565,12 +579,15 @@ state( Chief.prototype, {
 }
 
 var ceo = new Chief;
-ceo.state().data();             // >>> { action: 'innovate', budget: 10000000000 }
-ceo.state().be('Enraged');      // `be` and `go` are built-in aliases of `change`
+ceo.state().data();
+// >>> { action: 'innovate', budget: 10000000000 }
+ceo.state().be('Enraged'); // `be` and `go` are built-in aliases of `change`
 ceo.state().data({ target: 'Kookle' });
-ceo.state().data();             // >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
+ceo.state().data();
+// >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
 ceo.state().go('Thermonuclear');
-ceo.state().data();             // >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
+ceo.state().data();
+// >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
 ```
 ```coffeescript
 class Chief
@@ -591,12 +608,15 @@ class Chief
             budget: Infinity
 
 ceo = new Chief
-ceo.state().data()               # >>> { action: 'innovate', budget: 10000000000 }
-ceo.state().be 'Enraged'         # `be` and `go` are built-in aliases of `change`
+ceo.state().data()
+# >>> { action: 'innovate', budget: 10000000000 }
+ceo.state().be 'Enraged' # `be` and `go` are built-in aliases of `change`
 ceo.state().data target: 'Kookle'
-ceo.state().data()               # >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
+ceo.state().data()
+# >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
 ceo.state().go 'Thermonuclear'
-ceo.state().data()               # >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
+ceo.state().data()
+# >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
 ```
 
 
@@ -661,9 +681,9 @@ state( Document.prototype, 'abstract', {
 
     Dirty: {
         save: function () {
-            this.change( 'Saved', { arguments: [
+            this.change( 'Saved', [
                 this.owner().location(), this.owner().read()
-            ] }); // [5]
+            ]); // [5]
             return this.owner();
         }
     },
@@ -687,7 +707,7 @@ state( Document.prototype, 'abstract', {
             action: function ( location, text ) {
                 var transition = this;
                 return fs.writeFile( location, text, function ( err ) {
-                    if ( err ) return transition.abort( err ).go( 'Dirty' );
+                    if ( err ) return transition.abort( err ).change( 'Dirty' );
                     transition.end();
                 });
             }
@@ -715,7 +735,7 @@ class Document
 
     Dirty:
       save: ->
-        @go 'Saved', arguments: [ @owner.location(), @owner().read() ] # [5]
+        @change 'Saved', [ @owner.location(), @owner().read() ] # [5]
         @owner()
     
     Saved: state 'initial',
@@ -731,7 +751,7 @@ class Document
     transitions:
       Writing: origin: 'Dirty', target: 'Saved', action: ( location, text ) ->
         fs.writeFile location, text, ( err ) =>
-          return @abort( err ).go 'Dirty' if err
+          return @abort( err ).change 'Dirty' if err
           do @end
 ```
 
@@ -743,7 +763,7 @@ class Document
 
 4. The `save` method, which only appears in the `Dirty` state, is still callable from other states, as its presence in `Dirty` causes a no-op version of the method to be automatically added to the root state. This allows `freeze` to safely call `save` despite the possiblity of being in a state (`Saved`) with no such method.
 
-5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked with the arguments provided by the `change` call.
+5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked with the arguments array provided by the `change` call.
 
 
 ### Transitions <a name="concepts--transitions" href="#concepts--transitions">&#x1f517;</a>
@@ -864,9 +884,11 @@ state( Kid.prototype, {
 
 var junior = new Kid;
 junior.state().emit('gotIceCream');
-junior.state();                          // State 'Happy'
+junior.state();
+// >>> State 'Happy'
 junior.state().emit('spilledIceCream');
-junior.state();                          // State 'Sad'
+junior.state();
+// >>> State 'Sad'
 ```
 ```coffeescript
 class Kid
@@ -879,9 +901,11 @@ class Kid
 
 junior = new Kid
 junior.state().emit 'gotIceCream'
-junior.state()                         # State 'Happy'
+junior.state()
+# >>> State 'Happy'
 junior.state().emit 'spilledIceCream'
-junior.state()                         # State 'Sad'
+junior.state()
+# >>> State 'Sad'
 ```
 
 #### Expressing determinism <a name="concepts--events--expressing-determinism" href="#concepts--events--expressing-determinism">&#x1f517;</a>
@@ -907,10 +931,10 @@ DivisibleByThreeComputer.prototype.compute = function ( number ) {
 }
 
 var three = new DivisibleByThreeComputer;
-three.compute( 8 );          // false
-three.compute( 78 );         // true
-three.compute( 1000 );       // false
-three.compute( 504030201 );  // true
+three.compute( 8 );          // >>> false
+three.compute( 78 );         // >>> true
+three.compute( 1000 );       // >>> false
+three.compute( 504030201 );  // >>> true
 ```
 ```coffeescript
 class DivisibleByThreeComputer
@@ -927,10 +951,10 @@ class DivisibleByThreeComputer
     @state().is 's0'
 
 three = new DivisibleByThreeComputer
-three.compute 8              # false
-three.compute 78             # true
-three.compute 1000           # false
-three.compute 504030201      # true
+three.compute 8              # >>> false
+three.compute 78             # >>> true
+three.compute 1000           # >>> false
+three.compute 504030201      # >>> true
 ```
 
 
