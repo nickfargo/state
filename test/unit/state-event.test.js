@@ -20,8 +20,8 @@ test( "String as transition target", function () {
 test( "String as transition target as last element in Array", function () {
     var o = {};
     state( o, {
-        A: { events: { foo: [ function ( event ) { return 'aString'; }, 'B' ] } },
-        B: { events: { bar: [ function ( event ) { return 'aString'; }, 'A' ] } }
+        A: { events: { foo: [ function () { return 'aString'; }, 'B' ] } },
+        B: { events: { bar: [ function () { return 'aString'; }, 'A' ] } }
     });
     o.state().change('A');
 
@@ -32,7 +32,7 @@ test( "String as transition target as last element in Array", function () {
 });
 
 test( "Transition executed after callbacks", 4, function () {
-    function fn ( event ) { assert.ok( o.state() === this ); }
+    function fn () { assert.ok( o.state() === this ); }
     var o = {};
     state( o, {
         A: { events: { foo: [ 'B', fn ] } },

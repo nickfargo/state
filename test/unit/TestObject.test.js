@@ -38,16 +38,16 @@ function TestObject ( initialState ) {
 			},
 			
 			// interpreted as an **event** (since "arrive" is an event type) with one listener declared
-			arrive: function ( event ) {
+			arrive: function () {
 				// event.log();
 			},
 
 			// interpreted as an **event** (since "depart" is an event type) with multiple listeners declared
 			depart: [
-				function ( event ) {
+				function () {
 					// event.log('1');
 				},
-				function ( event ) {
+				function () {
 					// event.log('2');
 				}
 			],
@@ -105,12 +105,12 @@ function TestObject ( initialState ) {
 				}
 			},
 			events: {
-				arrive: function ( event ) {
+				arrive: function () {
 					// event.log();
 				},
 				depart: [
-					function ( event ) {},
-					function ( event ) {}
+					function () {},
+					function () {}
 				]
 			},
 			guards: {
@@ -135,7 +135,7 @@ function TestObject ( initialState ) {
 					},
 					terminate: function () { return this.change( '..Terminated' ); },
 					
-					arrive: function ( event ) {
+					arrive: function () {
 						// event.log( "I'm an event" );
 					},
 					
@@ -254,10 +254,10 @@ function TestObject ( initialState ) {
 						]
 					],
 					// */
-					start: function ( event ) {
+					start: function () {
 						// console && console.log( "Transition 'transitionName' start" );
 					},
-					end: function ( event ) {
+					end: function () {
 						// console && console.log( "Transition 'transitionName' end" );
 					}
 				},

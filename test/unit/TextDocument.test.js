@@ -46,12 +46,12 @@
 					return result;
 				},
 				save: owner,
-				enter: function(event) {},
-				exit: function(event) {},
+				enter: function () {},
+				exit: function () {},
 				Frozen: state('final sealed', {
 					edit: owner,
 					freeze: owner,
-					arrive: function(event) {}
+					arrive: function () {}
 				})
 			}),
 			Dirty: {

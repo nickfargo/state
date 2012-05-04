@@ -2328,28 +2328,6 @@ var StateController = ( function () {
     return StateController;
 })();
 
-// ## StateEvent <a name="state-event" href="#state-event">&#x1f517;</a>
-// 
-// When an event is emitted from a state, it passes a `StateEvent` object to any bound listeners,
-// containing the `type` string and a reference to the contextual `state`.
-var StateEvent = ( function () {
-
-    // ### Constructor
-    function StateEvent ( state, type ) {
-        Z.assign( this, {
-            target: state,
-            name: state.toString(),
-            type: type
-        });
-    }
-
-    StateEvent.prototype.toString = function () {
-        return 'StateEvent (' + this.type + ') ' + this.name;
-    };
-    
-    return StateEvent;
-})();
-
 // ## StateEventCollection <a name="state-event-collection" href="#state-event-collection">&#x1f517;</a>
 // 
 // A state holds event listeners for each of its various event types in a `StateEventCollection`
@@ -2390,6 +2368,19 @@ var StateEventCollection = ( function () {
             var i, items = this.items, result = [];
             for ( i in items ) result.push( items[i] );
             return result;
+        },
+
+        // #### set
+        // 
+        // Adds or replaces a handler bound to a specific key.
+        set: function (
+                       /*String*/ id,
+            /*Function | String*/ handler
+        ) {
+            var items = this.items;
+            Z.hasOwn.call( items, id ) || this.length++;
+            items[ id ] = handler;
+            return id;
         },
 
         // #### key
@@ -2463,7 +2454,8 @@ var StateEventCollection = ( function () {
 
         // #### emit
         // 
-        // Emits a `StateEvent` to all bound listeners.
+        // Invokes all bound listeners, with the provided array of `args`, and in the context of
+        // the bound or provided `state`.
         // 
         // *Alias:* **trigger**
         'emit trigger': function ( args, state ) {
@@ -2489,7 +2481,7 @@ var StateEventCollection = ( function () {
                     continue;
                 }
 
-                fn.apply( context, [ new StateEvent( state, type ) ].concat( args ) );
+                fn.apply( context, args );
                 fn = context = null;
             }
 
@@ -2737,7 +2729,6 @@ Z.assign( state, {
     State: State,
     StateExpression: StateExpression,
     StateController: StateController,
-    StateEvent: StateEvent,
     StateEventCollection: StateEventCollection,
     Transition: Transition,
     TransitionExpression: TransitionExpression

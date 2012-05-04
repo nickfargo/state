@@ -112,7 +112,7 @@ test( "Data", function () {
 		});
 	}
 	state( Class.prototype, {
-		mutate: function ( event, mutation, delta ) {
+		mutate: function ( mutation, delta ) {
 			assert.ok( true, "mutate event" );
 		}
 	});
