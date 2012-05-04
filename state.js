@@ -1205,25 +1205,25 @@ var State = ( function () {
                     if ( origin.isIn( this ) || target.isIn( this ) ) return false;
                 }
 
-                // Set a flag that can be observed later by anything retaining a reference to this
-                // state (e.g. a memoization) which would be withholding it from being
-                // garbage-collected; a well-behaved reference holder would check this flag each
-                // time to reassert the validity of its reference, and discard the reference if
-                // `destroyed` is `true`.
-                this.destroyed = true;
+                // Descendant states are destroyed bottom-up.
+                for ( stateName in substates ) if ( Z.hasOwn.call( substates, stateName ) ) {
+                    substates[ stateName ].destroy();
+                }
 
-                // Emit a final event `destroy`.
+                // `destroy` is the final event emitted.
                 this.emit( 'destroy', false );
                 for ( key in events ) {
                     events[ key ].destroy();
                     delete events[ key ];
                 }
 
+                //
                 if ( superstate ) {
                     superstate.removeSubstate( this.name() );
                 }
-                // This is the root state, so restore any original methods to the owner and
-                // delete any delegators.
+
+                // When the root state is destroyed, the owner gets back its original methods, and
+                // the corresponding delegator for each such method is destroyed.
                 else {
                     for ( methodName in methods ) {
                         delegator = owner[ methodName ];
@@ -1235,13 +1235,20 @@ var State = ( function () {
                             delete owner[ methodName ];
                         }
                     }
+
+                    // The `destroy` call is propagated to the root’s controller, unless it was
+                    // controller itself that instigated the call.
+                    controller.destroy && controller.destroy();
                 }
-                for ( stateName in substates ) if ( Z.hasOwn.call( substates, stateName ) ) {
-                    substates[ stateName ].destroy();
-                }
+
                 setSuperstate( undefined );
 
-                return true;
+                // A flag is set that can be observed later by anything retaining a reference to
+                // this state (e.g. a memoization) which would be withholding it from being
+                // garbage-collected. A well-behaved retaining entity should check this flag as
+                // necessary to reassert the validity of its reference, and discard the reference
+                // after it observes `destroyed` to have been set to `true`.
+                return this.destroyed = true;
             };
         }
     };
@@ -2054,9 +2061,11 @@ var StateController = ( function () {
             // condition.
             destroy: function () {
                 var result;
+                delete this.destroy;
+                transition && transition.abort();
                 root.destroy();
                 result = delete owner[ name ];
-                owner = self = root = current = transition = defaultSubstate = null;
+                owner = self = root = current = transition = null;
                 return result;
             }
         });
@@ -2306,7 +2315,7 @@ var StateController = ( function () {
                 
                 // Walk up to the top of the domain, emitting `exit` events for each state
                 // along the way.
-                while ( state !== domain ) {
+                for ( state = source; state !== domain; ) {
                     state.emit( 'exit', info, false );
                     transition.attachTo( state = state.superstate() );
                 }
