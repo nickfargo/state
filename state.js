@@ -1241,6 +1241,7 @@ var State = ( function () {
         isVirtual:    function () { return !!( this.attributes() & SA.VIRTUAL ); },
         isInitial:    function () { return !!( this.attributes() & SA.INITIAL ); },
         isDefault:    function () { return !!( this.attributes() & SA.DEFAULT ); },
+        isConclusive: function () { return !!( this.attributes() & SA.CONCLUSIVE ); },
         isFinal:      function () { return !!( this.attributes() & SA.FINAL ); },
         isAbstract:   function () { return !!( this.attributes() & SA.ABSTRACT ); },
         isSealed:     function () { return !!( this.attributes() & SA.SEALED ); },
@@ -2246,10 +2247,6 @@ var StateController = ( function () {
                 target && target.controller() !== this &&
                     ( target = virtualize.call( this, target ) );
                 
-                // If a previously initiated transition is still underway, it needs to be
-                // notified that it won’t finish.
-                transition && transition.abort();
-                
                 // The `source` variable will reference the previously current state (or abortive
                 // transition).
                 source = state = this.current();
@@ -2259,6 +2256,16 @@ var StateController = ( function () {
                 // target.
                 domain = source.common( target );
                 
+                // Conclusivity is enforced by checking each state that will be exited for the
+                // `conclusive` attribute.
+                for ( state = source; state !== domain; state = state.superstate() ) {
+                    if ( state.isConclusive() ) return null;
+                }
+
+                // If a previously initiated transition is still underway, it needs to be
+                // notified that it won’t finish.
+                transition && transition.abort();
+
                 // Retrieve the appropriate transition expression for this origin/target pairing;
                 // if none is defined, then an actionless default transition will be created and
                 // applied, causing the callback to return immediately.

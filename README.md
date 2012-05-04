@@ -513,7 +513,7 @@ state obj, 'abstract',
 
 * **initial** — Marking a state `initial` specifies which state is to be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
-* *conclusive* — (Reserved; not presently implemented.) Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
+* **conclusive** — Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
 * **final** — Once a state marked `final` is entered, no further transitions are allowed.
 
