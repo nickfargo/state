@@ -2215,6 +2215,10 @@ var StateController = ( function () {
                     return null;
                 }
 
+                // Resolve `options` to an object if necessary.
+                !options && ( options = defaultOptions ) ||
+                    Z.isArray( options ) && ( options = { arguments: options } );
+
                 // An ingressing transition that targets a retained state must be redirected to
                 // whichever of that state’s internal states was most recently current.
                 if ( !options.direct && target.isRetained() && !target.isActive() ) {
@@ -2228,9 +2232,6 @@ var StateController = ( function () {
                     target = target.defaultSubstate();
                     if ( !target ) return null;
                 }
-                
-                !options && ( options = {} ) ||
-                    Z.isArray( options ) && ( options = { arguments: options } );
 
                 // If any guards are in place for the given `origin` and `target` states, they must
                 // consent to the transition, unless we specify that it be `forced`.
