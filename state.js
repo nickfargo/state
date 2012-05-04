@@ -1680,16 +1680,18 @@ var State = ( function () {
              /*String*/ expr,
               /*State*/ against, // optional
             /*Boolean*/ descend, // = true
-            /*Boolean*/ ascend // = true
+            /*Boolean*/ ascend,  // = true
+            /*Boolean*/ viaProto // = true
         ) {
             var parts, cursor, next, result, i, l, name,
-                queue, subject, substates, state, superstate;
-            
+                queue, subject, substates, state, superstate, protostate;
+
             if ( typeof against === 'boolean' ) {
                 ascend = descend, descend = against, against = undefined;
             }
             descend === undefined && ( descend = true );
             ascend === undefined && ( ascend = true );
+            viaProto === undefined && ( viaProto = true );
 
             // A few exceptional cases may be resolved early.
             if ( expr == null ) return against !== undefined ? false : null;
@@ -1701,8 +1703,8 @@ var State = ( function () {
             // Absolute wildcard expressions compared against the root state pass immediately.
             if ( against && against === this.root() && expr.search(/^\*+$/) === 0 ) return true;
 
-            // Wildcard-only expressions need not be recursed.
-            expr.search(/^\.?\*+$/) === 0 && ( descend = ascend = false );
+            // Pure `.`/`*` expressions should not be recursed.
+            expr.search(/^\.*\**$/) === 0 && ( descend = ascend = false );
 
             // If `expr` is an absolute path, evaluate it from the root state as a relative path.
             if ( expr.charAt(0) !== '.' ) {
@@ -1713,11 +1715,11 @@ var State = ( function () {
             expr = expr.replace( /^(\.+)\.$/, '$1' );
 
             // Split `expr` into tokens, consume the leading empty-string straight away, then
-            // use a loose “grammar” to parse the remaining tokens. A `cursor` reference to a
-            // matching `State` in the tree is kept, beginning with the context state (`this`),
-            // and updated as each token is consumed.
+            // parse the remaining tokens. A `cursor` reference to a matching `State` in the tree
+            // is kept, beginning with the context state (`this`), and updated as each token is
+            // consumed.
             parts = expr.split('.');
-            for ( i = 1, l = parts.length, cursor = this; ; i++ ) {
+            for ( i = 1, l = parts.length, cursor = this; cursor; i++ ) {
 
                 // Upon reaching the end of the token stream, return the `State` currently
                 // referenced by `cursor`.
@@ -1725,7 +1727,7 @@ var State = ( function () {
 
                 // Consume a token.
                 name = parts[i];
-                
+
                 // Interpret a **single wildcard** as any *immediate* substate of the `cursor`
                 // state parsed thus far.
                 if ( name === '*' ) {
@@ -1736,7 +1738,7 @@ var State = ( function () {
 
                 // Interpret a **double wildcard** as any descendant state of the `cursor` state
                 // parsed thus far.
-                if ( name === '**' ) {
+                else if ( name === '**' ) {
                     if ( !against ) return cursor.substates( true );
                     else if ( cursor.isSuperstateOf( against ) ) return true;
                     else break;
@@ -1744,20 +1746,18 @@ var State = ( function () {
 
                 // Empty string, the product of leading/consecutive dots, implies `cursor`’s
                 // superstate.
-                if ( name === '' && ( next = cursor.superstate() ) ) {
-                    cursor = next;
-                    continue;
+                else if ( name === '' ) {
+                    cursor = cursor.superstate();
                 }
 
                 // Interpret any other token as an identifier that names a specific substate of
                 // `cursor`.
-                if ( next = cursor.substate( name ) ) {
+                else if ( next = cursor.substate( name ) ) {
                     cursor = next;
-                    continue;
                 }
 
                 // If no matching substate exists, the query fails for this context.
-                break;
+                else break;
             }
 
             // If the query has failed, then recursively descend the tree, breadth-first, and
@@ -1765,7 +1765,7 @@ var State = ( function () {
             if ( descend ) {
                 queue = [ this ];
                 while ( subject = queue.shift() ) {
-                    substates = subject.substates();
+                    substates = subject.substates( false, true );
                     for ( i = 0, l = substates.length; i < l; i++ ) {
                         state = substates[i];
 
@@ -1773,7 +1773,7 @@ var State = ( function () {
                         // already been searched.
                         if ( state === descend ) continue;
 
-                        result = state.query( expr, against, false, false );
+                        result = state.query( expr, against, false, false, false );
                         if ( result ) return result;
 
                         queue.push( state );
@@ -1785,11 +1785,17 @@ var State = ( function () {
             // but also passing `this` as a domain to be skipped during the superstate’s
             // subsequent descent.
             if ( ascend && ( superstate = this.superstate() ) ) {
-                result = superstate.query( expr, against, descend && this, true );
+                result = superstate.query( expr, against, descend && this, true, false );
                 if ( result ) return result;
             }
 
-            // All possibilities exhausted; no matches exist in this state’s tree.
+            // If the query still hasn’t succeeded, then retry the query on the protostate.
+            if ( viaProto && ( protostate = this.protostate() ) ) {
+                result = protostate.query( expr, against, descend, ascend, true );
+                if ( result ) return result;
+            }
+
+            // All possibilities exhausted; no matches exist.
             return against ? false : null;
         },
 
