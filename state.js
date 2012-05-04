@@ -2558,14 +2558,16 @@ var StateEventCollection = ( function () {
 
         // #### empty
         // 
+        // Removes all listeners, and returns the number of listeners removed.
         empty: function () {
-            var i, items = this.items;
+            var n = this.length, items, i;
 
-            if ( !this.length ) return false;
+            if ( n === 0 ) return 0;
 
+            items = this.items;
             for ( i in items ) if ( Z.hasOwn.call( items, i ) ) delete items[i];
             this.length = 0;
-            return true;
+            return n;
         },
 
         // #### emit
