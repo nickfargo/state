@@ -1596,6 +1596,7 @@ var State = ( function () {
 
             if ( !arguments.length ) return controller.change( this );
 
+            Z.isNumber( target ) && ( target = this.history( target ) );
             return controller.change.apply( controller,
                 target instanceof State || typeof target === 'string' ?
                     arguments :
@@ -2235,6 +2236,9 @@ var StateController = ( function () {
                 if ( origin.isFinal() ) return null;
 
                 // Resolve `target` argument to a proper `State` object if necessary.
+                if ( Z.isNumber( target ) ) {
+                    // TODO: Interpret number-typed `target` as a history traversal. 
+                }
                 target instanceof State ||
                     ( target = target ? origin.query( target ) : this.root() );
             
