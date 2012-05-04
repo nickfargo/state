@@ -1233,7 +1233,9 @@ var State = ( function () {
     // as to provide virtual states with a conformant `State` interface despite not (or not yet)
     // having been realized.
     createRealizer( State.prototype, 'addMethod addEvent addGuard addSubstate addTransition' );
-    Z.privilege( State.prototype, State.privileged, { 'data method substate' : [ null ] } );
+    Z.privilege( State.prototype, State.privileged, {
+        'data method substate substates' : [ null ]
+    });
     Z.assign( State.prototype, {
         attributes: Z.thunk( SA.NORMAL ),
         isVirtual:    function () { return !!( this.attributes() & SA.VIRTUAL ); },
@@ -1260,7 +1262,7 @@ var State = ( function () {
         
         realize: Z.getThis,
 
-        'methodNames substates': function () { return []; },
+        methodNames: function () { return []; },
         transitions: function () { return {}; },
         destroy: Z.thunk( false ),
 
