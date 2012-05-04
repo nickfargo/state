@@ -1486,10 +1486,13 @@ var State = ( function () {
         // Forwards a `change` command to the state’s controller and returns its result.
         // Calling with no arguments directs the controller to change to `this` state.
         // 
-        // *Aliases:* **be**, **become**, **go**, **goTo**
+        // *Aliases:* **go**, **be**
         //
         // *See also:* [`StateController.privileged.change`](#state-controller--privileged--change)
-        'change be become go goTo': function ( /*State | String*/ target ) {
+        'change go be': function (
+            /*State | String*/ target,  // optional
+                    /*Object*/ options  // optional
+        ) {
             var controller = this.controller();
             return (
                 typeof target === 'string' || target instanceof State ?
@@ -1500,6 +1503,20 @@ var State = ( function () {
             );
         },
         
+        // #### changeTo
+        // 
+        // Calls `change` without regard to a `target`’s retained internal state.
+        // 
+        // *Aliases:* **goTo**, **become**
+        'changeTo goTo become': function (
+            /*State | String*/ target,
+                    /*Object*/ options  // optional
+        ) {
+            target === undefined && ( target = this );
+            options ? ( options.direct = true ) : ( options = { direct: true } );
+            return this.change( target, options );
+        },
+
         // #### isCurrent
         // 
         // Returns a `Boolean` indicating whether `this` is the controller’s current state.
@@ -2129,7 +2146,7 @@ var StateController = ( function () {
 
                 // An ingressing transition that targets a retained state must be redirected to
                 // whichever of that state’s internal states was most recently current.
-                if ( target.isRetained() && !target.isActive() ) {
+                if ( !options.direct && target.isRetained() && !target.isActive() ) {
                     record = this.history( 0 );
                     target = record && target.query( record.state ) || target;
                 }
