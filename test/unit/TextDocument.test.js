@@ -79,7 +79,7 @@ module( "TextDocument" );
 test( "TextDocument", function () {
 	var	doc1 = new TextDocument,
 		doc2 = new TextDocument;
-	
+
 	doc1.state().go('Saved'); doc2.state().go('Saved');
 	assert.strictEqual( doc1.state(), doc1.state('Saved'), "Initial state active" );
 	doc1.edit('foo');

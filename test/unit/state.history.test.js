@@ -12,7 +12,7 @@ test( "", function () {
 
     assert.strictEqual( o.state('Foo').historian(), o.state('') );
     assert.strictEqual( o.state('Bar').historian(), o.state('') );
-    
+
     o.state().go('Foo');
     o.state().data( { a:2, b:[0,2], c:{ e:[2,4] } } );
 

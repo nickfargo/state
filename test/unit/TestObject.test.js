@@ -10,7 +10,7 @@ function TestObject ( initialState ) {
 	 * context of the `TestObject` object, even after it has been relocated to the default state.
 	 */
 	this.methodOne = function () { return this instanceof TestObject /* always true */ && 'methodOne'; };
-	
+
 	state( this, {
 		/*
 		 * A method defined on the default state. This implementation will be situated alongside
@@ -19,10 +19,10 @@ function TestObject ( initialState ) {
 		 * declared (in this case the default state).
 		 */
 		methodTwo: function () { return this instanceof State /* always true */ && 'methodTwo'; },
-		
-		
+
+
 		// Three progressively more complex ways to define a state:
-		
+
 		// State 1. Simple: methods only
 		Waiting: state( 'initial', {
 			methodOne: function () {
@@ -36,7 +36,7 @@ function TestObject ( initialState ) {
 			methodTwo: function () {
 				return 'Active.methodTwo';
 			},
-			
+
 			// interpreted as an **event** (since "arrive" is an event type) with one listener declared
 			arrive: function () {
 				// event.log();
@@ -51,10 +51,10 @@ function TestObject ( initialState ) {
 					// event.log('2');
 				}
 			],
-			
+
 			// interpreted as a **guard** (since "admit" is a guard type) **constant**
 			admit: true,
-			
+
 			/*
 			 * interpreted as a **guard** (since "release" is a guard type) **function** that may examine the
 			 * counterpart `state` in determining its ruling
@@ -62,20 +62,20 @@ function TestObject ( initialState ) {
 			release: function ( state ) {
 				return this.root().has( state ); /* always true */
 			},
-			
+
 			// a **substate**, with its own nested expression
 			Hyperactive: {
 				// some stateful **data**
 				data: {
 					description: "Alright now I'm really ready"
 				},
-				
+
 				// another nested substate
 				Tweaked: {
 					// ...
 				}
 			},
-			
+
 			// a **transition**
 			wiggle: Transition({
 				origin: '*',
@@ -134,11 +134,11 @@ function TestObject ( initialState ) {
 						return 'Finished.CleaningUp.methodTwo';
 					},
 					terminate: function () { return this.change( '..Terminated' ); },
-					
+
 					arrive: function () {
 						// event.log( "I'm an event" );
 					},
-					
+
 					transitions: {
 						weee: {
 							origin: '*',

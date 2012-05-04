@@ -23,14 +23,13 @@ require '../build/combine.php';
 		
 		<!-- tests -->
 		<script src="unit/TestObject.test.js"></script>
-		<script src="unit/TextDocument.test.js"></script>
 		<script src="unit/state-expression.test.js"></script>
 		<script src="unit/object.test.js"></script>
 		<script src="unit/State.test.js"></script>
 		<script src="unit/state-controller.test.js"></script>
 		<script src="unit/state-event.test.js"></script>
-		<script src="unit/protostate.test.js"></script>
 		<script src="unit/state.history.test.js"></script>
+		<script src="unit/TextDocument.test.js"></script>
 	</head>
 	<body>
 		<h1 id="qunit-header">State.js Test Suite</h1>

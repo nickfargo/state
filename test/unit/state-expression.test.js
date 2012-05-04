@@ -70,13 +70,13 @@ test( "Complex: map", function () {
 			CompoundSubstate: {
 				methodOne: function () { return 'CompoundSubstate.methodOne'; },
 				methodTwo: function () { return 'CompoundSubstate.methodTwo'; },
-				
+
 				enter: function () { return 'enter'; },
 				exit: [
 					function () { return 'exit 0'; },
 					function () { return 'exit 1'; }
 				],
-				
+
 				release: {
 					'': true,
 					'.': function () { return true; }
@@ -87,13 +87,13 @@ test( "Complex: map", function () {
 			},
 			ComplexSubstate: {
 				methods: {
-					
+
 				},
 				events: {
-					
+
 				},
 				guards: {
-					
+
 				},
 				states: {
 					DeepSubstate: {
@@ -117,32 +117,32 @@ test( "Complex: map", function () {
 			}
 		}
 	});
-	
+
 	assert.ok( def instanceof StateExpression, "Expression created" );
-	
-	
+
+
 	assert.ok( def.methods, "methods" );
 	assert.equal( def.methods.methodOne(), 'methodOne', "methods.methodOne()" );
 	assert.equal( def.methods.methodTwo(), 'methodTwo', "methods.methodTwo()" );
-	
-	
+
+
 	assert.ok( def.events.enter instanceof Array, "Event type 'enter' defined as array" );
 	assert.equal( def.events.enter[0](), 'enter', "events.enter[0]()" );
 	assert.ok( def.events.exit instanceof Array, "Event type 'exit' defined as array" );
 	assert.equal( def.events.exit[0](), 'exit 0', "events.exit[0]()" );
 	assert.equal( def.events.exit[1](), 'exit 1', "events.exit[1]()" );
-	
-	
+
+
 	assert.ok( def.guards.release, "Rule release created" );
 	assert.equal( def.guards.release[''](), 'release ""', "Rule release['']");
-	
-	
+
+
 	assert.ok( def.states.SimpleSubstate, "SimpleSubstate created" );
 	assert.ok( def.states.SimpleSubstate instanceof StateExpression, "StateExpression for SimpleSubstate created" );
-	
+
 	assert.ok( def.states.SimpleSubstate.methods, "SimpleSubstate.methods exists" );
 	assert.equal( def.states.SimpleSubstate.methods.methodOne(), 'SimpleSubstate.methodOne', "SimpleSubstate.methodOne" );
-	
+
 	assert.ok( def.states.CompoundSubstate instanceof StateExpression, "StateExpression for CompoundSubstate created" );
 	assert.ok( def.states.CompoundSubstate.methods, "CompoundSubstate.methods exists" );
 	assert.equal( def.states.CompoundSubstate.methods.methodOne(), 'CompoundSubstate.methodOne', "CompoundSubstate.methodOne" );
@@ -153,7 +153,7 @@ test( "Complex: map", function () {
 	assert.ok( def.states.CompoundSubstate.events.exit instanceof Array, "Event type 'exit' defined as array" );
 	assert.equal( def.states.CompoundSubstate.events.exit[0](), 'exit 0', "CompoundSubstate.events.exit[0]()" );
 	assert.equal( def.states.CompoundSubstate.events.exit[1](), 'exit 1', "CompoundSubstate.events.exit[1]()" );
-	
+
 	assert.ok( def.states.ComplexSubstate instanceof StateExpression, "StateExpression for ComplexSubstate created" );
 	assert.ok( def.states.ComplexSubstate.states, "ComplexSubstate.states exists" );
 	assert.ok( def.states.ComplexSubstate.states.DeepSubstate instanceof StateExpression, "StateExpression for DeepSubstate created" );

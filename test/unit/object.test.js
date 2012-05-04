@@ -1,7 +1,7 @@
 1&&
 ( function ( $, assert, undefined ) {
 
-module( "State.object" );
+module( "State" );
 
 var	State = state.State,
 	StateController = state.StateController;
@@ -10,12 +10,12 @@ test( "Object creation", function () {
 	var x = new TestObject,
 		arr;
 	assert.ok( x.state().controller() instanceof StateController, "StateController created" );
-	
+
 	assert.ok( x.state('Waiting') instanceof State, "State 'Waiting' created" );
 	assert.ok( x.state('Waiting').method( 'methodOne', false, false ), "Method 'methodOne' in state 'Waiting' created" );
 	assert.ok( x.state().is('Waiting'), "In state 'Waiting'" );
 	assert.equal( x.methodOne(), 'Waiting.methodOne', "methodOne() on TestObject returns proper method for state 'Waiting'" );
-	
+
 	assert.ok( x.state('Active') instanceof State );
 	assert.ok( x.state('Hyperactive') instanceof State );
 	assert.ok( !x.state('Active').method( 'methodOne', false, false ) );
@@ -117,7 +117,7 @@ test( "Data", function () {
 		}
 	});
 	var o = new Class;
-	
+
 	assert.ok( o.state().data(), "Data accessible from `data()`" );
 	assert.strictEqual(
 		o.state('').data().a,
