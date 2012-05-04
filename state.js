@@ -401,16 +401,20 @@ var State = ( function () {
         // Returns an expression that describes the state’s contents. By default the returned
         // expression is a plain `Object`; if `typed` is truthy the expression is a formally
         // typed `StateExpression`.
-        express: function (
-            /*Function*/ expressionConstructor,
-              /*Object*/ data, methods, events, guards, substates, transitions
-        ) {
+        express: ( function () {
             function clone ( obj ) {
                 if ( obj === undefined ) return;
-                return Z.isEmpty( obj = Z.clone( obj ) ) ? null : obj;
+                var out = null, key, value;
+                for ( key in obj ) {
+                    value = obj[ key ];
+                    ( out || ( out = {} ) )[ key ] = value && typeof value === 'object' ?
+                        Z.clone( obj[ key ] ) :
+                        value;
+                }
+                return out;
             }
 
-            function cloneEvents () {
+            function cloneEvents ( events ) {
                 if ( events === undefined ) return;
                 var out = null, type, collection;
                 for ( type in events ) if ( collection = events[ type ] ) {
@@ -419,7 +423,7 @@ var State = ( function () {
                 return out;
             }
 
-            function recurse ( typed ) {
+            function recurse ( substates, typed ) {
                 if ( substates === undefined ) return;
                 var out = null;
                 Z.forEach( substates, function ( substate, name ) {
@@ -428,23 +432,28 @@ var State = ( function () {
                 return out;
             }
 
-            return function ( /*Boolean*/ typed ) {
-                var expression = {},
-                    attributes = this.attributes();
+            return function (
+                /*Function*/ expressionConstructor,
+                  /*Object*/ data, methods, events, guards, substates, transitions
+            ) {
+                return function ( /*Boolean*/ typed ) {
+                    var expression = {},
+                        attributes = this.attributes();
 
-                Z.edit( expression, {
-                    attributes:  this.attributes(),
-                    data:        clone( data ),
-                    methods:     clone( methods ),
-                    events:      cloneEvents(),
-                    guards:      clone( guards ),
-                    states:      recurse( typed ),
-                    transitions: clone( transitions )
-                });
+                    Z.edit( expression, {
+                        attributes:  this.attributes(),
+                        data:        clone( data ),
+                        methods:     clone( methods ),
+                        events:      cloneEvents( events ),
+                        guards:      clone( guards ),
+                        states:      recurse( substates, typed ),
+                        transitions: clone( transitions )
+                    });
 
-                return typed ? new expressionConstructor( expression ) : expression;
+                    return typed ? new expressionConstructor( expression ) : expression;
+                };
             };
-        },
+        })(),
 
         // #### mutate
         // 
