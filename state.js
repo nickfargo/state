@@ -1578,12 +1578,13 @@ var State = ( function () {
                     /*Object*/ options  // optional
         ) {
             var controller = this.controller();
-            return (
-                typeof target === 'string' || target instanceof State ?
-                    controller.change.apply( controller, arguments ) :
-                arguments.length ?
-                    controller.change.apply( controller, [ this ].concat( arguments ) ) :
-                controller.change.call( controller, this )
+
+            if ( !arguments.length ) return controller.change( this );
+
+            return controller.change.apply( controller,
+                target instanceof State || typeof target === 'string' ?
+                    arguments :
+                    [ this ].concat( arguments )
             );
         },
         
