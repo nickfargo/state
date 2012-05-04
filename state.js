@@ -1,8 +1,7 @@
 // Copyright (C) 2011-2012
 // Nick Fargo, Z Vector Inc.
 // 
-// License MIT; see file [`LICENSE`](https://github.com/nickfargo/state/blob/master/LICENSE)
-// for details.
+// [`LICENSE`](https://github.com/nickfargo/state/blob/master/LICENSE) MIT.
 // 
 // [statejs.org](http://statejs.org/)
 // [github](http://github.com/nickfargo/state/)
@@ -156,27 +155,27 @@ var STATE_ATTRIBUTES = {
         'retained history shallow versioned',
         'concurrent'
     ].join(' '),
-    
+
     // 
     STATE_EXPRESSION_CATEGORIES =
         'data methods events guards states transitions',
-    
+
     // 
     STATE_EVENT_TYPES =
         'construct depart exit enter arrive destroy mutate',
-    
+
     // 
     GUARD_ACTIONS =
         'admit release',
-    
+
     // 
     TRANSITION_PROPERTIES =
         'origin source target action conjugate',
-    
+
     // 
     TRANSITION_EXPRESSION_CATEGORIES =
         'methods events guards',
-    
+
     // 
     TRANSITION_EVENT_TYPES =
         'construct destroy enter exit start end abort';
@@ -274,6 +273,7 @@ var State = ( function () {
     // creation of lightweight virtual `State` instances that inherit all of their functionality
     // from protostates, but can also be converted later to a real `State` if necessary.
     function realize ( superstate, attributes, expression ) {
+
         var data = {},
             methods = {},
             events = {},
@@ -281,7 +281,7 @@ var State = ( function () {
             substates = {},
             transitions = {},
             history = attributes & SA.HISTORY || attributes & SA.RETAINED ? [] : null;
-        
+
         // (Exposed for debugging.)
         Z.env.debug && Z.assign( this.__private__ = {}, {
             attributes: attributes,
@@ -292,15 +292,15 @@ var State = ( function () {
             substates: substates,
             transitions: transitions
         });
-        
+
         function setSuperstate ( value ) { return superstate = value; }
-        
+
         // Method names are mapped to specific local variables. The named methods are created on
         // `this`, each of which is a partial application of its corresponding method factory at
         // `State.privileged`.
         Z.privilege( this, State.privileged, {
             'init' : [ StateExpression ],
-            'mutate express' : [ StateExpression, data, methods, events, guards, substates,
+            'express mutate' : [ StateExpression, data, methods, events, guards, substates,
                 transitions ],
             'superstate' : [ superstate ],
             'attributes' : [ attributes ],
@@ -328,7 +328,7 @@ var State = ( function () {
 
     // #### createRealizer
     // 
-    // Creates a method that will first realize the state and then, under the assumption that
+    // Creates a method that will first `realize` the state and then, under the assumption that
     // realization has produced a new method of the same name on the instance, invoke the method.
     function createRealizer ( obj, names ) {
         Z.forEach( Z.trim( names ).split( Z.regexp.whitespace ), function ( name ) {
@@ -358,7 +358,7 @@ var State = ( function () {
         function delegator () {
             return this[ accessorKey ]().apply( methodName, arguments );
         }
-        
+
         delegator.isDelegator = true;
         original && ( delegator.original = original );
 
@@ -580,7 +580,7 @@ var State = ( function () {
                         this.addTransition( name, value );
                     }
                 }
-        
+
                 delete this.__atomic__;
 
                 if ( before ) {
@@ -688,14 +688,14 @@ var State = ( function () {
 
                 viaSuper === undefined && ( viaSuper = true );
                 viaProto === undefined && ( viaProto = true );
-                
+
                 methods && ( method = methods[ methodName ] );
-                
+
                 if ( method && method !== Z.noop ) {
                     out && ( out.context = this, out.method = method );
                     return method;
                 }
-                
+
                 if ( viaProto ) {
                     protostate = this.protostate();
                     if ( protostate ) {
@@ -789,7 +789,7 @@ var State = ( function () {
              /*String | Function*/ id
             ) {
                 var collection = events[ eventType ];
-                
+
                 if ( collection == null ) return;
                 if ( id === undefined ) return collection.length;
 
@@ -801,7 +801,7 @@ var State = ( function () {
         // #### addEvent
         // 
         // Binds an event listener to the specified `eventType` and returns a unique identifier
-        // for the listener. Built-in event types are listed at `StateEvent.types`.
+        // for the listener. Built-in event types are listed at `STATE_EVENT_TYPES`.
         // 
         // *Aliases:* **on**, **bind**
         addEvent: function ( events ) {
@@ -812,7 +812,7 @@ var State = ( function () {
             ) {
                 Z.hasOwn.call( events, eventType ) ||
                     ( events[ eventType ] = new StateEventCollection( this, eventType ) );
-                
+
                 return events[ eventType ].add( fn, context );
             };
         },
@@ -914,7 +914,7 @@ var State = ( function () {
 
                 guard = guards[ guardType ];
                 if ( !guard ) return null;
-                
+
                 if ( arguments.length < 2 ) return delete guards[ guardType ] ? guard : undefined;
 
                 keys = Z.flatten( Z.slice.call( arguments, 1 ) );
@@ -930,13 +930,16 @@ var State = ( function () {
         // Retrieves the named substate of `this` state. If no such substate exists in the local
         // state, any identically named substate held on a protostate will be returned.
         substate: function ( substates ) {
-            return function ( /*String*/ stateName, /*Boolean*/ viaProto ) {
+            return function (
+                 /*String*/ stateName,
+                /*Boolean*/ viaProto    // = true
+            ) {
                 var s = this.current(),
                     ss, protostate;
-                
+
                 viaProto === undefined && ( viaProto = true );
 
-                // First scan for any virtual substates that are current on the local controller.
+                // First scan for any virtual substates that are active on the local controller.
                 for ( ; s && s.isVirtual() && ( ss = s.superstate() ); s = ss ) {
                     if ( ss === this && s.name() === stateName ) return s; 
                 }
@@ -998,25 +1001,25 @@ var State = ( function () {
                 /*StateExpression | Object | State*/ stateExpression
             ) {
                 var substate, controller;
-                
+
                 if ( this.isVirtual() ) {
                     return this.realize().addSubstate( stateName, stateExpression );
                 }
                 if ( this.isSealed() ) return null;
 
                 ( substate = substates[ stateName ] ) && substate.destroy();
-                
+
                 substate = stateExpression instanceof State ?
                     stateExpression.superstate() === this && stateExpression.realize() :
                     new State( this, stateName, stateExpression );
-                
-                
+
                 if ( !substate ) return null;
+
                 this[ stateName ] = substates[ stateName ] = substate;
-                
+
                 controller = this.controller();
                 controller.root() === this && ( controller[ stateName ] = substate );
-                
+
                 return substate;
             };
         },
@@ -1086,7 +1089,7 @@ var State = ( function () {
             ) {
                 transitionExpression instanceof TransitionExpression ||
                     ( transitionExpression = TransitionExpression( transitionExpression ) );
-                
+
                 return transitions[ transitionName ] = transitionExpression;
             };
         },
@@ -1196,7 +1199,7 @@ var State = ( function () {
                     owner = controller.owner(),
                     transition = controller.transition(),
                     origin, target, key, methodName, delegator, method, stateName;
-        
+
                 // If a transition is underway that involves this state, then the state cannot be
                 // destroyed.
                 if ( transition ) {
@@ -1267,10 +1270,10 @@ var State = ( function () {
         isVirtual:    function () { return !!( this.attributes() & SA.VIRTUAL ); },
         isMutable:    function () { return !!( this.attributes() & SA.MUTABLE ); },
         isInitial:    function () { return !!( this.attributes() & SA.INITIAL ); },
-        isDefault:    function () { return !!( this.attributes() & SA.DEFAULT ); },
         isConclusive: function () { return !!( this.attributes() & SA.CONCLUSIVE ); },
         isFinal:      function () { return !!( this.attributes() & SA.FINAL ); },
         isAbstract:   function () { return !!( this.attributes() & SA.ABSTRACT ); },
+        isDefault:    function () { return !!( this.attributes() & SA.DEFAULT ); },
         isSealed:     function () { return !!( this.attributes() & SA.SEALED ); },
         isRetained:   function () { return !!( this.attributes() & SA.RETAINED ); },
         hasHistory:   function () { return !!( this.attributes() & SA.HISTORY ); },
@@ -1287,7 +1290,7 @@ var State = ( function () {
          removeSubstate \
          transition removeTransition' :
             Z.noop,
-        
+
         realize: Z.getThis,
 
         methodNames: function () { return []; },
@@ -1301,7 +1304,7 @@ var State = ( function () {
         toString: function () {
             return this.derivation( true ).join('.');
         },
-        
+
         // #### controller
         // 
         // Gets the `StateController` to which this state belongs.
@@ -1309,7 +1312,7 @@ var State = ( function () {
             var superstate = this.superstate();
             if ( superstate ) return superstate.controller();
         },
-        
+
         // #### owner
         // 
         // Gets the owner object to which this state’s controller belongs.
@@ -1317,7 +1320,7 @@ var State = ( function () {
             var controller = this.controller();
             if ( controller ) return controller.owner();
         },
-        
+
         // #### root
         // 
         // Gets the root state, i.e. the top-level superstate of this state.
@@ -1325,7 +1328,7 @@ var State = ( function () {
             var controller = this.controller();
             if ( controller ) return controller.root();
         },
-        
+
         // #### current
         // 
         // Gets the local controller’s current state.
@@ -1366,7 +1369,7 @@ var State = ( function () {
         ) {
             var queue = [ this ],
                 subject, substates, i, l, state, protostate;
-            
+
             while ( subject = queue.shift() ) {
                 substates = subject.substates( false, true );
                 for ( i = 0, l = substates.length; i < l; i++ ) {
@@ -1397,7 +1400,7 @@ var State = ( function () {
             var derivation = this.derivation( true ),
                 controller = this.controller(),
                 controllerName, prototype, next, protostate, i, l;
-            
+
             if ( !controller ) return;
 
             controllerName = controller.name();
@@ -1483,7 +1486,7 @@ var State = ( function () {
                 if ( state === other || state.isSuperstateOf( other ) ) return state;
             }
         },
-        
+
         // #### is
         // 
         // Determines whether `this` is `state`.
@@ -1499,7 +1502,7 @@ var State = ( function () {
             state instanceof State || ( state = this.query( state ) );
             return state === this || state.isSuperstateOf( this );
         },
-        
+
         // #### has
         // 
         // Determines whether `this` is or is a superstate of `state`.
@@ -1514,7 +1517,7 @@ var State = ( function () {
         isSuperstateOf: function ( /*State | String*/ state ) {
             var superstate;
             state instanceof State || ( state = this.query( state ) );
-            
+
             return ( superstate = state.superstate() ) ?
                 this === superstate || this.isSuperstateOf( superstate ) :
                 false;
@@ -1544,7 +1547,7 @@ var State = ( function () {
 
             out = { method: undefined, context: undefined };
             method = this.method( methodName, true, true, out );
-            
+
             if ( !method ) throw new TypeError( "State '" + this + "' has no method '" +
                 methodName + "'" );
 
@@ -1557,14 +1560,14 @@ var State = ( function () {
 
             return method.apply( context, args );
         },
-        
+
         // #### call
         // 
         // Variadic `apply`.
         call: function ( /*String*/ methodName ) {
             return this.apply( methodName, Z.slice.call( arguments, 1 ) );
         },
-        
+
         // #### hasMethod
         // 
         // Determines whether `this` possesses or inherits a method named `methodName`.
@@ -1572,7 +1575,7 @@ var State = ( function () {
             var method = this.method( methodName );
             return method && method !== Z.noop;
         },
-        
+
         // #### hasOwnMethod
         // 
         // Determines whether `this` directly possesses a method named `methodName`.
@@ -1603,7 +1606,7 @@ var State = ( function () {
                     [ this ].concat( arguments )
             );
         },
-        
+
         // #### changeTo
         // 
         // Calls `change` without regard to a `target`’s retained internal state.
@@ -1624,7 +1627,7 @@ var State = ( function () {
         isCurrent: function () {
             return this.current() === this;
         },
-        
+
         // #### isActive
         // 
         // Returns a `Boolean` indicating whether `this` or one of its substates is the
@@ -1633,7 +1636,7 @@ var State = ( function () {
             var current = this.current();
             return current === this || this.isSuperstateOf( current );
         },
-        
+
         // #### history
         // 
         history: function () {
@@ -1684,7 +1687,7 @@ var State = ( function () {
                     urlBase + '/' + this.derivation( true ).join('/') );
             } : Z.noop
         ,
-        
+
         /** */
         replaceHistory: global.history && global.history.replaceState ?
             function ( title, urlBase ) {
@@ -1879,7 +1882,7 @@ var StateExpression = ( function () {
         typeof attributes === 'string' ?
             map || ( map = {} ) :
             map || ( map = attributes, attributes = undefined );
-        
+
         Z.edit( 'deep all', this, map instanceof StateExpression ? map : interpret( map ) );
 
         attributes == null ?
@@ -1916,11 +1919,11 @@ var StateExpression = ( function () {
     function interpret ( /*Object*/ map ) {
         var key, value, object, category,
             result = Z.assign( STATE_EXPRESSION_CATEGORIES, null );
-        
+
         // Interpret and categorize the elements of the provided `map`.
         for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
             value = map[ key ];
-            
+
             // **Priority 1:** Do a nominative type match for explicit expression instances.
             category =
                 value instanceof StateExpression && 'states' ||
@@ -1928,12 +1931,12 @@ var StateExpression = ( function () {
             if ( category ) {
                 ( result[ category ] || ( result[ category ] = {} ) )[ key ] = value;
             }
-            
+
             // **Priority 2:** Recognize an explicitly named category object.
             else if ( key in result && value ) {
                 result[ key ] = Z.edit( 'deep all', result[ key ], value );
             }
-            
+
             // **Priority 3:** Use keys and value types to infer implicit categorization.
             else {
                 category =
@@ -1947,7 +1950,7 @@ var StateExpression = ( function () {
                 }
             }
         }
-        
+
         // Coerce the extracted values as necessary.
 
         // Event values are coerced into an array.
@@ -1968,21 +1971,21 @@ var StateExpression = ( function () {
                 object[ key ] = { '*': value };
             }
         }
-        
+
         // Transition values must be `TransitionExpression`s.
         object = result.transitions;
         for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
             ( value = object[ key ] ) instanceof TransitionExpression ||
                 ( object[ key ] = new TransitionExpression( value ) );
         }
-        
+
         // State values must be `StateExpression`s.
         object = result.states;
         for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
             ( value = object[ key ] ) instanceof StateExpression ||
                 ( object[ key ] = new StateExpression( value ) );
         }
-        
+
         return result;
     }
 
@@ -1992,12 +1995,10 @@ var StateExpression = ( function () {
 
 // ## StateController <a name="state-controller" href="#state-controller">&#x1f517;</a>
 // 
-// A state **controller** is the mediator between an owner object and its implementation of state.
-// The controller maintains the identity of the owner’s active state, and facilitates transitions
-// from one state to another. It provides the behavior-modeling aspect of the owner’s state by
-// forwarding method calls made on the owner to any associated stateful implementations of those
-// methods that are valid given the current state.
-
+// A **state controller** maintains the identity of the owner’s **current state**, and facilitates
+// transitions from one state to another. It provides the behavior-modeling aspect of the owner’s
+// state by forwarding method calls made on the owner to any associated stateful implementations
+// of those methods that are valid given the current state.
 var StateController = ( function () {
 
     // ### Constructor
@@ -2009,31 +2010,30 @@ var StateController = ( function () {
         if ( !( this instanceof StateController ) ) {
             return new StateController( owner, expression, options );
         }
-        
+
         var self = this,
-            name, root, current, transition,
-            defaultSubstate;
-        
+            name, root, current, transition, defaultSubstate;
+
         function setCurrent ( value ) { return current = value; }
         function setTransition ( value ) { return transition = value; }
-        
+
         // Validate arguments.
         owner || ( owner = {} );
         expression instanceof StateExpression ||
             ( expression = new StateExpression( expression ) );
         options === undefined && ( options = {} ) ||
             typeof options === 'string' && ( options = { initialState: options } );
-        
+
         // Assign a function to the owner that will serve as its interface into its state.
         name = options.name || 'state';
         owner[ name ] = createAccessor( owner, name, this );
-        
-        // ### Internal privileged methods
+
+        // ### Privileged methods
         Z.assign( this, {
             // #### owner
             // 
             // Returns the owner object on whose behalf this controller acts.
-            owner: function () { return owner; },
+            owner: Z.thunk( owner ),
 
             // #### name
             // 
@@ -2048,6 +2048,10 @@ var StateController = ( function () {
                 toString: function () { return current ? current.toString() : undefined; }
             }),
 
+            // #### change
+            // 
+            change: StateController.privileged.change( setCurrent, setTransition ),
+
             // #### transition
             // 
             // Returns the currently active transition, or `undefined` if the controller is not
@@ -2058,8 +2062,8 @@ var StateController = ( function () {
 
             // #### destroy
             // 
-            // Destroys this controller and all of its states, and returns the owner to its original
-            // condition.
+            // Destroys this controller and all of its states, and returns the owner to its
+            // original condition.
             destroy: function () {
                 var result;
                 delete this.destroy;
@@ -2070,17 +2074,12 @@ var StateController = ( function () {
                 return result;
             }
         });
-        
-        // Assign partially applied external privileged methods.
-        Z.privilege( this, StateController.privileged, {
-            'change' : [ setCurrent, setTransition ]
-        });
-        
+
         // Instantiate the root state, adding a redefinition of the `controller` method that points
         // directly to this controller, along with all of the members and substates outlined in
         // `expression`.
-        
         root = new State( this, '', expression );
+
         // Establish which state should be the initial state and set the current state to that.
         current = root.initialSubstate() || root;
         options.initialState !== undefined && ( current = root.query( options.initialState ) );
@@ -2161,7 +2160,7 @@ var StateController = ( function () {
             return state;
         }
     }
-    
+
     // #### evaluateGuard
     // 
     // Returns the Boolean result of the guard function at `guardName` defined on this state,
@@ -2208,14 +2207,13 @@ var StateController = ( function () {
         // 
         // The `options` parameter is an optional map that may include:
         // 
-        // * `forced` : `Boolean` — overrides any guards defined, ensuring the change will
-        //   complete, assuming a valid target.
+        // * `arguments` : `Array` — arguments to be passed to a transition’s `action` function.
         // * `success` : `Function` — callback to be executed upon successful completion of the
         //   transition.
         // * `failure` : `Function` — callback to be executed if the transition attempt is blocked
         //   by a guard.
-        // * `arguments` : `Array` — arguments to be passed to a transition’s `action` function.
         change: function ( setCurrent, setTransition ) {
+            var defaultOptions = {};
 
             return function (
                 /*State | String*/ target,
@@ -2235,14 +2233,13 @@ var StateController = ( function () {
                 // Departures are not allowed from a state that is `final`.
                 if ( origin.isFinal() ) return null;
 
-                // Resolve `target` argument to a proper `State` object if necessary.
+                // Ensure that `target` is a valid `State`.
                 if ( Z.isNumber( target ) ) {
                     // TODO: Interpret number-typed `target` as a history traversal. 
                 }
                 target instanceof State ||
                     ( target = target ? origin.query( target ) : this.root() );
-            
-                if ( !( target instanceof State ) ||
+                if ( !target ||
                         ( targetOwner = target.owner() ) !== owner &&
                         !targetOwner.isPrototypeOf( owner )
                 ) {
@@ -2268,7 +2265,7 @@ var StateController = ( function () {
                 }
 
                 // If any guards are in place for the given `origin` and `target` states, they must
-                // consent to the transition, unless we specify that it be `forced`.
+                // consent to the transition.
                 if ( !options.forced && (
                         !evaluateGuard.call( origin, 'release', target ) ||
                         !evaluateGuard.call( target, 'admit', origin )
@@ -2277,11 +2274,12 @@ var StateController = ( function () {
                     return null;
                 }
 
-                // If `target` is a state from a prototype of `owner`, it must be represented
-                // here as a transient virtual state.
+                // If `target` is a protostate, i.e. a state from a prototype of `owner`, then it
+                // must be represented within `owner` as a transient virtual state that inherits
+                // from the protostate.
                 target && target.controller() !== this &&
                     ( target = virtualize.call( this, target ) );
-                
+
                 // The `source` variable will reference the previously current state (or abortive
                 // transition).
                 source = state = this.current();
@@ -2290,7 +2288,7 @@ var StateController = ( function () {
                 // `domain` of the least common ancestor between that state and the specified
                 // target.
                 domain = source.common( target );
-                
+
                 // Conclusivity is enforced by checking each state that will be exited for the
                 // `conclusive` attribute.
                 for ( state = source; state !== domain; state = state.superstate() ) {
@@ -2308,7 +2306,7 @@ var StateController = ( function () {
                 transition = setTransition( new Transition( target, source,
                     transitionExpression ));
                 info = { transition: transition, forced: !!options.forced };
-                
+
                 // Preparation for the transition begins by emitting a `depart` event on the
                 // `source` state.
                 source.emit( 'depart', info, false );
@@ -2316,29 +2314,27 @@ var StateController = ( function () {
                 // Enter into the transition state.
                 setCurrent( transition );
                 transition.emit( 'enter', false );
-                
+
                 // Walk up to the top of the domain, emitting `exit` events for each state
                 // along the way.
                 for ( state = source; state !== domain; ) {
                     state.emit( 'exit', info, false );
                     transition.attachTo( state = state.superstate() );
                 }
-                
+
                 // Provide an enclosed callback that will be called from `transition.end()` to
                 // conclude the transition.
                 transition.setCallback( function () {
                     var pathToState = [],
                         state, substate, superstate;
-                    
+
                     // Trace a path from `target` up to `domain`, then walk down it, emitting
                     // `enter` events for each state along the way.
                     for ( state = target; state !== domain; state = state.superstate() ) {
                         pathToState.push( state );
                     }
                     for ( state = domain; substate = pathToState.pop(); state = substate ) {
-                        if ( state.isShallow() ) {
-                            state.hasHistory() && push.call( state, substate );
-                        }
+                        state.isShallow() && state.hasHistory() && state.push( substate );
                         transition.attachTo( substate );
                         substate.emit( 'enter', info, false );
                     }
@@ -2349,14 +2345,12 @@ var StateController = ( function () {
 
                     // Terminate the transition with an `arrive` event on the targeted state.
                     target.emit( 'arrive', info, false );
-                    
+
                     // For each state from `target` to `root` that records a deep history, push a
                     // new element that points to `target`.
                     for ( state = target; state; state = superstate ) {
                         superstate = state.superstate();
-                        if ( !state.isShallow() ) {
-                            state.hasHistory() && push.call( state, target );
-                        }
+                        state.isShallow() || state.hasHistory() && state.push( target );
                     }
 
                     // Any virtual states that were previously active are no longer needed.
@@ -2368,19 +2362,19 @@ var StateController = ( function () {
                     // Now complete, the `Transition` instance can be discarded.
                     transition.destroy();
                     transition = setTransition( null );
-                    
+
                     typeof options.success === 'function' && options.success.call( this );
 
                     return target;
                 });
-                
+
                 // At this point the transition is attached to the `domain` state and is ready
                 // to proceed.
                 return transition.start.apply( transition, options.arguments ) || target;
             }
         }
     };
-    
+
     // ### Prototype methods
 
     Z.assign( StateController.prototype, {
@@ -2398,7 +2392,7 @@ var StateController = ( function () {
         // transition expression for the origin/target pair.
         getTransitionExpressionFor: function ( target, origin ) {
             origin || ( origin = this.current() );
-            
+
             function search ( state, until ) {
                 var transitions, key, expr, guards, admit, release;
                 for ( ; state && state !== until; state = until ? state.superstate() : null ) {
@@ -2429,7 +2423,7 @@ var StateController = ( function () {
                     }
                 }
             }
-            
+
             // Search order:
             // 1. `target`,
             // 2. `origin`,
@@ -2478,7 +2472,7 @@ var StateEventCollection = ( function () {
         // Retrieves a bound listener associated with the provided `id` string as returned by
         // the prior call to `add`.
         get: function ( /*String*/ id ) {
-            return this.items[id];
+            return this.items[ id ];
         },
 
         // #### getAll
@@ -2486,7 +2480,7 @@ var StateEventCollection = ( function () {
         // Returns an array of all bound listeners.
         getAll: function () {
             var i, items = this.items, result = [];
-            for ( i in items ) result.push( items[i] );
+            for ( i in items ) if ( Z.hasOwn.call( items, i ) ) result.push( items[i] );
             return result;
         },
 
@@ -2538,7 +2532,7 @@ var StateEventCollection = ( function () {
               /*Object*/ context  // optional
         ) {
             var id = this.guid();
-            this.items[id] = typeof context === 'object' ? [ fn, context ] : fn;
+            this.items[ id ] = typeof context === 'object' ? [ fn, context ] : fn;
             this.length++;
             return id;
         },
@@ -2552,10 +2546,10 @@ var StateEventCollection = ( function () {
         'remove off unbind': function ( /*Function | String*/ id ) {
             var fn, i, l,
                 items = this.items;
-            
+
             fn = items[ typeof id === 'function' ? this.key( id ) : id ];
             if ( !fn ) return false;
-            delete items[id];
+            delete items[ id ];
             this.length--;
             return fn;
         },
@@ -2583,7 +2577,7 @@ var StateEventCollection = ( function () {
         'emit trigger': function ( args, state ) {
             var i, item, itemType, fn, context, target,
                 items = this.items, type = this.type;
-            
+
             state || ( state = this.state );
 
             for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
@@ -2640,7 +2634,7 @@ var Transition = ( function () {
         if ( !( this instanceof Transition ) ) {
             return TransitionExpression.apply( this, arguments );
         }
-        
+
         var self = this,
             methods = {},
             events = {},
@@ -2653,7 +2647,7 @@ var Transition = ( function () {
 
             attachment = source,
             controller, aborted;
-        
+
         controller = source.controller();
         if ( controller !== target.controller() ) {
             controller = undefined;
@@ -2710,7 +2704,7 @@ var Transition = ( function () {
 
             // #### aborted
             aborted: function () { return aborted; },
-            
+
             // #### start
             // 
             // Starts the transition; if an `action` is defined, that function is responsible
@@ -2726,7 +2720,7 @@ var Transition = ( function () {
                     return this.end.apply( this, arguments );
                 }
             },
-            
+
             // #### abort
             // 
             // Indicates that a transition won’t directly reach its target state; for example, if a
@@ -2739,7 +2733,7 @@ var Transition = ( function () {
                 this.emit( 'abort', arguments, false );
                 return this;
             },
-            
+
             // #### end
             // 
             // Indicates that a transition has completed and has reached its intended target. The
@@ -2752,7 +2746,7 @@ var Transition = ( function () {
                 this.destroy();
                 return target;
             },
-            
+
             // #### destroy
             // 
             // Destroys this transition and clears its held references, and does the same for any
@@ -2770,7 +2764,7 @@ var Transition = ( function () {
             'guard addGuard removeGuard' : [ guards ]
         });
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
-        
+
         this.init( expression );
         expression = null;
     }
@@ -2783,7 +2777,7 @@ var Transition = ( function () {
         }
         return count;
     };
-    
+
     return Transition;
 })();
 
@@ -2797,7 +2791,7 @@ var TransitionExpression = ( function () {
         categories   = Z.assign( TRANSITION_EXPRESSION_CATEGORIES, null ),
         eventTypes   = Z.assign( TRANSITION_EVENT_TYPES ),
         guardActions = Z.assign( GUARD_ACTIONS );
-    
+
     // ### Constructor
     function TransitionExpression ( map ) {
         if ( !( this instanceof TransitionExpression ) ) {
@@ -2815,7 +2809,7 @@ var TransitionExpression = ( function () {
     function interpret ( map ) {
         var result = Z.assign( {}, properties, categories ),
             key, value, category, events;
-        
+
         for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
             value = map[ key ];
             if ( key in properties ) {
@@ -2846,7 +2840,7 @@ var TransitionExpression = ( function () {
 })();
 
 
-// Make the set of defined classes available as members of the exported module.
+// Classes are made available as members of the exported module.
 Z.assign( state, {
     State: State,
     StateExpression: StateExpression,
