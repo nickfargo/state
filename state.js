@@ -991,8 +991,8 @@ var State = ( function () {
                     stateExpression.superstate() === this && stateExpression.realize() :
                     new State( this, stateName, stateExpression );
                 
-                if ( !substate ) return;
                 
+                if ( !substate ) return null;
                 this[ stateName ] = substates[ stateName ] = substate;
                 
                 controller = this.controller();
