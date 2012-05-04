@@ -196,7 +196,15 @@ Z.env.client && ( global['state'] = state );
 // always inherited *from protostates first*, then from superstates.
 
 var State = ( function () {
-    var SA = STATE_ATTRIBUTES;
+    var SA = STATE_ATTRIBUTES,
+
+        HERITABLE_ATTRIBUTES =
+            SA.MUTABLE    |
+            SA.INITIAL    |  SA.CONCLUSIVE  |  SA.FINAL    |
+            SA.ABSTRACT   |  SA.DEFAULT     |  SA.SEALED   |
+            SA.RETAINED   |  SA.HISTORY     |  SA.SHALLOW  |
+            SA.CONCURRENT;
+
 
     Z.assign( State, SA );
 
@@ -205,40 +213,42 @@ var State = ( function () {
         if ( !( this instanceof State ) ) {
             return new State( superstate, name, expression );
         }
-        
-        var attributes = expression && expression.attributes || SA.NORMAL;
-        
-        // #### attributes
-        // 
-        // Returns the bit field of this state’s attributes.
-        this.attributes = function () { return attributes; };
+
+        var attributes, controller, protostate;
+
+        attributes = expression && expression.attributes || SA.NORMAL;
 
         // #### name
         // 
         // Returns the local name of this state.
         this.name = Z.stringFunction( function () { return name || ''; } );
 
-        // The only further requirement for a virtual state is a method that may be called later
-        // which will convert the virtual state into a real state.
-        if ( attributes & SA.VIRTUAL ) {
+        // A root state is created by a `StateController`, which passes a reference to itself into
+        // the `superstate` parameter, signaling that a `controller` method needs to be created
+        // for this instance.
+        if ( superstate instanceof StateController ) {
+            controller = superstate, superstate = undefined;
+            controller.root = Z.thunk( this );
+            this.controller = Z.thunk( controller );
+        }
+
+        // Otherwise this state is an inheritor of an existing superstate, so an instance method
+        // for `superstate` is required.
+        else if ( superstate ) {
             this.superstate = State.privileged.superstate( superstate );
 
-            // #### realize
-            // 
-            // Virtual states are weakly bound to a state hierarchy by their reference held at
-            // `superstate`; they are not proper members of the superstate’s set of substates. The
-            // `realize` method allows a virtual state to transform itself at some later time into
-            // a “real” state, with its own set of closed properties and methods, existing
-            // thereafter as an abiding member of its superstate’s set of substates.
-            this.realize = function ( expression ) {
-                delete this.realize;
-                attributes &= ~SA.VIRTUAL;
+            // The `mutable` attribute is inherited from the superstate.
+            attributes |= superstate.attributes() & SA.MUTABLE;
+        }
 
-                superstate.addSubstate( name, this ) &&
-                    realize.call( this, superstate, attributes, expression );
-                
-                return this;
-            };
+        // Attributes are inherited from the protostate.
+        protostate = this.protostate();
+        protostate && ( attributes |= protostate.attributes() & HERITABLE_ATTRIBUTES );
+
+        // Only a few instance methods are required for a virtual state, including one (`realize`)
+        // which if called later will convert the virtual state into a real state.
+        if ( attributes & SA.VIRTUAL ) {
+            Z.privilege( this, State.privileged, { 'attributes realize' : [ attributes ] });
         }
 
         // Do the full setup required for a real state.
@@ -250,6 +260,8 @@ var State = ( function () {
     // ### Class-private functions
 
     // #### realize
+    // 
+    // Continues construction for an incipient or virtual `State` instance.
     // 
     // Much of the initialization for `State` is offloaded from the constructor, allowing for
     // creation of lightweight virtual `State` instances that inherit all of their functionality
@@ -284,6 +296,7 @@ var State = ( function () {
             'mutate express' : [ StateExpression, data, methods, events, guards, substates,
                 transitions ],
             'superstate' : [ superstate ],
+            'attributes' : [ attributes ],
             'data' : [ data ],
             'method methodNames addMethod removeMethod' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
@@ -299,7 +312,9 @@ var State = ( function () {
 
         // If no superstate is given, e.g. for a root state being created by a `StateController`,
         // then `init()` must be called later by the implementor.
-        superstate && this.init( expression );
+        
+        // superstate && 
+        this.init( expression );
 
         return this;
     }
@@ -357,6 +372,26 @@ var State = ( function () {
                 this.mutate( expression );
                 delete this.__initializing__;
                 this.emit( 'construct', { expression: expression }, false );
+                return this;
+            };
+        },
+
+        // #### realize
+        // 
+        // Transforms a virtual state into a “real” state.
+        // 
+        // A virtual state is a lightweight `State` instance whose purpose is simply to inherit
+        // from its protostate. As such virtual states are weakly bound to a state hierarchy by
+        // their reference held at `superstate`, and are not proper members of the superstate’s
+        // set of substates. Transforming the state from virtual to real causes it to exist
+        // thereafter as an abiding member of its superstate’s set of substates.
+        realize: function ( attributes ) {
+            return function ( expression ) {
+                var superstate = this.superstate();
+                delete this.realize;
+                if ( superstate.addSubstate( this.name(), this ) ) {
+                    realize.call( this, superstate, attributes & ~SA.VIRTUAL, expression );
+                }
                 return this;
             };
         },
@@ -1934,11 +1969,6 @@ var StateController = ( function () {
             // holds the `accessor` function associated with this controller.
             name: Z.stringFunction( function () { return name; } ),
 
-            // #### root
-            // 
-            // Returns the root state.
-            root: function () { return root; },
-
             // #### current
             // 
             // Returns the controller’s current state, or currently active transition.
@@ -1975,10 +2005,8 @@ var StateController = ( function () {
         // Instantiate the root state, adding a redefinition of the `controller` method that points
         // directly to this controller, along with all of the members and substates outlined in
         // `expression`.
-        root = new State( undefined, undefined, expression );
-        root.controller = function () { return self; };
-        root.init( expression );
         
+        root = new State( this, '', expression );
         // Establish which state should be the initial state and set the current state to that.
         current = root.initialSubstate() || root;
         options.initialState !== undefined && ( current = root.query( options.initialState ) );
