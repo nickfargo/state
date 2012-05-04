@@ -1306,12 +1306,24 @@ var State = ( function () {
 
         // #### defaultSubstate
         // 
-        // Returns the first substate marked `default`, or simply the first substate.
-        defaultSubstate: function () {
-            var substates = this.substates(), i = 0, l = substates && substates.length;
-            if ( !l ) return;
+        // Returns the first substate marked `default`, or simply the first substate. Recursion
+        // continues into the protostate only if no local descendant states are marked `initial`.
+        defaultSubstate: function (
+            /*Boolean*/ viaProto, // = true
+                           first
+        ) {
+            var substates = this.substates(),
+                i = 0, l = substates && substates.length,
+                protostate;
+
+            first || l && ( first = substates[0] );
             for ( ; i < l; i++ ) if ( substates[i].isDefault() ) return substates[i];
-            return substates[0];
+
+            if ( ( viaProto || viaProto === undefined ) && ( protostate = this.protostate() ) ) {
+                return protostate.defaultSubstate( true, first );
+            }
+
+            return first;
         },
 
         // #### initialSubstate
@@ -1326,7 +1338,7 @@ var State = ( function () {
                 subject, substates, i, l, state, protostate;
             
             while ( subject = queue.shift() ) {
-                substates = subject.substates();
+                substates = subject.substates( false, true );
                 for ( i = 0, l = substates.length; i < l; i++ ) {
                     state = substates[i];
                     if ( state.isInitial() ) return state.initialSubstate( false ) || state;
