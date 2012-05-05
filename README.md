@@ -559,7 +559,7 @@ function Chief () {
         Enraged: {
             Thermonuclear: {
                 data: {
-                    action: 'destroy'
+                    task: 'destroy'
                     budget: Infinity
                 }
             }
@@ -568,7 +568,7 @@ function Chief () {
 }
 state( Chief.prototype, {
     data: {
-        action: 'innovate',
+        task: 'innovate',
         budget: 1e10
     },
     Enraged: {
@@ -578,45 +578,51 @@ state( Chief.prototype, {
     }
 }
 
-var ceo = new Chief;
-ceo.state().data();
-// >>> { action: 'innovate', budget: 10000000000 }
-ceo.state().be('Enraged'); // `be` and `go` are built-in aliases of `change`
-ceo.state().data({ target: 'Kookle' });
-ceo.state().data();
-// >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
-ceo.state().go('Thermonuclear');
-ceo.state().data();
-// >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
+
+var mobs = new Chief;
+mobs.state().data();
+// >>> { task: 'innovate', budget: 10000000000 }
+
+mobs.state().be('Enraged'); // `be` and `go` are built-in aliases of `change`
+mobs.state().data({ target: 'Moogle' });
+mobs.state().data();
+// >>> { target: 'Moogle', task: 'compete', budget: 10000000000 }
+
+mobs.state().go('Thermonuclear');
+mobs.state().data();
+// >>> { target: 'Moogle', task: 'destroy', budget: Infinity }
 ```
 ```coffeescript
 class Chief
   state @::,
     data:
-      action: 'innovate'
+      task: 'innovate'
       budget: 1e10
     Enraged:
       data:
-        action: 'compete'
+        task: 'compete'
 
   constructor: ->
     state this,
       Enraged:
         Thermonuclear:
           data:
-            action: 'destroy'
+            task: 'destroy'
             budget: Infinity
 
-ceo = new Chief
-ceo.state().data()
-# >>> { action: 'innovate', budget: 10000000000 }
-ceo.state().be 'Enraged' # `be` and `go` are built-in aliases of `change`
-ceo.state().data target: 'Kookle'
-ceo.state().data()
-# >>> { target: 'Kookle', action: 'compete', budget: 10000000000 }
-ceo.state().go 'Thermonuclear'
-ceo.state().data()
-# >>> { target: 'Kookle', action: 'destroy', budget: Infinity }
+
+mobs = new Chief
+mobs.state().data()
+# >>> { task: 'innovate', budget: 10000000000 }
+
+mobs.state().be 'Enraged' # `be` and `go` are built-in aliases of `change`
+mobs.state().data target: 'Moogle'
+mobs.state().data()
+# >>> { target: 'Moogle', task: 'compete', budget: 10000000000 }
+
+mobs.state().go 'Thermonuclear'
+mobs.state().data()
+# >>> { target: 'Moogle', task: 'destroy', budget: Infinity }
 ```
 
 
