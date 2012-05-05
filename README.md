@@ -179,7 +179,7 @@ A **state expression** defines the contents and structure of a `State` instance.
 
 The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
-#### The long way <a name="concepts--expressions--the-long-way" href"#concepts--expressions--the-long-way">&#x1f517;</a>
+#### The long way <a name="concepts--expressions--the-long-way" href="#concepts--expressions--the-long-way">&#x1f517;</a>
 
 Building upon the state implementation of the introductory example above, we might write a state expression consisting of states, methods, and events, which would something like this:
 
@@ -225,7 +225,7 @@ longformExpression = state
         enter: -> do @owner().wearJeans
 ```
 
-#### The short way <a name="concepts--expressions--the-short-way" href"#concepts--expressions--the-short-way">&#x1f517;</a>
+#### The short way <a name="concepts--expressions--the-short-way" href="#concepts--expressions--the-short-way">&#x1f517;</a>
 
 While the explicitly categorized format is unambiguous, it is also rather verbose. To the latter point, `state()` also allows expression input to be formatted more concisely, either in part or in whole, and interprets this to produce a `StateExpression` identical to that of the example above:
 
@@ -527,7 +527,7 @@ state obj, 'abstract',
 
 * **initial** — Marking a state `initial` specifies which state is to be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
-* **conclusive** — Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
+* **conclusive** — (Reserved; not presently implemented.) Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
 * **final** — Once a state marked `final` is entered, no further transitions are allowed.
 
