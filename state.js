@@ -1873,6 +1873,8 @@ var State = ( function () {
 var StateExpression = ( function () {
     var attributeMap   = Z.forEach( Z.assign( STATE_ATTRIBUTE_MODIFIERS ),
             function ( value, key, object ) { object[ key ] = key.toUpperCase(); }),
+        attributeFlags = Z.forEach( Z.invert( STATE_ATTRIBUTES ),
+            function ( value, key, object ) { object[ key ] = value.toLowerCase(); }),
         categoryMap    = Z.assign( STATE_EXPRESSION_CATEGORIES ),
         eventTypes     = Z.assign( STATE_EVENT_TYPES ),
         guardActions   = Z.assign( GUARD_ACTIONS );
@@ -1918,6 +1920,17 @@ var StateExpression = ( function () {
 
         return result;
     }
+    StateExpression.encodeAttributes = encodeAttributes;
+    // #### decodeAttributes
+    // 
+    // Returns the space-delimited set of attribute names represented by the provided bit-field
+    // integer.
+    function decodeAttributes ( /*Number*/ attributes ) {
+        var key, out = [];
+        for ( key in attributeFlags ) attributes & key && out.push( attributeFlags[ key ] );
+        return out.join(' ');
+    }
+    StateExpression.decodeAttributes = decodeAttributes;
 
     // #### interpret
     // 
