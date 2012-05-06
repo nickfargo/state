@@ -4,7 +4,9 @@
 
 * **[Installation](#installation)**
 
-* **[Overview](#overview) —** [Getting started](#overview--getting-started) – [Example](#overview--a-thoroughly-polite-example)
+* **[Getting started](#getting-started) —** [A quick four-step introduction to State](#getting-started--introduction) — [Example](#getting-started--example)
+
+* **[Overview](#overview)**
 
 * **[Concepts](#concepts) —** [Expressions](#concepts--expressions) – [Inheritance](#concepts--inheritance) – [Attributes](#concepts--attributes) – [Data](#concepts--data) – [Methods](#concepts--methods) – [Transitions](#concepts--transitions) – [Events](#concepts--events) – [Guards](#concepts--guards) – [History](#concepts--history)
 
@@ -36,9 +38,9 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 
 
-## Overview <a name="overview" href="#overview">&#x1f517;</a>
+## Getting started <a name="getting-started" href="#getting-started">&#x1f517;</a>
 
-### Getting started: a quick four-step introduction to State <a name="overview--getting-started" href="#overview--getting-started">&#x1f517;</a>
+### A quick four-step introduction to State <a name="getting-started--introduction" href="#getting-started--introduction">&#x1f517;</a>
 
 #### Step 1 — The declaration
 
@@ -93,7 +95,7 @@ owner.aMethod();                 // >>> "stateful!"
 owner.state();                   // >>> State 'aState'
 ```
 
-### A thoroughly polite example <a name="overview--a-thoroughly-polite-example" href="#overview--a-thoroughly-polite-example">&#x1f517;</a>
+### A thoroughly polite example <a name="getting-started--example" href="#getting-started--example">&#x1f517;</a>
 
 Putting this together, we can create a model of a simple yet genteel `person`, who will behave appropriately according to the state we give it:
 
@@ -148,30 +150,30 @@ person.greet()
 # >>> "Hello."
 ```
 
-## Concepts <a name="concepts" href="#concepts">&#x1f517;</a>
+## Overview <a name="overview" href="#overview">&#x1f517;</a>
 
-A **state** is an instance of `State` which encapsulates all or part of an **owner** object’s condition and/or behavior at a given moment. The owner may adopt different behaviors at various times by transitioning from one of its states to another.
-
-Features of states and their usage are summarized here and discussed in further detail below:
+* **States** — A **state** is an instance of `State` that encapsulates all or part of an **owner** object’s condition at a given moment. The owner may adopt different behaviors at various times by transitioning from one of its states to another.
 
 * [**Expressions**](#concepts--expressions) — The contents of states can be concisely expressed using a plain object literal, which, along with an optional set of attribute keywords, is passed into the `state()` function and interpreted into a formally typed **state expression**.
 
 * [**Inheritance**](#concepts--inheritance) — States are hierarchically nested in a tree structure: the owner object is given exactly one **root state**, which may contain zero or more **substates**, which may themselves contain further substates, and so on. A state inherits both from its **superstate**, with which it shares the same owner, as well as from any **protostate**, which is defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
 
-* [**Selectors**](#concepts--selectors) — A stateful owner `object`’s accessor method at `object.state()` can be called without arguments to retrieve the object’s current state, or, if provided a **selector** string, to query for a specific `State` of the object, or set of states.
+* [**Selectors**](#concepts--selectors) — A stateful owner `object`’s accessor method at `object.state()` can be called without arguments to retrieve the object’s current state, or, if provided a **selector** string, to query for a specific `State` of the object, or a specific set of states.
 
-* [**Attributes**](#concepts--attributes) — A state expression may include **attributes** that can enable certain features for a state or constrain its usage. For example: the `initial` attribute designates a state as the owner’s initial state, whereas the `final` attribute dictates that a state will disallow any further transitions once it has become active; an `abstract` state is one that cannot be current but may be inherited from by substates, while a `default` attribute marks such a substate as the primary redirection target for an abstract superstate, should a transition ever target the abstract state directly.
+* [**Attributes**](#concepts--attributes) — A state expression may include a set of **attribute** keywords (e.g.: `initial`, `conclusive`, `final`, `abstract`, etc.), which will enable certain features or impose certain constraints for the `State` that the expression is to represent.
 
 * [**Data**](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
 
-* [**Methods**](#concepts--methods) — Behavior is modeled by defining state **methods** that *opaquely* override the object’s methods; consumers of the object simply call its methods as usual, and need not be aware of the object’s current state, or even that a concept of state exists at all. State methods are invoked in the context of the state in which the method is defined, allowing for polymorphic features like invoking the overridden methods of a superstate.
+* [**Methods**](#concepts--methods) — Behavior is modeled by defining state **methods** that opaquely override the object’s methods. Consumers of the object simply call its methods as usual, and need not be aware of the object’s current state, or even that a concept of state exists at all. State methods are invoked in the context of the state in which the method is defined, allowing for polymorphic features like invoking the overridden methods of a superstate.
 
 * [**Transitions**](#concepts--transitions) — When an object is directed to change from one state to another, it does so by temporarily entering into a **transition** state. A state expression may include **transition expressions** that describe, given a specific pairing of origin and target states, a synchronous or asynchronous **action** to be performed over the duration of the transition.
 
 * [**Events**](#concepts--events) — Listeners for specific **event** types can be bound to a state, which will be called in the context of the bound state as it is affected by a progressing transition (`depart`, `exit`, `enter`, `arrive`), as data bound to the state changes (`mutate`), or upon the state’s construction or destruction (`construct`, `destroy`). **State** also allows for custom typed events, which can be emitted from a particular state and propagated to listeners bound to the state itself as well as its protostates and superstates.
 
-* [**Guards**](#concepts--guards) may be applied to a state to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Likewise guards may also be included in a transition expression, where they are used by an object to decide which of its transitions should be executed. Guards are evaluated as either boolean values or predicates (boolean-valued functions).
+* [**Guards**](#concepts--guards) may be applied to a state to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Likewise guards may also be included in a transition expression, where they are used by an object to decide which of its transitions should be executed. Guards are evaluated as either boolean values or predicates.
 
+
+## Concepts <a name="concepts" href="#concepts">&#x1f517;</a>
 
 ### Expressions <a name="concepts--expressions" href="#concepts--expressions">&#x1f517;</a>
 
@@ -179,9 +181,9 @@ A **state expression** defines the contents and structure of a `State` instance.
 
 The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
-#### The long way <a name="concepts--expressions--the-long-way" href="#concepts--expressions--the-long-way">&#x1f517;</a>
+#### Longform: the hard way <a name="concepts--expressions--longform" href="#concepts--expressions--longform">&#x1f517;</a>
 
-Building upon the state implementation of the introductory example above, we might write a state expression consisting of states, methods, and events, which would something like this:
+Building upon the introductory example above, we could write a state expression that consists of states, methods, and events, looking something like this:
 
 ```javascript
 var longformExpression = state({
@@ -225,7 +227,7 @@ longformExpression = state
         enter: -> do @owner().wearJeans
 ```
 
-#### The short way <a name="concepts--expressions--the-short-way" href="#concepts--expressions--the-short-way">&#x1f517;</a>
+#### Shorthand: the easy way <a name="concepts--expressions--shorthand" href="#concepts--expressions--shorthand">&#x1f517;</a>
 
 While the explicitly categorized format is unambiguous, it is also rather verbose. To the latter point, `state()` also allows expression input to be formatted more concisely, either in part or in whole, and interprets this to produce a `StateExpression` identical to that of the example above:
 
@@ -523,7 +525,7 @@ state obj, 'abstract',
 
 **Implemented** (and *proposed*) attributes include:
 
-* *mutable* — (Reserved; not presently implemented.) By default a state’s data, methods, guards, substates, and transitions cannot be altered after its has been constructed; the `mutable` attribute lifts this restriction, both for the state to which it is applied and all of its descendant states.
+* *mutable* — (Reserved; not presently implemented.) By default a state’s data, methods, guards, substates, and transitions cannot be altered after it has been constructed; the `mutable` attribute lifts this restriction, both for the state to which it is applied and all of its descendant states.
 
 * **initial** — Marking a state `initial` specifies which state is to be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
