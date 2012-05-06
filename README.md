@@ -4,7 +4,7 @@
 
 * **[Installation](#installation)**
 
-* **[Getting started](#getting-started) —** [A quick four-step introduction to State](#getting-started--introduction) — [Example](#getting-started--example)
+* **[Getting started](#getting-started) —** [A quick four-step introduction to State](#getting-started--introduction) – [Example](#getting-started--example)
 
 * **[Overview](#overview)**
 
@@ -327,7 +327,8 @@ function Person () {
                     },
 
                     greet: function ( myBetterHalf ) {
-                        this.owner().hug( myBetterHalf ).kiss( myBetterHalf );
+                        this.superstate().call( 'greet', myBetterHalf );
+                        this.owner().kiss( myBetterHalf );
                     }
                 }
             }
@@ -356,9 +357,8 @@ class Person
           Intimate:
             kiss: ( myBetterHalf ) -> @owner().give myBetterHalf, 'X' ; this
             greet: ( myBetterHalf ) ->
-              I = @owner()
-              I.hug myBetterHalf
-              I.kiss myBetterHalf
+              @superstate().call 'greet', myBetterHalf
+              @owner().kiss myBetterHalf
 ```
 
 #### Inheriting states across prototypes <a name="concepts--inheritance--inheriting-states-across-prototypes" href="#concepts--inheritance--inheriting-states-across-prototypes">&#x1f517;</a>
