@@ -414,7 +414,7 @@ var State = ( function () {
         return delegator;
     }
 
-    // <a name="state--privileged" href="#state--privileged"></a>
+    // <a name="state--privileged" href="#state--privileged">&#x1f517;</a>
     // 
     // ### Privileged methods
     // 
