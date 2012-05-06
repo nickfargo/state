@@ -265,6 +265,13 @@ var State = ( function () {
         else {
             realize.call( this, superstate, attributes, expression );
         }
+
+        // Additional property assignments for easy viewing in the inspector.
+        if ( Z.env.debug ) {
+            this[' <owner>'] = this.owner();
+            this[' <path>']  = this.derivation( true ).join('.');
+            this['<attr>']   = StateExpression.decodeAttributes( attributes );
+        }
     }
 
     // ### Class-private functions
