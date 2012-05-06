@@ -762,7 +762,7 @@
         );
     });
 
-    0&& test( "Resolution of `initial` attribute within a malformed state expression", function () {
+    test( "Resolution of `initial` attribute within a malformed state expression", function () {
         assert.ok(
             Baz.prototype.state() !== Baz.prototype.state('Bzzt.Bzzzzt'),
             "Breadth-first: precedence falls to higher-ranked state marked `initial`."
