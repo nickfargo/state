@@ -344,7 +344,6 @@ var State = ( function () {
         // `this`, each of which is a partial application of its corresponding method factory at
         // [`State.privileged`](#state--privileged).
         Z.privilege( this, State.privileged, {
-            'init' : [ StateExpression ],
             'express mutate' : [ StateExpression, data, methods, events, guards, substates,
                 transitions ],
             'superstate' : [ superstate ],
@@ -362,7 +361,7 @@ var State = ( function () {
         });
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
 
-        this.init( expression );
+        State.privileged.init( StateExpression ).call( this, expression );
 
         return this;
     }
@@ -1410,7 +1409,7 @@ var State = ( function () {
         isConcurrent: function () { return !!( this.attributes() & SA.CONCURRENT ); },
 
         'name \
-         init express mutate \
+         express mutate \
          superstate \
          removeMethod \
          event removeEvent emit trigger \
@@ -3127,7 +3126,6 @@ var Transition = ( function () {
         // [`State`](#state), which it obtains by partially applying the corresponding members of
         // [`State.privileged`](#state--privileged).
         Z.privilege( this, State.privileged, {
-            'init' : [ TransitionExpression ],
             'express mutate' : [ TransitionExpression, undefined, methods, events, guards ],
             'method methodNames addMethod removeMethod' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
@@ -3135,7 +3133,7 @@ var Transition = ( function () {
         });
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
 
-        this.init( expression );
+        State.privileged.init( TransitionExpression ).call( this, expression );
     }
 
     // <a name="transition--prototype--depth" href="#transition--prototype--depth">&#x1f517;</a>
