@@ -325,21 +325,6 @@ var State = ( function () {
             transitions = {},
             history = attributes & SA.HISTORY || attributes & SA.RETAINED ? [] : null;
 
-        // (Exposed for debugging.)
-        Z.env.debug && Z.assign( this, {
-            __private__: {
-                attributes: attributes,
-                data: data,
-                methods: methods,
-                events: events,
-                guards: guards,
-                substates: substates,
-                transitions: transitions
-            }
-        });
-
-        function setSuperstate ( value ) { return superstate = value; }
-
         // Method names are mapped to specific local variables. The named methods are created on
         // `this`, each of which is a partial application of its corresponding method factory at
         // [`State.privileged`](#state--privileged).
@@ -354,14 +339,28 @@ var State = ( function () {
             'guard addGuard removeGuard' : [ guards ],
             'substate substates addSubstate removeSubstate' : [ substates ],
             'transition transitions addTransition' : [ transitions ],
-            'destroy' : [ setSuperstate, methods, events, substates ]
+            'destroy' : [ function ( s ) { return superstate = s; }, methods, events, substates ]
         });
         history && Z.privilege( this, State.privileged, {
             'history push replace' : [ history ]
         });
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
 
+        // With the instance methods in place, `this` is now ready to apply `expression` to itself.
         State.privileged.init( StateExpression ).call( this, expression );
+
+        // (Exposed for debugging.)
+        Z.env.debug && Z.assign( this, {
+            __private__: {
+                attributes: attributes,
+                data: data,
+                methods: methods,
+                events: events,
+                guards: guards,
+                substates: substates,
+                transitions: transitions
+            }
+        });
 
         return this;
     }
@@ -464,9 +463,9 @@ var State = ( function () {
         // 
         // #### express
         // 
-        // Returns an expression that describes the state’s contents. By default the returned
-        // expression is a plain `Object`; if `typed` is truthy the expression is a formally
-        // typed [`StateExpression`](#state-expression).
+        // Returns an expression that describes the state’s contents. By default the expression is
+        // returned as a plain `Object`; if `typed` is truthy the expression is a formally typed
+        // [`StateExpression`](#state-expression).
         express: ( function () {
             function clone ( obj ) {
                 if ( obj === undefined ) return;
@@ -544,10 +543,17 @@ var State = ( function () {
                     NIL = Z.NIL,
                     before, collection, name, value, after, delta;
 
+                // The privileged `init` function uses `mutate` for the state’s initial build,
+                // but with the resultant `mutate` event suppressed.
                 if ( !this.__initializing__ ) {
+                    // A snapshot of the `before` condition of this state is taken, to be compared
+                    // later with an `after` snapshot.
                     before = this.express();
                 }
 
+                // This invocation of `mutate` utilizes the set of privileged `add*` methods,
+                // however, since they are being called as part of a single operation, each must
+                // suppress its usual emission of its own `mutate` event.
                 this.__atomic__ = true;
 
                 // Data is already set up to handle differentials that contain `NIL` values.
@@ -643,8 +649,10 @@ var State = ( function () {
                     }
                 }
 
+                // Allow `add*` methods to emit individual `mutate` events normally.
                 delete this.__atomic__;
 
+                // The `before` snapshot is finally put to use in a `mutate` event.
                 if ( before ) {
                     after = this.express();
                     delta = Z.diff( before, after );
