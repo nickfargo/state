@@ -1,14 +1,14 @@
 # State.js
 
-**State** is a micro-framework for implementing states directly into any JavaScript object.
+**State** is a micro-framework for implementing state-driven behavior directly into any JavaScript object.
 
 * **[Installation](#installation)**
 
-* **[Getting started](#getting-started) —** [A quick four-step introduction to State](#getting-started--introduction) – [Example](#getting-started--example)
+* **[Getting started](#getting-started) —** [Introduction](#getting-started--introduction) – [Example](#getting-started--example)
 
 * **[Overview](#overview)**
 
-* **[Concepts](#concepts) —** [Expressions](#concepts--expressions) – [Inheritance](#concepts--inheritance) – [Attributes](#concepts--attributes) – [Data](#concepts--data) – [Methods](#concepts--methods) – [Transitions](#concepts--transitions) – [Events](#concepts--events) – [Guards](#concepts--guards) – [History](#concepts--history)
+* **[Concepts](#concepts) —** [Expressions](#concepts--expressions) – [Inheritance](#concepts--inheritance) – [Selectors](#concepts--selectors) – [Attributes](#concepts--attributes) – [Data](#concepts--data) – [Methods](#concepts--methods) – [Transitions](#concepts--transitions) – [Events](#concepts--events) – [Guards](#concepts--guards) – [History](#concepts--history)
 
 * **[About](#about) —** [Design goals](#about--design-goals) – [Future directions](#about--future-directions)
 
@@ -58,21 +58,18 @@ state( owner, [attributes], expression )
 
 #### Step 2 — The expression
 
-The `expression` argument is an object literal that describes states, methods, and other features that will be governed by the state implementation of `owner`:
+The `expression` argument, which is usually an object literal, describes states, methods, and other features that will comprise the state implementation of `owner`:
 
 ```javascript
-var owner, expression;
-
-owner = {
+var owner = {
     aMethod: function () { return "default"; }
 };
-expression = {
+
+state( owner, {
     aState: {
         aMethod: function () { return "stateful!"; }
     }
-};
-
-state( owner, expression );
+});
 ```
 
 #### Step 3 — The accessor
@@ -142,7 +139,7 @@ person.greet()
 person.state().change 'Formal'
 person.greet()
 # >>> "How do you do?"
-person.state -> 'Informal' # a sugary alternative to `.state().change()`
+person.state -> 'Informal' # a sugary equivalent of `.state().change()`
 person.greet()
 # >>> "Hi!"
 person.state -> ''
@@ -181,7 +178,7 @@ A **state expression** defines the contents and structure of a `State` instance.
 
 The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
-#### Longform: the hard way <a name="concepts--expressions--longform" href="#concepts--expressions--longform">&#x1f517;</a>
+#### Longform: writing state expressions the hard way <a name="concepts--expressions--longform" href="#concepts--expressions--longform">&#x1f517;</a>
 
 Building upon the introductory example above, we could write a state expression that consists of states, methods, and events, looking something like this:
 
@@ -229,7 +226,7 @@ longformExpression = state
 
 #### Shorthand: the easy way <a name="concepts--expressions--shorthand" href="#concepts--expressions--shorthand">&#x1f517;</a>
 
-While the explicitly categorized format is unambiguous, it is also rather verbose. To the latter point, `state()` also allows expression input to be formatted more concisely, either in part or in whole, and interprets this to produce a `StateExpression` identical to that of the example above:
+Explicitly categorizing each element is unambiguous, but also unnecessarily verbose. To that point, `state()` also accepts a more concise expression format, which is interpreted into a `StateExpression` identical to that of the example above:
 
 ```javascript
 var shorthandExpression = state({
@@ -273,7 +270,7 @@ Expression input provided to `state()` is interpreted according to the following
 
 ### Inheritance <a name="concepts--inheritance" href="#concepts--inheritance">&#x1f517;</a>
 
-The state model is a classic tree structure: any state may serve as a **superstate** of one or more **substates**, which express ever greater specificity of their owner’s behavior and condition.
+The state model is a classic tree structure: any state may serve as a **superstate** of one or more **substates**, which express further specificity of their owner’s behavior and condition.
 
 #### The root state <a name="concepts--inheritance--the-root-state" href="#concepts--inheritance--the-root-state">&#x1f517;</a>
 For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. An empty-string selector may be used by an object to change its current state to the root state, so as to exhibit the object’s default behavior.
@@ -425,7 +422,7 @@ Person::state()                        # >>> State ''
 
 When an accessor method (`person.state()`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it doesn’t, and is instead attempting to inherit `state` from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding new accessor method (`person.state()`), to which the original call is then forwarded.
 
-Even though the inheritor’s state implementation is empty, it identifies the prototype’s states as its **protostates**, from which it inherits all methods, data, events, etc. contained within. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate. Virtual states are extant only so long as they are active; once the object transitions elsewhere, any previously active virtual states are automatically destroyed.
+Even though the inheritor’s state implementation is empty, it inherits all the methods, data, events, etc. of the prototype’s states, which it identifies as its **protostates**. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate. Virtual states exist only so long as they are active; once the object transitions elsewhere, any previously active virtual states are automatically destroyed.
 
 This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without the states themselves having to maintain any direct prototypal relationship with each other.
 
@@ -1036,7 +1033,7 @@ Here we observe state guards imposing the following restrictions:
 
 * State `D` “unlocks” `B`; it is also guarded by checking the opposing state’s `data`, allowing admission only from states with a data item keyed `blorp`, and releasing only to states with data item `bleep`.
 
-The result of this fanciful convolution is that `object` is initially constrained to a progression from state `A` to `C` or its descendant states; leaving the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`, while `B` insists on directly returning the object’s state only to one of its siblings `C` or `D`.
+The result is a fanciful convolution where `object` is initially constrained to a progression from state `A` to `C` or its descendant states; exiting the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`, while `B` insists on directly returning the object’s state only to one of its siblings `C` or `D`.
 
 #### Transition guards <a name="concepts--transition-guards" href="#concepts--transition-guards">&#x1f517;</a>
 
@@ -1065,7 +1062,7 @@ state( Scholar.prototype, 'abstract', {
                 var gpa = this.data().gpa;
                 return gpa >= 3.75 && gpa < 3.95;
             },
-            action: function () { /* choose favorite internship */ }
+            action: function () { /* swat down recruiters */ }
         },
         Laude: {
             origin: 'Matriculated', target: 'Graduated',
@@ -1116,6 +1113,129 @@ class Scholar
 scholar = new Scholar
 scholar.graduate 3.4999
 ```
+
+
+## API
+
+### state( … )
+
+### State
+
+#### Instance methods
+
+##### name
+
+##### attributes
+
+##### superstate
+
+##### protostate
+
+##### express
+
+##### mutate
+
+##### data
+
+##### method
+
+##### methodNames
+
+##### addMethod
+
+##### removeMethod
+
+##### event
+
+##### addEvent
+
+##### removeEvent
+
+##### emit
+
+##### guard
+
+##### addGuard
+
+##### removeGuard
+
+##### substate
+
+##### substates
+
+##### addSubstate
+
+##### removeSubstate
+
+##### transition
+
+##### transitions
+
+##### addTransition
+
+##### removeTransition
+
+##### destroy
+
+#### Prototype methods
+
+##### toString
+
+##### owner
+
+##### root
+
+##### current
+
+##### defaultSubstate
+
+##### initialSubstate
+
+##### protostate
+
+##### derivation
+
+##### depth
+
+##### common
+
+##### is
+
+##### isIn
+
+##### has
+
+##### isSuperstateOf
+
+##### isProtostateOf
+
+##### apply
+
+##### call
+
+##### hasMethod
+
+##### hasOwnMethod
+
+##### change
+
+##### changeTo
+
+##### isCurrent
+
+##### isActive
+
+##### query
+
+##### $
+
+
+
+### StateExpression
+
+### Transition
+
+### TransitionExpression
 
 
 
