@@ -42,7 +42,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 ### A quick four-step introduction to State <a name="getting-started--introduction" href="#getting-started--introduction">&#x1f517;</a>
 
-#### Step 1 — The declaration
+#### Step 1 — Calling the `state` function
 
 The **State** module is exported as a function called `state`, which can be used in one of two ways:
 
@@ -56,7 +56,7 @@ state( owner, [attributes], expression )
 ```
 * Given two object-typed arguments, `state` will augment the `owner` object with its own working implementation of state, based on the state expression described by `expression` (and `attributes`), and will return the newly stateful object’s [**initial state**](#concepts--attributes).
 
-#### Step 2 — The expression
+#### Step 2 — Building a state expression
 
 The `expression` argument, which is usually an object literal, describes states, methods, and other features that will comprise the state implementation of `owner`:
 
@@ -72,7 +72,7 @@ state( owner, {
 });
 ```
 
-#### Step 3 — The accessor
+#### Step 3 — Accessing an object’s state
 
 After calling `state` to implement state into an `owner` object, this new state implementation will be exposed through an **accessor method**, also named `state`, that will be added to the object. Calling this accessor with no arguments queries the object for its **current state**.
 
@@ -80,7 +80,7 @@ After calling `state` to implement state into an `owner` object, this new state 
 owner.state();                   // >>> State '' (the top-level *root state*)
 ```
 
-#### Step 4 — The transition
+#### Step 4 — Transitioning between states
 
 The object’s current state may be reassigned to a different state by calling its `change()` method and providing it the name of a state to be targeted. Changing an object’s state allows it to exhibit different behavior:
 
