@@ -1,9 +1,12 @@
 node_modules/*
 .tmp*
+build/*
+docs/*
 examples/*
 test/.gitignore
 *.tmproj
 *.gz
+state.js
 *.min.js
 *.tmp.js
 *.log
