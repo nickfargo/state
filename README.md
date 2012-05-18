@@ -13,8 +13,8 @@
 * **[About](#about) —** [Design goals](#about--design-goals) – [Future directions](#about--future-directions)
 
 
-
-## Installation <a name="installation" href="#installation">&#x1f517;</a>
+<a name="installation" href="#installation" />
+## Installation
 
 The lone dependency of **State** is a small utility library called [**Zcore**](http://github.com/zvector/zcore/).
 
@@ -38,9 +38,11 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 
 
-## Getting started <a name="getting-started" href="#getting-started">&#x1f517;</a>
+<a name="getting-started" href="#getting-started" />
+## Getting started
 
-### A quick four-step introduction to State <a name="getting-started--introduction" href="#getting-started--introduction">&#x1f517;</a>
+<a name="getting-started--introduction" href="#getting-started--introduction" />
+### A quick four-step introduction to State
 
 #### Step 1 — Calling the `state` function
 
@@ -54,7 +56,7 @@ state( [attributes], expression )
 ```javascript
 state( owner, [attributes], expression )
 ```
-* Given two object-typed arguments, `state` will augment the `owner` object with its own working implementation of state, based on the state expression described by `expression` (and `attributes`), and will return the newly stateful object’s [**initial state**](#concepts--attributes).
+* Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the provided `expression` (and `attributes`), and will return the newly stateful object’s [**initial state**](#concepts--attributes).
 
 #### Step 2 — Building a state expression
 
@@ -82,21 +84,24 @@ owner.state();                   // >>> State '' (the top-level *root state*)
 
 #### Step 4 — Transitioning between states
 
-The object’s current state may be reassigned to a different state by calling its `change()` method and providing it the name of a state to be targeted. Changing an object’s state allows it to exhibit different behavior:
+The object’s current state may be reassigned to a different state by calling its `change()` method and providing it the name of a state to be targeted. Changing an object’s state allows the object to exhibit different behavior:
 
 ```javascript
 owner.state();                   // >>> State ''
 owner.aMethod();                 // >>> "default"
-owner.state().change('aState');  // >>> State 'aState'
-owner.aMethod();                 // >>> "stateful!"
+
+owner.state().change('aState');
+
 owner.state();                   // >>> State 'aState'
+owner.aMethod();                 // >>> "stateful!"
 ```
 
-### A thoroughly polite example <a name="getting-started--example" href="#getting-started--example">&#x1f517;</a>
+<a name="getting-started--example" href="#getting-started--example" />
+### A thoroughly polite example
 
 Putting this together, we can create a model of a simple yet genteel `person`, who will behave appropriately according to the state we give it:
 
-*(Note: all example code hereafter will be presented first in hand-rolled JavaScript, followed by [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
+*(Note: from this point forward, all example code will be presented first in hand-rolled JavaScript, followed by [CoffeeScript](http://coffeescript.org/) — please freely follow or ignore either according to taste.)*
 
 ```javascript
 var person = {
@@ -139,7 +144,7 @@ person.greet()
 person.state().change 'Formal'
 person.greet()
 # >>> "How do you do?"
-person.state -> 'Informal' # a sugary equivalent of `.state().change()`
+person.state -> 'Informal' # [1]
 person.greet()
 # >>> "Hi!"
 person.state -> ''
@@ -147,7 +152,10 @@ person.greet()
 # >>> "Hello."
 ```
 
-## Overview <a name="overview" href="#overview">&#x1f517;</a>
+1. An object’s accessor method also accepts a function as its argument, which is interpreted as an order to `change` to the state identified by the value returned by immediately applying the provided function.
+
+<a name="overview" href="#overview" />
+## Overview
 
 * **States** — A **state** is an instance of `State` that encapsulates all or part of an **owner** object’s condition at a given moment. The owner may adopt different behaviors at various times by transitioning from one of its states to another.
 
@@ -170,15 +178,18 @@ person.greet()
 * [**Guards**](#concepts--guards) may be applied to a state to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Likewise guards may also be included in a transition expression, where they are used by an object to decide which of its transitions should be executed. Guards are evaluated as either boolean values or predicates.
 
 
-## Concepts <a name="concepts" href="#concepts">&#x1f517;</a>
+<a name="concepts" href="#concepts" />
+## Concepts
 
-### Expressions <a name="concepts--expressions" href="#concepts--expressions">&#x1f517;</a>
+<a name="concepts--expressions" href="#concepts--expressions" />
+### Expressions
 
 A **state expression** defines the contents and structure of a `State` instance. A `StateExpression` object can be created using the exported `state()` function, and providing it a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
 
 The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
-#### Longform: writing state expressions the hard way <a name="concepts--expressions--longform" href="#concepts--expressions--longform">&#x1f517;</a>
+<a name="concepts--expressions--longform" href="#concepts--expressions--longform" />
+#### Longform: writing state expressions the hard way
 
 Building upon the introductory example above, we could write a state expression that consists of states, methods, and events, looking something like this:
 
@@ -224,7 +235,8 @@ longformExpression = state
         enter: -> do @owner().wearJeans
 ```
 
-#### Shorthand: the easy way <a name="concepts--expressions--shorthand" href="#concepts--expressions--shorthand">&#x1f517;</a>
+<a name="concepts--expressions--shorthand" href="#concepts--expressions--shorthand" />
+#### Shorthand: the easy way
 
 Explicitly categorizing each element is unambiguous, but also unnecessarily verbose. To that point, `state()` also accepts a more concise expression format, which is interpreted into a `StateExpression` identical to that of the example above:
 
@@ -253,7 +265,8 @@ shorthandExpression = state
     greet: -> "Hi!"
 ```
 
-#### Interpreting expression input <a name="concepts--expressions--interpreting-expression-input" href="#concepts--expressions--interpreting-expression-input">&#x1f517;</a>
+<a name="concepts--expressions--interpreting-expression-input" href="#concepts--expressions--interpreting-expression-input" />
+#### Interpreting expression input
 
 Expression input provided to `state()` is interpreted according to the following rules:
 
@@ -268,11 +281,14 @@ Expression input provided to `state()` is interpreted according to the following
 5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
 
 
-### Inheritance <a name="concepts--inheritance" href="#concepts--inheritance">&#x1f517;</a>
+<a name="concepts--inheritance" href="#concepts--inheritance" />
+### Inheritance
 
 The state model is a classic tree structure: any state may serve as a **superstate** of one or more **substates**, which express further specificity of their owner’s behavior and condition.
 
-#### The root state <a name="concepts--inheritance--the-root-state" href="#concepts--inheritance--the-root-state">&#x1f517;</a>
+<a name="concepts--inheritance--the-root-state" href="#concepts--inheritance--the-root-state" />
+#### The root state
+
 For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. An empty-string selector may be used by an object to change its current state to the root state, so as to exhibit the object’s default behavior.
 
 ```javascript
@@ -286,7 +302,8 @@ obj.state -> ''                         # >>> State ''
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by forwarding a method call made on the object to the object’s current state, with the assurance that the call will be resolved *somewhere* in the state tree: if an override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the original implementation held within the root state.
 
-#### Behavior nesting using substates <a name="concepts--inheritance--behavior-nesting-using-substates" href="#concepts--inheritance--behavior-nesting-using-substates">&#x1f517;</a>
+<a name="concepts--inheritance--behavior-nesting-using-substates" href="#concepts--inheritance--behavior-nesting-using-substates" />
+#### Behavior nesting using substates
 
 Substates help to express ever greater specificity of their owner’s behavior and condition.
 
@@ -358,7 +375,8 @@ class Person
               @owner().kiss myBetterHalf
 ```
 
-#### Inheriting states across prototypes <a name="concepts--inheritance--inheriting-states-across-prototypes" href="#concepts--inheritance--inheriting-states-across-prototypes">&#x1f517;</a>
+<a name="concepts--inheritance--inheriting-states-across-prototypes" href="#concepts--inheritance--inheriting-states-across-prototypes" />
+#### Inheriting states across prototypes
 
 The examples so far have created stateful objects by applying the `state()` function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
 
@@ -427,7 +445,8 @@ Even though the inheritor’s state implementation is empty, it inherits all the
 This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without the states themselves having to maintain any direct prototypal relationship with each other.
 
 
-### Selectors <a name="concepts--selectors" href="#concepts--selectors">&#x1f517;</a>
+<a name="concepts--selectors" href="#concepts--selectors" />
+### Selectors
 
 The accessor method of a stateful object (`object.state()`) returns its current state if called with no arguments. If a **selector** string argument is provided, the accessor will query the object’s state tree for any matching states.
 
@@ -498,7 +517,8 @@ o.state '**'          # >>> [ State 'A', State 'AA', State 'AAA', State 'AB', St
 Selectors are similarly put to use elsewhere as well: for example, a [transition](#)’s `origin` and `target` properties are evaluated as selectors, and several `State` methods, including [`change`](#), [`is`](#), [`isIn`](#), [`has`](#), [`isSuperstateOf`](#), and [`isProtostateOf`](#), accept a selector as their main argument.
 
 
-### Attributes <a name="concepts--attributes" href="#concepts--attributes">&#x1f517;</a>
+<a name="concepts--attributes" href="#concepts--attributes" />
+### Attributes
 
 State expressions may include **attributes** as a string argument that precedes the object map provided to a `state()` call:
 
@@ -522,7 +542,9 @@ state obj, 'abstract',
 
 **Implemented** (and *proposed*) attributes include:
 
-* *mutable* — (Reserved; not presently implemented.) By default a state’s data, methods, guards, substates, and transitions cannot be altered after it has been constructed; the `mutable` attribute lifts this restriction, both for the state to which it is applied and all of its descendant states.
+* **mutable** — By default a state’s data, methods, guards, substates, and transitions cannot be altered after it has been constructed; the `mutable` attribute lifts this restriction, both for the state to which it is applied and all of its descendant states.
+
+* **immutable** — Setting the `immutable` attribute on a state overrules and negates any `mutable` attribute on the state itself or on any inheritor, guaranteeing immutability of any and all inheriting states.
 
 * **initial** — Marking a state `initial` specifies which state is to be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
@@ -548,7 +570,8 @@ state obj, 'abstract',
 
 
 
-### Data <a name="concepts--data" href="#concepts--data">&#x1f517;</a>
+<a name="concepts--data" href="#concepts--data" />
+### Data
 
 Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates. Data may be declared within an expression, and both read and written using the `data` method:
 
@@ -625,15 +648,18 @@ mobs.state().data()
 ```
 
 
-### Methods <a name="concepts--methods" href="#concepts--methods">&#x1f517;</a>
+<a name="concepts--methods" href="#concepts--methods" />
+### Methods
 
 A defining feature of **State** is the ability for an object to exhibit a variety of behaviors. A  state expresses behavior by defining **overrides** for any of its object’s methods.
 
-#### Delegators <a name="concepts--methods--delegators" href="#concepts--methods--delegators">&#x1f517;</a>
+<a name="concepts--methods--delegators" href="#concepts--methods--delegators" />
+#### Delegators
 
 When state is applied to an object, **State** identifies any methods already present on the object for which there exists at least one override somewhere within the state expression. These methods will be relocated to the root state, and replaced on the object with a special **delegator** method. The delegator’s job is to redirect any subsequent calls it receives to the object’s current state, from which **State** will then locate and invoke the proper stateful implementation of the method. Should no active states contain an override for the called method, then the delegation defaults to the object’s original implementation.
 
-#### Context <a name="concepts--methods--context" href="#concepts--methods--context">&#x1f517;</a>
+<a name="concepts--methods--context" href="#concepts--methods--context" />
+#### Context
 
 When an owner object’s delegated state method is called, it is invoked not in the context of its owner, but rather of the state in which it is declared, or, if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. This subtle difference in policy does mean that, within a state method, the owner cannot be directly referenced by `this` as it normally would; however, it is still always accessible by calling `this.owner()`.
 
@@ -657,7 +683,8 @@ state owner,
       bang: -> @superstate().apply 'bang', arguments
 ```
 
-#### Example <a name="concepts--methods--example" href="#concepts--methods--example">&#x1f517;</a>
+<a name="concepts--methods--example" href="#concepts--methods--example" />
+#### Example
 
 This example of a simple `Document` class demonstrates state method inheritance and polymorphism. Note the points of interest that are numbered in trailing comments and explained below:
 
@@ -771,7 +798,8 @@ class Document
 5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked with the arguments array provided by the `change` call.
 
 
-### Transitions <a name="concepts--transitions" href="#concepts--transitions">&#x1f517;</a>
+<a name="concepts--transitions" href="#concepts--transitions" />
+### Transitions
 
 Whenever an object’s current state changes, a **transition** state is created, which temporarily assumes the role of the current state while the object is travelling from its source state to its target state.
 
@@ -789,19 +817,23 @@ The traversal sequence is decomposable into an ascending phase, an action phase,
 
 Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, and will keep the same `origin` state as that of the aborted transition. Further redirections of pending transitions will continue to grow this `source` chain until a transition finally arrives at its `target` state.
 
-### Events <a name="concepts--events" href="#concepts--events">&#x1f517;</a>
+<a name="concepts--events" href="#concepts--events" />
+### Events
 
 Events in **State** follow a very familiar pattern: `State` exposes methods `emit` (aliased to `trigger`) for emitting typed events, and `addEvent`/`removeEvent` (aliased to `on`/`off` and `bind`/`unbind`) for assigning listeners to a particular event type.
 
-#### Types of events <a name="concepts--events--types" href="#concepts--events--types">&#x1f517;</a>
+<a name="concepts--events--types" href="#concepts--events--types" />
+#### Types of events
 
-##### Existential events <a name="concepts--events--types--existential" href="#concepts--events--types--existential">&#x1f517;</a>
+<a name="concepts--events--types--existential" href="#concepts--events--types--existential" />
+##### Existential events
 
 Once a state has been instantiated, it emits a `construct` event. Since a state is not completely constructed until its substates have themselves been constructed, the full `construct` event sequence proceeds in a bottom-up manner.
 
 A state is properly deallocated with a call to `destroy()`, either on itself or on a superstate. This causes a `destroy` event to be emitted immediately prior to the state and its contents being cleared.
 
-##### Transitional events <a name="concepts--events--types--transitional" href="#concepts--events--types--transitional">&#x1f517;</a>
+<a name="concepts--events--types--transitional" href="#concepts--events--types--transitional" />
+##### Transitional events
 
 As alluded to above, during a transition’s progression from its origin state to its target state, all affected states along the way emit any of four types of events that describe their relation to the transition.
 
@@ -815,7 +847,8 @@ As alluded to above, during a transition’s progression from its origin state t
 
 Given this scheme, a few noteworthy cases stand out. A “non-exiting” transition is one that only *descends* in the state tree, i.e. it progresses from a superstate to a substate of that superstate, emitting one `depart`, zero `exit` events, one or more `enter` events, and one `arrive`. Conversely, a “non-entering” transition is one that only *ascends* in the state tree, progressing from a substate to a superstate thereof, emitting one `depart`, one or more `exit` events, zero `enter` events, and one `arrive`. For a reflexive transition, which is one whose target is its origin, the event sequence consists only of one `depart` and one `arrive`, both emitted from the same state.
 
-##### Mutation <a name="concepts--events--types--mutation" href="#concepts--events--types--mutation">&#x1f517;</a>
+<a name="concepts--events--types--mutation" href="#concepts--events--types--mutation" />
+##### Mutation
 
 When a state’s data or other contents change, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
@@ -872,7 +905,8 @@ do junior.whim   # No whining! On a whim, junior stood pat this time.
 do junior.whim   # log <<< "I hate chocolate, I want Stephen Colbert’s Americone Dream!"
 ```
 
-##### Custom event types <a name="concepts--events--types--custom-event-types" href="#concepts--events--types--custom-event-types">&#x1f517;</a>
+<a name="concepts--events--types--custom-event-types" href="#concepts--events--types--custom-event-types" />
+##### Custom event types
 
 Through exposure of the `emit` method, state instances allow any type of event to be broadcast and consumed.
 
@@ -913,7 +947,8 @@ junior.state()
 # >>> State 'Sad'
 ```
 
-#### Expressing determinism <a name="concepts--events--expressing-determinism" href="#concepts--events--expressing-determinism">&#x1f517;</a>
+<a name="concepts--events--expressing-determinism" href="#concepts--events--expressing-determinism" />
+#### Expressing determinism
 
 An event listener may also be expressed simply as a State name, which is interpreted as an order to transition to that State after all of an event’s callbacks have been invoked. This bit of shorthand allows for concise expression of *deterministic* behavior, where the occurrence of a particular event type within a particular State has a definitive, unambiguous effect on the state of the object.
 
@@ -963,11 +998,13 @@ three.compute 504030201      # >>> true
 ```
 
 
-### Guards <a name="concepts--guards" href="#concepts--guards">&#x1f517;</a>
+<a name="concepts--guards" href="#concepts--guards" />
+### Guards
 
 States and transitions can be outfitted with **guards** that dictate how they may be used.
 
-#### State guards <a name="concepts--state-guards" href="#concepts--state-guards">&#x1f517;</a>
+<a name="concepts--state-guards" href="#concepts--state-guards" />
+#### State guards
 
 For a transition to be allowed to proceed, it must first have satisfied any guards imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object to the intended *target* at which it will arrive, and likewise the *target* must also agree to `admit` the object from the departed origin.
 
@@ -1035,7 +1072,8 @@ Here we observe state guards imposing the following restrictions:
 
 The result is a fanciful convolution where `object` is initially constrained to a progression from state `A` to `C` or its descendant states; exiting the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`, while `B` insists on directly returning the object’s state only to one of its siblings `C` or `D`.
 
-#### Transition guards <a name="concepts--transition-guards" href="#concepts--transition-guards">&#x1f517;</a>
+<a name="concepts--transition-guards" href="#concepts--transition-guards" />
+#### Transition guards
 
 Transition expressions may also include `admit` and `release` guards. Transition guards are used to decide which one transition amongst possibly several is to be executed as an object changes its state between a given `origin` and `target`.
 
@@ -1239,9 +1277,11 @@ scholar.graduate 3.4999
 
 
 
-## About this project <a name="about" href="#about">&#x1f517;</a>
+<a name="about" href="#about" />
+## About this project
 
-### Design goals <a name="about--design-goals" href="#about--design-goals">&#x1f517;</a>
+<a name="about--design-goals" href="#about--design-goals" />
+### Design goals
 
 #### Minimal footprint
 
@@ -1256,13 +1296,16 @@ As much as possible, **State** aims to look and feel like a feature of the langu
 Apart from the addition of the `object.state()` method, a call to `state()` makes no other modifications to a stateful object’s interface. Methods are replaced with delegators, which forward method calls to the current state. This is implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original form.
 
 
-### Future directions <a name="about--future-directions" href="#about--future-directions">&#x1f517;</a>
+<a name="about--future-directions" href="#about--future-directions" />
+### Future directions
 
-#### History <a name="about--future-directions--history" href="#about--future-directions--history">&#x1f517;</a>
+<a name="about--future-directions--history" href="#about--future-directions--history" />
+#### History
 
 Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its `data` content. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 
-#### Concurrency <a name="about--future-directions--concurrency" href="#about--future-directions--concurrency">&#x1f517;</a>
+<a name="about--future-directions--concurrency" href="#about--future-directions--concurrency" />
+#### Concurrency
 
 Whereas an object’s state is most typically conceptualized as an exclusive-OR operation (i.e., its current state is always fixed to exactly one state), a state may instead be defined as **concurrent**, relating its substates in an “AND” composition, where occupation of the concurrent state implies simultaneous occupation of each of its immediate substates.
 
