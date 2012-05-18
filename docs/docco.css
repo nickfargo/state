@@ -1,3 +1,200 @@
+@font-face {
+    font-family: 'Octicons Regular';
+    src: url('/staging/Octicons/font/octicons-regular-webfont.eot?v=2#iefix') format('embedded-opentype'), url('/staging/Octicons/font/octicons-regular-webfont.woff?v=2') format('woff'), url('/staging/Octicons/font/octicons-regular-webfont.ttf?v=2') format('truetype'), url('/staging/Octicons/font/octicons-regular-webfont.svg?v=2#newFontRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+/* sprites.less reset */
+[class^="icon-"], [class*=" icon-"] {
+    display: inline;
+    width: auto;
+    height: auto;
+    line-height: inherit;
+    vertical-align: baseline;
+    background-image: none;
+    background-position: 0% 0%;
+    background-repeat: repeat;
+}
+li[class^="icon-"], li[class*=" icon-"] {
+    display: block;
+}
+/*  Font Awesome styles
+    ------------------------------------------------------- */
+[class^="icon-"]:before, [class*=" icon-"]:before {
+    font-family: 'Octicons Regular';
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+    -webkit-font-smoothing:antialiased;
+    -moz-transition:color .15s ease-in 0;
+    -webkit-transition:color .15s ease-in 0;
+}
+a [class^="icon-"], a [class*=" icon-"] {
+    display: inline-block;
+    text-decoration: inherit;
+}
+/* makes the font 33% larger relative to the icon container */
+.icon-large:before {
+    vertical-align: top;
+    font-size: 1.3333333333333333em;
+}
+
+.btn [class^="icon-"], .btn [class*=" icon-"] {
+    /* keeps button heights with and without icons the same */
+    line-height: .9em;
+}
+li [class^="icon-"], li [class*=" icon-"] {
+    display: inline-block;
+    width: 1.25em;
+    text-align: center;
+}
+li .icon-large[class^="icon-"], li .icon-large[class*=" icon-"] {
+    /* 1.5 increased font size for icon-large * 1.25 width */
+    width: 1.875em;
+}
+
+
+li[class^="icon-"], li[class*=" icon-"] {
+    margin-left: 0;
+    list-style-type: none;
+}
+li[class^="icon-"]:before, li[class*=" icon-"]:before {
+    text-indent: -2em;
+    text-align: center;
+}
+li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
+    text-indent: -1.3333333333333333em;
+}
+
+/*  use the Unicode Private Use Area (PUA) to ensure screen
+    readers do not read off random characters that represent icons */
+.icon-private-repo:before              { content: "\f200"; }
+.icon-public-repo:before              { content: "\f201"; }
+.icon-repo-forked:before             { content: "\f202"; }
+.icon-create:before           { content: "\f203"; }
+.icon-delete:before              { content: "\f204"; }
+.icon-push:before               { content: "\f205"; }
+.icon-pull:before         { content: "\f206"; }
+.icon-readme:before, .icon-wiki:before               { content: "\f207"; }
+.icon-octocat:before               { content: "\f208"; }
+.icon-site-message:before, .icon-blacktocat:before          { content: "\f209"; }
+.icon-invertocat:before                 { content: "\f20a"; }
+.icon-download:before            { content: "\f20b"; }
+.icon-upload:before                 { content: "\f20c"; }
+.icon-keyboard:before             { content: "\f20d"; }
+.icon-gist:before            { content: "\f20e"; }
+.icon-gist-private:before            { content: "\f20f"; }
+
+.icon-code-file:before, .icon-download-unknown:before          { content: "\f210"; }
+.icon-download-text:before, .icon-text-file:before                 { content: "\f211"; }
+.icon-download-media:before             { content: "\f212"; }
+.icon-download-zip:before                { content: "\f213"; }
+.icon-download-pdf:before              { content: "\f214"; }
+.icon-download-tag:before               { content: "\f215"; }
+.icon-directory:before               { content: "\f216"; }
+.icon-submodule:before               { content: "\f217"; }
+.icon-person:before               { content: "\f218"; }
+.icon-team:before       { content: "\f219"; }
+.icon-member-added:before           { content: "\f21a"; }
+.icon-member-removed:before             { content: "\f21b"; }
+.icon-follow:before              { content: "\f21c"; }
+.icon-watching:before        { content: "\f21d"; }
+.icon-unwatch:before             { content: "\f21e"; }
+.icon-commit:before             { content: "\f21f"; }
+.icon-public-fork:before,.icon-fork:before             { content: "\f220"; }
+/* \f220 is not a valid unicode character. all shifted one down */
+
+.icon-private-fork:before            { content: "\f221"; }
+.icon-pull-request:before           { content: "\f222"; }
+.icon-merge:before               { content: "\f223"; }
+.icon-public-mirror:before               { content: "\f224"; }
+.icon-private-mirror:before         { content: "\f225"; }
+.icon-issue-opened:before         { content: "\f226"; }
+.icon-issue-reopened:before        { content: "\f227"; }
+.icon-issue-closed:before          { content: "\f228"; }
+.icon-issue-comment:before             { content: "\f229"; }
+.icon-star:before            { content: "\f22a"; }
+.icon-commit-comment:before                { content: "\f22b"; }
+.icon-help:before               { content: "\f22c"; }
+.icon-exclamation:before               { content: "\f22d"; }
+.icon-search-input:before           { content: "\f22e"; }
+.icon-advanced-search:before              { content: "\f22f"; }
+
+.icon-notifications:before             { content: "\f230"; }
+.icon-account-settings:before               { content: "\f231"; }
+.icon-logout:before               { content: "\f232"; }
+.icon-admin-tools:before             { content: "\f233"; }
+.icon-feed:before        { content: "\f234"; }
+.icon-check:before         { content: "\f235"; }
+.icon-apple:before         { content: "\f236"; }
+.icon-windows:before       { content: "\f237"; }
+.icon-ios:before        { content: "\f238"; }
+.icon-android:before      { content: "\f239"; }
+.icon-confirm:before               { content: "\f23a"; }
+.icon-unread-note:before        { content: "\f23b"; }
+.icon-read-note:before       { content: "\f23c"; }
+.icon-arr-up:before     { content: "\f23d"; }
+.icon-arr-right:before            { content: "\f23e"; }
+.icon-arr-down:before            { content: "\f23f"; }
+
+.icon-arr-left:before             { content: "\f240"; }
+.icon-pin:before         { content: "\f241"; }
+.icon-gift:before             { content: "\f242"; }
+.icon-graph:before               { content: "\f243"; }
+.icon-wrench:before               { content: "\f244"; }
+.icon-credit-card:before              { content: "\f245"; }
+.icon-time:before              { content: "\f246"; }
+.icon-ruby:before               { content: "\f247"; }
+.icon-podcast:before      { content: "\f248"; }
+.icon-key:before      { content: "\f249"; }
+.icon-force-push:before           { content: "\f24a"; }
+.icon-sync:before               { content: "\f24b"; }
+.icon-clone:before              { content: "\f24c"; }
+.icon-diff:before               { content: "\f24d"; }
+.icon-watchers:before            { content: "\f24e"; }
+.icon-discussion:before            { content: "\f24f"; }
+
+.icon-delete-note:before, .icon-remove-close:before       { content: "\f250"; }
+.icon-reply:before       { content: "\f251"; }
+.icon-mail-status:before              { content: "\f252"; }
+.icon-block:before       { content: "\f253"; }
+.icon-tag-create:before      { content: "\f254"; }
+.icon-tab-delete:before          { content: "\f255"; }
+.icon-branch-create:before         { content: "\f256"; }
+.icon-branch-delete:before        { content: "\f257"; }
+.icon-edit:before            { content: "\f258"; }
+.icon-info:before      { content: "\f259"; }
+.icon-arr-collapsed:before          { content: "\f25a"; }
+.icon-arr-expanded:before         { content: "\f25b"; }
+.icon-link:before      { content: "\f25c"; }
+.icon-add:before          { content: "\f25d"; }
+.icon-reorder:before         { content: "\f25e"; }
+.icon-code:before         { content: "\f25f"; }
+
+.icon-location:before         { content: "\f260"; }
+.icon-u-list:before        { content: "\f261"; }
+.icon-o-list:before           { content: "\f262"; }
+.icon-quotemark:before         { content: "\f263"; }
+.icon-version:before          { content: "\f264"; }
+.icon-brightness:before        { content: "\f265"; }
+.icon-fullscreen:before       { content: "\f266"; }
+.icon-normalscreen:before               { content: "\f267"; }
+.icon-calendar:before              { content: "\f268"; }
+.icon-beer:before           { content: "\f269"; }
+.icon-lock:before,.icon-secure:before   { content: "\f26a"; }
+.icon-added:before               { content: "\f26b"; }
+.icon-removed:before               { content: "\f26c"; }
+.icon-modified:before               { content: "\f26d"; }
+.icon-moved:before, .icon-renamed:before           { content: "\f26e"; }
+.icon-add-comment:before          { content: "\f26f"; }
+
+.icon-horizontal-rule:before          { content: "\f270"; }
+.icon-arr-right-mini:before       { content: "\f271"; }
+.icon-jump-down:before              { content: "\f272"; }
+.icon-jump-up:before           { content: "\f273"; }
+
+
 /*--------------------- Layout and Typography ----------------------------*/
 body {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -142,11 +339,26 @@ table td {
       background: rgba( 192, 255, 128, 0.20 );
       border: 1px solid rgba( 192, 255, 128, 0.1 );
     }
-    .docs a[name] {
+    .docs a[href^="#"][class^="icon-"], .docs a[href^="#"][class*=" icon-"] {
       float: right;
-      padding: 4px;
+      margin-right: -16px;
       background: transparent;
       border: 1px solid transparent;
+      color: rgba( 255, 255, 255, 0.25 );
+    }
+    .docs a[href^="#"][class^="icon-"]:hover, .docs a[href^="#"][class*=" icon-"]:hover {
+      background: rgba( 192, 255, 128, 0.20 );
+      color: #fff;
+    }
+    .docs a[href^="http://"][class^="icon-"], a[href^="http://"][class*=" icon-"] {
+      padding: 4px;
+      background: transparent;
+      border-color: transparent;
+      font-size: 110%;
+    }
+    .docs a[href^="http://"][class^="icon-"]:hover, a[href^="http://"][class*=" icon-"]:hover {
+      background: rgba( 255, 240, 128, 0.20 );
+      border: 1px solid rgba( 255, 240, 128, 0.1 );
     }
     .docs a tt, .docs a code {
       background: transparent;
