@@ -88,7 +88,7 @@ test( "Data", function () {
 	var NIL = Z.NIL;
 
 	function Class () {
-		state( this, {
+		state( this, 'mutable', {
 			data: {
 				a: 1,
 				b: "2",
