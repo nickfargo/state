@@ -3,8 +3,11 @@
 // 
 // [`LICENSE`](https://github.com/nickfargo/state/blob/master/LICENSE) MIT.
 // 
+// **State** is a micro-framework for implementing state-driven behavior directly into any
+// JavaScript object.
+// 
 // [statejs.org](http://statejs.org/)
-// [github](http://github.com/nickfargo/state/)
+// <a class="icon-large icon-octocat" href="http://github.com/nickfargo/state/"></a>
 
 ( function ( undefined ) {
 
@@ -30,11 +33,11 @@ var global = this,
 
     // The lone dependency of the **State** module is
     // [**Zcore**](http://github.com/zvector/zcore), a library that assists with tasks such as
-    // object manipulation, differential operations, facilitating prototypal inheritance, etc.
+    // object manipulation, differential operations, and facilitating prototypal inheritance.
     Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
 
 
-// ## state( ... ) <a name="module" href="#module">&#x1f517;</a>
+// ## state( ... ) <a class="icon-link" name="module" href="#module"></a>
 // 
 // The `state` module is exported as a function. This is used either: (1) to generate a formal
 // [`StateExpression`](#state-expression); or (2) to bestow an arbitrary `owner` object with a
@@ -73,12 +76,13 @@ function state (
 Z.assign( state, meta );
 
 
-// <a name="module--constants" href="#module--constants">&#x1f517;</a>
+// <a class="icon-link" name="module--constants" href="#module--constants"></a>
 // 
 // ### Module-level constants
 
-// <a name="module--constants--state-attributes"
-//    href="#module--constants--state-attributes">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--state-attributes"
+//    href="#module--constants--state-attributes"></a>
 // 
 // #### State attributes
 // 
@@ -92,59 +96,63 @@ var STATE_ATTRIBUTES = {
 
     // A `mutable` state is allowed to change its data, methods, guards, substates, or
     // transitions after it has been initialized. Mutability is implicitly inherited by all
-    // descendant states.
-    // *(Reserved; not presently implemented.)*
+    // inheriting states.
     MUTABLE     : 0x2,
 
-    // Marking a state `initial` specifies which state a newly instantiated
-    // [`StateController`](#state-controller) should assume.
-    INITIAL     : 0x4,
+    // By default, a state cannot be mutated unless it, a superstate, or a protostate is
+    // declared with the `mutable` attribute. The `immutable` attribute affirms prohibition on
+    // mutability absolutely, throughout all inheriting states, overriding and negating any
+    // included or inherited `mutable` attribute.
+    IMMUTABLE   : 0x4,
+
+    // Marking a state `initial` specifies which state a newly stateful object should assume.
+    INITIAL     : 0x8,
 
     // Once a state marked `conclusive` is entered, it cannot be exited, although transitions
     // may still freely traverse within its substates.
-    CONCLUSIVE  : 0x8,
+    CONCLUSIVE  : 0x10,
 
     // Once a state marked `final` is entered, no further outbound transitions within its local
     // region are allowed.
-    FINAL       : 0x10,
+    FINAL       : 0x20,
 
     // An **abstract state** cannot itself be current. Consequently a transition target that
     // points to a state marked `abstract` is redirected to one of its substates.
-    ABSTRACT    : 0x20,
+    ABSTRACT    : 0x40,
 
     // Marking a state `default` designates it as the actual target for any transition that
     // targets its abstract superstate.
-    DEFAULT     : 0x40,
+    DEFAULT     : 0x80,
 
     // A state marked `sealed` cannot have substates.
-    SEALED      : 0x80,
+    SEALED      : 0x100,
 
     // A `retained` state is one that preserves its own internal state, such that, after the
     // state has become no longer active, a subsequent transition targeting that particular
     // state will automatically be redirected to whichever of its descendant states was most
     // recently current.
     // *(Reserved; not presently implemented.)*
-    RETAINED    : 0x100,
+    RETAINED    : 0x200,
 
     // Marking a state with the `history` attribute causes its internal state to be recorded
     // in a sequential **history**. Whereas a `retained` state is concerned only with the most
     // recent internal state, a state’s history can be traversed and altered, resulting in
     // transitions back or forward to previously or subsequently held internal states.
     // *(Reserved; not presently implemented.)*
-    HISTORY     : 0x200,
+    HISTORY     : 0x400,
 
     // Normally, states that are `retained` or that keep a `history` persist their internal
     // state *deeply*, i.e., with a scope extending over all of the state’s descendant states.
     // Marking a state `shallow` limits the scope of its persistence to its immediate
     // substates only.
     // *(Reserved; not presently implemented.)*
-    SHALLOW     : 0x400,
+    SHALLOW     : 0x800,
 
     // Causes alterations to a state to result in a reflexive transition, with a delta object
     // distinguishing the prior version of the state from its new version. Should also add a
     // history entry wherever appropriate, representing the prior version and the delta.
     // *(Reserved; not presently implemented.)*
-    VERSIONED   : 0x800,
+    VERSIONED   : 0x1000,
 
     // In a state marked `concurrent`, the substates are considered **concurrent orthogonal
     // regions**. Upon entering a concurrent state, the controller creates a new set of
@@ -153,54 +161,61 @@ var STATE_ATTRIBUTES = {
     // reduction function is associated with the given method, the call is repeated for each
     // region and the results reduced accordingly on their way back to the owner.
     // *(Reserved; not presently implemented.)*
-    CONCURRENT  : 0x1000
+    CONCURRENT  : 0x2000
 };
 
-// <a name="module--constants--state-attribute-modifiers"
-//    href="#module--constants--state-attribute-modifiers">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--state-attribute-modifiers"
+//    href="#module--constants--state-attribute-modifiers"></a>
 // 
 // The subset of attributes that are valid keywords for the `attributes` argument in a call to
 // the exported [`state`](#module) function.
 var STATE_ATTRIBUTE_MODIFIERS = [
-        'mutable',
+        'mutable immutable',
         'initial conclusive final',
         'abstract default sealed',
         'retained history shallow versioned',
         'concurrent'
     ].join(' ');
 
-// <a name="module--constants--state-expression-categories"
-//    href="#module--constants--state-expression-categories">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--state-expression-categories"
+//    href="#module--constants--state-expression-categories"></a>
 // 
 var STATE_EXPRESSION_CATEGORIES =
         'data methods events guards states transitions';
 
-// <a name="module--constants--state-event-types"
-//    href="#module--constants--state-event-types">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--state-event-types"
+//    href="#module--constants--state-event-types"></a>
 // 
 var STATE_EVENT_TYPES =
         'construct depart exit enter arrive destroy mutate';
 
-// <a name="module--constants--guard-actions"
-//    href="#module--constants--guard-actions">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--guard-actions"
+//    href="#module--constants--guard-actions"></a>
 // 
 var GUARD_ACTIONS =
         'admit release';
 
-// <a name="module--constants--transition-properties"
-//    href="#module--constants--transition-properties">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--transition-properties"
+//    href="#module--constants--transition-properties"></a>
 // 
 var TRANSITION_PROPERTIES =
         'origin source target action conjugate';
 
-// <a name="module--constants--transition-expression-categories"
-//    href="#module--constants--transition-expression-categories">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--transition-expression-categories"
+//    href="#module--constants--transition-expression-categories"></a>
 // 
 var TRANSITION_EXPRESSION_CATEGORIES =
         'methods events guards';
 
-// <a name="module--constants--transition-event-types"
-//    href="#module--constants--transition-event-types">&#x1f517;</a>
+// <a class="icon-link"
+//    name="module--constants--transition-event-types"
+//    href="#module--constants--transition-event-types"></a>
 // 
 var TRANSITION_EVENT_TYPES =
         'construct destroy enter exit start end abort';
@@ -210,9 +225,7 @@ var TRANSITION_EVENT_TYPES =
 Z.env.server && ( module.exports = exports = state );
 Z.env.client && ( global['state'] = state );
 
-// <a name="state" href="#state">&#x1f517;</a>
-// 
-// ## State
+// ## State <a class="icon-link" name="state" href="#state"></a>
 // 
 // A **state** models a set of behaviors on behalf of an owner object. The owner may undergo
 // **transitions** that change its **current** state from one to another, and in so doing adopt a
@@ -221,19 +234,19 @@ Z.env.client && ( global['state'] = state );
 // Distinct behaviors are modeled in each state by defining a set of method overrides, to which
 // calls made on the owner will be redirected so long as a state remains current.
 // 
-// States are nested hierarchically in a tree structure, with **substates** that inherit from their 
+// States are structured as a rooted tree, where **substates** inherit from a single
 // **superstate**. While a substate is current, it and all of its ancestor superstates are
 // considered to be **active**.
 // 
 // In addition, a state also recognizes the owner object’s prototypal inheritance, identifying an
-// identically named and positioned state in the prototype as its **protostate**. Behavior is
-// always inherited *from protostates first*, then from superstates.
+// identically named and positioned state in the prototype as its **protostate**. Stateful
+// behavior is inherited *from protostates first*, then from superstates.
 
 var State = ( function () {
     var SA = STATE_ATTRIBUTES,
 
-        HERITABLE_ATTRIBUTES =
-            SA.MUTABLE    |
+        PROTOSTATE_HERITABLE_ATTRIBUTES =
+            SA.MUTABLE    |  SA.IMMUTABLE   |
             SA.INITIAL    |  SA.CONCLUSIVE  |  SA.FINAL    |
             SA.ABSTRACT   |  SA.DEFAULT     |  SA.SEALED   |
             SA.RETAINED   |  SA.HISTORY     |  SA.SHALLOW  |
@@ -242,7 +255,7 @@ var State = ( function () {
 
     Z.assign( State, SA );
 
-    // <a name="state--constructor" href="#state--constructor">&#x1f517;</a>
+    // <a class="icon-link" name="state--constructor" href="#state--constructor"></a>
     // 
     // ### Constructor
     function State ( superstate, name, expression ) {
@@ -250,7 +263,7 @@ var State = ( function () {
             return new State( superstate, name, expression );
         }
 
-        var attributes, controller, protostate;
+        var attributes, controller, superstateAttributes, protostate, protostateAttributes;
 
         attributes = expression && expression.attributes || SA.NORMAL;
 
@@ -261,34 +274,43 @@ var State = ( function () {
 
         // A root state is created by a [`StateController`](#state-controller), which passes a
         // reference to itself into the `superstate` parameter, signaling that a `controller`
-        // method needs to be created for this instance.
+        // method closing over the reference needs to be created for this instance.
         if ( superstate instanceof StateController ) {
             controller = superstate, superstate = undefined;
             controller.root = Z.thunk( this );
             this.controller = Z.thunk( controller );
         }
 
-        // Otherwise this state is an inheritor of an existing superstate, so an instance method
-        // for `superstate` is required.
+        // Otherwise this state is an inheritor of an existing superstate.
         else if ( superstate ) {
-            this.superstate = State.privileged.superstate( superstate );
+            this.superstate = privileged.superstate( superstate );
 
             // The `mutable` attribute is inherited from the superstate.
-            attributes |= superstate.attributes() & SA.MUTABLE;
+            superstateAttributes = superstate.attributes();
+            attributes |= superstateAttributes & SA.MUTABLE;
         }
 
-        // Heritable attributes are copied from the protostate.
-        protostate = this.protostate();
-        protostate && ( attributes |= protostate.attributes() & HERITABLE_ATTRIBUTES );
+        // The set of “protostate-heritable” attributes are inherited from the protostate.
+        ( protostate = this.protostate() ) &&
+            ( protostateAttributes = protostate.attributes(),
+                attributes |= protostateAttributes & PROTOSTATE_HERITABLE_ATTRIBUTES );
+
+        // Any `immutable` attribute overrules and negates any and all `mutable` attributes,
+        // owned or inherited.
+        attributes |= ( superstateAttributes | protostateAttributes ) & SA.IMMUTABLE;
+        attributes & SA.IMMUTABLE && ( attributes &= ~SA.MUTABLE );
 
         // Only a few instance methods are required for a virtual state, including one
-        // ([`realize`](#state--privileged--realize)) which if called later will convert the
-        // virtual state into a real state.
+        // ([`realize`](#state--privileged--realize)) method which if called later will convert
+        // the virtual state into a real state.
         if ( attributes & SA.VIRTUAL ) {
-            Z.privilege( this, State.privileged, { 'attributes realize' : [ attributes ] });
+            this.attributes = privileged.attributes( attributes );
+            this.realize = privileged.realize( attributes );
+            attributes & SA.MUTABLE && Z.assign( this, mutableVirtualMethods );
         }
 
-        // Do the full setup required for a real state.
+        // For a real state, the remainder of construction is delegated to the class-private
+        // [`realize`](#state--private--realize) function.
         else {
             realize.call( this, superstate, attributes, expression );
         }
@@ -301,9 +323,9 @@ var State = ( function () {
         }
     }
 
-    // ### Class-private functions
+    // ### Class-private entities
 
-    // <a name="state--private--realize" href="#state--private--realize">&#x1f517;</a>
+    // <a class="icon-link" name="state--private--realize" href="#state--private--realize"></a>
     // 
     // #### realize
     // 
@@ -323,31 +345,67 @@ var State = ( function () {
             guards = {},
             substates = {},
             transitions = {},
-            history = attributes & SA.HISTORY || attributes & SA.RETAINED ? [] : null;
+            history = attributes & SA.HISTORY || attributes & SA.RETAINED ? [] : null,
+            owner, addMethod, key, method,
+            self = this;
 
         // Method names are mapped to specific local variables. The named methods are created on
         // `this`, each of which is a partial application of its corresponding method factory at
         // [`State.privileged`](#state--privileged).
-        Z.privilege( this, State.privileged, {
-            'express mutate' : [ StateExpression, data, methods, events, guards, substates,
-                transitions ],
+        Z.privilege( this, privileged, {
+            'express' : [ StateExpression, attributes, data, methods, events, guards,
+                substates, transitions ],
             'superstate' : [ superstate ],
             'attributes' : [ attributes ],
-            'data' : [ data ],
-            'method methodNames addMethod removeMethod' : [ methods ],
+            'data' : [ attributes, data ],
+            'method methodNames' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
-            'guard addGuard removeGuard' : [ guards ],
-            'substate substates addSubstate removeSubstate' : [ substates ],
-            'transition transitions addTransition' : [ transitions ],
+            'guard' : [ guards ],
+            'substate substates' : [ substates ],
+            'transition transitions' : [ transitions ],
             'destroy' : [ function ( s ) { return superstate = s; }, methods, events, substates ]
         });
-        history && Z.privilege( this, State.privileged, {
+        if ( 1 || attributes & SA.MUTABLE ) {
+            this.mutate             = privileged.mutate( StateExpression, attributes, data,
+                                            methods, events, guards, substates, transitions );
+            addMethod =
+            this.addMethod          = privileged.addMethod( methods );
+            this.removeMethod       = privileged.removeMethod( methods );
+            this.addGuard           = privileged.addGuard( guards );
+            this.removeGuard        = privileged.removeGuard( guards );
+            this.addSubstate        = privileged.addSubstate( attributes, substates );
+            this.removeSubstate     = privileged.removeSubstate( attributes, substates );
+            this.addTransition      = privileged.addTransition( transitions );
+            this.removeTransition   = privileged.removeTransition( transitions );
+        }
+        history && Z.privilege( this, privileged, {
             'history push replace' : [ history ]
         });
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
 
         // With the instance methods in place, `this` is now ready to apply `expression` to itself.
-        State.privileged.init( StateExpression ).call( this, expression );
+        privileged.init( StateExpression ).call( this, expression );
+
+        // Realizing a root state requires that, for any of the owner’s own methods for which exist
+        // at least one stateful implementation located higher in its prototype chain, that method
+        // must be copied into the root to define the object’s default behavior.
+        if ( !superstate && ( owner = this.owner() ) ) {
+            addMethod || ( addMethod = privileged.addMethod( methods ) );
+
+            for ( key in owner ) if ( Z.hasOwn.call( owner, key ) ) {
+                method = owner[ key ];
+                if ( Z.isFunction( method ) && !method.isDelegator && this.method( key, false ) ) {
+                    addMethod.call( this, key, method );
+                }
+            }
+        }
+
+        if ( ~attributes & SA.MUTABLE ) {
+            Z.forEach( 'addMethod removeMethod addGuard removeGuard removeSubstate \
+                    addTransition removeTransition'.split(/\s+/), function ( methodName ) {
+                delete self[ methodName ];
+            });
+        }
 
         // (Exposed for debugging.)
         Z.env.debug && Z.assign( this, {
@@ -365,22 +423,9 @@ var State = ( function () {
         return this;
     }
 
-    // <a name="state--private--create-realizer"
-    //    href="#state--private--create-realizer">&#x1f517;</a>
-    // 
-    // #### createRealizer
-    // 
-    // Creates a method that will first [`realize`](#state--private--realize) the state and then,
-    // under the assumption that realization has produced a new method of the same name on the
-    // instance, invoke the method.
-    function createRealizer ( obj, names ) {
-        Z.forEach( Z.trim( names ).split( Z.regexp.whitespace ), function ( name ) {
-            obj[ name ] = function () { return this.realize()[ name ].apply( this, arguments ); };
-        });
-    }
-
-    // <a name="state--private--create-delegator"
-    //    href="#state--private--create-delegator">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state--private--create-delegator"
+    //    href="#state--private--create-delegator"></a>
     // 
     // #### createDelegator
     // 
@@ -412,15 +457,39 @@ var State = ( function () {
         return delegator;
     }
 
-    // <a name="state--privileged" href="#state--privileged">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state--private--mutable-virtual-methods"
+    //    href="#state--private--mutable-virtual-methods"></a>
+    // 
+    // #### mutableVirtualMethods
+    // 
+    // A set of methods that will be mixed into mutable virtual states. When called, these first
+    // [`realize`](#state--private--realize) the state and then, provided that realization has
+    // successfully produced a new method of the same name on the instance, invoke that method.
+    var mutableVirtualMethods = ( function () {
+        var obj = {},
+            names = 'addMethod addEvent addGuard addSubstate addTransition';
+
+        Z.forEach( names.split(' '), function ( name ) {
+            function realizer () {
+                var method = this.realize()[ name ];
+                if ( method !== realizer ) return method.apply( this, arguments );
+            }
+            obj[ name ] = realizer;
+        });
+
+        return obj;
+    })();
+
+    // <a class="icon-link" name="state--privileged" href="#state--privileged"></a>
     // 
     // ### Privileged methods
     // 
     // Methods defined here typically are partially applied either within or down-stack from
     // [`State`](#state) or an inheriting constructor (e.g., [`Transition`](#transition)).
-    State.privileged = {
+    var privileged = State.privileged = {
 
-        // <a name="state--privileged--init" href="#state--privileged--init">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--init" href="#state--privileged--init"></a>
         // 
         // #### init
         // 
@@ -435,7 +504,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--realize" href="#state--privileged--realize">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--realize" href="#state--privileged--realize"></a>
         // 
         // #### realize
         // 
@@ -459,7 +528,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--express" href="#state--privileged--express">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--express" href="#state--privileged--express"></a>
         // 
         // #### express
         // 
@@ -499,14 +568,14 @@ var State = ( function () {
 
             return function (
                 /*Function*/ expressionConstructor,
+                  /*Number*/ attributes,
                   /*Object*/ data, methods, events, guards, substates, transitions
             ) {
                 return function ( /*Boolean*/ typed ) {
-                    var expression = {},
-                        attributes = this.attributes();
+                    var expression = {};
 
                     Z.edit( expression, {
-                        attributes:  this.attributes(),
+                        attributes:  attributes,
                         data:        clone( data ),
                         methods:     clone( methods ),
                         events:      cloneEvents( events ),
@@ -520,7 +589,7 @@ var State = ( function () {
             };
         })(),
 
-        // <a name="state--privileged--mutate" href="#state--privileged--mutate">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--mutate" href="#state--privileged--mutate"></a>
         // 
         // #### mutate
         // 
@@ -528,16 +597,14 @@ var State = ( function () {
         // by the expression provided in `expr`. 
         mutate: function (
             /*Function*/ expressionConstructor,
+              /*Number*/ attributes,
               /*Object*/ data, methods, events, guards, substates, transitions
         ) {
             return function (
-                /*<expressionConstructor> | Object*/ expr,
-                                         /*Boolean*/ viaSuper
+                /*<expressionConstructor> | Object*/ expr
             ) {
                 expr instanceof expressionConstructor ||
                     ( expr = new expressionConstructor( expr ) );
-
-                viaSuper === undefined && ( viaSuper = true );
 
                 var self = this,
                     NIL = Z.NIL,
@@ -665,8 +732,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--superstate"
-        //    href="#state--privileged--superstate">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--superstate"
+        //    href="#state--privileged--superstate"></a>
         // 
         // #### superstate
         // 
@@ -690,8 +758,9 @@ var State = ( function () {
             }
         },
 
-        // <a name="state--privileged--attributes"
-        //    href="#state--privileged--attributes">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--attributes"
+        //    href="#state--privileged--attributes"></a>
         // 
         // #### attributes
         // 
@@ -700,7 +769,7 @@ var State = ( function () {
             return function () { return attributes; };
         },
 
-        // <a name="state--privileged--data" href="#state--privileged--data">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--data" href="#state--privileged--data"></a>
         // 
         // #### data
         // 
@@ -716,7 +785,10 @@ var State = ( function () {
         // Edits data on this state. For keys in `edit` whose values are set to the `NIL`
         // directive, the matching keys in `data` are deleted. If the operation results in a change
         // to `data`, a `mutate` event is emitted for this state.
-        data: function ( /*Object*/ data ) {
+        data: function (
+            /*Number*/ attributes,
+            /*Object*/ data
+        ) {
             return function ( /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
                 var edit, delta, state, superstate, protostate;
 
@@ -727,8 +799,8 @@ var State = ( function () {
                     viaProto === undefined && ( viaProto = true );
                 }
 
-                if ( edit && !Z.isEmpty( edit ) ) {
-                    if ( this.isVirtual() ) return this.realize().data( edit );
+                if ( edit && attributes & SA.MUTABLE && !Z.isEmpty( edit ) ) {
+                    if ( attributes & SA.VIRTUAL ) return this.realize().data( edit );
 
                     delta = Z.delta( data, edit );
                     if ( !this.__atomic__ && delta && !Z.isEmpty( delta ) ) {
@@ -750,7 +822,7 @@ var State = ( function () {
             }
         },
 
-        // <a name="state--privileged--method" href="#state--privileged--method">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--method" href="#state--privileged--method"></a>
         // 
         // #### method
         // 
@@ -800,8 +872,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--method-names"
-        //    href="#state--privileged--method-names">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--method-names"
+        //    href="#state--privileged--method-names"></a>
         // 
         // #### methodNames
         // 
@@ -812,8 +885,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--add-method"
-        //    href="#state--privileged--add-method">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--add-method"
+        //    href="#state--privileged--add-method"></a>
         // 
         // #### addMethod
         // 
@@ -852,8 +926,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--remove-method"
-        //    href="#state--privileged--remove-method">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--remove-method"
+        //    href="#state--privileged--remove-method"></a>
         // 
         // #### removeMethod
         // 
@@ -866,7 +941,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--event" href="#state--privileged--event">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--event" href="#state--privileged--event"></a>
         // 
         // #### event
         // 
@@ -891,7 +966,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--add-event" href="#state--privileged--add-event">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--add-event" href="#state--privileged--add-event"></a>
         // 
         // #### addEvent
         // 
@@ -912,8 +987,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--remove-event"
-        //    href="#state--privileged--remove-event">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--remove-event"
+        //    href="#state--privileged--remove-event"></a>
         // 
         // #### removeEvent
         // 
@@ -927,7 +1003,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--emit" href="#state--privileged--emit">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--emit" href="#state--privileged--emit"></a>
         // 
         // #### emit
         // 
@@ -972,7 +1048,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--guard" href="#state--privileged--guard">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--guard" href="#state--privileged--guard"></a>
         // 
         // #### guard
         // 
@@ -996,7 +1072,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--add-guard" href="#state--privileged--add-guard">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--add-guard" href="#state--privileged--add-guard"></a>
         // 
         // #### addGuard
         // 
@@ -1007,8 +1083,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--remove-guard"
-        //    href="#state--privileged--remove-guard">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--remove-guard"
+        //    href="#state--privileged--remove-guard"></a>
         // 
         // #### removeGuard
         // 
@@ -1033,7 +1110,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--substate" href="#state--privileged--substate">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--substate" href="#state--privileged--substate"></a>
         // 
         // #### substate
         // 
@@ -1066,7 +1143,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--substates" href="#state--privileged--substates">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--substates" href="#state--privileged--substates"></a>
         // 
         // #### substates
         // 
@@ -1101,8 +1178,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--add-substate"
-        //    href="#state--privileged--add-substate">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--add-substate"
+        //    href="#state--privileged--add-substate"></a>
         // 
         // #### addSubstate
         // 
@@ -1110,17 +1188,26 @@ var State = ( function () {
         // this state. If a substate with the same `stateName` already exists, it is first
         // destroyed and then replaced. If the new substate is being added to the controller’s
         // root state, a reference is added directly on the controller itself as well.
-        addSubstate: function ( substates ) {
+        addSubstate: function ( attributes, substates ) {
             return function (
                 /*String*/ stateName,
                 /*StateExpression | Object | State*/ stateExpression
             ) {
                 var substate, controller;
 
-                if ( this.isVirtual() ) {
+                if ( !( attributes & SA.MUTABLE ||
+                    stateExpression instanceof State &&
+                    stateExpression.isVirtual() &&
+                    stateExpression.superstate() === this &&
+                    stateExpression.protostate().superstate().isProtostateOf( this )
+                ) ) {
+                    // return null;
+                }
+
+                if ( attributes & SA.VIRTUAL ) {
                     return this.realize().addSubstate( stateName, stateExpression );
                 }
-                if ( this.isSealed() ) return null;
+                if ( attributes & SA.SEALED ) return null;
 
                 ( substate = substates[ stateName ] ) && substate.destroy();
 
@@ -1139,13 +1226,14 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--remove-substate"
-        //    href="#state--privileged--remove-substate">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--remove-substate"
+        //    href="#state--privileged--remove-substate"></a>
         // 
         // #### removeSubstate
         // 
         // Removes the named substate from the local state, if possible.
-        removeSubstate: function ( substates ) {
+        removeSubstate: function ( attributes, substates ) {
             return function ( /*String*/ stateName ) {
                 var controller, current, transition,
                     substate = substates[ stateName ];
@@ -1179,8 +1267,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--transition"
-        //    href="#state--privileged--transition">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--transition"
+        //    href="#state--privileged--transition"></a>
         // 
         // #### transition
         // 
@@ -1191,8 +1280,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--transitions"
-        //    href="#state--privileged--transitions">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--transitions"
+        //    href="#state--privileged--transitions"></a>
         // 
         // #### transitions
         // 
@@ -1203,8 +1293,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--add-transition"
-        //    href="#state--privileged--add-transition">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--privileged--add-transition"
+        //    href="#state--privileged--add-transition"></a>
         // 
         // #### addTransition
         // 
@@ -1221,7 +1312,9 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--history" href="#state--privileged--history">&#x1f517;</a>
+        removeTransition: Z.noop,
+
+        // <a class="icon-link" name="state--privileged--history" href="#state--privileged--history"></a>
         // 
         // #### history
         // 
@@ -1232,7 +1325,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--push" href="#state--privileged--push">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--push" href="#state--privileged--push"></a>
         // 
         // #### push
         // 
@@ -1282,7 +1375,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--replace" href="#state--privileged--replace">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--replace" href="#state--privileged--replace"></a>
         // 
         // #### replace
         // 
@@ -1321,7 +1414,7 @@ var State = ( function () {
             };
         },
 
-        // <a name="state--privileged--destroy" href="#state--privileged--destroy">&#x1f517;</a>
+        // <a class="icon-link" name="state--privileged--destroy" href="#state--privileged--destroy"></a>
         // 
         // #### destroy
         // 
@@ -1391,19 +1484,21 @@ var State = ( function () {
         }
     };
 
+    // <a class="icon-link" name="state--prototype" href="#state--prototype"></a>
+    // 
     // ### Prototype methods
     // 
     // The instance methods defined above are also defined here, either as no-ops or defaults, so
     // as to provide virtual states with a conformant [`State`](#state) interface despite not (or
     // not yet) having been realized.
-    createRealizer( State.prototype, 'addMethod addEvent addGuard addSubstate addTransition' );
-    Z.privilege( State.prototype, State.privileged, {
+    Z.privilege( State.prototype, privileged, {
         'data method substate substates' : [ null ]
     });
     Z.assign( State.prototype, {
         attributes: Z.thunk( SA.NORMAL ),
         isVirtual:    function () { return !!( this.attributes() & SA.VIRTUAL ); },
         isMutable:    function () { return !!( this.attributes() & SA.MUTABLE ); },
+        isImmutable:  function () { return !!( this.attributes() & SA.IMMUTABLE ); },
         isInitial:    function () { return !!( this.attributes() & SA.INITIAL ); },
         isConclusive: function () { return !!( this.attributes() & SA.CONCLUSIVE ); },
         isFinal:      function () { return !!( this.attributes() & SA.FINAL ); },
@@ -1419,21 +1514,41 @@ var State = ( function () {
         'name \
          express mutate \
          superstate \
-         removeMethod \
-         event removeEvent emit trigger \
-         guard removeGuard \
-         removeSubstate \
-         transition removeTransition' :
+         addMethod removeMethod \
+         event addEvent removeEvent emit trigger \
+         guard addGuard removeGuard \
+         addSubstate removeSubstate \
+         transition addTransition removeTransition' :
             Z.noop,
 
         realize: Z.getThis,
+
+        // #### mutate
+        // 
+        // By default states are non-mutable and their contents cannot be changed, but a
+        // mutation can be applied to a mutable substate through a non-mutable superstate.
+        mutate: function ( expr ) {
+            var name, value,
+                NIL = Z.NIL,
+                substates = this.substates(),
+                collection = expr.states;
+
+            for ( name in collection ) if ( Z.hasOwn.call( collection, name ) ) {
+                value = collection[ name ];
+                if ( name in substates ) {
+                    value !== NIL && substates[ name ].mutate( value, false );
+                } else {
+                    this.addSubstate( name, value );
+                }
+            }
+        },
 
         methodNames: function () { return []; },
         transitions: function () { return {}; },
         destroy: Z.thunk( false ),
 
 
-        // <a name="state--prototype--to-string" href="#state--prototype--to-string">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--to-string" href="#state--prototype--to-string"></a>
         // 
         // #### toString
         // 
@@ -1442,7 +1557,7 @@ var State = ( function () {
             return this.derivation( true ).join('.');
         },
 
-        // <a name="state--prototype--controller" href="#state--prototype--controller">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--controller" href="#state--prototype--controller"></a>
         // 
         // #### controller
         // 
@@ -1452,7 +1567,7 @@ var State = ( function () {
             if ( superstate ) return superstate.controller();
         },
 
-        // <a name="state--prototype--owner" href="#state--prototype--owner">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--owner" href="#state--prototype--owner"></a>
         // 
         // #### owner
         // 
@@ -1462,7 +1577,7 @@ var State = ( function () {
             if ( controller ) return controller.owner();
         },
 
-        // <a name="state--prototype--root" href="#state--prototype--root">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--root" href="#state--prototype--root"></a>
         // 
         // #### root
         // 
@@ -1472,7 +1587,7 @@ var State = ( function () {
             if ( controller ) return controller.root();
         },
 
-        // <a name="state--prototype--current" href="#state--prototype--current">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--current" href="#state--prototype--current"></a>
         // 
         // #### current
         // 
@@ -1482,8 +1597,9 @@ var State = ( function () {
             if ( controller ) return this.controller().current();
         },
 
-        // <a name="state--prototype--default-substate"
-        //    href="#state--prototype--default-substate">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--prototype--default-substate"
+        //    href="#state--prototype--default-substate"></a>
         // 
         // #### defaultSubstate
         // 
@@ -1507,8 +1623,9 @@ var State = ( function () {
             return first;
         },
 
-        // <a name="state--prototype--initial-substate"
-        //    href="#state--prototype--initial-substate">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--prototype--initial-substate"
+        //    href="#state--prototype--initial-substate"></a>
         // 
         // #### initialSubstate
         // 
@@ -1535,7 +1652,7 @@ var State = ( function () {
             }
         },
 
-        // <a name="state--prototype--protostate" href="#state--prototype--protostate">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--protostate" href="#state--prototype--protostate"></a>
         // 
         // #### protostate
         // 
@@ -1604,7 +1721,7 @@ var State = ( function () {
             }
         },
 
-        // <a name="state--prototype--derivation" href="#state--prototype--derivation">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--derivation" href="#state--prototype--derivation"></a>
         // 
         // #### derivation
         // 
@@ -1618,7 +1735,7 @@ var State = ( function () {
             return result;
         },
 
-        // <a name="state--prototype--depth" href="#state--prototype--depth">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--depth" href="#state--prototype--depth"></a>
         // 
         // #### depth
         // 
@@ -1629,7 +1746,7 @@ var State = ( function () {
             return n;
         },
 
-        // <a name="state--prototype--common" href="#state--prototype--common">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--common" href="#state--prototype--common"></a>
         // 
         // #### common
         // 
@@ -1649,7 +1766,7 @@ var State = ( function () {
             }
         },
 
-        // <a name="state--prototype--is" href="#state--prototype--is">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--is" href="#state--prototype--is"></a>
         // 
         // #### is
         // 
@@ -1659,7 +1776,7 @@ var State = ( function () {
             return state === this;
         },
 
-        // <a name="state--prototype--is-in" href="#state--prototype--is-in">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--is-in" href="#state--prototype--is-in"></a>
         // 
         // #### isIn
         // 
@@ -1669,7 +1786,7 @@ var State = ( function () {
             return state === this || state.isSuperstateOf( this );
         },
 
-        // <a name="state--prototype--has" href="#state--prototype--has">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--has" href="#state--prototype--has"></a>
         // 
         // #### has
         // 
@@ -1679,8 +1796,9 @@ var State = ( function () {
             return this === state || this.isSuperstateOf( state );
         },
 
-        // <a name="state--prototype--is-superstate-of"
-        //    href="#state--prototype--is-superstate-of">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--prototype--is-superstate-of"
+        //    href="#state--prototype--is-superstate-of"></a>
         // 
         // #### isSuperstateOf
         // 
@@ -1694,8 +1812,9 @@ var State = ( function () {
                 false;
         },
 
-        // <a name="state--prototype--is-protostate-of"
-        //    href="#state--prototype--is-protostate-of">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--prototype--is-protostate-of"
+        //    href="#state--prototype--is-protostate-of"></a>
         // 
         // #### isProtostateOf
         // 
@@ -1710,7 +1829,7 @@ var State = ( function () {
                 false;
         },
 
-        // <a name="state--prototype--apply" href="#state--prototype--apply">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--apply" href="#state--prototype--apply"></a>
         // 
         // #### apply
         // 
@@ -1737,7 +1856,7 @@ var State = ( function () {
             return method.apply( context, args );
         },
 
-        // <a name="state--prototype--call" href="#state--prototype--call">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--call" href="#state--prototype--call"></a>
         // 
         // #### call
         // 
@@ -1746,7 +1865,7 @@ var State = ( function () {
             return this.apply( methodName, Z.slice.call( arguments, 1 ) );
         },
 
-        // <a name="state--prototype--has-method" href="#state--prototype--has-method">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--has-method" href="#state--prototype--has-method"></a>
         // 
         // #### hasMethod
         // 
@@ -1756,8 +1875,9 @@ var State = ( function () {
             return method && method !== Z.noop;
         },
 
-        // <a name="state--prototype--has-own-method"
-        //    href="#state--prototype--has-own-method">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state--prototype--has-own-method"
+        //    href="#state--prototype--has-own-method"></a>
         // 
         // #### hasOwnMethod
         // 
@@ -1766,7 +1886,7 @@ var State = ( function () {
             return !!this.method( methodName, false, false );
         },
 
-        // <a name="state--prototype--change" href="#state--prototype--change">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--change" href="#state--prototype--change"></a>
         // 
         // #### change
         // 
@@ -1792,7 +1912,7 @@ var State = ( function () {
             );
         },
 
-        // <a name="state--prototype--change-to" href="#state--prototype--change-to">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--change-to" href="#state--prototype--change-to"></a>
         // 
         // #### changeTo
         // 
@@ -1810,7 +1930,7 @@ var State = ( function () {
             return this.change( target, options );
         },
 
-        // <a name="state--prototype--is-current" href="#state--prototype--is-current">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--is-current" href="#state--prototype--is-current"></a>
         // 
         // #### isCurrent
         // 
@@ -1819,7 +1939,7 @@ var State = ( function () {
             return this.current() === this;
         },
 
-        // <a name="state--prototype--is-active" href="#state--prototype--is-active">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--is-active" href="#state--prototype--is-active"></a>
         // 
         // #### isActive
         // 
@@ -1830,7 +1950,7 @@ var State = ( function () {
             return current === this || this.isSuperstateOf( current );
         },
 
-        // <a name="state--prototype--history" href="#state--prototype--history">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--history" href="#state--prototype--history"></a>
         // 
         // #### history
         // 
@@ -1839,7 +1959,7 @@ var State = ( function () {
             if ( h ) return h.history();
         },
 
-        // <a name="state--prototype--historian" href="#state--prototype--historian">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--historian" href="#state--prototype--historian"></a>
         // 
         // #### historian
         // 
@@ -1893,7 +2013,7 @@ var State = ( function () {
             } : Z.noop
         ,
 
-        // <a name="state--prototype--query" href="#state--prototype--query">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--query" href="#state--prototype--query"></a>
         // 
         // #### query
         // 
@@ -2033,7 +2153,7 @@ var State = ( function () {
             return against ? false : null;
         },
 
-        // <a name="state--prototype--$" href="#state--prototype--$">&#x1f517;</a>
+        // <a class="icon-link" name="state--prototype--$" href="#state--prototype--$"></a>
         // 
         // #### $
         // 
@@ -2060,9 +2180,7 @@ var State = ( function () {
 })();
 
 
-// <a name="state-expression" href="#state-expression">&#x1f517;</a>
-// 
-// ## StateExpression
+// ## StateExpression <a class="icon-link" name="state-expression" href="#state-expression"></a>
 // 
 // A **state expression** formalizes a definition of a state’s contents. States are declared by
 // calling the module’s exported [`state()`](#module) function and passing it an object map
@@ -2079,8 +2197,9 @@ var StateExpression = ( function () {
         eventTypes     = Z.assign( STATE_EVENT_TYPES ),
         guardActions   = Z.assign( GUARD_ACTIONS );
 
-    // <a name="state-expression--constructor"
-    //    href="#state-expression--constructor">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-expression--constructor"
+    //    href="#state-expression--constructor"></a>
     // 
     // ### Constructor
     function StateExpression (
@@ -2104,13 +2223,15 @@ var StateExpression = ( function () {
         this.attributes = attributes || STATE_ATTRIBUTES.NORMAL;
     }
 
-    // <a name="state-expression--class"
-    //    href="#state-expression--class">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-expression--class"
+    //    href="#state-expression--class"></a>
     // 
     // ### Class functions
 
-    // <a name="state-expression--class--encode-attributes"
-    //    href="#state-expression--class--encode-attributes">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-expression--class--encode-attributes"
+    //    href="#state-expression--class--encode-attributes"></a>
     // 
     // #### encodeAttributes
     // 
@@ -2131,8 +2252,9 @@ var StateExpression = ( function () {
     }
     StateExpression.encodeAttributes = encodeAttributes;
 
-    // <a name="state-expression--class--decode-attributes"
-    //    href="#state-expression--class--decode-attributes">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-expression--class--decode-attributes"
+    //    href="#state-expression--class--decode-attributes"></a>
     // 
     // #### decodeAttributes
     // 
@@ -2145,13 +2267,15 @@ var StateExpression = ( function () {
     }
     StateExpression.decodeAttributes = decodeAttributes;
 
-    // <a name="state-expression--private"
-    //    href="#state-expression--private">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-expression--private"
+    //    href="#state-expression--private"></a>
     // 
     // ### Class-private functions
 
-    // <a name="state-expression--private--interpret"
-    //    href="#state-expression--private--interpret">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-expression--private--interpret"
+    //    href="#state-expression--private--interpret"></a>
     // 
     // #### interpret
     // 
@@ -2234,9 +2358,7 @@ var StateExpression = ( function () {
 })();
 
 
-// <a name="state-controller" href="#state-controller">&#x1f517;</a>
-// 
-// ## StateController
+// ## StateController <a class="icon-link" name="state-controller" href="#state-controller"></a>
 // 
 // A **state controller** maintains the identity of the owner’s **current state**, and facilitates
 // transitions from one state to another. It provides the behavior-modeling aspect of the owner’s
@@ -2244,8 +2366,9 @@ var StateExpression = ( function () {
 // of those methods that are valid given the current state.
 var StateController = ( function () {
 
-    // <a name="state-controller--constructor"
-    //    href="#state-controller--constructor">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-controller--constructor"
+    //    href="#state-controller--constructor"></a>
     // 
     // ### Constructor
     function StateController (
@@ -2276,16 +2399,18 @@ var StateController = ( function () {
         owner[ name ] = createAccessor( owner, name, this );
 
         Z.assign( this, {
-            // <a name="state-controller--constructor--owner"
-            //    href="#state-controller--constructor--owner">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="state-controller--constructor--owner"
+            //    href="#state-controller--constructor--owner"></a>
             // 
             // #### owner
             // 
             // Returns the owner object on whose behalf this controller acts.
             owner: Z.thunk( owner ),
 
-            // <a name="state-controller--constructor--name"
-            //    href="#state-controller--constructor--name">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="state-controller--constructor--name"
+            //    href="#state-controller--constructor--name"></a>
             // 
             // #### name
             // 
@@ -2293,8 +2418,9 @@ var StateController = ( function () {
             // holds the `accessor` function associated with this controller.
             name: Z.stringFunction( function () { return name; } ),
 
-            // <a name="state-controller--constructor--current"
-            //    href="#state-controller--constructor--current">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="state-controller--constructor--current"
+            //    href="#state-controller--constructor--current"></a>
             // 
             // #### current
             // 
@@ -2305,15 +2431,17 @@ var StateController = ( function () {
                 }
             }),
 
-            // <a name="state-controller--constructor--change"
-            //    href="#state-controller--constructor--change">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="state-controller--constructor--change"
+            //    href="#state-controller--constructor--change"></a>
             // 
             // #### change
             // 
             change: StateController.privileged.change( setCurrent, setTransition ),
 
-            // <a name="state-controller--constructor--transition"
-            //    href="#state-controller--constructor--transition">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="state-controller--constructor--transition"
+            //    href="#state-controller--constructor--transition"></a>
             // 
             // #### transition
             // 
@@ -2325,8 +2453,9 @@ var StateController = ( function () {
                 }
             }),
 
-            // <a name="state-controller--constructor--destroy"
-            //    href="#state-controller--constructor--destroy">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="state-controller--constructor--destroy"
+            //    href="#state-controller--constructor--destroy"></a>
             // 
             // #### destroy
             // 
@@ -2365,8 +2494,9 @@ var StateController = ( function () {
 
     // ### Class-private functions
 
-    // <a name="state-controller--private--create-accessor"
-    //    href="#state-controller--private--create-accessor">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-controller--private--create-accessor"
+    //    href="#state-controller--private--create-accessor"></a>
     // 
     // #### createAccessor
     // 
@@ -2374,7 +2504,7 @@ var StateController = ( function () {
     // implementation of its state.
     function createAccessor ( owner, name, self ) {
         function accessor () {
-            var fn, current, controller, root, key, method;
+            var fn, current;
 
             if ( this === owner ) {
                 if ( Z.isFunction( fn = arguments[0] ) ) return self.change( fn.call( this ) );
@@ -2383,34 +2513,31 @@ var StateController = ( function () {
             }
 
             // Calling the accessor of a prototype means that `this` requires its own accessor
-            // and [`StateController`](#state-controller).
+            // and [`StateController`](#state-controller). Creating a new `StateController` has
+            // the desired side-effect of also creating the object’s new accessor, to which the
+            // call is then forwarded.
             else if (
                 Object.prototype.isPrototypeOf.call( owner, this ) &&
-                !Z.hasOwn( this, name )
+                !Z.hasOwn.call( this, name )
             ) {
-                controller = new StateController( this, null, {
+                new StateController( this, null, {
                     name: name,
                     initialState: self.current().toString()
                 });
-                root = controller.root();
-
-                // Any methods of `this` that have stateful implementations located higher in the
-                // prototype chain must be copied into the root state to be used as defaults.
-                for ( key in this ) if ( Z.hasOwn.call( this, key ) ) {
-                    method = this[ key ];
-                    if ( Z.isFunction( method ) && root.method( key, false ) ) {
-                        root.addMethod( key, method );
-                    }
-                }
-
                 return this[ name ].apply( this, arguments );
             }
         }
+
+        if ( Z.env.debug ) {
+            accessor.toString = function () { return self.current().toString(); };
+        }
+
         return accessor;
     }
 
-    // <a name="state-controller--private--virtualize"
-    //    href="#state-controller--private--virtualize">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-controller--private--virtualize"
+    //    href="#state-controller--private--virtualize"></a>
     // 
     // #### virtualize
     // 
@@ -2435,8 +2562,9 @@ var StateController = ( function () {
         }
     }
 
-    // <a name="state-controller--private--evaluate-guard"
-    //    href="#state-controller--private--evaluate-guard">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-controller--private--evaluate-guard"
+    //    href="#state-controller--private--evaluate-guard"></a>
     // 
     // #### evaluateGuard
     // 
@@ -2465,13 +2593,16 @@ var StateController = ( function () {
         return result;
     }
 
-    // <a name="state-controller--privileged" href="#state-controller--privileged">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-controller--privileged"
+    //    href="#state-controller--privileged"></a>
     // 
     // ### External privileged methods
     StateController.privileged = {
 
-        // <a name="state-controller--privileged--change"
-        //    href="#state-controller--privileged--change">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-controller--privileged--change"
+        //    href="#state-controller--privileged--change"></a>
         // 
         // #### change
         // 
@@ -2654,12 +2785,16 @@ var StateController = ( function () {
         }
     };
 
+    // <a class="icon-link"
+    //    name="state-controller--prototype"
+    //    href="#state-controller--prototype"></a>
+    // 
     // ### Prototype methods
-
     Z.assign( StateController.prototype, {
 
-        // <a name="state-controller--prototype--to-string"
-        //    href="#state-controller--prototype--to-string">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-controller--prototype--to-string"
+        //    href="#state-controller--prototype--to-string"></a>
         // 
         // #### toString
         // 
@@ -2667,8 +2802,9 @@ var StateController = ( function () {
             return this.current().toString();
         },
 
-        // <a name="state-controller--prototype--get-transition-expression-for"
-        //    href="#state-controller--prototype--get-transition-expression-for">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-controller--prototype--get-transition-expression-for"
+        //    href="#state-controller--prototype--get-transition-expression-for"></a>
         // 
         // #### getTransitionExpressionFor
         // 
@@ -2727,9 +2863,7 @@ var StateController = ( function () {
     return StateController;
 })();
 
-// <a name="state-event-collection" href="#state-event-collection">&#x1f517;</a>
-// 
-// ## StateEventCollection
+// ## StateEventCollection <a class="icon-link" name="state-event-collection" href="#state-event-collection"></a>
 // 
 // A state holds event listeners for each of its various event types in a `StateEventCollection`
 // instance.
@@ -2741,7 +2875,7 @@ var StateController = ( function () {
 var StateEventCollection = ( function () {
     var guid = 0;
 
-    // <a name="state-event-collection" href="#state-event-collection">&#x1f517;</a>
+    // <a class="icon-link" name="state-event-collection" href="#state-event-collection"></a>
     // 
     // ### Constructor
     function StateEventCollection ( state, type ) {
@@ -2751,14 +2885,16 @@ var StateEventCollection = ( function () {
         this.length = 0;
     }
 
-    // <a name="state-event-collection--prototype"
-    //    href="#state-event-collection--prototype">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="state-event-collection--prototype"
+    //    href="#state-event-collection--prototype"></a>
     // 
     // ### Prototype methods
     Z.assign( StateEventCollection.prototype, {
 
-        // <a name="state-event-collection--prototype--guid"
-        //    href="#state-event-collection--prototype--guid">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--guid"
+        //    href="#state-event-collection--prototype--guid"></a>
         // 
         // #### guid
         // 
@@ -2767,8 +2903,9 @@ var StateEventCollection = ( function () {
             return ( guid += 1 ).toString();
         },
 
-        // <a name="state-event-collection--prototype--get"
-        //    href="#state-event-collection--prototype--get">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--get"
+        //    href="#state-event-collection--prototype--get"></a>
         // 
         // #### get
         // 
@@ -2778,8 +2915,9 @@ var StateEventCollection = ( function () {
             return this.items[ id ];
         },
 
-        // <a name="state-event-collection--prototype--get-all"
-        //    href="#state-event-collection--prototype--get-all">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--get-all"
+        //    href="#state-event-collection--prototype--get-all"></a>
         // 
         // #### getAll
         // 
@@ -2790,8 +2928,9 @@ var StateEventCollection = ( function () {
             return result;
         },
 
-        // <a name="state-event-collection--prototype--set"
-        //    href="#state-event-collection--prototype--set">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--set"
+        //    href="#state-event-collection--prototype--set"></a>
         // 
         // #### set
         // 
@@ -2806,8 +2945,9 @@ var StateEventCollection = ( function () {
             return id;
         },
 
-        // <a name="state-event-collection--prototype--key"
-        //    href="#state-event-collection--prototype--key">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--key"
+        //    href="#state-event-collection--prototype--key"></a>
         // 
         // #### key
         // 
@@ -2819,8 +2959,9 @@ var StateEventCollection = ( function () {
             }
         },
 
-        // <a name="state-event-collection--prototype--keys"
-        //    href="#state-event-collection--prototype--keys">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--keys"
+        //    href="#state-event-collection--prototype--keys"></a>
         // 
         // #### keys
         // 
@@ -2835,8 +2976,9 @@ var StateEventCollection = ( function () {
             return result;
         },
 
-        // <a name="state-event-collection--prototype--add"
-        //    href="#state-event-collection--prototype--add">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--add"
+        //    href="#state-event-collection--prototype--add"></a>
         // 
         // #### add
         // 
@@ -2856,8 +2998,9 @@ var StateEventCollection = ( function () {
             return id;
         },
 
-        // <a name="state-event-collection--prototype--remove"
-        //    href="#state-event-collection--prototype--remove">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--remove"
+        //    href="#state-event-collection--prototype--remove"></a>
         // 
         // #### remove
         // 
@@ -2876,8 +3019,9 @@ var StateEventCollection = ( function () {
             return fn;
         },
 
-        // <a name="state-event-collection--prototype--empty"
-        //    href="#state-event-collection--prototype--empty">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--empty"
+        //    href="#state-event-collection--prototype--empty"></a>
         // 
         // #### empty
         // 
@@ -2893,8 +3037,9 @@ var StateEventCollection = ( function () {
             return n;
         },
 
-        // <a name="state-event-collection--prototype--emit"
-        //    href="#state-event-collection--prototype--emit">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--emit"
+        //    href="#state-event-collection--prototype--emit"></a>
         // 
         // #### emit
         // 
@@ -2933,8 +3078,9 @@ var StateEventCollection = ( function () {
             target && state.change( target );
         },
 
-        // <a name="state-event-collection--prototype--destroy"
-        //    href="#state-event-collection--prototype--destroy">&#x1f517;</a>
+        // <a class="icon-link"
+        //    name="state-event-collection--prototype--destroy"
+        //    href="#state-event-collection--prototype--destroy"></a>
         // 
         // #### destroy
         // 
@@ -2949,9 +3095,7 @@ var StateEventCollection = ( function () {
 })();
 
 
-// <a name="transition" href="#transition">&#x1f517;</a>
-// 
-// ## Transition
+// ## Transition <a class="icon-link" name="transition" href="#transition"></a>
 // 
 // A **transition** is a transient `State` adopted by a controller as it changes from one of its
 // proper `State`s to another.
@@ -2963,7 +3107,7 @@ var StateEventCollection = ( function () {
 var Transition = ( function () {
     Z.inherit( Transition, State );
 
-    // <a name="transition--constructor" href="#transition--constructor">&#x1f517;</a>
+    // <a class="icon-link" name="transition--constructor" href="#transition--constructor"></a>
     // 
     // ### Constructor
     function Transition ( target, source, expression, callback ) {
@@ -2998,8 +3142,9 @@ var Transition = ( function () {
         });
 
         Z.assign( this, {
-            // <a name="transition--constructor--superstate"
-            //    href="#transition--constructor--superstate">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--superstate"
+            //    href="#transition--constructor--superstate"></a>
             // 
             // #### superstate
             // 
@@ -3007,20 +3152,23 @@ var Transition = ( function () {
             // traverses the [`State`](#state) subtree that defines its domain.
             superstate: function () { return attachment; },
 
-            // <a name="transition--constructor--attach-to"
-            //    href="#transition--constructor--attach-to">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--attach-to"
+            //    href="#transition--constructor--attach-to"></a>
             // 
             // #### attachTo
             attachTo: function ( state ) { return attachment = state; },
 
-            // <a name="transition--constructor--controller"
-            //    href="#transition--constructor--controller">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--controller"
+            //    href="#transition--constructor--controller"></a>
             // 
             // #### controller
             controller: function () { return controller; },
 
-            // <a name="transition--constructor--origin"
-            //    href="#transition--constructor--origin">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--origin"
+            //    href="#transition--constructor--origin"></a>
             // 
             // #### origin
             // 
@@ -3030,8 +3178,9 @@ var Transition = ( function () {
                 return source instanceof Transition ? source.origin() : source;
             },
 
-            // <a name="transition--constructor--source"
-            //    href="#transition--constructor--source">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--source"
+            //    href="#transition--constructor--source"></a>
             // 
             // #### source
             // 
@@ -3039,8 +3188,9 @@ var Transition = ( function () {
             // immediately preceded `this`.
             source: function () { return source; },
 
-            // <a name="transition--constructor--target"
-            //    href="#transition--constructor--target">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--target"
+            //    href="#transition--constructor--target"></a>
             // 
             // #### target
             // 
@@ -3050,8 +3200,9 @@ var Transition = ( function () {
             // `change` call will create a new transition with `this` as its `source`.
             target: function () { return target; },
 
-            // <a name="transition--constructor--set-callback"
-            //    href="#transition--constructor--set-callback">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--set-callback"
+            //    href="#transition--constructor--set-callback"></a>
             // 
             // #### setCallback
             // 
@@ -3059,14 +3210,16 @@ var Transition = ( function () {
             // completion.
             setCallback: function ( fn ) { return callback = fn; },
 
-            // <a name="transition--constructor--aborted"
-            //    href="#transition--constructor--aborted">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--aborted"
+            //    href="#transition--constructor--aborted"></a>
             // 
             // #### aborted
             aborted: function () { return aborted; },
 
-            // <a name="transition--constructor--start"
-            //    href="#transition--constructor--start">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--start"
+            //    href="#transition--constructor--start"></a>
             // 
             // #### start
             // 
@@ -3085,8 +3238,9 @@ var Transition = ( function () {
                 }
             },
 
-            // <a name="transition--constructor--abort"
-            //    href="#transition--constructor--abort">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--abort"
+            //    href="#transition--constructor--abort"></a>
             // 
             // #### abort
             // 
@@ -3101,8 +3255,9 @@ var Transition = ( function () {
                 return this;
             },
 
-            // <a name="transition--constructor--end"
-            //    href="#transition--constructor--end">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--end"
+            //    href="#transition--constructor--end"></a>
             // 
             // #### end
             // 
@@ -3117,8 +3272,9 @@ var Transition = ( function () {
                 return target;
             },
 
-            // <a name="transition--constructor--destroy"
-            //    href="#transition--constructor--destroy">&#x1f517;</a>
+            // <a class="icon-link"
+            //    name="transition--constructor--destroy"
+            //    href="#transition--constructor--destroy"></a>
             // 
             // #### destroy
             // 
@@ -3134,7 +3290,7 @@ var Transition = ( function () {
         // [`State`](#state), which it obtains by partially applying the corresponding members of
         // [`State.privileged`](#state--privileged).
         Z.privilege( this, State.privileged, {
-            'express mutate' : [ TransitionExpression, undefined, methods, events, guards ],
+            'express mutate' : [ TransitionExpression, undefined, null, methods, events, guards ],
             'method methodNames addMethod removeMethod' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
             'guard addGuard removeGuard' : [ guards ]
@@ -3144,7 +3300,9 @@ var Transition = ( function () {
         State.privileged.init( TransitionExpression ).call( this, expression );
     }
 
-    // <a name="transition--prototype--depth" href="#transition--prototype--depth">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="transition--prototype--depth"
+    //    href="#transition--prototype--depth"></a>
     // 
     // #### depth
     // 
@@ -3157,9 +3315,7 @@ var Transition = ( function () {
     return Transition;
 })();
 
-// <a name="transition-expression" href="#transition-expression">&#x1f517;</a>
-// 
-// ## TransitionExpression
+// ## TransitionExpression <a class="icon-link" name="transition-expression" href="#transition-expression"></a>
 // 
 // A [`State`](#state) may hold **transition expressions** that describe the transition that will
 // take place between any two given **origin** and **target** states.
@@ -3170,8 +3326,9 @@ var TransitionExpression = ( function () {
         eventTypes   = Z.assign( TRANSITION_EVENT_TYPES ),
         guardActions = Z.assign( GUARD_ACTIONS );
 
-    // <a name="transition-expression--constructor"
-    //    href="#transition-expression--constructor">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="transition-expression--constructor"
+    //    href="#transition-expression--constructor"></a>
     // 
     // ### Constructor
     function TransitionExpression ( map ) {
@@ -3181,12 +3338,15 @@ var TransitionExpression = ( function () {
         Z.edit( 'deep all', this, map instanceof TransitionExpression ? map : interpret( map ) );
     }
 
-    // <a name="transition-expression--private" href="#transition-expression--private">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="transition-expression--private"
+    //    href="#transition-expression--private"></a>
     // 
     // ### Class-private functions
 
-    // <a name="transition-expression--private--interpret"
-    //    href="#transition-expression--private--interpret">&#x1f517;</a>
+    // <a class="icon-link"
+    //    name="transition-expression--private--interpret"
+    //    href="#transition-expression--private--interpret"></a>
     // 
     // #### interpret
     // 
