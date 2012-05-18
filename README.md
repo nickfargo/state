@@ -188,8 +188,8 @@ A **state expression** defines the contents and structure of a `State` instance.
 
 The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be categorized accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 
-<a name="concepts--expressions--longform" href="#concepts--expressions--longform" />
-#### Longform: writing state expressions the hard way
+<a name="concepts--expressions--structured" href="#concepts--expressions--structured" />
+#### Structured expression form
 
 Building upon the introductory example above, we could write a state expression that consists of states, methods, and events, looking something like this:
 
@@ -236,9 +236,9 @@ longformExpression = state
 ```
 
 <a name="concepts--expressions--shorthand" href="#concepts--expressions--shorthand" />
-#### Shorthand: the easy way
+#### Shorthand expression form
 
-Explicitly categorizing each element is unambiguous, but also unnecessarily verbose. To that point, `state()` also accepts a more concise expression format, which is interpreted into a `StateExpression` identical to that of the example above:
+Explicitly categorizing each element is unambiguous, but also unnecessarily verbose. To that point, `state()` also accepts a more concise expression format, which, based on a fixed set of logical rules, is interpreted into a `StateExpression` identical to that of the example above:
 
 ```javascript
 var shorthandExpression = state({
