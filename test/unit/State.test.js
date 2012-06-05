@@ -608,7 +608,7 @@
 ( function () { module( "State.mutate" );
     var o = {};
 
-    state( o, {
+    state( o, 'mutable', {
         data: { a:1, b:'two' },
         mutate: function ( expr, before, after, delta ) {
             assert.ok( true, "mutate event at root state" );

@@ -7,6 +7,7 @@
 // JavaScript object.
 // 
 // [statejs.org](http://statejs.org/)
+// 
 // <a class="icon-large icon-octocat" href="http://github.com/nickfargo/state/"></a>
 
 ( function ( undefined ) {
@@ -32,8 +33,8 @@ var global = this,
     },
 
     // The lone dependency of the **State** module is
-    // [**Zcore**](http://github.com/zvector/zcore), a library that assists with tasks such as
-    // object manipulation, differential operations, and facilitating prototypal inheritance.
+    // [Zcore](http://github.com/zvector/zcore), a library that assists with tasks such as object
+    // manipulation, differential operations, and facilitation of prototypal inheritance.
     Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
 
 
@@ -44,15 +45,15 @@ var global = this,
 // new implementation of state based on the supplied `expression`, returning the owner’s initial
 // [`State`](#state).
 // 
-// All arguments are optional: if both an `owner` and `expression` are provided, `state` acts in
+// All arguments are optional. If both an `owner` and `expression` are provided, `state` acts in
 // the second capacity, causing `owner` to become stateful; otherwise, `state` simply returns a
 // `StateExpression`. The `attributes` parameter may include any of the words defined in
-// `STATE_ATTRIBUTE_MODIFIERS`; these are applied to the provided `expression`, and will be used
-// to further specify the expressed state’s functionality, or to impose constraints on how that
-// state may be used by its owner. (See `STATE_ATTRIBUTES` object below.)
+// [`STATE_ATTRIBUTE_MODIFIERS`](#module--constants--state-attribute-modifiers); these are encoded
+// into the provided `expression`, and will be used to further specify the expressed state’s
+// functionality, or to impose constraints on how that state may be used by its owner.
 // 
-// *See also:* [`State`](#state), [`StateExpression`](#state-expression),
-// [`StateController`](#state-controller)
+// *See also:* [`State`](#state), [`STATE_ATTRIBUTES`](#module--constants--state-attributes),
+// [`StateExpression`](#state-expression), [`StateController`](#state-controller)
 function state (
                       /*Object*/ owner,      // optional
                       /*String*/ attributes, // optional
@@ -86,74 +87,161 @@ Z.assign( state, meta );
 // 
 // #### State attributes
 // 
-// These values are stored as a bit field in a [`State`](#state) instance.
+// Attribute values are stored as a bit field in a [`State`](#state) instance. Most attributes
+// enumerated here also correspond with a [modifier](#module--constants--state-attribute-modifiers)
+// keyword that can be included in a call to [`state()`](#module).
 var STATE_ATTRIBUTES = {
     NORMAL      : 0x0,
 
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--virtual"
+    //    href="#module--constants--state-attributes--virtual"></a>
+    // 
+    // ##### virtual
+    // 
     // A **virtual state** is a lightweight inheritor of a **protostate** located higher in the
-    // owner object’s prototype chain.
+    // owner object’s prototype chain. Notably, as virtual states are created automatically, no
+    // modifier keyword exists for the `virtual` attribute.
     VIRTUAL     : 0x1,
 
-    // A `mutable` state is allowed to change its data, methods, guards, substates, or
-    // transitions after it has been initialized. Mutability is implicitly inherited by all
-    // inheriting states.
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--mutable"
+    //    href="#module--constants--state-attributes--mutable"></a>
+    // 
+    // ##### mutable
+    // 
+    // By default, states are **weakly immutable**; i.e., once a `State` has been constructed, its
+    // declared data, methods, guards, substates, and transitions cannot be altered. By including
+    // the `mutable` attribute in the state’s expression, this restriction is lifted. Mutability
+    // is also inherited from any of a state’s superstates or protostates.
     MUTABLE     : 0x2,
 
-    // By default, a state cannot be mutated unless it, a superstate, or a protostate is
-    // declared with the `mutable` attribute. The `immutable` attribute affirms prohibition on
-    // mutability absolutely, throughout all inheriting states, overriding and negating any
-    // included or inherited `mutable` attribute.
-    IMMUTABLE   : 0x4,
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--finite"
+    //    href="#module--constants--state-attributes--finite"></a>
+    // 
+    // ##### finite
+    // 
+    // If a state is declared `finite`, no substates or descendant states may be added, nor may
+    // any be removed without also destroying the state itself.
+    FINITE      : 0x4,
 
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--immutable"
+    //    href="#module--constants--state-attributes--immutable"></a>
+    // 
+    // ##### immutable
+    // 
+    // Adding the `immutable` attribute causes a state to become **strongly immutable**, wherein
+    // it guarantees immutability absolutely, throughout all inheriting states, overriding and
+    // negating any included or inherited `mutable` attributes.
+    IMMUTABLE   : 0x8,
+
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--initial"
+    //    href="#module--constants--state-attributes--initial"></a>
+    // 
+    // ##### initial
+    // 
     // Marking a state `initial` specifies which state a newly stateful object should assume.
-    INITIAL     : 0x8,
+    INITIAL     : 0x10,
 
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--conclusive"
+    //    href="#module--constants--state-attributes--conclusive"></a>
+    // 
+    // ##### conclusive
+    // 
     // Once a state marked `conclusive` is entered, it cannot be exited, although transitions
     // may still freely traverse within its substates.
-    CONCLUSIVE  : 0x10,
+    CONCLUSIVE  : 0x20,
 
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--final"
+    //    href="#module--constants--state-attributes--final"></a>
+    // 
+    // ##### final
+    // 
     // Once a state marked `final` is entered, no further outbound transitions within its local
     // region are allowed.
-    FINAL       : 0x20,
+    FINAL       : 0x40,
 
-    // An **abstract state** cannot itself be current. Consequently a transition target that
-    // points to a state marked `abstract` is redirected to one of its substates.
-    ABSTRACT    : 0x40,
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--abstract"
+    //    href="#module--constants--state-attributes--abstract"></a>
+    // 
+    // ##### abstract
+    // 
+    // An `abstract` state is used only as a source of inheritance, and cannot itself be current.
+    // Consequently a transition that targets an abstract state will be automatically redirected
+    // to one of its substates.
+    ABSTRACT    : 0x80,
 
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--default"
+    //    href="#module--constants--state-attributes--default"></a>
+    // 
+    // ##### default
+    // 
     // Marking a state `default` designates it as the actual target for any transition that
     // targets its abstract superstate.
-    DEFAULT     : 0x80,
+    DEFAULT     : 0x100,
 
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--sealed"
+    //    href="#module--constants--state-attributes--sealed"></a>
+    // 
+    // ##### sealed
+    // 
     // A state marked `sealed` cannot have substates.
-    SEALED      : 0x100,
+    SEALED      : 0x200,
 
-    // A `retained` state is one that preserves its own internal state, such that, after the
-    // state has become no longer active, a subsequent transition targeting that particular
-    // state will automatically be redirected to whichever of its descendant states was most
-    // recently current.
-    // *(Reserved; not presently implemented.)*
-    RETAINED    : 0x200,
-
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--history"
+    //    href="#module--constants--state-attributes--history"></a>
+    // 
+    // ##### history
+    // 
     // Marking a state with the `history` attribute causes its internal state to be recorded
     // in a sequential **history**. Whereas a `retained` state is concerned only with the most
     // recent internal state, a state’s history can be traversed and altered, resulting in
     // transitions back or forward to previously or subsequently held internal states.
-    // *(Reserved; not presently implemented.)*
     HISTORY     : 0x400,
 
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--retained"
+    //    href="#module--constants--state-attributes--retained"></a>
+    // 
+    // ##### retained
+    // 
+    // A `retained` state is one that preserves its own internal state, such that, after the
+    // state has become no longer active, a subsequent transition targeting that particular
+    // state will automatically be redirected to whichever of its descendant states was most
+    // recently current.
+    RETAINED    : 0x800,
+
+    // <a class="icon-link"
+    //    name="module--constants--state-attributes--shallow"
+    //    href="#module--constants--state-attributes--shallow"></a>
+    // 
+    // ##### shallow
+    // 
     // Normally, states that are `retained` or that keep a `history` persist their internal
     // state *deeply*, i.e., with a scope extending over all of the state’s descendant states.
     // Marking a state `shallow` limits the scope of its persistence to its immediate
     // substates only.
-    // *(Reserved; not presently implemented.)*
-    SHALLOW     : 0x800,
+    SHALLOW     : 0x1000,
 
+    // ##### versioned
+    // 
     // Causes alterations to a state to result in a reflexive transition, with a delta object
     // distinguishing the prior version of the state from its new version. Should also add a
     // history entry wherever appropriate, representing the prior version and the delta.
     // *(Reserved; not presently implemented.)*
-    VERSIONED   : 0x1000,
+    VERSIONED   : 0x2000,
 
+    // ##### concurrent
+    // 
     // In a state marked `concurrent`, the substates are considered **concurrent orthogonal
     // regions**. Upon entering a concurrent state, the controller creates a new set of
     // subcontrollers, one for each region, which will exist as long as the concurrent state
@@ -161,20 +249,23 @@ var STATE_ATTRIBUTES = {
     // reduction function is associated with the given method, the call is repeated for each
     // region and the results reduced accordingly on their way back to the owner.
     // *(Reserved; not presently implemented.)*
-    CONCURRENT  : 0x2000
+    CONCURRENT  : 0x4000
+//
 };
 
 // <a class="icon-link"
 //    name="module--constants--state-attribute-modifiers"
 //    href="#module--constants--state-attribute-modifiers"></a>
 // 
+// #### State attribute modifiers
+// 
 // The subset of attributes that are valid keywords for the `attributes` argument in a call to
 // the exported [`state`](#module) function.
 var STATE_ATTRIBUTE_MODIFIERS = [
-        'mutable immutable',
+        'mutable finite immutable',
         'initial conclusive final',
         'abstract default sealed',
-        'retained history shallow versioned',
+        'history retained shallow versioned',
         'concurrent'
     ].join(' ');
 
@@ -225,6 +316,13 @@ var TRANSITION_EVENT_TYPES =
 Z.env.server && ( module.exports = exports = state );
 Z.env.client && ( global['state'] = state );
 
+// <a class="icon-link" name="module--constants--module" href="#module--constants--module"></a>
+// 
+// #### module
+// 
+// References or creates a unique object visible only within the lexical scope of this module.
+var __MODULE__ = Z.env.server ? module : { exports: state };
+
 // ## State <a class="icon-link" name="state" href="#state"></a>
 // 
 // A **state** models a set of behaviors on behalf of an owner object. The owner may undergo
@@ -246,10 +344,10 @@ var State = ( function () {
     var SA = STATE_ATTRIBUTES,
 
         PROTOSTATE_HERITABLE_ATTRIBUTES =
-            SA.MUTABLE    |  SA.IMMUTABLE   |
-            SA.INITIAL    |  SA.CONCLUSIVE  |  SA.FINAL    |
-            SA.ABSTRACT   |  SA.DEFAULT     |  SA.SEALED   |
-            SA.RETAINED   |  SA.HISTORY     |  SA.SHALLOW  |
+            SA.MUTABLE    |  SA.FINITE      |  SA.IMMUTABLE  |
+            SA.INITIAL    |  SA.CONCLUSIVE  |  SA.FINAL      |
+            SA.ABSTRACT   |  SA.DEFAULT     |  SA.SEALED     |
+            SA.HISTORY    |  SA.RETAINED    |  SA.SHALLOW    |
             SA.CONCURRENT;
 
 
@@ -258,6 +356,8 @@ var State = ( function () {
     // <a class="icon-link" name="state--constructor" href="#state--constructor"></a>
     // 
     // ### Constructor
+    // 
+    // 
     function State ( superstate, name, expression ) {
         if ( !( this instanceof State ) ) {
             return new State( superstate, name, expression );
@@ -285,20 +385,23 @@ var State = ( function () {
         else if ( superstate ) {
             this.superstate = privileged.superstate( superstate );
 
-            // The `mutable` attribute is inherited from the superstate.
+            // The `mutable` and `finite` attributes are inherited from the superstate.
             superstateAttributes = superstate.attributes();
-            attributes |= superstateAttributes & SA.MUTABLE;
+            attributes |= superstateAttributes & ( SA.MUTABLE | SA.FINITE );
         }
 
         // The set of “protostate-heritable” attributes are inherited from the protostate.
-        ( protostate = this.protostate() ) &&
-            ( protostateAttributes = protostate.attributes(),
-                attributes |= protostateAttributes & PROTOSTATE_HERITABLE_ATTRIBUTES );
+        if ( protostate = this.protostate() ) {
+            protostateAttributes = protostate.attributes();
+            attributes |= protostateAttributes & PROTOSTATE_HERITABLE_ATTRIBUTES;
+        }
 
-        // Any `immutable` attribute overrules and negates any and all `mutable` attributes,
-        // owned or inherited.
+        // Explicit or inherited `immutable` contradicts `mutable` and implies `finite`.
         attributes |= ( superstateAttributes | protostateAttributes ) & SA.IMMUTABLE;
-        attributes & SA.IMMUTABLE && ( attributes &= ~SA.MUTABLE );
+        if ( attributes & SA.IMMUTABLE ) {
+            attributes &= ~SA.MUTABLE;
+            attributes |= SA.FINITE;
+        }
 
         // Only a few instance methods are required for a virtual state, including one
         // ([`realize`](#state--privileged--realize)) method which if called later will convert
@@ -332,29 +435,33 @@ var State = ( function () {
     // Continues construction for an incipient or virtual [`State`](#state) instance.
     // 
     // Much of the initialization for `State` is offloaded from the
-    // [constructor](#state--constructor), allowing for creation of lightweight virtual
-    // `State` instances that inherit all of their functionality from protostates, but can also be
+    // [constructor](#state--constructor), allowing for creation of lightweight virtual `State`
+    // instances that inherit all of their functionality from protostates, but can also be
     // converted later to a real `State` if necessary.
     // 
     // *See also:* [`StateController virtualize`](#state-controller--private--virtualize),
     // [`State.privileged.realize`](#state--privileged--realize)
     function realize ( superstate, attributes, expression ) {
-        var data = {},
-            methods = {},
-            events = {},
-            guards = {},
-            substates = {},
-            transitions = {},
-            history = attributes & SA.HISTORY || attributes & SA.RETAINED ? [] : null,
-            owner, addMethod, key, method,
+        var owner, addMethod, key, method,
             self = this;
+
+        // The real state’s private variables and collections.
+        var data        = {},
+            methods     = {},
+            events      = {},
+            guards      = {},
+            substates   = {},
+            transitions = {},
+            history     = attributes & SA.HISTORY || attributes & SA.RETAINED ?
+                new StateHistory( this ) :
+                null;
 
         // Method names are mapped to specific local variables. The named methods are created on
         // `this`, each of which is a partial application of its corresponding method factory at
         // [`State.privileged`](#state--privileged).
         Z.privilege( this, privileged, {
-            'express' : [ StateExpression, attributes, data, methods, events, guards,
-                substates, transitions ],
+            'peek express' : [ StateExpression, attributes, data, methods, events, guards,
+                substates, transitions, history ],
             'superstate' : [ superstate ],
             'attributes' : [ attributes ],
             'data' : [ attributes, data ],
@@ -381,6 +488,7 @@ var State = ( function () {
         history && Z.privilege( this, privileged, {
             'history push replace' : [ history ]
         });
+
         Z.alias( this, { addEvent: 'on bind', removeEvent: 'off unbind', emit: 'trigger' } );
 
         // With the instance methods in place, `this` is now ready to apply `expression` to itself.
@@ -400,25 +508,19 @@ var State = ( function () {
             }
         }
 
+        // If the state is `finite` or non-`mutable`, then the appropriate mutation methods used
+        // during construction/realization can no longer be used, and must be removed.
         if ( ~attributes & SA.MUTABLE ) {
-            Z.forEach( 'addMethod removeMethod addGuard removeGuard removeSubstate \
-                    addTransition removeTransition'.split(/\s+/), function ( methodName ) {
-                delete self[ methodName ];
-            });
+            Z.forEach( 'mutate addMethod removeMethod addGuard removeGuard addTransition \
+                removeTransition'.split(/\s+/), function ( m ) { delete self[ m ] } );
+        }
+        if ( ~attributes & SA.MUTABLE || attributes & SA.FINITE ) {
+            delete this.addSubstate;
+            delete this.removeSubstate;
         }
 
         // (Exposed for debugging.)
-        Z.env.debug && Z.assign( this, {
-            __private__: {
-                attributes: attributes,
-                data: data,
-                methods: methods,
-                events: events,
-                guards: guards,
-                substates: substates,
-                transitions: transitions
-            }
-        });
+        Z.env.debug && Z.assign( this, { __private__: this.peek( __MODULE__ ) } );
 
         return this;
     }
@@ -452,6 +554,8 @@ var State = ( function () {
         }
 
         delegator.isDelegator = true;
+        Z.env.debug && ( delegator.toString = function () { return "[delegator]" } );
+
         original && ( delegator.original = original );
 
         return delegator;
@@ -486,8 +590,44 @@ var State = ( function () {
     // ### Privileged methods
     // 
     // Methods defined here typically are partially applied either within or down-stack from
-    // [`State`](#state) or an inheriting constructor (e.g., [`Transition`](#transition)).
+    // the invocation of [`State`](#state) or an inheriting constructor (e.g.,
+    // [`Transition`](#transition)).
     var privileged = State.privileged = {
+
+        // <a class="icon-link" name="state--privileged--peek" href="#state--privileged--peek"></a>
+        // 
+        // #### peek
+        // 
+        // Exposes private entities to code within the same module-level lexical scope. Callers
+        // must authenticate themselves as internal by providing a `referenceToModule` that
+        // matches the closed unique module-scoped object `__MODULE__` (which in a CommonJS
+        // environment is equivalent to the standard `module`).
+        peek: function (
+                /*Function*/ expressionConstructor,
+                  /*Number*/ attributes,
+                  /*Object*/ data, methods, events, guards, substates, transitions,
+            /*StateHistory*/ history
+        ) {
+            var members = {
+                    expressionConstructor: expressionConstructor,
+                    attributes: attributes,
+                    data: data,
+                    methods: methods,
+                    events: events,
+                    guards: guards,
+                    substates: substates,
+                    transitions: transitions,
+                    history: history
+                };
+
+            return function (
+                /*<module>*/ referenceToModule,
+                  /*String*/ name
+            ) {
+                if ( referenceToModule !== __MODULE__ ) throw ReferenceError;
+                return name ? members[ name ] : Z.clone( members );
+            };
+        },
 
         // <a class="icon-link" name="state--privileged--init" href="#state--privileged--init"></a>
         // 
@@ -504,7 +644,9 @@ var State = ( function () {
             };
         },
 
-        // <a class="icon-link" name="state--privileged--realize" href="#state--privileged--realize"></a>
+        // <a class="icon-link"
+        //    name="state--privileged--realize"
+        //    href="#state--privileged--realize"></a>
         // 
         // #### realize
         // 
@@ -519,16 +661,24 @@ var State = ( function () {
         // *See also:* [`State realize`](#state--private--realize) 
         realize: function ( attributes ) {
             return function ( expression ) {
-                var superstate = this.superstate();
+                var superstate = this.superstate(),
+                    addSubstate = Z.hasOwn.call( superstate, 'addSubstate' ) ?
+                        superstate.addSubstate :
+                        privileged.addSubstate(
+                            superstate.peek( __MODULE__, 'attributes' ),
+                            superstate.peek( __MODULE__, 'substates' )
+                        );
                 delete this.realize;
-                if ( superstate.addSubstate( this.name(), this ) ) {
+                if ( addSubstate.call( superstate, this.name(), this ) ) {
                     realize.call( this, superstate, attributes & ~SA.VIRTUAL, expression );
                 }
                 return this;
             };
         },
 
-        // <a class="icon-link" name="state--privileged--express" href="#state--privileged--express"></a>
+        // <a class="icon-link"
+        //    name="state--privileged--express"
+        //    href="#state--privileged--express"></a>
         // 
         // #### express
         // 
@@ -589,7 +739,9 @@ var State = ( function () {
             };
         })(),
 
-        // <a class="icon-link" name="state--privileged--mutate" href="#state--privileged--mutate"></a>
+        // <a class="icon-link"
+        //    name="state--privileged--mutate"
+        //    href="#state--privileged--mutate"></a>
         // 
         // #### mutate
         // 
@@ -609,6 +761,8 @@ var State = ( function () {
                 var self = this,
                     NIL = Z.NIL,
                     before, collection, name, value, after, delta;
+
+                var addMethod, removeMethod;
 
                 // The privileged `init` function uses `mutate` for the state’s initial build,
                 // but with the resultant `mutate` event suppressed.
@@ -719,7 +873,7 @@ var State = ( function () {
                 // Allow `add*` methods to emit individual `mutate` events normally.
                 delete this.__atomic__;
 
-                // The `before` snapshot is finally put to use in a `mutate` event.
+                // Finally the `before` snapshot is put to use in a `mutate` event.
                 if ( before ) {
                     after = this.express();
                     delta = Z.diff( before, after );
@@ -1195,13 +1349,15 @@ var State = ( function () {
             ) {
                 var substate, controller;
 
-                if ( !( attributes & SA.MUTABLE ||
-                    stateExpression instanceof State &&
-                    stateExpression.isVirtual() &&
-                    stateExpression.superstate() === this &&
-                    stateExpression.protostate().superstate().isProtostateOf( this )
-                ) ) {
-                    // return null;
+                if ( ~attributes & SA.MUTABLE ) {
+                    "catch!";
+                }
+                if ( stateExpression instanceof State &&
+                     stateExpression.isVirtual() &&
+                     stateExpression.superstate() === this &&
+                     stateExpression.protostate().superstate().isProtostateOf( this )
+                ) {
+                    "catch!";
                 }
 
                 if ( attributes & SA.VIRTUAL ) {
@@ -1320,7 +1476,7 @@ var State = ( function () {
         // 
         history: function ( history ) {
             return function ( indexDelta ) {
-                if ( indexDelta === undefined ) return Z.clone( history );
+                if ( indexDelta === undefined ) return history.express();
                 return history[ history.index + indexDelta ];
             };
         },
@@ -1330,6 +1486,28 @@ var State = ( function () {
         // #### push
         // 
         push: function ( history ) {
+            return function ( item ) {
+                var state, mutation, superstate;
+
+                item === 'string' && ( item = this.query( item, true, false ) );
+                if ( item instanceof State && item.isIn( this ) ) {
+                    history.pushState( state = item );
+                } else if ( Z.isPlainObject( item ) ) {
+                    history.pushMutation( mutation = item );
+                }
+
+                // While the history-keeping state is inactive, a state-`push` should not be
+                // propagated to any history-keeping superstates, whereas a mutation-`push` should
+                // be propagated whether active or inactive.
+                if ( state && this.isActive() || mutation ) {
+                    superstate = this.superstate();
+                    superstate && ( superstate = superstate.historian() );
+                    superstate && superstate.push( item );
+                }
+            };
+        },
+
+        old_push: function ( history ) {
             return function ( flags, state, transition, data ) {
                 var i, previous, current, superstate;
 
@@ -1380,6 +1558,15 @@ var State = ( function () {
         // #### replace
         // 
         replace: function ( history ) {
+            return function () {
+                item === 'string' && ( item = this.query( item ) );
+                if ( !item ) return;
+                if ( item instanceof State ) return history.replaceState( item );
+                if ( Z.isPlainObject( item ) ) return history.replaceMutation( item );
+            };
+        },
+
+        old_replace: function ( history ) {
             return function ( flags, state, data ) {
                 var previous, current, next, delta,
                     i = history.index,
@@ -1448,9 +1635,19 @@ var State = ( function () {
                     delete events[ key ];
                 }
 
-                //
+                // The state must remove itself from its superstate.
                 if ( superstate ) {
-                    superstate.removeSubstate( this.name() );
+
+                    // A mutable superstate has a `removeSubstate` method already available.
+                    if ( superstate.isMutable() ) superstate.removeSubstate( this.name() );
+
+                    // An immutable superstate must be peeked to acquire a `removeSubstate` method.
+                    else {
+                        privileged.removeSubstate(
+                            superstate.peek( __MODULE__, 'attributes' ),
+                            superstate.peek( __MODULE__, 'substates' )
+                        ).call( superstate, this.name() );
+                    }
                 }
 
                 // When the root state is destroyed, the owner gets back its original methods, and
@@ -1498,6 +1695,7 @@ var State = ( function () {
         attributes: Z.thunk( SA.NORMAL ),
         isVirtual:    function () { return !!( this.attributes() & SA.VIRTUAL ); },
         isMutable:    function () { return !!( this.attributes() & SA.MUTABLE ); },
+        isFinite:     function () { return !!( this.attributes() & SA.FINITE ); },
         isImmutable:  function () { return !!( this.attributes() & SA.IMMUTABLE ); },
         isInitial:    function () { return !!( this.attributes() & SA.INITIAL ); },
         isConclusive: function () { return !!( this.attributes() & SA.CONCLUSIVE ); },
@@ -1512,6 +1710,7 @@ var State = ( function () {
         isConcurrent: function () { return !!( this.attributes() & SA.CONCURRENT ); },
 
         'name \
+         peek \
          express mutate \
          superstate \
          addMethod removeMethod \
@@ -1522,11 +1721,19 @@ var State = ( function () {
             Z.noop,
 
         realize: Z.getThis,
+        methodNames: function () { return []; },
+        transitions: function () { return {}; },
+        destroy: Z.thunk( false ),
 
+        // <a class="icon-link"
+        //    name="state--prototype--mutate"
+        //    href="#state--prototype--mutate"></a>
+        // 
         // #### mutate
         // 
-        // By default states are non-mutable and their contents cannot be changed, but a
-        // mutation can be applied to a mutable substate through a non-mutable superstate.
+        // By default states are weakly immutable and their contents cannot be changed. However,
+        // a weak-immutable superstate may contain a mutable substate, to which the corresponding
+        // part of a mutation operation can be forwarded.
         mutate: function ( expr ) {
             var name, value,
                 NIL = Z.NIL,
@@ -1543,12 +1750,9 @@ var State = ( function () {
             }
         },
 
-        methodNames: function () { return []; },
-        transitions: function () { return {}; },
-        destroy: Z.thunk( false ),
-
-
-        // <a class="icon-link" name="state--prototype--to-string" href="#state--prototype--to-string"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--to-string"
+        //    href="#state--prototype--to-string"></a>
         // 
         // #### toString
         // 
@@ -1557,7 +1761,9 @@ var State = ( function () {
             return this.derivation( true ).join('.');
         },
 
-        // <a class="icon-link" name="state--prototype--controller" href="#state--prototype--controller"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--controller"
+        //    href="#state--prototype--controller"></a>
         // 
         // #### controller
         // 
@@ -1587,7 +1793,9 @@ var State = ( function () {
             if ( controller ) return controller.root();
         },
 
-        // <a class="icon-link" name="state--prototype--current" href="#state--prototype--current"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--current"
+        //    href="#state--prototype--current"></a>
         // 
         // #### current
         // 
@@ -1652,7 +1860,9 @@ var State = ( function () {
             }
         },
 
-        // <a class="icon-link" name="state--prototype--protostate" href="#state--prototype--protostate"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--protostate"
+        //    href="#state--prototype--protostate"></a>
         // 
         // #### protostate
         // 
@@ -1721,7 +1931,9 @@ var State = ( function () {
             }
         },
 
-        // <a class="icon-link" name="state--prototype--derivation" href="#state--prototype--derivation"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--derivation"
+        //    href="#state--prototype--derivation"></a>
         // 
         // #### derivation
         // 
@@ -1735,7 +1947,9 @@ var State = ( function () {
             return result;
         },
 
-        // <a class="icon-link" name="state--prototype--depth" href="#state--prototype--depth"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--depth"
+        //    href="#state--prototype--depth"></a>
         // 
         // #### depth
         // 
@@ -1746,7 +1960,9 @@ var State = ( function () {
             return n;
         },
 
-        // <a class="icon-link" name="state--prototype--common" href="#state--prototype--common"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--common"
+        //    href="#state--prototype--common"></a>
         // 
         // #### common
         // 
@@ -1818,8 +2034,8 @@ var State = ( function () {
         // 
         // #### isProtostateOf
         // 
-        // Determines whether `this` is a state analogous to `state` on any object in the prototype
-        // chain of `state`’s owner.
+        // Determines whether `this` is a state analogous to `state` on any object in the
+        // prototype chain of `state`’s owner.
         isProtostateOf: function ( /*State | String*/ state ) {
             var protostate;
             state instanceof State || ( state = this.query( state ) );
@@ -1829,7 +2045,9 @@ var State = ( function () {
                 false;
         },
 
-        // <a class="icon-link" name="state--prototype--apply" href="#state--prototype--apply"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--apply"
+        //    href="#state--prototype--apply"></a>
         // 
         // #### apply
         // 
@@ -1843,8 +2061,7 @@ var State = ( function () {
             out = { method: undefined, context: undefined };
             method = this.method( methodName, true, true, out );
 
-            if ( !method ) throw new TypeError( "State '" + this + "' has no method '" +
-                methodName + "'" );
+            if ( !method ) return this.emit( 'nonexistent', [ methodName, args ], false );
 
             context = out.context;
             owner = this.owner();
@@ -1865,7 +2082,9 @@ var State = ( function () {
             return this.apply( methodName, Z.slice.call( arguments, 1 ) );
         },
 
-        // <a class="icon-link" name="state--prototype--has-method" href="#state--prototype--has-method"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--has-method"
+        //    href="#state--prototype--has-method"></a>
         // 
         // #### hasMethod
         // 
@@ -1886,7 +2105,9 @@ var State = ( function () {
             return !!this.method( methodName, false, false );
         },
 
-        // <a class="icon-link" name="state--prototype--change" href="#state--prototype--change"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--change"
+        //    href="#state--prototype--change"></a>
         // 
         // #### change
         // 
@@ -1912,7 +2133,9 @@ var State = ( function () {
             );
         },
 
-        // <a class="icon-link" name="state--prototype--change-to" href="#state--prototype--change-to"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--change-to"
+        //    href="#state--prototype--change-to"></a>
         // 
         // #### changeTo
         // 
@@ -1930,7 +2153,9 @@ var State = ( function () {
             return this.change( target, options );
         },
 
-        // <a class="icon-link" name="state--prototype--is-current" href="#state--prototype--is-current"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--is-current"
+        //    href="#state--prototype--is-current"></a>
         // 
         // #### isCurrent
         // 
@@ -1939,7 +2164,9 @@ var State = ( function () {
             return this.current() === this;
         },
 
-        // <a class="icon-link" name="state--prototype--is-active" href="#state--prototype--is-active"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--is-active"
+        //    href="#state--prototype--is-active"></a>
         // 
         // #### isActive
         // 
@@ -1950,7 +2177,9 @@ var State = ( function () {
             return current === this || this.isSuperstateOf( current );
         },
 
-        // <a class="icon-link" name="state--prototype--history" href="#state--prototype--history"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--history"
+        //    href="#state--prototype--history"></a>
         // 
         // #### history
         // 
@@ -1959,13 +2188,19 @@ var State = ( function () {
             if ( h ) return h.history();
         },
 
-        // <a class="icon-link" name="state--prototype--historian" href="#state--prototype--historian"></a>
+        // <a class="icon-link"
+        //    name="state--prototype--historian"
+        //    href="#state--prototype--historian"></a>
         // 
         // #### historian
         // 
-        // Returns the nearest history-keeping state.
+        // Returns `this` if it records a history, or else the nearest superstate that records a
+        // deep history.
         historian: function () {
-            for ( var s = this; s; s = s.superstate() ) if ( s.hasHistory() ) return s;
+            if ( this.hasHistory() ) return this;
+            for ( var s = this.superstate(); s; s = s.superstate() ) {
+                if ( s.hasHistory() && !s.isShallow() ) return s;
+            }
         },
 
         push: function ( flags, state, transition, data ) {
@@ -2017,9 +2252,9 @@ var State = ( function () {
         // 
         // #### query
         // 
-        // Matches a string expression `expr` with the state or states it represents, evaluated
-        // first in the context of `this`, then its substates, and then its superstates, until
-        // all locations in the state tree have been searched for a match of `expr`.
+        // Matches a `selector` string with the state or states it represents, evaluated first in
+        // the context of `this`, then its substates, and then its superstates, until all
+        // locations in the state tree have been searched for a match of `selector`.
         // 
         // Returns the matched [`State`](#state), or an `Array` containing the set of matched
         // states. If a state to be tested `against` is provided, a `Boolean` is returned,
@@ -2031,7 +2266,7 @@ var State = ( function () {
         // 
         // *Alias:* **match**
         'query match': function (
-             /*String*/ expr,
+             /*String*/ selector,
               /*State*/ against, // optional
             /*Boolean*/ descend, // = true
             /*Boolean*/ ascend,  // = true
@@ -2048,31 +2283,34 @@ var State = ( function () {
             viaProto === undefined && ( viaProto = true );
 
             // A few exceptional cases may be resolved early.
-            if ( expr == null ) return against !== undefined ? false : null;
-            if ( expr === '.' ) return against !== undefined ? against === this : this;
-            if ( expr === '' ) {
+            if ( selector == null ) return against !== undefined ? false : null;
+            if ( selector === '.' ) return against !== undefined ? against === this : this;
+            if ( selector === '' ) {
                 return against !== undefined ? against === this.root() : this.root();
             }
 
             // Absolute wildcard expressions compared against the root state pass immediately.
-            if ( against && against === this.root() && expr.search(/^\*+$/) === 0 ) return true;
-
-            // Pure `.`/`*` expressions should not be recursed.
-            expr.search(/^\.*\**$/) === 0 && ( descend = ascend = false );
-
-            // If `expr` is an absolute path, evaluate it from the root state as a relative path.
-            if ( expr.charAt(0) !== '.' ) {
-                return this.root().query( '.' + expr, against, descend, false );
+            if ( against && against === this.root() && selector.search(/^\*+$/) === 0 ) {
+                return true;
             }
 
-            // An all-`.` `expr` must have one `.` trimmed to parse correctly.
-            expr = expr.replace( /^(\.+)\.$/, '$1' );
+            // Pure `.`/`*` expressions should not be recursed.
+            selector.search(/^\.*\**$/) === 0 && ( descend = ascend = false );
 
-            // Split `expr` into tokens, consume the leading empty-string straight away, then
+            // If `selector` is an absolute path, evaluate it from the root state as a relative
+            // path.
+            if ( selector.charAt(0) !== '.' ) {
+                return this.root().query( '.' + selector, against, descend, false );
+            }
+
+            // An all-`.` `selector` must have one `.` trimmed to parse correctly.
+            selector = selector.replace( /^(\.+)\.$/, '$1' );
+
+            // Split `selector` into tokens, consume the leading empty-string straight away, then
             // parse the remaining tokens. A `cursor` reference to a matching [`State`](#state) in
             // the tree is kept, beginning with the context state (`this`), and updated as each
             // token is consumed.
-            parts = expr.split('.');
+            parts = selector.split('.');
             for ( i = 1, l = parts.length, cursor = this; cursor; i++ ) {
 
                 // Upon reaching the end of the token stream, return the [`State`](#state)
@@ -2127,7 +2365,7 @@ var State = ( function () {
                         // already been searched.
                         if ( state === descend ) continue;
 
-                        result = state.query( expr, against, false, false, false );
+                        result = state.query( selector, against, false, false, false );
                         if ( result ) return result;
 
                         queue.push( state );
@@ -2139,13 +2377,13 @@ var State = ( function () {
             // but also passing `this` as a domain to be skipped during the superstate’s
             // subsequent descent.
             if ( ascend && ( superstate = this.superstate() ) ) {
-                result = superstate.query( expr, against, descend && this, true, false );
+                result = superstate.query( selector, against, descend && this, true, false );
                 if ( result ) return result;
             }
 
             // If the query still hasn’t succeeded, then retry the query on the protostate.
             if ( viaProto && ( protostate = this.protostate() ) ) {
-                result = protostate.query( expr, against, descend, ascend, true );
+                result = protostate.query( selector, against, descend, ascend, true );
                 if ( result ) return result;
             }
 
@@ -2437,6 +2675,7 @@ var StateController = ( function () {
             // 
             // #### change
             // 
+            // *See* [`StateController.privileged.change`](#state-controller--privileged--change)
             change: StateController.privileged.change( setCurrent, setTransition ),
 
             // <a class="icon-link"
@@ -2529,7 +2768,9 @@ var StateController = ( function () {
         }
 
         if ( Z.env.debug ) {
-            accessor.toString = function () { return self.current().toString(); };
+            accessor.toString = function () {
+                return "[accessor] -> " + self.current().toString();
+            };
         }
 
         return accessor;
@@ -2608,12 +2849,11 @@ var StateController = ( function () {
         // 
         // Attempts to execute a state transition. Handles asynchronous transitions, generation of
         // appropriate events, and construction of any necessary temporary virtual states. Respects
-        // guards supplied in both the origin and `target` states. Fails by returning `false` if
-        // the transition is disallowed.
+        // guards supplied in both the origin and `target` states.
         // 
-        // The `target` parameter may be either a [`State`](#state) object that is part of this
-        // controller’s state hierarchy, or a string that resolves to a likewise targetable `State`
-        // when evaluated from the context of the most recently current state.
+        // The `target` parameter may be either a [`State`](#state) object within the purview of
+        // this controller, or a string that resolves to a likewise targetable `State` when
+        // evaluated from the context of the most recently current state.
         // 
         // The `options` parameter is an optional map that may include:
         // 
@@ -2645,7 +2885,7 @@ var StateController = ( function () {
 
                 // Ensure that `target` is a valid [`State`](#state).
                 if ( Z.isNumber( target ) ) {
-                    // TODO: Interpret number-typed `target` as a history traversal. 
+                    target; // TODO: Interpret number-typed `target` as a history traversal. 
                 }
                 target instanceof State ||
                     ( target = target ? origin.query( target ) : this.root() );
@@ -2663,8 +2903,8 @@ var StateController = ( function () {
                 // An ingressing transition that targets a retained state must be redirected to
                 // whichever of that state’s internal states was most recently current.
                 if ( !options.direct && target.isRetained() && !target.isActive() ) {
-                    record = this.history( 0 );
-                    target = record && target.query( record.state ) || target;
+                    state = target.history( 0 );
+                    target = state != null && target.query( state ) || target;
                 }
 
                 // A transition cannot target an abstract state directly, so `target` must be
@@ -2692,7 +2932,7 @@ var StateController = ( function () {
 
                 // The `source` variable will reference the previously current state (or abortive
                 // transition).
-                source = state = this.current();
+                source = this.current();
 
                 // The upcoming transition will start from its `source` and proceed within the
                 // `domain` of the least common ancestor between that state and the specified
@@ -3095,9 +3335,394 @@ var StateEventCollection = ( function () {
 })();
 
 
+// ## StateHistory
+// 
+/*
+    ' * ' : the precise location within the `history` array that describes the
+            present condition and composition of `this.state`
+    'Sta' : any string that names a state
+    'Mut' : any delta object that describes a mutation
+    'NIL' : the value `Z.NIL`
+    '~==' : "is essentially deep-equal to"
+    '<ƒ>' : an arbitrary function
+    
+                                                        7         *    11
+    history            : [ Sta Sta Mut Sta Mut Mut Sta Sta Mut Mut Mut Sta Mut Sta ]
+    historyIndex       : 7
+    stateIndices       : [ 0  1  3  6  7  11  12  14 ]
+    stateIndicesIndex  : 4
+    mutationOffset     : 2
+              7                                           *                   11
+    [ ... 'StateA', { data:{a:NIL} }, { methods:{b:NIL} }, { data:{c:3} }, 'StateB' ... ]
+    
+    this.state.express() ~== state( 'mutable history', {
+                                 data: { a:1 },
+                                 methods: { b:<ƒ> },
+                                 states: {
+                                     StateA: {},
+                                     StateB: {}
+                                 }
+                             })
+    
+    
+    > this.mutate( 1 );
+    mutationOffset     : 3
+    
+              7                                                             *   11
+    [ ... 'StateA', { data:{a:NIL} }, { methods:{b:NIL} }, { data:{c:NIL} }, 'StateB' ... ]
+    
+    this.state.express() ~== state( ...
+                                 data: { a:1, c:3 },
+                                 methods: { b:<ƒ> }
+                             ... )
+    
+    
+    > this.mutate( -2 );
+    mutationOffset     : 1
+    
+              7                      *                                        11
+    [ ... 'StateA', { data:{a:NIL} }, { methods:{b:<ƒ>} }, { data:{c:3} }, 'StateB' ... ]
+    
+    this.state.express() ~== state( ...
+                                 data: { a:1 },
+                                 methods: {}
+                             ... )
+*/
+
+var StateHistory = ( function () {
+
+    var guid = 0;
+
+    function StateHistory ( /*State*/ state ) {
+
+        // The state to which this history belongs.
+        this.state = state;
+
+        // The content of a history is stored as a “heap” of `elements`, whose keys are unique
+        // decimal integers supplied by the up-scope `guid`, which map to values that are either:
+        // 
+        // * a `String` that uniquely identifies a previously or subsequently current `State`
+        //   within the domain of `this.state`;
+        // 
+        // * an `Object` that represents a **mutation delta**, which contains the key-value
+        //   changes between adjacent mutations of `this.state`;
+        // 
+        // * a `Number` that is an **element reference** that points to a superhistory element,
+        //   within which is contained the information relevant to this element;
+        // 
+        // * or `null`, indicating a recorded period of inactivity for `this.state`.
+        this.elements = {};
+
+        // The element references of `this.elements` are indexed in an ordered list.
+        this.history = [];
+
+        // `this.historyIndex` indirectly references, via `this.history`, a state (string) element
+        // within `this.elements` that names the specific `State` that is presently **current**
+        // within the history.
+        this.historyIndex = undefined;
+
+        // By default a history is “deep”, in that it records a view into the timeline of its
+        // client `state`, which includes the active condition of and mutations to all of the
+        // state’s descendants. This is contrasted with a `shallow` history, which only records
+        // the active condition of the `state`’s immediate substates, and mutations to its own
+        // content.
+        // 
+        // As such the shallow history does not hold reference elements, and does not propagate
+        // traversals or `push`es.
+        this.shallow = state.isShallow();
+
+        // A host state that bears the `immutable` attribute asserts that all of its descendant
+        // states will also be immutable; consequently the history does not need to record
+        // mutations or implement the structures and logic required to traverse the recorded
+        // mutations.
+        // 
+        // Absent that guarantee of absolute immutability, mutations will be stored within
+        // `this.history` as deltas relative to the present expression of `this.state`. Traversal
+        // operations will update these deltas as necessary to reflect the movement of the
+        // `historyIndex` pointer.
+        if ( !( this.stateIsImmutable = state.isImmutable() ) ) {
+
+            // For faster traversals amidst mutations, `this.stateIndices` holds an array
+            // containing the specific indices within `this.history` that point to states. A
+            // `stateIndicesIndex` property is added as well, such that, for `history.length > 0`,
+            // `this.stateIndices[ this.stateIndicesIndex ]` is equal to `this.historyIndex`.
+            this.stateIndices = [];
+            this.stateIndicesIndex = undefined;
+
+            // A sequence of mutations is stored as a subarray of interstitial deltas between
+            // adjacent state elements. The history’s current state, including mutations undergone
+            // since the transition into that state, is precisely defined in relation to
+            // `this.historyIndex` by `this.mutationOffset`, which is a non-negative number of
+            // deltas ahead of `this.historyIndex`.
+            this.mutationOffset = 0;
+        }
+    }
+
+    Z.assign( StateHistory.prototype, {
+
+        // #### superhistory
+        //
+        superhistory: function () {
+            var superstate = this.state.superstate();
+            if ( superstate ) return superstate.historian();
+        },
+
+        // #### root
+        //
+        root: function () {
+            var sh = this.superhistory();
+            if ( sh ) return sh.root() || sh;
+        },
+
+        // #### createElement
+        // 
+        // type inferences of `item`:
+        //   * `Number` : pointer to a history element in a superstate
+        //   * `String` : state path
+        //   * `Object` : mutation delta
+        //   * `null`   : state is inactive
+        createElement: function ( item ) {
+            this.elements[ guid += 1 ] = item;
+        },
+        
+        // #### indexOf
+        //
+        // Returns the index of the item within `this.history` that holds the `key` for a
+        // particular member of `this.elements`.
+        indexOf: ( function () {
+            function search ( sortedArray, key, min, max ) {
+                var i, k;
+                min || ( min = 0 );
+                max || ( max = sortedArray.length - 1 );
+                while ( min <= max ) {
+                    i = ( min + max ) / 2 << 0;
+                    k = sortedArray[i];
+                    if      ( key < k ) max = i - 1;
+                    else if ( key > k ) min = i + 1;
+                    else    return i;
+                }
+            }
+            return function ( key ) {
+                return search( this.history, key );
+            };
+        })(),
+
+        // #### traverse
+        // 
+        // Traverses the history per state, applying any interstitial mutations along the way.
+        traverse: function (
+             /*Number*/ states,
+             /*Number*/ mutations, // = 0
+            /*Boolean*/ directly   // = true
+        ) {
+            typeof mutations === 'boolean' && ( directly = mutations, mutations = 0 );
+            mutations == null && ( mutations = 0 );
+
+            var elements, history, historyIndex, historyLength,
+            _;
+            
+        },
+
+        old_traverse: function (
+             /*Number*/ states,
+             /*Number*/ mutations, // = 0
+            /*Boolean*/ directly   // = true
+        ) {
+            var elements, history, historyIndex, historyLength,
+                stateIndices, stateIndicesLength, stateIndicesIndex, mutationOffset,
+                targetStateIndicesIndex, targetHistoryIndex,
+                step, expr, blockLength, i, delta, deltaSum;
+
+            elements = this.elements;
+            history = this.history;
+            historyIndex = this.historyIndex;
+            if ( historyIndex === undefined ) return;
+            historyLength = history.length;
+
+            directly === undefined && ( directly = true );
+
+            // If the host state and all of its descendants are immutable, then it is guaranteed
+            // that no mutations will be stored in `history`. This means all of its elements will
+            // refer to states, so traversal operations can simply proceed per-element.
+            if ( this.stateIsImmutable ) {
+                
+                // Clamp `n` and acquire a `targetHistoryIndex`.
+                targetHistoryIndex = historyIndex + n;
+                    if ( targetHistoryIndex >= historyLength ) {
+                        targetHistoryIndex = historyLength - 1;
+                    } else if ( targetHistoryIndex < 0 ) {
+                        targetHistoryIndex = 0;
+                    }
+                n = targetHistoryIndex - historyIndex;
+                step = n < 0 ? -1 : 1;
+                
+                // `directly` causes the traversal to jump straight to the targeted state and
+                // instigate a single transition; otherwise the traversal transitions through
+                // each state in order.
+                if ( directly ) {
+                    this.historyIndex = targetHistoryIndex;
+                    this.changeState( history[ targetHistoryIndex ] );
+                } else {
+                    while ( historyIndex !== targetHistoryIndex ) {
+                        this.historyIndex = historyIndex += step;
+                        this.changeState( history[ historyIndex ] );
+                    }
+                }
+            }
+            
+            // Otherwise, since the host state or any of its descendants could be mutable, the
+            // possibility exists of mutations being stored in this history, in which case the
+            // traversal will involve applying these mutations to the host state and transforming
+            // the mutation deltas appropriately.
+            else {
+                // Clamp `n` and acquire a `targetHistoryIndex`.
+                stateIndices             = this.stateIndices;
+                stateIndicesLength       = stateIndices.length;
+                stateIndicesIndex        = this.stateIndicesIndex;
+                mutationOffset           = this.mutationOffset;
+                targetStateIndicesIndex  = stateIndicesIndex + n;
+                    if ( targetStateIndicesIndex >= stateIndicesLength ) {
+                        targetStateIndicesIndex = stateIndicesLength - 1;
+                    } else if ( targetStateIndicesIndex < 0 ) {
+                        targetStateIndicesIndex = 0;
+                    }
+                targetHistoryIndex       = stateIndices[ targetStateIndicesIndex ];
+                n                        = targetStateIndicesIndex - stateIndicesIndex;
+                step                     = n < 0 ? -1 : 1;
+
+                // Get a plain-object expression of this history’s state to apply deltas against.
+                expr = this.state.express();
+
+                // Process the elements of `history` in blocks, each consisting of one state
+                // element at the tail, followed by a contiguous sequence of zero or more
+                // mutations.
+                while ( historyIndex !== targetHistoryIndex ) {
+
+                    // `blockLength` refers to the number of mutations in this block; it does not
+                    // account for the trailing state element (thus its range is `[0..]`).
+                    blockLength = stateIndices[ stateIndicesIndex + 1 ] - historyIndex - 1;
+
+                    // `mutationOffset` (which on the first run of the outer loop will already
+                    // have been initialized to `this.mutationOffset`) iterates either backward
+                    // or forward through the mutations in this block, accreting an aggregate
+                    // delta, which, immediately prior to the next state change, will be applied
+                    // to the state in a single mutation operation.
+                    if ( step < 0 ) {
+                        mutationOffset || ( mutationOffset = blockLength );
+                    } else {
+                        mutationOffset += 1;
+                    }
+                    while ( 0 < mutationOffset && mutationOffset <= blockLength ) {
+                        i = historyIndex + mutationOffset;
+                        delta = history[i];
+                        history[i] = Z.delta( expr, delta );
+                        deltaSum = Z.clone( deltaSum, delta );
+                        mutationOffset += step;
+                    }
+                    mutationOffset = 0;
+
+                    historyIndex = stateIndices[ stateIndicesIndex += step ];
+
+                    // If instigating transitions on each iteration, then the transition for the
+                    // next iteration’s block is made at the end of this iteration.
+                    if ( !directly ) {
+                        if ( deltaSum ) {
+                            this.mutateState( deltaSum );
+                            deltaSum = null;
+                        }
+                        this.historyIndex = historyIndex;
+                        this.changeState( history[ historyIndex ] );
+                    }
+                }
+
+                if ( directly ) {
+                    deltaSum && this.mutateState( deltaSum );
+                    this.changeState( history[ targetHistoryIndex ] );
+                }
+
+                this.mutationOffset = 0;
+            }
+        },
+
+        changeState: function ( target ) {
+            var result;
+            this.traverse = Z.noop;
+            result = this.state.change( target );
+            delete this.traverse;
+            return result;
+        },
+
+        mutateState: function ( expr ) {
+            this.state.mutate( expr );
+        },
+
+        pushState: function ( state ) {
+            var elements = this.elements,
+                history = this.history,
+                index = this.historyIndex + this.mutationOffset + 1;
+
+            // Splice off the forward elements.
+            history.splice( index, history.length - index );
+
+            // Add `state` to the new end of `history`.
+            this.historyIndex = index;
+            this.mutationOffset = 0;
+            state instanceof State || ( state = this.state.query( state ) );
+            history[ index ] = state.toString();
+        },
+
+        replaceState: function ( state ) {
+            var history = this.history,
+                index = this.historyIndex
+            // 
+        },
+
+        pushMutation: function ( mutation ) {
+
+        },
+
+        replaceMutation: function ( mutation ) {
+
+        },
+
+        previousStateIndex: function () {
+            return this.stateIndices ?
+                this.stateIndices[ this.stateIndicesIndex - 1 ] :
+                this.historyIndex - 1;
+        },
+
+        nextStateIndex: function () {
+            return this.stateIndices ?
+                this.stateIndices[ this.stateIndicesIndex + 1 ] :
+                this.historyIndex + 1;
+        },
+
+        currentState: function () {
+            var selector = this.history[ this.historyIndex ];
+            return this.state.query( selector ) || selector;
+        },
+
+        previousState: function () {
+            var selector = this.history[ this.previousStateIndex() ];
+            return this.state.query( selector ) || selector;
+        },
+
+        nextState: function () {
+            var selector = this.history[ this.nextStateIndex() ];
+            return this.state.query( selector ) || selector;
+        },
+
+        destroy: function () {
+            this.state = this.history = null;
+        }
+    });
+
+    return StateHistory;
+})();
+
 // ## Transition <a class="icon-link" name="transition" href="#transition"></a>
 // 
-// A **transition** is a transient `State` adopted by a controller as it changes from one of its
+// A `Transition` is a transient `State` adopted by a controller as it changes from one of its
 // proper `State`s to another.
 // 
 // A transition acts within the **domain** of the *least common ancestor* between its **origin**

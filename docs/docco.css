@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'Octicons Regular';
-    src: url('/staging/Octicons/font/octicons-regular-webfont.eot?v=2#iefix') format('embedded-opentype'), url('/staging/Octicons/font/octicons-regular-webfont.woff?v=2') format('woff'), url('/staging/Octicons/font/octicons-regular-webfont.ttf?v=2') format('truetype'), url('/staging/Octicons/font/octicons-regular-webfont.svg?v=2#newFontRegular') format('svg');
+    src: url('font/octicons-regular-webfont.eot?v=2#iefix') format('embedded-opentype'), url('font/octicons-regular-webfont.woff?v=2') format('woff'), url('font/octicons-regular-webfont.ttf?v=2') format('truetype'), url('font/octicons-regular-webfont.svg?v=2#newFontRegular') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -201,19 +201,19 @@ body {
   font-size: 10pt;
   line-height: 16pt;
   background: #262626;
-  color: #f0f0f0;
+  color: #bbb;
   margin: 0; padding: 0;
 }
 strong {
-  color: #ffffff;
+  color: #ddd;
   font-size: 105%;
 }
 p a {
   text-decoration: none;
-  color: #ffffff;
+  color: #ddd;
 }
   p a:visited {
-    color: #ffffff;
+    color: #ddd;
   }
 p {
   margin: 0 0 15px 0;
@@ -243,6 +243,7 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
 }
 #background {
+  display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: -1;
@@ -305,8 +306,7 @@ table td {
     }
     .docs p tt, .docs p code {
       background: rgba( 255, 255, 255, 0.1 );
-      color: #ffffff;
-      border: 1px solid rgba( 255, 255, 255, 0 );
+      border: 0.1em solid rgba( 255, 255, 255, 0 );
       border-radius: 4px;
       font-size: 9pt;
       padding: 0.15em 0.3em;
@@ -315,58 +315,125 @@ table td {
     .docs a {
       text-decoration: none;
       background: rgba( 255, 247, 192, 0.05 );
-      border: 1px solid rgba( 255, 240, 128, 0.05 );
+      border: 0.1em solid rgba( 255, 240, 128, 0.04 );
       border-radius: 4px;
       font-weight: bold;
       font-size: 105%;
       padding: 1px 4px;
-      -webkit-transition-property: background border;
-      -webkit-transition-duration: 0.5s;
+      -webkit-transition-property: width, background, border, color, text-shadow, box-shadow;
+      -webkit-transition-duration: 0.7s;
       -webkit-transition-timing-function: cubic-bezier( 0.1, 0.8, 0.7, 1.0 );
     }
     .docs a:hover {
-      background: rgba( 255, 240, 128, 0.20 );
-      border: 1px solid rgba( 255, 240, 128, 0.1 );
-      -webkit-transition-property: background border;
+      background: rgba( 255, 240, 128, 0.08 );
+      border-color: rgba( 255, 238, 204, 0.8 );
+      color: #fec;
+      text-shadow: 0 0 12px rgba( 255, 207, 0, 0.85 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 16px rgba( 255, 207, 0, 0.38 );
+      -webkit-transition-property: width, background, border, color, text-shadow, box-shadow;
       -webkit-transition-duration: 0.2s;
       -webkit-transition-timing-function: cubic-bezier( 0.1, 0.8, 0.7, 1.0 );
     }
-    .docs a[href^="#"] {
-      background: rgba( 192, 255, 128, 0.07 );
-      border: 1px solid rgba( 192, 255, 128, 0.07 );
+    .docs a:active {
+      background: rgba( 255, 240, 128, 0.32 );
+      border-color: rgba( 255, 238, 204, 1 );
+      color: #fff;
+      text-shadow: 0 0 4px rgba( 255, 207, 0, 1 ), 0 0 12px rgba( 255, 207, 0, 0.85 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 16px rgba( 255, 207, 0, 0.75 );
+      -webkit-transition-property: width, background, border, color, text-shadow, box-shadow;
+      -webkit-transition-duration: 0.2s;
+      -webkit-transition-timing-function: cubic-bezier( 0.1, 0.8, 0.7, 1.0 );
     }
-    .docs a[href^="#"]:hover {
-      background: rgba( 192, 255, 128, 0.20 );
-      border: 1px solid rgba( 192, 255, 128, 0.1 );
-    }
-    .docs a[href^="#"][class^="icon-"], .docs a[href^="#"][class*=" icon-"] {
-      float: right;
-      margin-right: -16px;
-      background: transparent;
-      border: 1px solid transparent;
-      color: rgba( 255, 255, 255, 0.25 );
-    }
-    .docs a[href^="#"][class^="icon-"]:hover, .docs a[href^="#"][class*=" icon-"]:hover {
-      background: rgba( 192, 255, 128, 0.20 );
+    .docs a:active * {
       color: #fff;
     }
-    .docs a[href^="http://"][class^="icon-"], a[href^="http://"][class*=" icon-"] {
+    .docs a[href^="#"] {
+      background: rgba( 192, 255, 128, 0.07 );
+      border: 0.1em solid rgba( 192, 255, 128, 0.04 );
+    }
+    .docs a[href^="#"]:hover {
+      background: rgba( 192, 255, 128, 0.10 );
+      border-color: rgba( 238, 255, 204, 0.8 );
+      color: #efc;
+      text-shadow: 0 0 12px rgba( 128, 255, 0, 0.85 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 16px rgba( 128, 255, 0, 0.38 );
+    }
+    .docs a[href^="#"]:active {
+      background: rgba( 192, 255, 128, 0.40 );
+      border-color: rgba( 238, 255, 204, 1 );
+      color: #EFC;
+      text-shadow: 0 0 4px rgba( 128, 255, 0, 1 ), 0 0 12px rgba( 128, 255, 0, 0.85 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 16px rgba(128, 255, 0, 0.75);
+    }
+    .docs a[href^="#"]:active * {
+      color: #fff;
+    }
+    .docs a[href^="#"][class^="icon-"],
+    .docs a[href^="#"][class*=" icon-"] {
+      float: right;
+      width: 0.1em;
+      margin-left: 0.5em;
+      margin-right: -20px;
+      background: rgba( 241, 241, 241, 0.05 );
+      border: 0.1em solid transparent;
+      border-right-width: 0;
+      border-radius: 12px 0 0 12px;
+      color: rgba( 255, 255, 255, 0.25 );
+      padding: 0.2em 0.4em 0.2em 0.4em;
+    }
+    .docs a[href^="#"][class^="icon-"]:hover,
+    .docs a[href^="#"][class^="icon-"]:active,
+    .docs a[href^="#"][class*=" icon-"]:hover,
+    .docs a[href^="#"][class*=" icon-"]:active {
+      width: 1em;
+      border-color: rgba( 241, 241, 241, 1 );
+      margin-left: 0;
+      padding-left: 0.5em;
+      padding-right: 0.5em;
+    }
+    .docs a[href^="#"][class^="icon-"]:hover,
+    .docs a[href^="#"][class*=" icon-"]:hover {
+      color: #efc;
+      background: rgba( 241, 241, 241, 0.1 );
+      text-shadow: 0 0 12px rgba( 128, 255, 0, 0.85 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 16px rgba( 128, 255, 0, 0.38 ), 0 0 2px rgba( 192, 255, 128, 1 );
+    }
+    .docs a[href^="#"][class^="icon-"]:active,
+    .docs a[href^="#"][class*=" icon-"]:active {
+      color: #fff;
+      background: rgba( 192, 255, 128, 0.40 );
+      text-shadow: 0 0 4px rgba( 128, 255, 0, 1 ), 0 0 12px rgba( 128, 255, 0, 0.85 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 16px rgba( 128, 255, 0, 0.75 ), 0 0 2px rgba( 192, 255, 128, 1 );
+    }
+    .docs a[href^="http://"][class^="icon-"],
+    .docs a[href^="http://"][class*=" icon-"] {
       padding: 4px;
       background: transparent;
       border-color: transparent;
       font-size: 110%;
+      color: #eee;
     }
-    .docs a[href^="http://"][class^="icon-"]:hover, a[href^="http://"][class*=" icon-"]:hover {
-      background: rgba( 255, 240, 128, 0.20 );
-      border: 1px solid rgba( 255, 240, 128, 0.1 );
+    .docs a[href^="http://"][class^="icon-"]:hover,
+    .docs a[href^="http://"][class*=" icon-"]:hover {
+      color: rgba(255, 247, 215, 0.9);
+      text-shadow: 0 0 12px rgba( 255, 207, 0, 0.85 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 0;
+    }
+    .docs a[href^="http://"][class^="icon-"]:active,
+    .docs a[href^="http://"][class*=" icon-"]:active {
+      color: #fff;
+      text-shadow: 0 0 18px rgba( 255, 207, 0, 1 ), 0 1px 2px rgba( 0, 0, 0, 0.5 );
+      box-shadow: 0 0 0;
     }
     .docs a tt, .docs a code {
       background: transparent;
       border: none;
     }
     .pilwrap {
+      display: none;
       position: relative;
     }
+    .pilwrap
       .pilcrow {
         font: 12px Arial;
         text-decoration: none;

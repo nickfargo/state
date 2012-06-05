@@ -4,6 +4,7 @@ $files = array(
 	'state-expression',
 	'state-controller',
 	'state-event',
-	'transition',
-	'transition-expression'
+    'state-history',
+    'transition',
+    'transition-expression'
 );
