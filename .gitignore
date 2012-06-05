@@ -4,6 +4,7 @@ build/*
 docs/*
 examples/*
 test/.gitignore
+/state.js
 *.tmproj
 *.gz
 *.min.js
