@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+body {
+  background: #CCC3AA;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 20px;
+}
+.container {
+  position: absolute;
+  padding: 20px;
+}
+.layer {
+  position: absolute;
+}
+.layer.nodes {}
+.node {
+  position: absolute;
+  width: 80px;
+  height: 28px;
+  padding: 18px 0px;
+  font-size: 24px;
+  text-align: center;
+  text-shadow: 0px -1px 2px rgba(0,0,0,0.33), 0px 2px 2px rgba(255,255,255,0.3);
+  box-shadow: inset 0 1px 4px rgba(255,255,255,0.95), inset 0 0px 8px rgba(0,0,0,0.75), inset 0 4px 8px rgba(255,255,255,0.5), 0 12px 48px rgba(0,0,0,0.33);
+  color: white;
+  font-weight: 600;
+}
+.node.owner {
+  width: 120px;
+  border-radius: 10px;
+}
+.node.owner.prototype {
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#CDA), to(#9B8), color-stop(.6,#AC9));
+}
+.node.owner.instance {
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#DDA), to(#BA6), color-stop(.6,#CC7));
+}
+.node.state {
+  padding: 26px 0;
+  border-radius: 50px;
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ACD), to(#68B), color-stop(.4,#8aC));
+}
+.node.state.root {
+  height: 24px;
+  padding: 28px 0px;
+  font-size: 18px;
+  text-shadow: 0px -1px 2px rgba(0,0,0,0.2), 0px 2px 2px rgba(255,255,255,0.2);
+  color: rgba(215,235,255,0.4);
+}
+.node.state.virtual {
+  opacity: 0.33;
+}
+.layer.edges {}
+.source {
+  position: absolute;
+}
+.source .kd,
+.source .s1,
+.source .cn,
+.source .at,
+.source .in {
+  font-weight: bold;
+}
+.source .s1,
+.source .cn,
+.source .at,
+.source .in {
+  margin: -1px -4px;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+.source .s1 {
+  color: #258;
+  background: #abd;
+}
+.source .cn {
+  color: #462;
+  background: #bda;
+}
+.source .at {
+  color: #825;
+  background: #dab;
+}
+.source .in {
+  color: #652;
+  background: #dda;
+}
+.source .cm {
+  color: rgba(0,0,0,0.4);
+  font-style: italic;
+}
+pre {
+  font-family: Menlo, Monaco, Consolas, monospace;
+  font-size: 18px;
+  line-height: 1.4em;
+  margin: 0;
+}
+</style>
+</head>
+<body>
+<div class="container" style="left: 20px; top: 20px">
+  <div class="layer nodes">
+    <div class="node owner prototype"
+         style="left: 60px; top: 0px">
+         Animal
+    </div>
+    <div class="node state root"
+         style="left: 80px; top: 100px">
+         root
+    </div>
+    <div class="node state"
+         style="left: 10px; top: 200px">
+         Mov
+    </div>
+    <div class="node state"
+         style="left: 150px; top: 200px">
+         Sta
+    </div>
+  </div>
+</div>
+<div class="container" style="left: 380px; top: 20px">
+  <div class="layer nodes">
+    <div class="node owner prototype"
+         style="left: 100px; top: 0px">
+         Bird
+    </div>
+    <div class="node state root"
+         style="left: 120px; top: 100px">
+         root
+    </div>
+    <div class="node state"
+         style="left: 50px; top: 200px">
+         Mov
+    </div>
+    <div class="node state virtual"
+         style="left: 190px; top: 200px">
+         Sta
+    </div>
+    <div class="node state"
+         style="left: 0px; top: 300px">
+         Fly
+    </div>
+    <div class="node state"
+         style="left: 100px; top: 300px">
+         Walk
+    </div>
+  </div>
+</div>
+<div class="container" style="left: 740px; top: 20px">
+  <div class="layer nodes">
+    <div class="node owner instance"
+         style="left: 100px; top: 0px">
+         canary
+    </div>
+    <div class="node state root"
+         style="left: 120px; top: 100px">
+         root
+    </div>
+    <div class="node state virtual"
+         style="left: 50px; top: 200px">
+         Mov
+    </div>
+    <div class="node state virtual"
+         style="left: 190px; top: 200px">
+         Sta
+    </div>
+    <div class="node state virtual"
+         style="left: 0px; top: 300px">
+         Fly
+    </div>
+    <div class="node state virtual"
+         style="left: 100px; top: 300px">
+         Walk
+    </div>
+  </div>
+</div>
+<div class="source" style="left: 20px; top: 460px">
+  <pre>
+
+<span class="kd">function</span> <span class="cn">Animal</span> () {}
+state( <span class="cn">Animal</span>.prototype, {
+  <span class="s1">Moving</span>: {},
+  <span class="s1">Stationary</span>: state(<span class="at">'initial'</span>)
+});</pre>
+</div>
+
+<div class="source" style="left: 380px; top: 460px">
+  <pre>inherit( <span class="cn">Bird</span>, <span class="cn">Animal</span> );
+<span class="kd">function</span> <span class="cn">Bird</span> () {}
+state( <span class="cn">Bird</span>.prototype, {
+  <span class="s1">Moving</span>: {
+    <span class="s1">Flying</span>: {},
+    <span class="s1">Walking</span>: {}
+  }
+});</pre>
+</div>
+
+<div class="source" style="left: 740px; top: 460px">
+  <pre><span class="kd">var</span> <span class="in">canary</span> = <span class="kd">new</span> <span class="cn">Bird</span>;
+
+<span class="in">canary</span>.state();
+<span class="cm">&gt;&gt;&gt; State "Stationary"</span>
+
+<span class="in">canary</span>.state().go(<span class="s1">'Flying'</span>);
+<span class="cm">&gt;&gt;&gt; State "Flying"</span></pre>
+</div>
+</body>
+</html>
