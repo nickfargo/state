@@ -6,7 +6,6 @@ examples/*
 test/.gitignore
 *.tmproj
 *.gz
-/state.js
 *.min.js
 *.tmp.js
 *.log
