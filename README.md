@@ -154,7 +154,7 @@ person.greet()
 # >>> "Hello."
 ```
 
-1. An object’s accessor method also accepts a function as its argument, which is interpreted as an order to `change` to the state identified by the value returned by immediately applying the provided function.
+1. This is a bit of sugar befitting CoffeeScript in particular: an object’s accessor method also accepts a function as its argument, which is interpreted as an order to `change` to the state identified by the value returned by immediately applying the provided function.
 
 <a name="overview" href="#overview" />
 ## Overview
@@ -306,7 +306,7 @@ obj.state -> ''                         # >>> State ''
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by forwarding a method call made on the object to the object’s current state, with the assurance that the call will be resolved *somewhere* in the state tree: if a method override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the original implementation held within the root state.
 
-*See also:* [Delegators](#delegators)
+*See also:* [Delegators](#concepts--methods--delegators)
 
 <a name="concepts--inheritance--behavior-nesting-using-substates" href="#concepts--inheritance--behavior-nesting-using-substates" />
 #### Behavior nesting using substates
@@ -475,11 +475,11 @@ var o = {};
 state( o, {
     A: {
         AA: state( 'initial', {
-            AAA: {}
+            AAA: state
         }),
-        AB: {}
+        AB: state
     },
-    B: {}
+    B: state
 });
 
 o.state();            // >>> State 'AA'
@@ -502,9 +502,9 @@ o = {}
 state o,
   A:
     AA: state 'initial',
-      AAA: {}
-    AB: {}
-  B: {}
+      AAA: state
+    AB: state
+  B: state
 
 o.state()             # >>> State 'AA'
 o.state ''            # >>> State ''
@@ -552,19 +552,17 @@ state obj, 'mutable abstract',
 
 #### Types of declarable attributes
 
-**Implemented** (and *proposed*) attributes include:
-
 ##### Mutability
 
 By default, states are **weakly immutable**: their data, methods, guards, substates, and transitions cannot be altered. The mutability attributes each affect this condition differently. They are listed here in order of increasing precedence.
 
-* **mutable** — Including the `mutable` attribute in the state’s expression lifts the default restriction of weak immutability.
+* **mutable** — Including the `mutable` attribute in the state’s expression lifts the default restriction of weak immutability, exposing `State` instance methods such as `mutate`, `addMethod`, `addSubstate`, and so on.
 
 * **finite** — If a state is declared `finite`, no substates or descendant states may be added to it, nor may any be removed without also destroying the state itself. Declaring a state `finite mutable` guarantees its hierarchical structure without imposing absolute immutability.
 
-* **immutable** — Adding the `immutable` attribute makes a state **strongly immutable**, forcibly contradicting any explicit or inherited `mutable` attribute.
+* **immutable** — Adding `immutable` makes a state **strongly immutable**. Irrespective of whether they are explicit or inherited, the `immutable` attribute implies `finite`, and overrules and contradicts `mutable`.
 
-Each mutability attribute is implicitly inherited from both superstates and protostates.
+Each mutability attribute is implicitly inherited from any ancestor, be they superstates or protostates.
 
 ##### Destination
 
@@ -584,13 +582,11 @@ Each mutability attribute is implicitly inherited from both superstates and prot
 
 ##### Temporality
 
-* *retained* — (Reserved; not presently implemented.) A `retained` state is one that preserves its own internal state, such that, after the state has become no longer active, a subsequent transition targeting that particular state will be automatically redirected to whichever of its descendant states was most recently current.
+* **retained** — A `retained` state is one that preserves its own internal state, such that, after the state has become no longer active, a subsequent transition targeting that particular state will be automatically redirected to whichever of its descendant states was most recently current.
 
-* *history* — (Reserved; not presently implemented.) Marking a state with the `history` attribute causes its internal state to be recorded in a sequential history. Whereas a `retained` state is concerned only with the most recent internal state, a state’s history can be traversed and altered, resulting in transitions back or forward to previously or subsequently held internal states.
+* **history** — Marking a state with the `history` attribute causes its internal state to be recorded in a sequential history. Whereas a `retained` state is concerned only with the most recent internal state, a state’s history can be traversed and altered, resulting in transitions back or forward to previously or subsequently held internal states.
 
-* *shallow* — (Reserved; not presently implemented.) Normally, states that are `retained` or that keep a `history` persist their internal state *deeply*, i.e., with a scope extending over all of the state’s descendant states. Marking a state `shallow` limits the scope of its persistence to its immediate substates only.
-
-* *versioned* — (Reserved; not presently implemented.) 
+* **shallow** — Normally, states that are `retained` or that keep a `history` persist their internal state *deeply*, i.e., with a scope extending over all of the state’s descendant states. Marking a state `shallow` limits the scope of its persistence to its immediate substates only.
 
 ##### Concurrency
 
@@ -598,7 +594,7 @@ Each mutability attribute is implicitly inherited from both superstates and prot
 
 #### Implications of selected attribute combinations
 
-A `history` state that also is or inherits `immutable` can record and traverse its history more efficiently, since it has the prior knowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
+A `history` state that also is or inherits `immutable` can record and traverse its history more efficiently, since it has the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
 
 
 <a name="concepts--data" href="#concepts--data" />
@@ -712,18 +708,21 @@ raygun.state().change('RapidFire');         // >>> State 'RapidFire'
 raygun.shoot();                             // >>> "pew pew pew!"
 ```
 ```coffeescript
-raygun = shoot: shoot = -> "pew!"
+shoot = -> "pew!"
+raygun = shoot: shoot
 
 raygun.shoot is shoot                       # >>> true
 
-state raygun, RapidFire: shoot: -> "pew pew pew!"
+state raygun,
+  RapidFire:
+    shoot: -> "pew pew pew!"
 
 raygun.shoot is shoot                       # >>> false
 raygun.shoot.isDelegator                    # >>> true
 raygun.state('').method('shoot') is shoot   # >>> true
 
 raygun.shoot()                              # >>> "pew!"
-raygun.state().change 'RapidFire'           # >>> State 'RapidFire'
+raygun.state -> 'RapidFire'                 # >>> State 'RapidFire'
 raygun.shoot()                              # >>> "pew pew pew!"
 ```
 
@@ -874,21 +873,31 @@ class Document
 <a name="concepts--transitions" href="#concepts--transitions" />
 ### Transitions
 
-Whenever an object’s current state changes, a **transition** state is created, which temporarily assumes the role of the current state while the object is travelling from its source state to its target state.
+Whenever an object’s current state changes, a **transition** state is created, which temporarily assumes the role of the current state while the object is travelling from its **origin** or **source** state to its **target** state.
 
 #### Transition expressions
 
 A state expression may include any number of **transition expressions**, which define some **action** to be performed, either synchronously or asynchronously, along with selectors for the `origin` and `target` states to which the transition should apply, and guards to determine the appropriate transition to employ.
 
-Before an object undergoes a state change, it examines the transition expressions available for the given origin and target, passing those states through any `admit` or `release` guards defined for each transition, and, from the first expression it deems as valid, creates a new `Transition` instance.
+Before an object undergoes a state change, it examines the transition expressions available for the given origin and target, passing those states through any `admit` or `release` guards defined for each transition, and, using the first expression it deems as valid, creates a new `Transition` instance.
 
 #### The transition lifecycle
 
-A transition performs a stepwise traversal through the state tree, from the `source` node to the `target` node, where the **domain** of the transition is represented by the state that is the least common ancestor node between `source` and `target`. At each step in the traversal, the transition instance acts as a temporary substate of the local state, such that event listeners may expect to inherit from the states in which they are declared.
+A transition performs a stepwise traversal over its **domain**, which is defined as the subtree of the least common ancestor state between the transition’s `source` and `target`. At each step in the traversal, the transition instance acts as a temporary substate of the visited state, such that event listeners may expect to inherit from the states in which they are declared.
 
-The traversal sequence is decomposable into an ascending phase, an action phase, and a descending phase. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition. The transition then reaches the top of the domain and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state. (*See [Transitional events](#concepts--events--types--transitional)*.)
+The traversal sequence is decomposable into an **ascending phase**, an **action phase**, and a **descending phase**.
 
-Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, and will keep the same `origin` state as that of the aborted transition. Further redirections of pending transitions will continue to grow this `source` chain until a transition finally arrives at its `target` state.
+1. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition.
+
+2. The transition then reaches the top of the domain and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression.
+
+3. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state.
+
+(*See [Transitional events](#concepts--events--types--transitional)*.)
+
+#### Aborted transitions
+
+Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, retaining by reference the same `origin` state as that of the aborted transition, and the traversal will resume, starting with a `depart` and `exit` event emitted on the aborted transition. Further redirections of the pending traversal will continue to grow this `source` chain until a transition finally arrives at its `target` state.
 
 [**View source:**](http://statejs.org/docs/) [`Transition`](http://statejs.org/docs/#transition), [`TransitionExpression`](http://statejs.org/docs/#transition-expression), [`StateController.privileged.change`](http://statejs.org/docs/#state-controller--privileged--change)
 
@@ -896,7 +905,7 @@ Should a new transition be started while a transition is already in progress, an
 <a name="concepts--events" href="#concepts--events" />
 ### Events
 
-Events in **State** follow a very familiar pattern: `State` exposes methods `emit` (aliased to `trigger`) for emitting typed events, and `addEvent`/`removeEvent` (aliased to `on`/`off` and `bind`/`unbind`) for assigning listeners to a particular event type.
+Events in **State** follow the familiar **emitter** pattern: `State` exposes methods `emit` (aliased to `trigger`) for emitting typed events, and `addEvent`/`removeEvent` (aliased to `on`/`off` and `bind`/`unbind`) for assigning listeners to a particular event type.
 
 <a name="concepts--events--types" href="#concepts--events--types" />
 #### Types of events
@@ -1024,7 +1033,7 @@ junior.state()
 ```
 
 <a name="concepts--events--expressing-determinism" href="#concepts--events--expressing-determinism" />
-#### Expressing determinism
+#### Using events to express determinism
 
 An event listener may also be expressed simply as a State name, which is interpreted as an order to transition to that State after all of an event’s callbacks have been invoked. This bit of shorthand allows for concise expression of *deterministic* behavior, where the occurrence of a particular event type within a particular State has a definitive, unambiguous effect on the state of the object.
 
@@ -1102,9 +1111,9 @@ state( object, {
         data: { blorp: 'blorp' },
         admit: true,
         C1: {
-            C1a: {}
+            C1a: state
         },
-        C2: {}
+        C2: state
     },
     D: {
         enter: function () { this.$('B').removeGuard( 'admit' ); }
@@ -1128,8 +1137,8 @@ state object = {},
   C:
     data: blorp: 'blorp'
     C1:
-        C1a: {}
-    C2: {}
+        C1a: state
+    C2: state
   D:
     enter: -> @$('B').removeGuard 'admit'
     admit: ( fromState ) -> true if 'blorp' of fromState.data()
@@ -1260,11 +1269,11 @@ Further, it follows that, as reference-holding subhistories may be nested to any
 ```coffeescript
 class Whatever
   state @::, 'mutable history',
-    A: {}
+    A: state
     B: state 'history',
-      BA: {}
-      BB: {}
-    C: {}
+      BA: state
+      BB: state
+    C: state
 
 # Create a `Whatever` and then tour through each of its states
 w = new Whatever
@@ -1315,7 +1324,7 @@ The next example describes a futuristic device which can function either as a to
 function Device () {}
 state( Device.prototype, 'abstract', {
     Off: state( 'default initial' ),
-    On: {}
+    On: state
 });
 
 Z.inherit( Airpad, Device );
@@ -1323,7 +1332,7 @@ function Airpad () {}
 state( Airpad.prototype, {
     On: state( 'abstract retained', {
         Toasting: state( 'default' ),
-        Refrigerating: {}
+        Refrigerating: state
     })
 });
 
@@ -1340,13 +1349,13 @@ airpad.state().go('On');            // >>> State 'Refrigerating'
 class Device
   state @::, 'abstract'
     Off: state 'default initial'
-    On: {}
+    On: state
 
 class Airpad extends Device
   state @::,
     On: state 'abstract retained'
       Toasting: state 'default'
-      Refrigerating: {}
+      Refrigerating: state
 
 airpad = new Airpad
 airpad.state()                      # >>> State 'Off'
