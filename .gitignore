@@ -7,7 +7,7 @@ test/.gitignore
 /state.js
 *.tmproj
 *.gz
-*.min.js
+*-min.js
 *.tmp.js
 *.log
 .DS_Store
