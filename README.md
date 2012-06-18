@@ -757,7 +757,7 @@ raygun.shoot()                              # >>> "pew pew pew!"
 
 When an owner object’s delegated state method is called, it is invoked not in the context of its owner, but rather of the state in which it is declared, or, if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. This subtle difference in policy does mean that, within a state method, the owner cannot be directly referenced by `this` as it normally would; however, it is still always accessible by calling `this.owner()`.
 
-Of greater importance is the lexical information afforded by binding state methods to their associated state; this allows state method code to exercise useful polymorphic idioms, such as calling up to a superstate’s implementation of the method.
+Of greater importance is the lexical information afforded by binding state methods to their associated state. This allows state method code to take advantage of polymorphic idioms, such as calling up to a superstate’s implementation of a method, as facilitated by the `apply` and `call` methods of `State`. Notably, these methods operate differently from their eponymous counterparts at `Function` in that the first argument accepted by each is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated state).
 
 ```javascript
 state( owner, {
@@ -778,6 +778,66 @@ state owner,
 ```
 
 [**View source:**](http://statejs.org/docs/) [`State.prototype.apply`](http://statejs.org/docs/#state--prototype--apply), [`State.privileged.method`](http://statejs.org/docs/#state--privileged--method)
+
+<a name="concepts--methods--nonexistent" href="#concepts--methods--nonexistent" />
+#### Handling calls to nonexistent methods
+
+In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the failed invocation will return `undefined`. In addition, **State** allows the developer to “trap” such an occurrence by emitting a `noSuchMethod` event. Listeners bound to a state’s generic `noSuchMethod` event type take the sought `methodName` and an array of the passed arguments. Listeners may also be bound to a more specific `noSuchMethod:<methodName>` event type, taking just the arguments as provided to the failed invocation.
+
+```javascript
+var log = console.log,
+    owner = {};
+
+state( owner, 'abstract', {
+    foo: function () { log("I exist!"); },
+
+    A: state( 'default', {
+        bar: function () { log("So do I!"); }
+    }),
+    B: state
+
+    noSuchMethod: function ( methodName, args ) {
+        log("`owner` has no method " + methodName + " in this state!");
+    },
+    'noSuchMethod:bar': function () {
+        log("You also could have trapped a bad call to 'bar' like this.");
+    }
+});
+
+// >>> State 'A'
+
+owner.foo()             // log <<< "I exist!"
+owner.bar()             // log <<< "So do I!"
+owner.state().go('B')   // State 'B'
+owner.bar()             // undefined
+// log <<< "`owner` has no method 'bar' in this state!"
+// log <<< "You also could have trapped a bad call to 'bar' like this."
+```
+```coffeescript
+log = console.log
+owner = {}
+
+state owner, 'abstract',
+  foo: -> log "I exist!"
+
+  A: state 'default'
+    bar: -> log "So do I!"
+  B: state
+
+  noSuchMethod: ( methodName, args ) ->
+    log "`owner` has no method '#{methodName}' in this state!"
+  'noSuchMethod:bar': ( args... ) ->
+    log "You also could have trapped a bad call to 'bar' like this."
+
+# >>> State 'A'
+
+owner.foo()             # log <<< "I exist!"
+owner.bar()             # log <<< "So do I!"
+owner.state -> 'B'      # State 'B'
+owner.bar()             # undefined
+# log <<< "`owner` has no method 'bar' in this state!"
+# log <<< "You also could have trapped a bad call to 'bar' like this."
+```
 
 <a name="concepts--methods--example" href="#concepts--methods--example" />
 #### Example
