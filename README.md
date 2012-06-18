@@ -2,15 +2,12 @@
 
 **State** is a micro-framework for implementing state-driven behavior directly into any JavaScript object.
 
+
 * **[Installation](#installation)**
-
-* **[Getting started](#getting-started) —** [Introduction](#getting-started--introduction) – [Example](#getting-started--example)
-
+* **[Getting started](#getting-started)**
 * **[Overview](#overview)**
-
-* **[Concepts](#concepts) —** [Expressions](#concepts--expressions) – [Inheritance](#concepts--inheritance) – [Selectors](#concepts--selectors) – [Attributes](#concepts--attributes) – [Data](#concepts--data) – [Methods](#concepts--methods) – [Transitions](#concepts--transitions) – [Events](#concepts--events) – [Guards](#concepts--guards) – [History](#concepts--history)
-
-* **[About](#about) —** [Design goals](#about--design-goals) – [Roadmap](#about--roadmap)
+* **[Concepts](#concepts)** 
+* **[About](#about)**
 
 
 <a name="installation" href="#installation" />
@@ -38,8 +35,12 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 
 
+
 <a name="getting-started" href="#getting-started" />
 ## Getting started
+
+* **[Introduction](#getting-started--introduction)**
+* **[Example](#getting-started--example)**
 
 <a name="getting-started--introduction" href="#getting-started--introduction" />
 ### A quick four-step introduction
@@ -156,6 +157,9 @@ person.greet()
 
 1. This is a bit of sugar befitting CoffeeScript in particular: an object’s accessor method also accepts a function as its argument, which is interpreted as an order to `change` to the state identified by the value returned by immediately applying the provided function.
 
+
+
+
 <a name="overview" href="#overview" />
 ## Overview
 
@@ -182,8 +186,22 @@ person.greet()
 * [**History**](#concepts--history) — A state marked with the `history` attribute will keep a **history** of its own *internal state*. This includes a record of the states within its domain that have been current or active, which, if the state or any of its descendants are also `mutable`, is interspersed with a record of the mutations the state has undergone. The history can be traversed backward and forward, causing the object to transition to a previously or subsequently held internal state.
 
 
+
+
 <a name="concepts" href="#concepts" />
 ## Concepts
+
+* **[Expressions](#concepts--expressions)**
+* **[Inheritance](#concepts--inheritance)**
+* **[Selectors](#concepts--selectors)**
+* **[Attributes](#concepts--attributes)**
+* **[Data](#concepts--data)**
+* **[Methods](#concepts--methods)**
+* **[Transitions](#concepts--transitions)**
+* **[Events](#concepts--events)**
+* **[Guards](#concepts--guards)**
+* **[History](#concepts--history)**
+
 
 <a name="concepts--expressions" href="#concepts--expressions" />
 ### Expressions
@@ -283,6 +301,9 @@ Expression input provided to `state()` is interpreted according to the following
 4. Otherwise, if an entry’s key matches a [guard action](#concepts--guards) (i.e., `admit`, `release`), interpret the value as a guard condition (or array of guard conditions).
 
 5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
+
+
+*Return to: **[Concepts](#concepts)** – [Top](#top)*
 
 
 <a name="concepts--inheritance" href="#concepts--inheritance" />
@@ -453,6 +474,9 @@ This system of protostates and virtual states allows an object’s state impleme
 [**View source:**](http://statejs.org/docs/) [`State` constructor](http://statejs.org/docs/#state--constructor), [`State.prototype.protostate`](http://statejs.org/docs/#state--prototype--protostate)
 
 
+*Return to:* **[Concepts](#concepts)** – [Top](#top)
+
+
 <a name="concepts--selectors" href="#concepts--selectors" />
 ### Selectors
 
@@ -530,7 +554,7 @@ Selectors are similarly put to use elsewhere as well: for example, a [transition
 <a name="concepts--attributes" href="#concepts--attributes" />
 ### Attributes
 
-State expressions may include **attributes**, provided as a single string argument that precedes the object map within a `state()` call:
+State expressions may include **attributes**, provided in a space-delimited set, as a single string argument that precedes the object map within a `state()` call:
 
 ```javascript
 state( obj, 'mutable abstract', {
@@ -582,9 +606,9 @@ Each mutability attribute is implicitly inherited from any ancestor, be they sup
 
 ##### Temporality
 
-* **retained** — A `retained` state is one that preserves its own internal state, such that, after the state has become no longer active, a subsequent transition targeting that particular state will be automatically redirected to whichever of its descendant states was most recently current.
-
 * **history** — Marking a state with the `history` attribute causes its internal state to be recorded in a sequential history. Whereas a `retained` state is concerned only with the most recent internal state, a state’s history can be traversed and altered, resulting in transitions back or forward to previously or subsequently held internal states.
+
+* **retained** — A `retained` state is one that preserves its own internal state, such that, after the state has become no longer active, a subsequent transition targeting that particular state will be automatically redirected to whichever of its descendant states was most recently current.
 
 * **shallow** — Normally, states that are `retained` or that keep a `history` persist their internal state *deeply*, i.e., with a scope extending over all of the state’s descendant states. Marking a state `shallow` limits the scope of its persistence to its immediate substates only.
 
@@ -951,7 +975,7 @@ state( Kid.prototype, {
     whine: function ( complaint ) {
         typeof console !== 'undefined' && console.log( complaint );
     },
-    mutate: function ( event, edit, delta ) {
+    mutate: function ( expr, before, after, delta ) {
         this.owner().whine( "I hate " + delta.favorite + ", I want " + edit.favorite + "!" );
     }
 });
@@ -959,7 +983,7 @@ state( Kid.prototype, {
 var junior = new Kid;
 
 // We could have added listeners this way also
-junior.state().on( 'mutate', function ( event, edit, delta ) { /* ... */ });
+junior.state().on( 'mutate', function ( expr, before, after, delta ) { /* ... */ });
 
 junior.whim();  // log <<< "I hate chocolate, I want strawberry!"
 junior.whim();  // log <<< "I hate strawberry, I want chocolate!"
@@ -976,13 +1000,13 @@ class Kid
     whim: ->
       @data favorite: flavors[ Math.random() * flavors.length << 0 ]
     whine: ( complaint ) -> console?.log complaint
-    mutate: ( event, edit, delta ) ->
+    mutate: ( expr, before, after, delta ) ->
       @owner.whine "I hate #{ delta.favorite }, I want #{ edit.favorite }!"
 
 junior = new Kid
 
 # We could have added listeners this way also
-junior.state().on 'mutate', ( event, edit, delta ) -> # ...
+junior.state().on 'mutate', ( expr, before, after, delta ) -> # ...
 
 do junior.whim   # log <<< "I hate chocolate, I want strawberry!"
 do junior.whim   # log <<< "I hate strawberry, I want chocolate!"
@@ -1157,7 +1181,7 @@ Here we observe state guards imposing the following restrictions:
 
 The result is a fanciful convolution where `object` is initially constrained to a progression from state `A` to `C` or its descendant states; exiting the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`, while `B` insists on directly returning the object’s state only to one of its siblings `C` or `D`.
 
-[**View source:**](http://statejs.org/docs/) [`StateController evaluateGuard](#state-controller--private--evaluate-guard), [`StateController.prototype.getTransitionExpressionFor`](http://statejs.org/docs/#state-controller--prototype--get-transition-expression-for)
+[**View source:**](http://statejs.org/docs/) [`StateController evaluateGuard`](#state-controller--private--evaluate-guard), [`StateController.prototype.getTransitionExpressionFor`](http://statejs.org/docs/#state-controller--prototype--get-transition-expression-for)
 
 <a name="concepts--transition-guards" href="#concepts--transition-guards" />
 #### Transition guards
@@ -1245,7 +1269,7 @@ scholar.graduate 3.4999
 <a name="concepts--history" href="#concepts--history" />
 ### History
 
-A state that bears the `history` (or `retained`) attribute will employ a `StateHistory` to record which of its internal states have been current while the history-keeping state has been active, and, if the state is also `mutable`, any mutations undergone by the state or any of its descendants.
+A state that bears the `history` attribute will employ a `StateHistory` to record which of its internal states have been current while the history-keeping state has been active, and, if the state is also `mutable`, any mutations undergone by the state or any of its descendants.
 
 <a name="concepts--history--traversing" href="#concepts--history--traversing" />
 #### Traversing a history
@@ -1316,7 +1340,7 @@ w.state().forward 2         # >>> State ''
 <a name="concepts--history--retaining-internal-state" href="#concepts--history--retaining-internal-state" />
 #### Retaining internal state
 
-A state bearing the `retained` attribute causes an arriving transition to be automatically redirected to whichever of that state’s descendants was most recently the current state. If the `retained` state is also marked `history`, then its retained internal state is simply the history’s currently indexed state. Otherwise, the retained state creates a private `StateHistory` for itself that is limited to recalling only its most recently current state.
+A state bearing the `retained` attribute causes an arriving transition to be automatically redirected to whichever of that state’s descendants was most recently the current state. If the `retained` state is also marked `history`, then its retained internal state is simply the history’s currently indexed state. Otherwise, the retained state creates a `StateHistory` for itself that is limited to recalling only its most recently current state.
 
 The next example describes a futuristic device which can function either as a toaster or as a refrigerator. No matter which mode it is in, if the device is powered `Off` and then back `On`, it will return to the state it held when it was last `On`:
 
@@ -1367,7 +1391,7 @@ airpad.state -> 'Off'               # >>> State 'Off'
 airpad.state -> 'On'                # >>> State 'Refrigerating'
 ```
 
-[**View source:**](http://statejs.org/docs/) [`StateController.privileged.change](#state-controller--privileged--change)
+[**View source:**](http://statejs.org/docs/) [`StateController.privileged.change`](#state-controller--privileged--change)
 
 
 
@@ -1498,20 +1522,23 @@ airpad.state -> 'On'                # >>> State 'Refrigerating'
 <a name="about" href="#about" />
 ## About this project
 
+* **[Design goals](#about--design-goals)**
+* **[Roadmap](#about--roadmap)**
+
 <a name="about--design-goals" href="#about--design-goals" />
 ### Design goals
 
 #### Minimal footprint
 
-All functionality of **State** is to be instigated through the exported `state` function — depending on the arguments provided, `state()` can be used either to generate state expressions, or to implement expressed states into an existing JavaScript object. In the latter case, the newly implemented system of states is thereafter accessed from a single `object.state()` method on the affected object.
+All functionality of **State** is to be instigated through the exported `state` function — depending on the arguments provided, `state()` can be used either to generate state expressions, or to implement expressed states into an existing JavaScript object. In the latter case, the newly implemented system of states is thereafter to be accessed from a single `object.state()` method on the affected object.
 
 #### Expressive power
 
-As much as possible, **State** aims to look and feel like a feature of the language. The interpreted shorthand syntax, simple keyword attributes, and limited interface should allow for production code that is declarative and easy to write and understand. Adopters of terse, depunctuated JavaScript dialects like CoffeeScript should only see further gains in expressiveness.
+As much as possible, **State** should aim to look and feel like a feature of the language. The interpreted shorthand syntax, simple keyword attributes, and limited interface should allow for production code that is declarative and easy to write and understand. Adopters of terse, depunctuated JavaScript dialects like CoffeeScript should only see further gains in expressiveness.
 
 #### Opacity
 
-Apart from the addition of the `object.state()` method, a call to `state()` should necessarily make no other modifications to a stateful object’s interface. Methods are replaced with delegators, which forward method calls to the current state. This is to be implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` will restore the object to its original form.
+Apart from the addition of the `object.state()` method, a call to `state()` must make no other modifications to a stateful object’s interface. Methods are replaced with delegators, which forward method calls to the current state. This is to be implemented *opaquely* and *non-destructively*: consumers of the object need not be aware of which states are active in the object, or even that a concept of state exists at all, and a call to `object.state().root().destroy()` must restore the object to its original form.
 
 
 <a name="about--roadmap" href="#about--roadmap" />
