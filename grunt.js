@@ -1,5 +1,7 @@
 (function() {
-  var list;
+  var Z, list;
+
+  Z = require('../zcore/zcore');
 
   list = function(pre, post, items) {
     var i, v, _len, _ref, _results;
@@ -32,19 +34,39 @@
           dest: 'state' + min + ext
         }
       },
+      lint: {
+        target: '<config:concat.js.dest>'
+      },
+      jshint: {
+        options: Z.assign("eqeqeq immed latedef noarg undef\nboss eqnull expr shadow sub supernew multistr validthis laxbreak", true),
+        globals: Z.assign('module exports require Z state', true)
+      },
       watch: {
         files: '<config:concat.js.src>',
-        tasks: 'concat min'
+        tasks: 'concat min lint qunit docco'
       },
       server: {
         port: 8000,
         base: '..'
       },
       qunit: {
-        all: list(url, '.html', "index")
+        files: 'test/**/*.html'
       }
     });
-    return grunt.registerTask('default', 'concat min server watch');
+    grunt.registerTask('docco', '', function() {
+      var docco, exec, fs, rename;
+      exec = require('child_process').exec;
+      fs = require('fs');
+      docco = function() {
+        return exec('docco state.js', rename);
+      };
+      rename = function(err, stdout, stderr) {
+        fs.rename('docs/state.html', 'docs/source/index.html');
+        return fs.rename('docs/docco.css', 'docs/source/docco.css');
+      };
+      return docco();
+    });
+    return grunt.registerTask('default', 'server concat min lint qunit docco watch');
   };
 
 }).call(this);

@@ -1,3 +1,5 @@
+Z = require '../zcore/zcore'
+
 list = ( pre, post, items ) ->
   items[i] = pre + v + post for v, i in items.split /\s+/
 
@@ -46,23 +48,44 @@ module.exports = ( grunt ) ->
           __post
           """
         dest: 'state' + ext
-    
+
     min:
       js:
         src: '<config:concat.js.dest>'
         dest: 'state' + min + ext
-    
+
+    lint:
+      target: '<config:concat.js.dest>'
+
+    jshint:
+      options: Z.assign( """
+        eqeqeq immed latedef noarg undef
+        boss eqnull expr shadow sub supernew multistr validthis laxbreak
+        """, true )
+      globals: Z.assign( 'module exports require Z state', true )
+
     watch:
       files: '<config:concat.js.src>'
-      tasks: 'concat min'
+      tasks: 'concat min lint qunit docco'
 
     server:
       port: 8000
       base: '..'
 
     qunit:
-      all: list url, '.html', """
-        index
-        """
+      files: 'test/**/*.html'
 
-  grunt.registerTask 'default', 'concat min server watch'
+  grunt.registerTask 'docco', '', ->
+    exec = require('child_process').exec
+    fs = require 'fs'
+
+    docco = ->
+      exec 'docco state.js', rename
+
+    rename = ( err, stdout, stderr ) ->
+      fs.rename 'docs/state.html', 'docs/source/index.html'
+      fs.rename 'docs/docco.css', 'docs/source/docco.css'
+
+    do docco
+
+  grunt.registerTask 'default', 'server concat min lint qunit docco watch'
