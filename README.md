@@ -303,7 +303,7 @@ Expression input provided to `state()` is interpreted according to the following
 5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
 
 
-*Return to: **[Concepts](#concepts)** – [Top](#top)*
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
 
 
 <a name="concepts--inheritance" href="#concepts--inheritance" />
@@ -327,7 +327,7 @@ obj.state -> ''                         # >>> State ''
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by forwarding a method call made on the object to the object’s current state, with the assurance that the call will be resolved *somewhere* in the state tree: if a method override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the original implementation held within the root state.
 
-*See also:* [Delegators](#concepts--methods--delegators)
+*See also:* [Delegator methods](#concepts--methods--delegators)
 
 <a name="concepts--inheritance--behavior-nesting-using-substates" href="#concepts--inheritance--behavior-nesting-using-substates" />
 #### Behavior nesting using substates
@@ -474,7 +474,7 @@ This system of protostates and virtual states allows an object’s state impleme
 [**View source:**](http://statejs.org/docs/) [`State` constructor](http://statejs.org/docs/#state--constructor), [`State.prototype.protostate`](http://statejs.org/docs/#state--prototype--protostate)
 
 
-*Return to:* **[Concepts](#concepts)** – [Top](#top)
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
 
 
 <a name="concepts--selectors" href="#concepts--selectors" />
@@ -551,6 +551,9 @@ Selectors are similarly put to use elsewhere as well: for example, a [transition
 [**View source:**](http://statejs.org/docs/) [`State.prototype.query`](http://statejs.org/docs/#state--prototype--query)
 
 
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
+
+
 <a name="concepts--attributes" href="#concepts--attributes" />
 ### Attributes
 
@@ -619,6 +622,9 @@ Each mutability attribute is implicitly inherited from any ancestor, be they sup
 #### Implications of selected attribute combinations
 
 A `history` state that also is or inherits `immutable` can record and traverse its history more efficiently, since it has the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
+
+
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
 
 
 <a name="concepts--data" href="#concepts--data" />
@@ -699,6 +705,9 @@ mobs.state().data()
 ```
 
 [**View source:**](http://statejs.org/docs/) [`State.privileged.data`](http://statejs.org/docs/#state--privileged--data)
+
+
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
 
 
 <a name="concepts--methods" href="#concepts--methods" />
@@ -794,7 +803,7 @@ state( owner, 'abstract', {
     A: state( 'default', {
         bar: function () { log("So do I!"); }
     }),
-    B: state
+    B: state,
 
     noSuchMethod: function ( methodName, args ) {
         log("`owner` has no method " + methodName + " in this state!");
@@ -803,13 +812,12 @@ state( owner, 'abstract', {
         log("You also could have trapped a bad call to 'bar' like this.");
     }
 });
-
 // >>> State 'A'
 
-owner.foo()             // log <<< "I exist!"
-owner.bar()             // log <<< "So do I!"
-owner.state().go('B')   // State 'B'
-owner.bar()             // undefined
+owner.foo();            // log <<< "I exist!"
+owner.bar();            // log <<< "So do I!"
+owner.state().go('B');  // State 'B'
+owner.bar();            // undefined
 // log <<< "`owner` has no method 'bar' in this state!"
 // log <<< "You also could have trapped a bad call to 'bar' like this."
 ```
@@ -828,7 +836,6 @@ state owner, 'abstract',
     log "`owner` has no method '#{methodName}' in this state!"
   'noSuchMethod:bar': ( args... ) ->
     log "You also could have trapped a bad call to 'bar' like this."
-
 # >>> State 'A'
 
 owner.foo()             # log <<< "I exist!"
@@ -838,6 +845,8 @@ owner.bar()             # undefined
 # log <<< "`owner` has no method 'bar' in this state!"
 # log <<< "You also could have trapped a bad call to 'bar' like this."
 ```
+
+[**View source:**](http://statejs.org/docs/) [`State.prototype.apply`](http://statejs.org/docs/#state--prototype--apply)
 
 <a name="concepts--methods--example" href="#concepts--methods--example" />
 #### Example
@@ -863,7 +872,7 @@ function Document ( location, text ) {
 state( Document.prototype, 'abstract', {
     freeze: function () { // [3]
         var result = this.call( 'save' ); // [4]
-        this.change( 'Frozen' );
+        this.change('Frozen');
         return result;
     },
 
@@ -878,7 +887,7 @@ state( Document.prototype, 'abstract', {
     Saved: state( 'initial', {
         edit: function () {
             var result = this.superstate().apply( 'edit', arguments ); // [2]
-            this.change( 'Dirty' );
+            this.change('Dirty');
             return result;
         },
 
@@ -895,7 +904,7 @@ state( Document.prototype, 'abstract', {
             action: function ( location, text ) {
                 var transition = this;
                 return fs.writeFile( location, text, function ( err ) {
-                    if ( err ) return transition.abort( err ).change( 'Dirty' );
+                    if ( err ) return transition.abort( err ).change('Dirty');
                     transition.end();
                 });
             }
@@ -954,6 +963,9 @@ class Document
 5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked with the arguments array provided by the `change` call.
 
 
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
+
+
 <a name="concepts--transitions" href="#concepts--transitions" />
 ### Transitions
 
@@ -984,6 +996,9 @@ The traversal sequence is decomposable into an **ascending phase**, an **action 
 Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, retaining by reference the same `origin` state as that of the aborted transition, and the traversal will resume, starting with a `depart` and `exit` event emitted on the aborted transition. Further redirections of the pending traversal will continue to grow this `source` chain until a transition finally arrives at its `target` state.
 
 [**View source:**](http://statejs.org/docs/) [`Transition`](http://statejs.org/docs/#transition), [`TransitionExpression`](http://statejs.org/docs/#transition-expression), [`StateController.privileged.change`](http://statejs.org/docs/#state-controller--privileged--change)
+
+
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
 
 
 <a name="concepts--events" href="#concepts--events" />
@@ -1167,6 +1182,9 @@ three.compute 504030201      # >>> true
 ```
 
 
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
+
+
 <a name="concepts--guards" href="#concepts--guards" />
 ### Guards
 
@@ -1324,6 +1342,9 @@ scholar.graduate 3.4999
 ```
 
 [**View source:**](http://statejs.org/docs/) [`StateController evaluateGuard`](#state-controller--private--evaluate-guard), [`StateController.prototype.getTransitionExpressionFor`](http://statejs.org/docs/#state-controller--prototype--get-transition-expression-for)
+
+
+*Return to: [**Concepts**](#concepts) – [Top](#top)*
 
 
 <a name="concepts--history" href="#concepts--history" />
@@ -1584,6 +1605,7 @@ airpad.state -> 'On'                # >>> State 'Refrigerating'
 
 * **[Design goals](#about--design-goals)**
 * **[Roadmap](#about--roadmap)**
+
 
 <a name="about--design-goals" href="#about--design-goals" />
 ### Design goals
