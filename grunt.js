@@ -24,7 +24,7 @@
       uglify: {},
       concat: {
         js: {
-          src: list(lib, ext, "__pre\n\nstate/__pre\nstate/constructor\nstate/core\nstate/internal\nstate/virtualization\nstate/expression\nstate/mutation\nstate/attributes\nstate/model\nstate/currency\nstate/query\nstate/data\nstate/methods\nstate/events\nstate/guards\nstate/substates\nstate/transitions\nstate/history\nstate/__post\n\nstate-expression\nstate-controller\nstate-event\nstate-history\nstate-concurrency\ntransition\ntransition-expression\n\n__post"),
+          src: list(lib, ext, "__pre\n\nstate/__pre\nstate/constructor\nstate/core\nstate/internal\nstate/virtualization\nstate/expression\nstate/mutation\nstate/attributes\nstate/model\nstate/currency\nstate/query\nstate/data\nstate/methods\nstate/events\nstate/guards\nstate/substates\nstate/transitions\nstate/history\nstate/__post\n\nstate-expression\nstate-controller\nstate-event-emitter\nstate-history\nstate-concurrency\ntransition\ntransition-expression\n\n__post"),
           dest: 'state' + ext
         }
       },

@@ -39,7 +39,7 @@ module.exports = ( grunt ) ->
 
           state-expression
           state-controller
-          state-event
+          state-event-emitter
           state-history
           state-concurrency
           transition
