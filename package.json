@@ -3,7 +3,8 @@
 	"version"       : "0.0.2",
 	"description"   : "",
 	"homepage"      : "",
-	"keywords"      : [ "state", "transition", "state transition system", "fsm", "state machine", "behavior" ],
+	"keywords"      : [ "state", "transition", "state transition system", "fsm",
+						"state machine", "behavior" ],
 	"author"        : "Nick Fargo <nick@zvector.com>",
 	"contributors"  : [],
 	"dependencies"  : {

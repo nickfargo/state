@@ -1,8 +1,8 @@
 node_modules/*
 .tmp*
-build/*
 docs/*
 examples/*
+src/*
 test/.gitignore
 /state.js
 *.tmproj
