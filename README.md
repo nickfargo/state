@@ -303,7 +303,7 @@ Expression input provided to `state()` is interpreted according to the following
 5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Expressions**](#concepts--expressions) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--inheritance" href="#concepts--inheritance" />
@@ -474,7 +474,7 @@ This system of protostates and virtual states allows an object’s state impleme
 [**View source:**](http://statejs.org/docs/) [`State` constructor](http://statejs.org/docs/#state--constructor), [`State.prototype.protostate`](http://statejs.org/docs/#state--prototype--protostate)
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Inheritance**](#concepts--inheritance) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--selectors" href="#concepts--selectors" />
@@ -551,7 +551,7 @@ Selectors are similarly put to use elsewhere as well: for example, a [transition
 [**View source:**](http://statejs.org/docs/) [`State.prototype.query`](http://statejs.org/docs/#state--prototype--query)
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Selectors**](#concepts--selectors) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--attributes" href="#concepts--attributes" />
@@ -624,7 +624,7 @@ Each mutability attribute is implicitly inherited from any ancestor, be they sup
 A `history` state that also is or inherits `immutable` can record and traverse its history more efficiently, since it has the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Attributes**](#concepts--attributes) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--data" href="#concepts--data" />
@@ -707,7 +707,7 @@ mobs.state().data()
 [**View source:**](http://statejs.org/docs/) [`State.privileged.data`](http://statejs.org/docs/#state--privileged--data)
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Data**](#concepts--data) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--methods" href="#concepts--methods" />
@@ -966,7 +966,7 @@ class Document
 5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked with the arguments array provided by the `change` call.
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Methods**](#concepts--methods) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--transitions" href="#concepts--transitions" />
@@ -1001,7 +1001,7 @@ Should a new transition be started while a transition is already in progress, an
 [**View source:**](http://statejs.org/docs/) [`Transition`](http://statejs.org/docs/#transition), [`TransitionExpression`](http://statejs.org/docs/#transition-expression), [`StateController.privileged.change`](http://statejs.org/docs/#state-controller--privileged--change)
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Transitions**](#concepts--transitions) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--events" href="#concepts--events" />
@@ -1185,7 +1185,7 @@ three.compute 504030201      # >>> true
 ```
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Events**](#concepts--events) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--guards" href="#concepts--guards" />
@@ -1347,7 +1347,7 @@ scholar.graduate 3.4999
 [**View source:**](http://statejs.org/docs/) [`StateController evaluateGuard`](#state-controller--private--evaluate-guard), [`StateController.prototype.getTransitionExpressionFor`](http://statejs.org/docs/#state-controller--prototype--get-transition-expression-for)
 
 
-*Return to: [**Concepts**](#concepts) – [Top](#top)*
+*Return to: [**Guards**](#concepts--guards) – [Concepts](#concepts) – [Top](#top)*
 
 
 <a name="concepts--history" href="#concepts--history" />
@@ -1477,6 +1477,8 @@ airpad.state -> 'On'                # >>> State 'Refrigerating'
 
 [**View source:**](http://statejs.org/docs/) [`StateController.privileged.change`](#state-controller--privileged--change)
 
+
+*Return to: [**History**](#concepts--history) – [Concepts](#concepts) – [Top](#top)*
 
 
 ## API
