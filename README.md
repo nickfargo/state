@@ -587,7 +587,7 @@ By default, states are **weakly immutable**: their data, methods, guards, substa
 
 * **finite** — If a state is declared `finite`, no substates or descendant states may be added to it, nor may any be removed without also destroying the state itself. Declaring a state `finite mutable` guarantees its hierarchical structure without imposing absolute immutability.
 
-* **immutable** — Adding `immutable` makes a state **strongly immutable**. Irrespective of whether they are explicit or inherited, the `immutable` attribute implies `finite`, and overrules and contradicts `mutable`.
+* **immutable** — Adding `immutable` makes a state **strongly immutable**. The `immutable` attribute overrules and contradicts `mutable`, and implies `finite`, irrespective of whether any of the above are explicit or inherited.
 
 Each mutability attribute is implicitly inherited from any ancestor, be they superstates or protostates.
 
@@ -791,11 +791,12 @@ state owner,
 <a name="concepts--methods--nonexistent" href="#concepts--methods--nonexistent" />
 #### Handling calls to nonexistent methods
 
-In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the failed invocation will return `undefined`. In addition, **State** allows the developer to “trap” such an occurrence by emitting a `noSuchMethod` event. Listeners bound to a state’s generic `noSuchMethod` event type take the sought `methodName` and an array of the passed arguments. Listeners may also be bound to a more specific `noSuchMethod:<methodName>` event type, taking just the arguments as provided to the failed invocation.
+In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the invocation will fail and return `undefined`. In addition, **State** allows such a contingency to be “trapped” by emitting a generic `noSuchMethod` event, whose listeners take as arguments the sought `methodName` and an `Array` of the arguments provided to the failed invocation. Additionally, a more specific `noSuchMethod:<methodName>` event type is emitted as well, whose listeners take just the arguments as provided to the failed invocation.
 
 ```javascript
 var log = console.log,
-    owner = {};
+    owner = {},
+    root;
 
 state( owner, 'abstract', {
     foo: function () { log("I exist!"); },
@@ -803,16 +804,17 @@ state( owner, 'abstract', {
     A: state( 'default', {
         bar: function () { log("So do I!"); }
     }),
-    B: state,
-
-    noSuchMethod: function ( methodName, args ) {
-        log("`owner` has no method " + methodName + " in this state!");
-    },
-    'noSuchMethod:bar': function () {
-        log("You also could have trapped a bad call to 'bar' like this.");
-    }
+    B: state
 });
 // >>> State 'A'
+
+root = owner.state('');
+root.on( 'noSuchMethod', function ( methodName, args ) {
+    log("`owner` has no method " + methodName + " in this state!");
+});
+root.on( 'noSuchMethod:bar': function () {
+    log("You also could have trapped a bad call to 'bar' like this.");
+});
 
 owner.foo();            // log <<< "I exist!"
 owner.bar();            // log <<< "So do I!"
@@ -831,12 +833,13 @@ state owner, 'abstract',
   A: state 'default'
     bar: -> log "So do I!"
   B: state
-
-  noSuchMethod: ( methodName, args ) ->
-    log "`owner` has no method '#{methodName}' in this state!"
-  'noSuchMethod:bar': ( args... ) ->
-    log "You also could have trapped a bad call to 'bar' like this."
 # >>> State 'A'
+
+root = owner.state ''
+root.on 'noSuchMethod', ( methodName, args ) ->
+  log "`owner` has no method '#{methodName}' in this state!"
+root.on 'noSuchMethod:bar', ( args... ) ->
+  log "You also could have trapped a bad call to 'bar' like this."
 
 owner.foo()             # log <<< "I exist!"
 owner.bar()             # log <<< "So do I!"
