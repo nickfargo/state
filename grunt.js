@@ -54,13 +54,16 @@
       }
     });
     grunt.registerTask('docco', '', function() {
-      var docco, exec, fs, rename;
+      var docco, exec, fs, mkdir, rename;
       exec = require('child_process').exec;
       fs = require('fs');
       docco = function() {
-        return exec('docco state.js', rename);
+        return exec('docco state.js', mkdir);
       };
-      rename = function(err, stdout, stderr) {
+      mkdir = function(err) {
+        return fs.mkdir('docs/source', rename);
+      };
+      rename = function(err) {
         fs.rename('docs/state.html', 'docs/source/index.html');
         return fs.rename('docs/docco.css', 'docs/source/docco.css');
       };

@@ -80,9 +80,12 @@ module.exports = ( grunt ) ->
     fs = require 'fs'
 
     docco = ->
-      exec 'docco state.js', rename
+      exec 'docco state.js', mkdir
 
-    rename = ( err, stdout, stderr ) ->
+    mkdir = ( err ) ->
+      fs.mkdir 'docs/source', rename
+
+    rename = ( err ) ->
       fs.rename 'docs/state.html', 'docs/source/index.html'
       fs.rename 'docs/docco.css', 'docs/source/docco.css'
 
