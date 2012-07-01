@@ -5,6 +5,7 @@ list = ( pre, post, items ) ->
 
 module.exports = ( grunt ) ->
   lib = 'lib/'
+  pub = '../state--gh-pages/'
   min = '-min'
   ext = '.js'
   url = 'http://localhost:8000/test/'
@@ -76,18 +77,26 @@ module.exports = ( grunt ) ->
       files: 'test/**/*.html'
 
   grunt.registerTask 'docco', '', ->
-    exec = require('child_process').exec
-    fs = require 'fs'
+    { exec } = require 'child_process'
+    fs       = require 'fs'
 
     docco = ->
       exec 'docco state.js', mkdir
 
     mkdir = ( err ) ->
-      fs.mkdir 'docs/source', rename
+      fs.mkdir pub + 'source', rename
 
     rename = ( err ) ->
-      fs.rename 'docs/state.html', 'docs/source/index.html'
-      fs.rename 'docs/docco.css', 'docs/source/docco.css'
+      n = 0
+      incr = ( err ) -> next err if ++n is 2
+
+      fs.rename 'docs/state.html', pub + 'source/index.html', incr
+      fs.rename 'docs/docco.css' , pub + 'source/docco.css' , incr
+
+      next = rmdir
+
+    rmdir = ( err ) ->
+      fs.rmdir 'docs'
 
     do docco
 

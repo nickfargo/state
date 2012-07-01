@@ -1,7 +1,9 @@
 (function() {
-  var Z, list;
+  var Z, fate, list;
 
   Z = require('../zcore/zcore');
+
+  fate = require('../fate/fate');
 
   list = function(pre, post, items) {
     var i, v, _len, _ref, _results;
@@ -15,8 +17,9 @@
   };
 
   module.exports = function(grunt) {
-    var ext, lib, min, url;
+    var ext, lib, min, pub, url;
     lib = 'lib/';
+    pub = '../state--gh-pages/';
     min = '-min';
     ext = '.js';
     url = 'http://localhost:8000/test/';
@@ -54,18 +57,27 @@
       }
     });
     grunt.registerTask('docco', '', function() {
-      var docco, exec, fs, mkdir, rename;
+      var docco, exec, fs, mkdir, rename, rmdir;
       exec = require('child_process').exec;
       fs = require('fs');
       docco = function() {
         return exec('docco state.js', mkdir);
       };
       mkdir = function(err) {
-        return fs.mkdir('docs/source', rename);
+        return fs.mkdir(pub + 'source', rename);
       };
       rename = function(err) {
-        fs.rename('docs/state.html', 'docs/source/index.html');
-        return fs.rename('docs/docco.css', 'docs/source/docco.css');
+        var incr, n, next;
+        n = 0;
+        incr = function(err) {
+          if (++n === 2) return next(err);
+        };
+        fs.rename('docs/state.html', pub + 'source/index.html', incr);
+        fs.rename('docs/docco.css', pub + 'source/docco.css', incr);
+        return next = rmdir;
+      };
+      rmdir = function(err) {
+        return fs.rmdir('docs');
       };
       return docco();
     });
