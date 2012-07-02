@@ -1,6 +1,6 @@
 # State.js
 
-**State** is a micro-framework for implementing state-driven behavior directly into JavaScript objects.
+**State** is a framework for implementing state-driven behavior directly into JavaScript objects.
 
 ```javascript
 function Person () {}
@@ -12,10 +12,9 @@ state( Person.prototype, {
     Casual: { greet: function () { return "Hi!"; } }
 });
 
-var person = new Person;
-person.state('-> Casual');
-person.greet();
-// >>> "Hi!"
+var person = new Person;    // >>> Person
+person.state('-> Casual');  // >>> State 'Casual'
+person.greet();             // >>> "Hi!"
 ```
 
 <a name="contents" href="#contents" />
@@ -58,7 +57,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 <a name="getting-started" href="#getting-started" />
 ## Getting started
 
-### Step 0 — Calling the `state` function
+### Step 0 — The `state` function
 
 The **State** module is exported as a function called `state`, which can be used in one of two ways:
 
