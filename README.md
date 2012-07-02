@@ -125,7 +125,7 @@ owner.aMethod();                 // >>> "stateful!"
 
 Putting this together we can model a simple and genteel `person` similar to that of the introductory example, who will behave appropriately according to the state we give it:
 
-> __Note__ — from this point forward, example code will first be presented in hand-rolled JavaScript, followed by its logical equivalent in [CoffeeScript](http://coffeescript.org/). Please freely follow or ignore either according to taste.
+> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, followed by its logical equivalent in [CoffeeScript](http://coffeescript.org/) — **please freely follow or ignore either according to taste.**
 
 ```javascript
 var person = {
@@ -143,13 +143,13 @@ state( person, {
 
 person.greet();
 // >>> "Hello."
-person.state().change('Formal');
+person.state().be('Formal'); // [1]
 person.greet();
 // >>> "How do you do?"
-person.state().be('Casual'); // [1]
+person.state().go('Casual'); // [1]
 person.greet();
 // >>> "Hi!"
-person.state().go(''); // [1]
+person.state().change('');
 person.greet();
 // >>> "Hello."
 ```
@@ -182,7 +182,7 @@ person.greet()
 
 * * *
 
-*Return to: [**Getting started**](#getting-started) – [top](#top)*
+*Return to: [**Getting started**](#getting-started)  <  [top](#top)*
 
 * * *
 
@@ -216,7 +216,7 @@ person.greet()
 
 * * *
 
-*Return to: [**Overview**](#overview) – [top](#top)*
+*Return to: [**Overview**](#overview)  <  [top](#top)*
 
 * * *
 
@@ -348,7 +348,7 @@ Expression input provided to `state()` is interpreted according to the following
 
 * * *
 
-*Return to: [**Expressions**](#concepts--expressions) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Expressions**](#concepts--expressions)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -536,7 +536,7 @@ This system of protostates and virtual states allows an object’s state impleme
 
 * * *
 
-*Return to: [**Inheritance**](#concepts--inheritance) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Inheritance**](#concepts--inheritance)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -616,7 +616,7 @@ Selectors are similarly put to use elsewhere as well: for example, a [transition
 
 * * *
 
-*Return to: [**Selectors**](#concepts--selectors) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Selectors**](#concepts--selectors)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -694,13 +694,13 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 
 #### Implications of selected attribute combinations
 
-* **finite mutable** — A state that is literally or inherits both `finite` and `mutable` guarantees its hierarchical structure without imposing absolute immutability.
+* **finite mutable** — A state that is, literally or by inheritance, both `finite` and `mutable` guarantees its hierarchical structure without imposing absolute immutability.
 
-* **immutable history** — A `history` state that also is or inherits `immutable` will record and traverse its history more efficiently, since it has the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
+* **immutable history** — A `history` state that also is, literally or by inheritance, `immutable` will record and traverse its history more efficiently, since it can optimize based on the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
 
 * * *
 
-*Return to: [**Attributes**](#concepts--attributes) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Attributes**](#concepts--attributes)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -786,7 +786,7 @@ mobs.state().data()
 
 * * *
 
-*Return to: [**Data**](#concepts--data) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Data**](#concepts--data)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -1061,7 +1061,7 @@ class Document
 
 * * *
 
-*Return to: [**Methods**](#concepts--methods) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Methods**](#concepts--methods)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -1197,7 +1197,7 @@ A transition performs a stepwise traversal over its **domain**, which is defined
 
 The traversal sequence is decomposable into an **ascending phase**, an **action phase**, and a **descending phase**.
 
-1. During the ascending phase, the object emits a `depart` event on the `source` and an `exit` event on any state that will be rendered inactive as a consequence of the transition.
+1. During the ascending phase, the object emits a `depart` event on the `source`, and an `exit` event on any state that will be rendered inactive as a consequence of the transition.
 
 2. The transition then reaches the domain root and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression.
 
@@ -1310,7 +1310,7 @@ Should a new transition be started while a transition is already in progress, an
 
 * * *
 
-*Return to: [**Transitions**](#concepts--transitions) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Transitions**](#concepts--transitions)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -1508,7 +1508,7 @@ three.compute 504030201      # >>> true
 
 * * *
 
-*Return to: [**Events**](#concepts--events) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Events**](#concepts--events)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -1680,7 +1680,7 @@ scholar.graduate 3.4999
 
 * * *
 
-*Return to: [**Guards**](#concepts--guards) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**Guards**](#concepts--guards)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -1823,7 +1823,7 @@ airpad.state -> 'On'                # >>> State 'Refrigerating'
 
 * * *
 
-*Return to: [**History**](#concepts--history) – [Concepts](#concepts) – [Overview](#overview) – [top](#top)*
+*Return to: [**History**](#concepts--history)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
 
@@ -1879,7 +1879,7 @@ Whereas an object’s state is most typically conceptualized as an exclusive-OR 
 
 * * *
 
-*Return to: [**About this project**](#about) – [top](#top)*
+*Return to: [**About this project**](#about)  <  [top](#top)*
 
 * * *
 
