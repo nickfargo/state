@@ -58,15 +58,8 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 <a name="getting-started" href="#getting-started" />
 ## Getting started
 
-* **[A quick four-step introduction](#getting-started--introduction)**
-* **[A thoroughly polite example](#getting-started--example)**
-
-* * *
-
-<a name="getting-started--introduction" href="#getting-started--introduction" />
-### A quick four-step introduction
-
-#### Step 1 — Calling the `state` function
+<a name="getting-started--step-1-calling-the-state-function" href="#getting-started--step-1-calling-the-state-function" />
+### Step 1 — Calling the `state` function
 
 The **State** module is exported as a function called `state`, which can be used in one of two ways:
 
@@ -80,7 +73,8 @@ state( owner, [attributes], expression )
 ```
 * Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the provided `expression` (and `attributes`), and will return the newly stateful object’s [**initial state**](#concepts--attributes).
 
-#### Step 2 — Building a state expression
+<a name="getting-started--step-2-building-a-state-expression" href="#getting-started--step-2-building-a-state-expression" />
+### Step 2 — Building a state expression
 
 The `expression` argument, usually in the form of an object literal, describes states, methods, and other features that will comprise the state implementation of `owner`:
 
@@ -96,7 +90,8 @@ state( owner, {
 });
 ```
 
-#### Step 3 — Accessing an object’s state
+<a name="getting-started--step-3-accessing-an-objects-state" href="#getting-started--step-3-accessing-an-objects-state" />
+### Step 3 — Accessing an object’s state
 
 After calling `state` to implement state into an `owner` object, this new state implementation will be exposed through an **accessor method**, also named `state`, that will be added to the object.
 
@@ -106,9 +101,10 @@ Calling this accessor with no arguments queries the object for its **current sta
 owner.state();                   // >>> State '' (the top-level *root state*)
 ```
 
-#### Step 4 — Transitioning between states
+<a name="getting-started--step-4-transitioning-between-states" href="#getting-started--step-4-transitioning-between-states" />
+### Step 4 — Transitioning between states
 
-The object’s current state may be reassigned to a different state by calling its `change()` method and providing it the name of a state to be targeted. Changing an object’s state allows the object to exhibit different behavior:
+The object’s current state may be reassigned to a different state by calling its `change` method and providing it the name of a state to be targeted. Transitioning between states allows an object to exhibit different behaviors:
 
 ```javascript
 owner.state();                   // >>> State ''
@@ -120,16 +116,16 @@ owner.state();                   // >>> State 'aState'
 owner.aMethod();                 // >>> "stateful!"
 ```
 
-In addition, a sugary alternative to calling `change` directly is to prepend a **transition arrow** to the targeted state:
+In addition, a sugary alternative to calling `change()` is to prepend a **transition arrow** to the targeted state, and pass this expression into the accessor method:
 
 ```javascript
 owner.state('-> aState');
 ```
 
-<a name="getting-started--example" href="#getting-started--example" />
-### A thoroughly polite example
+<a name="getting-started--all-together-now" href="#getting-started--all-together-now" />
+### All together now …
 
-Putting this together we can model a simple and genteel `person` similar to that of the introductory example, who will behave appropriately according to the state we give it:
+With these tools we can model a simple and genteel `person`, like that shown in the introductory example, who will behave appropriately according to the state we give it:
 
 > **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, followed by its logical equivalent in [CoffeeScript](http://coffeescript.org/) — **please freely follow or ignore either according to taste.**
 
@@ -184,7 +180,7 @@ person.greet()
 
 1. The `change` method is also aliased to `go` and `be`.
 
-2. A naked transition arrow is simply a `change` to the root state.
+2. A naked transition arrow is simply a `change` to the object’s default, or [root](#concepts--inheritance--the-root-state) state.
 
 3. For CoffeeScript, another option is to use a literal function arrow, which mimics the transition arrow; the function is immediately invoked and its return value is passed to the current state’s `change` method.
 
@@ -1113,8 +1109,8 @@ state( Foo.prototype, 'abstract', {
     Baz: state({
         transitions: {
             Zig: { action: function () {
-                var t = this;
-                log( "BLEEP", function () { t.end(); } );
+                var transition = this;
+                log( "BLEEP", function () { transition.end(); } );
             }}
         }
     }),
@@ -1122,11 +1118,11 @@ state( Foo.prototype, 'abstract', {
     transitions: {
         Zig: { origin: 'Bar', target: 'Baz', action: function () {
             var t = this;
-            log( "bleep", function () { t.end(); } );
+            log( "bleep", function () { transition.end(); } );
         }},
         Zag: { origin: 'Baz', target: 'Bar', action: function () {
             var t = this;
-            log( "blorp", function () { t.end(); } );
+            log( "blorp", function () { transition.end(); } );
         }}
     }
 });
@@ -1134,17 +1130,19 @@ state( Foo.prototype, 'abstract', {
 var foo = new Foo;
 
 function zig () {
-    foo.state();            // State 'Bar'
-    foo.state('-> Baz');    // (enacts the `Zig` transition of `Baz`)
-    t = foo.state();        // Transition 'Zig'
-    t.on( 'end', zag );
+    var transition;
+    foo.state();                   // State 'Bar'
+    foo.state('-> Baz');           // (enacts the `Zig` transition of `Baz`)
+    transition = foo.state();      // Transition 'Zig'
+    transition.on( 'end', zag );
 }
 
 function zag () {
-    foo.state();            // State 'Baz'
-    foo.state('-> Bar');    // (enacts the `Zag` transition of the root state)
-    t = foo.state();        // Transition `Zag`
-    t.on( 'end', stop );
+    var transition;
+    foo.state();                   // State 'Baz'
+    foo.state('-> Bar');           // (enacts the `Zag` transition of the root state)
+    transition = foo.state();      // Transition `Zag`
+    transition.on( 'end', stop );
 }
 
 function stop () {
