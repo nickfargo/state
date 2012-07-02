@@ -13,7 +13,7 @@ state( Person.prototype, {
 });
 
 var person = new Person;
-person.state().go('Casual');
+person.state('-> Casual');
 person.greet();
 // >>> "Hi!"
 ```
@@ -120,6 +120,12 @@ owner.state();                   // >>> State 'aState'
 owner.aMethod();                 // >>> "stateful!"
 ```
 
+In addition, a sugary alternative to calling `change` directly is to prepend a **transition arrow** to the targeted state:
+
+```javascript
+owner.state('-> aState');
+```
+
 <a name="getting-started--example" href="#getting-started--example" />
 ### A thoroughly polite example
 
@@ -149,7 +155,7 @@ person.greet();
 person.state().go('Casual'); // [1]
 person.greet();
 // >>> "Hi!"
-person.state().change('');
+person.state('->'); // [2]
 person.greet();
 // >>> "Hello."
 ```
@@ -165,20 +171,22 @@ state person,
 
 person.greet()
 # >>> "Hello."
-person.state().change 'Formal'
+person.state '-> Formal'
 person.greet()
 # >>> "How do you do?"
-person.state -> 'Casual' # [2]
+person.state -> 'Casual' # [3]
 person.greet()
 # >>> "Hi!"
-person.state -> ''
+person.state -> '' # [3]
 person.greet()
 # >>> "Hello."
 ```
 
 1. The `change` method is also aliased to `go` and `be`.
 
-2. Another bit of sugar is the ability to provide a function to the object’s accessor method — this is interpreted as an order to immediately evaluate the function and `change` to the state identified by its return value.
+2. A naked transition arrow is simply a `change` to the root state.
+
+3. For CoffeeScript, another option is to use a literal function arrow, which mimics the transition arrow; the function is immediately invoked and its return value is passed to the current state’s `change` method.
 
 * * *
 
@@ -372,12 +380,12 @@ The state model is a classic tree structure: any state may serve as a **supersta
 For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. An empty-string selector may be used by an object to change its current state to the root state, so as to exhibit the object’s default behavior.
 
 ```javascript
-obj.state().root() === obj.state('')    // >>> true
-obj.state().change('')                  // >>> State ''
+obj.state().root() === obj.state('');   // >>> true
+obj.state('->');                        // >>> State ''
 ```
 ```coffeescript
 obj.state().root() is obj.state ''      # >>> true
-obj.state -> ''                         # >>> State ''
+obj.state '->'                          # >>> State ''
 ```
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree. This capacity allows the *method delegation pattern* to work simply by forwarding a method call made on the object to the object’s current state, with the assurance that the call will be resolved *somewhere* in the state tree: if a method override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the original implementation held within the root state.
@@ -503,7 +511,7 @@ person.hasOwnProperty('state');    // >>> true
 
 person.state().isVirtual();        // >>> false
 person.greet();                    // >>> "Hello."
-person.state().change('Casual');   // >>> State 'Casual'
+person.state('-> Casual');         // >>> State 'Casual'
 person.state().isVirtual();        // >>> true
 person.greet();                    // >>> "Hi!"
 
@@ -519,7 +527,7 @@ person.hasOwnProperty 'state'      # >>> true
 
 person.state().isVirtual()         # >>> false
 person.greet()                     # >>> "Hello."
-person.state -> 'Casual'           # >>> State 'Casual'
+person.state '-> Casual'           # >>> State 'Casual'
 person.state().isVirtual()         # >>> true
 person.greet()                     # >>> "Hi!"
 
@@ -740,7 +748,7 @@ var mobs = new Chief;
 mobs.state().data();
 // >>> { task: 'innovate', budget: 10000000000 }
 
-mobs.state().be('Enraged'); // `be` and `go` are built-in aliases of `change`
+mobs.state('-> Enraged');
 mobs.state().data({ target: 'Moogle' });
 mobs.state().data();
 // >>> { target: 'Moogle', task: 'compete', budget: 10000000000 }
@@ -772,7 +780,7 @@ mobs = new Chief
 mobs.state().data()
 # >>> { task: 'innovate', budget: 10000000000 }
 
-mobs.state().be 'Enraged' # `be` and `go` are built-in aliases of `change`
+mobs.state '-> Enraged'
 mobs.state().data target: 'Moogle'
 mobs.state().data()
 # >>> { target: 'Moogle', task: 'compete', budget: 10000000000 }
@@ -827,7 +835,7 @@ raygun.shoot.isDelegator;                   // >>> true
 raygun.state('').method('shoot') === shoot  // >>> true
 
 raygun.shoot();                             // >>> "pew!"
-raygun.state().change('RapidFire');         // >>> State 'RapidFire'
+raygun.state('-> RapidFire');               // >>> State 'RapidFire'
 raygun.shoot();                             // >>> "pew pew pew!"
 ```
 ```coffeescript
@@ -845,7 +853,7 @@ raygun.shoot.isDelegator                    # >>> true
 raygun.state('').method('shoot') is shoot   # >>> true
 
 raygun.shoot()                              # >>> "pew!"
-raygun.state -> 'RapidFire'                 # >>> State 'RapidFire'
+raygun.state '-> RapidFire'                 # >>> State 'RapidFire'
 raygun.shoot()                              # >>> "pew pew pew!"
 ```
 
@@ -910,7 +918,7 @@ root.on( 'noSuchMethod:bar': function () {
 
 owner.foo();            // log <<< "I exist!"
 owner.bar();            // log <<< "So do I!"
-owner.state().go('B');  // State 'B'
+owner.state('-> B');    // State 'B'
 owner.foo();            // log <<< "I exist!"
 owner.bar();            // undefined
 // log <<< "`owner` has no method 'bar' in this state!"
@@ -936,7 +944,7 @@ root.on 'noSuchMethod:bar', ( args... ) ->
 
 owner.foo()             # log <<< "I exist!"
 owner.bar()             # log <<< "So do I!"
-owner.state -> 'B'      # State 'B'
+owner.state '-> B'      # State 'B'
 owner.foo()             # log <<< "I exist!"
 owner.bar()             # undefined
 # log <<< "`owner` has no method 'bar' in this state!"
@@ -1082,7 +1090,7 @@ Whenever an object’s current state changes, a **transition** state is created,
 <a name="concepts--transitions--expressions" href="#concepts--transitions--expressions" />
 #### Transition expressions
 
-A state expression may include any number of **transition expressions**, which define some **action** to be performed, either synchronously or asynchronously, along with selectors for the `origin` and `target` states to which the transition should apply, and guards to determine the appropriate transition to employ.
+A state expression may include any number of **transition expressions**, which define some **action** to be performed, either synchronously or asynchronously, along with selectors for the `origin`/`source` and `target` states to which the transition should apply, and guards to determine the appropriate transition to employ.
 
 Before an object undergoes a state change, it examines the transition expressions available for the given origin and target, and selects one to be enacted. To test each expression, its `origin` state is validated against its `admit` transition guards, and its `target` state is validated against its `release` transition guards. The object then instantiates a `Transition` based on the first valid transition expression it encounters, or, if no transition expression is available, a generic actionless `Transition`.
 
@@ -1127,14 +1135,14 @@ var foo = new Foo;
 
 function zig () {
     foo.state();            // State 'Bar'
-    foo.state().go('Baz');  // (enacts the `Zig` transition of `Baz`)
+    foo.state('-> Baz');    // (enacts the `Zig` transition of `Baz`)
     t = foo.state();        // Transition 'Zig'
     t.on( 'end', zag );
 }
 
 function zag () {
     foo.state();            // State 'Baz'
-    foo.state().go('Bar');  // (enacts the `Zag` transition of the root state)
+    foo.state('-> Bar');    // (enacts the `Zag` transition of the root state)
     t = foo.state();        // Transition `Zag`
     t.on( 'end', stop );
 }
@@ -1171,13 +1179,13 @@ foo = new Foo
 
 zig = ->
   foo.state()               # State 'Bar'
-  foo.state -> 'Baz'        # (enacts the `Zig` transition of `Baz`)
+  foo.state '-> Baz'        # (enacts the `Zig` transition of `Baz`)
   transition = foo.state()  # Transition 'Zig'
   transition.on 'end', zag
 
 zag = ->
   foo.state()               # State 'Baz'
-  foo.state -> 'Bar'        # (enacts the `Zag` transition of the root state)
+  foo.state '-> Bar'        # (enacts the `Zag` transition of the root state)
   transition = foo.state()  # Transition 'Zag'
   transition.on 'end', stop
 
@@ -1239,14 +1247,14 @@ state( Mover.prototype, {
 
 var m = new Mover;
 
-m.state().go('Alert');
+m.state('-> Alert');
 // log <<< "depart Idle"
 // log <<< "exit Idle"
 // log <<< "action of transition is at Stationary"
 // log <<< "enter Alert"
 // log <<< "arrive Alert"
 
-m.state().go('Sprinting');
+m.state('-> Sprinting');
 // log <<< "depart Alert"
 // log <<< "exit Alert"
 // log <<< "exit Stationary"
@@ -1281,14 +1289,14 @@ class Mover
 
 m = new Mover
 
-m.state -> 'Alert'
+m.state '-> Alert'
 # log <<< "depart Idle"
 # log <<< "exit Idle"
 # log <<< "action of transition is at Stationary"
 # log <<< "enter Alert"
 # log <<< "arrive Alert"
 
-m.state -> 'Sprinting'
+m.state '-> Sprinting'
 # log <<< "depart Alert"
 # log <<< "exit Alert"
 # log <<< "exit Stationary"
@@ -1472,7 +1480,7 @@ function DivisibleByThreeComputer () {
 }
 DivisibleByThreeComputer.prototype.compute = function ( number ) {
     var i, l, binary = number.toString(2);
-    this.state().go(''); // reset
+    this.state('->'); // reset
     for ( i = 0, l = binary.length; i < l; i++ ) {
         this.state().emit( binary[i] );
     }
@@ -1495,7 +1503,7 @@ class DivisibleByThreeComputer
       s2:   '0':'s1', '1':'s2'
 
   compute: ( number ) ->
-    @state -> '' # reset
+    @state '->' # reset
     @state().emit symbol for symbol in number.toString 2
     @state().is 's0'
 
@@ -1729,13 +1737,13 @@ class Whatever
 
 # Create a `Whatever` and then tour through each of its states
 w = new Whatever
-w.state -> 'A'
-w.state -> 'B'
-w.state -> 'BA'
+w.state '-> A'
+w.state '-> B'
+w.state '-> BA'
 w.state('').data message: "Hi!"
-w.state -> 'BB'
-w.state -> 'C'
-w.state -> ''
+w.state '-> BB'
+w.state '-> C'
+w.state '->'
 
 # Examine the histories recorded
 w.state('').history()
@@ -1791,11 +1799,11 @@ state( Airpad.prototype, {
 var airpad = new Airpad;
 airpad.state();                     // >>> State 'Off'
 
-airpad.state().go('On');            // >>> State 'Toasting'
-airpad.state().go('Refrigerating'); // >>> State 'Refrigerating'
-airpad.state().go('Off');           // >>> State 'Off'
+airpad.state('-> On');              // >>> State 'Toasting'
+airpad.state('-> Refrigerating');   // >>> State 'Refrigerating'
+airpad.state('-> Off');             // >>> State 'Off'
 
-airpad.state().go('On');            // >>> State 'Refrigerating'
+airpad.state('-> On');              // >>> State 'Refrigerating'
 ```
 ```coffeescript
 class Device
@@ -1812,11 +1820,11 @@ class Airpad extends Device
 airpad = new Airpad
 airpad.state()                      # >>> State 'Off'
 
-airpad.state -> 'On'                # >>> State 'Toasting'
-airpad.state -> 'Refrigerating'     # >>> State 'Refrigerating'
-airpad.state -> 'Off'               # >>> State 'Off'
+airpad.state '-> On'                # >>> State 'Toasting'
+airpad.state '-> Refrigerating'     # >>> State 'Refrigerating'
+airpad.state '-> Off'               # >>> State 'Off'
 
-airpad.state -> 'On'                # >>> State 'Refrigerating'
+airpad.state '-> On'                # >>> State 'Refrigerating'
 ```
 
 [**View source:**](http://statejs.org/source/) [`StateController.privileged.change`](http://statejs.org/source/#state-controller--privileged--change)
