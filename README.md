@@ -58,8 +58,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 <a name="getting-started" href="#getting-started" />
 ## Getting started
 
-<a name="getting-started--step-1-calling-the-state-function" href="#getting-started--step-1-calling-the-state-function" />
-### Step 1 — Calling the `state` function
+### Step 0 — Calling the `state` function
 
 The **State** module is exported as a function called `state`, which can be used in one of two ways:
 
@@ -73,8 +72,7 @@ state( owner, [attributes], expression )
 ```
 * Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the provided `expression` (and `attributes`), and will return the newly stateful object’s [**initial state**](#concepts--attributes).
 
-<a name="getting-started--step-2-building-a-state-expression" href="#getting-started--step-2-building-a-state-expression" />
-### Step 2 — Building a state expression
+### Step 1 — Building a state expression
 
 The `expression` argument, usually in the form of an object literal, describes states, methods, and other features that will comprise the state implementation of `owner`:
 
@@ -90,8 +88,7 @@ state( owner, {
 });
 ```
 
-<a name="getting-started--step-3-accessing-an-objects-state" href="#getting-started--step-3-accessing-an-objects-state" />
-### Step 3 — Accessing an object’s state
+### Step 2 — Accessing an object’s state
 
 After calling `state` to implement state into an `owner` object, this new state implementation will be exposed through an **accessor method**, also named `state`, that will be added to the object.
 
@@ -101,8 +98,7 @@ Calling this accessor with no arguments queries the object for its **current sta
 owner.state();                   // >>> State '' (the top-level *root state*)
 ```
 
-<a name="getting-started--step-4-transitioning-between-states" href="#getting-started--step-4-transitioning-between-states" />
-### Step 4 — Transitioning between states
+### Step 3 — Transitioning between states
 
 The object’s current state may be reassigned to a different state by calling its `change` method and providing it the name of a state to be targeted. Transitioning between states allows an object to exhibit different behaviors:
 
@@ -122,7 +118,6 @@ In addition, a sugary alternative to calling `change()` is to prepend a **transi
 owner.state('-> aState');
 ```
 
-<a name="getting-started--all-together-now" href="#getting-started--all-together-now" />
 ### All together now …
 
 With these tools we can model a simple and genteel `person`, like that shown in the introductory example, who will behave appropriately according to the state we give it:
