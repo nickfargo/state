@@ -1,13 +1,13 @@
 (function() {
   var Z, exec, fs, list, path;
 
-  Z = require('../zcore/zcore');
-
   exec = require('child_process').exec;
 
   fs = require('fs.extra');
 
   path = require('path');
+
+  Z = require('../zcore/zcore');
 
   list = function(pre, post, items) {
     var i, v, _len, _ref, _results;
@@ -50,7 +50,7 @@
       },
       watch: {
         files: '<config:concat.js.src>',
-        tasks: 'concat min lint qunit publish docco'
+        tasks: 'concat lint min qunit publish docco'
       },
       server: {
         port: 8000,
@@ -64,10 +64,10 @@
       var check, copy, files;
       files = ["state" + ext, "state" + min + ext];
       check = function() {
-        var file, incr, n, next, _i, _len;
+        var cont, file, incr, n, _i, _len;
         n = files.length;
         incr = function(err) {
-          if (!--n) return next(err);
+          if (!--n) return cont(err);
         };
         for (_i = 0, _len = files.length; _i < _len; _i++) {
           file = files[_i];
@@ -82,19 +82,19 @@
             };
           })(file));
         }
-        return next = copy;
+        return cont = copy;
       };
       copy = function(err) {
-        var file, incr, n, next, _i, _len;
+        var cont, file, incr, n, _i, _len;
         n = files.length;
         incr = function(err) {
-          if (!--n) return next(err);
+          if (!--n) return cont(err);
         };
         for (_i = 0, _len = files.length; _i < _len; _i++) {
           file = files[_i];
           fs.copy(file, pub + file, incr);
         }
-        return next = function() {};
+        return cont = function() {};
       };
       return check();
     });
@@ -107,7 +107,7 @@
         return fs.mkdir(pub + 'source', move);
       };
       move = function(err) {
-        var incr, k, map, n, next, v;
+        var cont, incr, k, map, n, v;
         map = {
           "docs/state.html": pub + "source/index.html",
           "docs/docco.css": pub + "source/docco.css"
@@ -117,21 +117,21 @@
           if (err) {
             return --n;
           } else {
-            if (++n === 2) return next(err);
+            if (++n === 2) return cont(err);
           }
         };
         for (k in map) {
           v = map[k];
           fs.rename(k, v, incr);
         }
-        return next = rmdir;
+        return cont = rmdir;
       };
       rmdir = function(err) {
         return fs.rmdir('docs');
       };
       return docco();
     });
-    return grunt.registerTask('default', 'server concat min lint qunit publish docco watch');
+    return grunt.registerTask('default', 'server concat lint min qunit publish docco watch');
   };
 
 }).call(this);

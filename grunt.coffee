@@ -70,7 +70,7 @@ module.exports = ( grunt ) ->
 
     watch:
       files: '<config:concat.js.src>'
-      tasks: 'concat min lint qunit publish docco'
+      tasks: 'concat lint min qunit publish docco'
 
     server:
       port: 8000
@@ -121,4 +121,4 @@ module.exports = ( grunt ) ->
     do docco
 
   grunt.registerTask 'default',
-    'server concat min lint qunit publish docco watch'
+    'server concat lint min qunit publish docco watch'
