@@ -63,7 +63,7 @@ which will expose the module at `window.state` (this can be reclaimed with a cal
 
 ### Step 0 — The `state` function
 
-The **State** module is exported as a function called `state`, which can be used in one of two ways:
+The **State** module is exported as a function called `state`, which can be used in either of two ways:
 
 ```javascript
 state( [attributes], expression )
@@ -1252,12 +1252,15 @@ state( Mover.prototype, {
     
     // Log the transitional events of all states
     construct: function () {
-        var events, s, e;
+        var events, substates, i, j;
         events = 'depart exit enter arrive'.split(' ');
-        for ( s in [this].concat( this.substates( true ) ) ) {
-            for ( e in events ) {
-                s.on( e, function () { console.log this.name() + " " + e; });
-            }
+        substates = [this].concat( this.substates( true ) );
+        for ( i in substates ) for ( j in events ) {
+            ( function ( s, e ) {
+                s.on( e, function () {
+                    console.log this.name() + " " + e;
+                });
+            }( substates[i], events[j] ) );
         }
     }
 });
@@ -1303,7 +1306,7 @@ class Mover
       events = 'depart exit enter arrive'.split ' '
       for s in [this].concat @substates true
         for e in events
-          s.on e, -> console.log "#{e} #{@name()}"
+          do ( s, e ) -> s.on e, -> console.log "#{e} #{@name()}"
 
 m = new Mover
 
