@@ -1,18 +1,17 @@
 {
-	"name"          : "state",
-	"version"       : "0.0.2",
-	"description"   : "",
-	"homepage"      : "",
-	"keywords"      : [ "state", "transition", "state transition system", "fsm",
-						"state machine", "behavior" ],
-	"author"        : "Nick Fargo <nick@zvector.com>",
-	"contributors"  : [],
-	"dependencies"  : {
-		"zcore"     : ">=0.1.2"
-	},
-	"repository"    : {
-		"type"      : "git",
-		"url"       : "git://github.com/nickfargo/state.git"
-	},
-	"main"          : "state.js"
+    "name"          : "state",
+    "version"       : "0.0.4",
+    "description"   : "Objects that behave",
+    "homepage"      : "http://statejs.org/",
+    "keywords"      : [ "state", "transition", "behavior", "behaviour", "fsm", "machine", "state machine", "state transition system" ],
+    "author"        : "Nick Fargo <nick@zvector.com>",
+    "contributors"  : [],
+    "dependencies"  : {
+        "zcore"     : ">=0.1.5"
+    },
+    "repository"    : {
+        "type"      : "git",
+        "url"       : "git://github.com/nickfargo/state.git"
+    },
+    "main"          : "state.js"
 }
