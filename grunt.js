@@ -50,7 +50,7 @@
       },
       watch: {
         files: '<config:concat.js.src>',
-        tasks: 'concat min lint qunit docco'
+        tasks: 'concat min lint qunit publish docco'
       },
       server: {
         port: 8000,
