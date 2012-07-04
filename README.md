@@ -73,7 +73,7 @@ state( [attributes], expression )
 ```javascript
 state( owner, [attributes], expression )
 ```
-* Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the provided `expression` (and `attributes`), and will return the newly stateful object’s [**initial state**](#concepts--attributes).
+* Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the provided `expression` (and `attributes`), and then return the newly stateful object’s [**initial state**](#concepts--attributes).
 
 ### Step 1 — Building a state expression
 
@@ -125,7 +125,7 @@ owner.state('-> aState');
 
 With these tools we can model a simple yet thoroughly polite `person`, like that shown in the introductory example, who will behave appropriately according to the state we give it:
 
-> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, and then followed by a logically equivalent bit of [CoffeeScript](http://coffeescript.org/). **Please freely follow or ignore either according to taste.**
+> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, and then followed by a logically equivalent bit of [CoffeeScript](http://coffeescript.org/). Please freely follow or ignore either according to taste.
 
 ```javascript
 var person = {
@@ -676,7 +676,7 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 <a name="concepts--attributes--abstraction" href="#concepts--attributes--abstraction" />
 #### Abstraction
 
-Unlike some state models, **State** does not confine currency to “leaf” states; rather, all states are by default **concrete** and thus may be targeted by a transition — even those which bear substates. However, sometimes it is appropriate to author `abstract` states whose purpose is limited to serving as a common ancestor of descendant concrete states.
+Unlike some state models, **State** does not confine currency to “leaf” states; rather, all states are by default **concrete** and thus may be targeted by a transition — even those which bear substates. However, it is still sometimes appropriate to author **abstract** states whose purpose is limited to serving as a common ancestor of descendant concrete states.
 
 * **abstract** — A state marked `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be redirected to one of its substates.
 
@@ -1136,11 +1136,11 @@ state( Foo.prototype, 'abstract', {
 
     transitions: {
         Zig: { origin: 'Bar', target: 'Baz', action: function () {
-            var t = this;
+            var transition = this;
             log( "bleep", function () { transition.end(); } );
         }},
         Zag: { origin: 'Baz', target: 'Bar', action: function () {
-            var t = this;
+            var transition = this;
             log( "blorp", function () { transition.end(); } );
         }}
     }
@@ -1243,7 +1243,7 @@ state( Mover.prototype, {
     },
 
     transitions: {
-        'announce': { source: '*', target: '*', action: function () {
+        Announcing: { source: '*', target: '*', action: function () {
             var name = this.superstate().name() || "the root state";
             console.log "action of transition is at " + name;
             this.end();
@@ -1293,9 +1293,10 @@ class Mover
         Sprinting: state
 
     transitions:
-      'announce': source: '*', target: '*', action: ->
+      Announcing: source: '*', target: '*', action: ->
         name = @superstate().name() or "the root state"
         console.log "action of transition is at {name}"
+        @end()
 
     # Log the transitional events of all states
     construct: ->
