@@ -119,3 +119,18 @@ test( "State changes from one child state sibling to another", function () {
         "Change to sibling state using relative selector syntax"
     );
 });
+
+test( "Transitional event that causes transition abortion", function () {
+    var o = {};
+    state( o, {
+        A: {
+            enter: function () { this.$('-> B'); }
+        },
+        B: state
+    });
+
+    o.state('-> A');
+    ok( o.state().is('B'),
+        "Transition redirected by a transitional event"
+    );
+});
