@@ -1,9 +1,13 @@
 (function() {
-  var Z, fate, list;
+  var Z, exec, fs, list, path;
 
   Z = require('../zcore/zcore');
 
-  fate = require('../fate/fate');
+  exec = require('child_process').exec;
+
+  fs = require('fs.extra');
+
+  path = require('path');
 
   list = function(pre, post, items) {
     var i, v, _len, _ref, _results;
@@ -56,24 +60,70 @@
         files: 'test/**/*.html'
       }
     });
+    grunt.registerTask('publish', '', function() {
+      var check, copy, files;
+      files = ["state" + ext, "state" + min + ext];
+      check = function() {
+        var file, incr, n, next, _i, _len;
+        n = files.length;
+        incr = function(err) {
+          if (!--n) return next(err);
+        };
+        for (_i = 0, _len = files.length; _i < _len; _i++) {
+          file = files[_i];
+          file = pub + file;
+          path.exists(file, (function(file) {
+            return function(exists) {
+              if (exists) {
+                return fs.unlink(file, incr);
+              } else {
+                return incr();
+              }
+            };
+          })(file));
+        }
+        return next = copy;
+      };
+      copy = function(err) {
+        var file, incr, n, next, _i, _len;
+        n = files.length;
+        incr = function(err) {
+          if (!--n) return next(err);
+        };
+        for (_i = 0, _len = files.length; _i < _len; _i++) {
+          file = files[_i];
+          fs.copy(file, pub + file, incr);
+        }
+        return next = function() {};
+      };
+      return check();
+    });
     grunt.registerTask('docco', '', function() {
-      var docco, exec, fs, mkdir, rename, rmdir;
-      exec = require('child_process').exec;
-      fs = require('fs');
+      var docco, mkdir, move, rmdir;
       docco = function() {
         return exec('docco state.js', mkdir);
       };
       mkdir = function(err) {
-        return fs.mkdir(pub + 'source', rename);
+        return fs.mkdir(pub + 'source', move);
       };
-      rename = function(err) {
-        var incr, n, next;
+      move = function(err) {
+        var incr, k, map, n, next, v;
+        map = {
+          "docs/state.html": pub + "source/index.html",
+          "docs/docco.css": pub + "source/docco.css"
+        };
         n = 0;
         incr = function(err) {
-          if (++n === 2) return next(err);
+          if (err) {
+            return --n;
+          } else {
+            if (++n === 2) return next(err);
+          }
         };
-        fs.rename('docs/state.html', pub + 'source/index.html', incr);
-        fs.rename('docs/docco.css', pub + 'source/docco.css', incr);
+        for (k in map) {
+          v = map[k];
+          fs.rename(k, v, incr);
+        }
         return next = rmdir;
       };
       rmdir = function(err) {
@@ -81,7 +131,7 @@
       };
       return docco();
     });
-    return grunt.registerTask('default', 'server concat min lint qunit docco watch');
+    return grunt.registerTask('default', 'server concat min lint qunit publish docco watch');
   };
 
 }).call(this);
