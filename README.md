@@ -5,15 +5,19 @@
 ```javascript
 function Person () {}
 
-Person.prototype.greet = function () { return "Hello."; };
-
 state( Person.prototype, {
-    Formal: { greet: function () { return "How do you do?"; } },
-    Casual: { greet: function () { return "Hi!"; } }
+    Formal: state( 'initial', {
+        greet: function () { return "How do you do?"; }
+    }),
+    Casual: {
+        greet: function () { return "Hi!"; }
+    }
 });
 
-var person = new Person;    // >>> Person
-person.state('-> Casual');  // >>> State 'Casual'
+var person = new Person;
+person.greet();             // >>> "How do you do?"
+
+person.state('-> Casual');
 person.greet();             // >>> "Hi!"
 ```
 
@@ -31,7 +35,7 @@ person.greet();             // >>> "Hi!"
 <a name="installation" href="#installation" />
 ## Installation
 
-The lone dependency of **State** is a small utility library called [**Zcore**](http://github.com/zvector/zcore/).
+The lone dependency of **State** is [**Zcore**](http://github.com/zvector/zcore/), a small library of utility functions.
 
 **State** can be installed via [**npm**](http://npmjs.org/):
 
@@ -119,9 +123,9 @@ owner.state('-> aState');
 
 ### All together now …
 
-With these tools we can model a simple and genteel `person`, like that shown in the introductory example, who will behave appropriately according to the state we give it:
+With these tools we can model a simple yet thoroughly polite `person`, like that shown in the introductory example, who will behave appropriately according to the state we give it:
 
-> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, followed by its logical equivalent in [CoffeeScript](http://coffeescript.org/) — **please freely follow or ignore either according to taste.**
+> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, and then followed by a logically equivalent bit of [CoffeeScript](http://coffeescript.org/). **Please freely follow or ignore either according to taste.**
 
 ```javascript
 var person = {
@@ -189,6 +193,8 @@ person.greet()
 
 <a name="overview" href="#overview" />
 ## Overview
+
+At this point it may be helpful first to gain a high-level view of the concepts involved in **State** before diving in further. The points below generally summarize the more in-depth discussions that follow in the next section.
 
 * **States** — Formally, a **state** is an instance of `State` that encapsulates all or part of an **owner** object’s condition at a given moment. The owner may adopt different behaviors at various times by transitioning from one of its states to another.
 
@@ -524,9 +530,9 @@ person.greet()                     # >>> "Hi!"
 Person::state()                    # >>> State ''
 ```
 
-When an accessor method (`person.state()`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it doesn’t, and is instead attempting to inherit `state` from a prototype, then an empty state implementation is created for the inheritor, which in turn generates a corresponding new accessor method (`person.state()`), to which the original call is then forwarded.
+When an accessor method (`person.state`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it does not, and is instead attempting to inherit the accessor (`state`) of a prototype, then an empty state implementation is automatically created for the inheritor, which in turn generates a corresponding new accessor method (`person.state`), to which the original call is then forwarded.
 
-Even though the inheritor’s state implementation is empty, it inherits all the methods, data, events, etc. of the prototype’s states, which it identifies as its **protostates**. The inheritor may adopt a protostate as its current state just as it would with a state of its own, in which case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate. Virtual states exist only so long as they are active; once the object transitions elsewhere, any previously active virtual states are automatically destroyed.
+Even though the inheritor’s new state implementation is empty, it inherits all the methods, data, events, etc. of the prototype’s states, which it identifies as its **protostates**. The inheritor may adopt a protostate as its current state just as it would with a state of its own. In this case a temporary **virtual state** is created within the state implementation of the inheritor, as a stand-in for the protostate. Virtual states exist only so long as they are active; once the object transitions elsewhere, any virtual states consequently rendered inactive are automatically destroyed.
 
 This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without the states themselves having to maintain any direct prototypal relationship with each other.
 
@@ -644,25 +650,47 @@ state obj, 'abstract',
 
 * * *
 
-* **[Types of declarable attributes](#concepts--attributes--types)**
-* **[Implications of selected attributes](#concepts--attributes--implications-of-selected-attributes)**
+* **[Mutability](#concepts--attributes--mutability)**
+* **[Abstraction](#concepts--attributes--abstraction)**
+* **[Reflection](#concepts--attributes--reflection)**
+* **[Destination](#concepts--attributes--destination)**
+* **[Temporality](#concepts--attributes--temporality)**
+* **[Concurrency](#concepts--attributes--concurrency)**
+* **[Implications of selected attribute combinations](#concepts--attributes--implications-of-selected-attribute-combinations)**
 
 * * *
 
-<a name="concepts--attributes--types" href="#concepts--attributes--types" />
-#### Types of declarable attributes
+<a name="concepts--attributes--mutability" href="#concepts--attributes--mutability" />
+#### Mutability
 
-##### Mutability
-
-By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed — a condition that can be affected by these mutability attributes. Each attribute is implicitly inherited from any of the state’s ancestors, be they superstates or protostates. They are listed here in order of increasing precedence.
+By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed — a condition that can be affected at construct-time by these mutability attributes. Each attribute is implicitly inherited from any of the state’s ancestors, be they superstates or protostates. They are listed here in order of increasing precedence.
 
 * **mutable** — Including the `mutable` attribute in the state’s expression lifts the default restriction of weak immutability, exposing `State` instance methods such as `mutate`, `addMethod`, `addSubstate`, and so on.
 
 * **finite** — Declaring a state `finite` guarantees its hierarchical structure; descendant states may neither be added nor removed.
 
+* *static* — (Reserved; not presently implemented.) 
+
 * **immutable** — Adding `immutable` makes a state **strongly immutable**, whereupon immutability is enforced permanently and absolutely; `immutable` overrules and contradicts `mutable` (and implies `finite`), irrespective of whether the attributes are literal or inherited.
 
-##### Destination
+<a name="concepts--attributes--abstraction" href="#concepts--attributes--abstraction" />
+#### Abstraction
+
+Unlike some state models, **State** does not confine currency to “leaf” states; rather, all states are by default **concrete** and thus may be targeted by a transition — even those which bear substates. However, sometimes it is appropriate to author `abstract` states whose purpose is limited to serving as a common ancestor of descendant concrete states.
+
+* **abstract** — A state marked `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be redirected to one of its substates.
+
+* **default** — Marking a state `default` designates it as the intended redirection target for any transition that has targeted its abstract superstate.
+
+<a name="concepts--attributes--reflection" href="#concepts--attributes--reflection" />
+#### Reflection
+
+* *reflective* — (Reserved; not presently implemented.) 
+
+<a name="concepts--attributes--destination" href="#concepts--attributes--destination" />
+#### Destination
+
+Currency must often be initialized or confined to particular states, as directed by the destination attributes:
 
 * **initial** — Marking a state `initial` specifies which state is to be assumed immediately following the `state()` application. No transition or any `enter` or `arrive` events result from this initialization.
 
@@ -670,15 +698,10 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 
 * **final** — Once a state marked `final` is entered, no further transitions are allowed.
 
-##### Abstraction
+<a name="concepts--attributes--temporality" href="#concepts--attributes--temporality" />
+#### Temporality
 
-* **abstract** — A state marked `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be redirected to one of its substates.
-
-* **default** — Marking a state `default` designates it as the redirection target for any transition that targets its abstract superstate.
-
-* **sealed** — A state marked `sealed` cannot have substates.
-
-##### Temporality
+Changes to a stateful object’s currency as a consequence of transitions, and to states themselves, can be recorded and revisited on states that bear either of the temporality attributes `history` and `retained`.
 
 * **history** — Marking a state with the `history` attribute causes its internal state to be recorded in a sequential history. Whereas a `retained` state is concerned only with the most recent internal state, a state’s history can be traversed and altered, resulting in transitions back or forward to previously or subsequently held internal states.
 
@@ -686,15 +709,17 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 
 * **shallow** — Normally, states that are `retained` or that keep a `history` persist their internal state *deeply*, i.e., with a scope extending over all of the state’s descendant states. Marking a state `shallow` limits the scope of its persistence to its immediate substates only.
 
-##### Concurrency
+<a name="concepts--attributes--concurrency" href="#concepts--attributes--concurrency" />
+#### Concurrency
 
 * *concurrent* — (Reserved; not presently implemented.) 
 
+<a name="concepts--attributes--implications-of-selected-attribute-combinations" href="#concepts--attributes--implications-of-selected-attribute-combinations" />
 #### Implications of selected attribute combinations
 
-* **finite mutable** — A state that is, literally or by inheritance, both `finite` and `mutable` guarantees its hierarchical structure without imposing absolute immutability.
+* **“finite mutable”** — A state that is, literally or by inheritance, both `finite` and `mutable` guarantees its hierarchical structure without imposing absolute immutability.
 
-* **immutable history** — A `history` state that also is, literally or by inheritance, `immutable` will record and traverse its history more efficiently, since it can optimize based on the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
+* **“immutable history”** — A `history` state that also is, literally or by inheritance, `immutable` will record and traverse its history more efficiently, since it can optimize based on the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
 
 * * *
 
@@ -874,7 +899,7 @@ state owner,
       bang: -> @superstate().apply 'bang', arguments
 ```
 
-> Notably, these methods operate differently from their eponymous counterparts at `Function`, in that the first argument accepted by each is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated state).
+> **Note:** it is important here to recognize that these methods operate differently from their eponymous counterparts from `Function.prototype`, in that the first argument accepted by each is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated state).
 
 [**View source:**](http://statejs.org/source/) [`State.prototype.apply`](http://statejs.org/source/#state--prototype--apply), [`State.privileged.method`](http://statejs.org/source/#state--privileged--method)
 
@@ -1365,13 +1390,15 @@ state( Kid.prototype, {
     data: {
         favorite: 'chocolate'
     },
+
     whim: function () {
         this.data({ favorite: flavors[ Math.random() * flavors.length << 0 ] });
     },
     whine: function ( complaint ) {
         typeof console !== 'undefined' && console.log( complaint );
     },
-    mutate: function ( expr, before, after, delta ) {
+
+    mutate: function ( mutation, delta, before, after ) {
         this.owner().whine( "I hate " + delta.favorite + ", I want " + edit.favorite + "!" );
     }
 });
@@ -1379,7 +1406,7 @@ state( Kid.prototype, {
 var junior = new Kid;
 
 // We could have added listeners this way also
-junior.state().on( 'mutate', function ( expr, before, after, delta ) { /* ... */ });
+junior.state().on( 'mutate', function ( expr, delta, before, after ) { /* ... */ });
 
 junior.whim();  // log <<< "I hate chocolate, I want strawberry!"
 junior.whim();  // log <<< "I hate strawberry, I want chocolate!"
@@ -1393,16 +1420,18 @@ class Kid
   state @::,
     data:
       favorite: 'chocolate'
+
     whim: ->
       @data favorite: flavors[ Math.random() * flavors.length << 0 ]
     whine: ( complaint ) -> console?.log complaint
-    mutate: ( expr, before, after, delta ) ->
+
+    mutate: ( mutation, delta, before, after ) ->
       @owner.whine "I hate #{ delta.favorite }, I want #{ edit.favorite }!"
 
 junior = new Kid
 
 # We could have added listeners this way also
-junior.state().on 'mutate', ( expr, before, after, delta ) -> # ...
+junior.state().on 'mutate', ( expr, delta, before, after ) -> # ...
 
 do junior.whim   # log <<< "I hate chocolate, I want strawberry!"
 do junior.whim   # log <<< "I hate strawberry, I want chocolate!"
