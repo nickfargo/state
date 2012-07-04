@@ -125,7 +125,7 @@ owner.state('-> aState');
 
 With these tools we can model a simple yet thoroughly polite `person`, like that shown in the introductory example, who will behave appropriately according to the state we give it:
 
-> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, and then followed by a logically equivalent bit of [CoffeeScript](http://coffeescript.org/). Please freely follow or ignore either according to taste.
+> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, and then followed by a logically equivalent bit of [CoffeeScript](http://coffeescript.org/). *Please freely follow or ignore either according to taste.*
 
 ```javascript
 var person = {
@@ -180,7 +180,7 @@ person.greet()
 
 2. A naked transition arrow is simply a `change` to the object’s default, or [root](#concepts--inheritance--the-root-state) state.
 
-3. For CoffeeScript, another option is to use a literal function arrow, which mimics the transition arrow; the function is immediately invoked and its return value is passed to the current state’s `change` method.
+3. Another option is to use a function literal, which mimics the transition arrow; the function is immediately invoked and its return value is passed to the current state’s `change` method.
 
 * * *
 
@@ -904,7 +904,7 @@ state owner,
 [**View source:**](http://statejs.org/source/) [`State.prototype.apply`](http://statejs.org/source/#state--prototype--apply), [`State.privileged.method`](http://statejs.org/source/#state--privileged--method)
 
 <a name="concepts--methods--nonexistent" href="#concepts--methods--nonexistent" />
-#### Handling calls to nonexistent methods
+#### Handling calls to currently nonexistent methods
 
 In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the invocation will fail and return `undefined`. In addition, **State** allows such a contingency to be “trapped” by emitting a generic `noSuchMethod` [**event**](#concepts--events), whose listeners take as arguments the sought `methodName` and an `Array` of the arguments provided to the failed invocation. Additionally, a more specific `noSuchMethod:<methodName>` event type is emitted as well, whose listeners take just the arguments as provided to the failed invocation.
 
@@ -1080,7 +1080,7 @@ class Document
 
 4. The `save` method, which only appears in the `Dirty` state, is still callable from other states, as its presence in `Dirty` causes a no-op version of the method to be automatically added to the root state. This allows `freeze` to safely call `save` despite the possiblity of being in a state (`Saved`) with no such method.
 
-5. Changing to `Saved` from `Dirty` results in the `Writing` [transition](#concepts--transitions), whose asynchronous `action` is invoked with the arguments array provided by the `change` call.
+5. Changing to `Saved` from `Dirty` results in the `Writing` [**transition**](#concepts--transitions), whose asynchronous `action` is invoked with the arguments array provided by the `change` call.
 
 * * *
 
