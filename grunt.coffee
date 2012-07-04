@@ -1,7 +1,7 @@
-Z        = require '../zcore/zcore'
 { exec } = require 'child_process'
 fs       = require 'fs.extra'
 path     = require 'path'
+Z        = require '../zcore/zcore'
 
 list = ( pre, post, items ) ->
   items[i] = pre + v + post for v, i in items.split /\s+/
@@ -84,18 +84,18 @@ module.exports = ( grunt ) ->
 
     check = ->
       n = files.length
-      incr = ( err ) -> next err unless --n
+      incr = ( err ) -> cont err unless --n
       for file in files
         file = pub + file
         path.exists file, do ( file ) -> ( exists ) ->
           if exists then fs.unlink file, incr else do incr
-      next = copy
+      cont = copy
 
     copy = ( err ) ->
       n = files.length
-      incr = ( err ) -> next err unless --n
+      incr = ( err ) -> cont err unless --n
       fs.copy file, pub + file, incr for file in files
-      next = ->
+      cont = ->
 
     do check
 
@@ -111,9 +111,9 @@ module.exports = ( grunt ) ->
         "docs/state.html" : pub + "source/index.html"
         "docs/docco.css"  : pub + "source/docco.css"
       n = 0
-      incr = ( err ) -> if err then --n else next err if ++n is 2
+      incr = ( err ) -> if err then --n else cont err if ++n is 2
       fs.rename k, v, incr for k,v of map
-      next = rmdir
+      cont = rmdir
 
     rmdir = ( err ) ->
       fs.rmdir 'docs'
