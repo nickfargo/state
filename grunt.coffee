@@ -3,6 +3,8 @@ fs       = require 'fs.extra'
 path     = require 'path'
 Z        = require '../zcore/zcore'
 
+tasks = "concat lint min qunit publish docco cleanup"
+
 list = ( pre, post, items ) ->
   items[i] = pre + v + post for v, i in items.split /\s+/
 
@@ -70,7 +72,7 @@ module.exports = ( grunt ) ->
 
     watch:
       files: '<config:concat.js.src>'
-      tasks: 'concat lint min qunit publish docco'
+      tasks: tasks
 
     server:
       port: 8000
@@ -84,18 +86,18 @@ module.exports = ( grunt ) ->
 
     check = ->
       n = files.length
-      incr = ( err ) -> cont err unless --n
+      incr = ( err ) -> continuation err unless --n
       for file in files
         file = pub + file
         path.exists file, do ( file ) -> ( exists ) ->
           if exists then fs.unlink file, incr else do incr
-      cont = copy
+      continuation = copy
 
     copy = ( err ) ->
       n = files.length
-      incr = ( err ) -> cont err unless --n
+      incr = ( err ) -> continuation err unless --n
       fs.copy file, pub + file, incr for file in files
-      cont = ->
+      continuation = ->
 
     do check
 
@@ -111,14 +113,18 @@ module.exports = ( grunt ) ->
         "docs/state.html" : pub + "source/index.html"
         "docs/docco.css"  : pub + "source/docco.css"
       n = 0
-      incr = ( err ) -> if err then --n else cont err if ++n is 2
+      incr = ( err ) -> if err then --n else continuation err if ++n is 2
       fs.rename k, v, incr for k,v of map
-      cont = rmdir
+      continuation = rmdir
 
     rmdir = ( err ) ->
       fs.rmdir 'docs'
 
     do docco
 
+  grunt.registerTask 'cleanup', '', ->
+    fs.unlink 'grunt.js', ( err ) ->
+      console.log err if err
+
   grunt.registerTask 'default',
-    'server concat lint min qunit publish docco watch'
+    "server #{tasks} watch"

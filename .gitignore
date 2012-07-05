@@ -4,4 +4,3 @@ node_modules/*
 *.gz
 *-min.js
 .DS_Store
-grunt.js
