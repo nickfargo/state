@@ -94,7 +94,7 @@ test( "owner", function () {
         B: {}
     });
 
-    Z.inherit( Submock, Mock );
+    O.inherit( Submock, Mock );
     function Submock () {}
     state( Submock.prototype, {
         B: {
@@ -163,7 +163,7 @@ test( "owner", function () {
         );
     });
 
-    Z.inherit( Bird, Animal );
+    O.inherit( Bird, Animal );
     function Bird () {}
     state( Bird.prototype, {
         Moving: {
@@ -225,7 +225,7 @@ test( "owner", function () {
         );
     });
 
-    Z.inherit( Ostrich, Bird );
+    O.inherit( Ostrich, Bird );
     function Ostrich () {}
     state( Ostrich.prototype, {
         Stationary: {
@@ -332,7 +332,7 @@ test( "substates", function () {
         Fizzy: state('initial')
     });
 
-    Z.inherit( Bar, Foo );
+    O.inherit( Bar, Foo );
     function Bar () {}
     state( Bar.prototype, {
         Fizzy: state( 'initial', {
@@ -340,7 +340,7 @@ test( "substates", function () {
         })
     });
 
-    Z.inherit( Baz, Bar );
+    O.inherit( Baz, Bar );
     function Baz () {}
     state( Baz.prototype, {
         Bzzt: {
@@ -352,7 +352,7 @@ test( "substates", function () {
         })
     });
 
-    Z.inherit( Qux, Baz );
+    O.inherit( Qux, Baz );
     function Qux () {}
     state( Qux.prototype, {
         Wizzy: {

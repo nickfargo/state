@@ -39,7 +39,7 @@ test( "Transitivity of `express()`", function () {
     var a = state( {}, expr ).express(),
         b = state( {}, a ).express();
 
-    ok( Z.isEqual( a, b ),
+    ok( O.isEqual( a, b ),
         "Output of `express()` can be used to create a new equivalently stateful object."
     );
 });

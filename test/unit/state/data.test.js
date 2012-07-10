@@ -1,7 +1,7 @@
 module( "state/data" );
 
 test( "Data", function () {
-    var NIL = Z.NIL;
+    var NIL = O.NIL;
 
     function Class () {
         state( this, 'mutable', {

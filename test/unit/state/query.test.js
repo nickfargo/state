@@ -37,10 +37,10 @@ test( "Special cases", function () {
         o.state('A').query('') === o.state().root(),
         "Empty string selector resolves to the root state."
     );
-    ok( Z.isEqual( o.state('*'), [ o.state('A'), o.state('B') ] ),
+    ok( O.isEqual( o.state('*'), [ o.state('A'), o.state('B') ] ),
         "Absolute single-wildcard selector returns an array of the immediate substates."
     );
-    ok( Z.isEqual( o.state('**'), [
+    ok( O.isEqual( o.state('**'), [
             o.state('A'),
             o.state('B'),
             o.state('BA'),

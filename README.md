@@ -35,7 +35,7 @@ person.greet();             // >>> "Hi!"
 <a name="installation" href="#installation" />
 ## Installation
 
-The lone dependency of **State** is [**Zcore**](http://github.com/zvector/zcore/), a small library of utility functions.
+The lone dependency of **State** is [**Omicron**](http://github.com/nickfargo/omicron/).
 
 **State** can be installed via [**npm**](http://npmjs.org/):
 
@@ -49,7 +49,7 @@ var state = require('state');
 or included in the browser:
 
 ```html
-<script src="zcore.js"></script>
+<script src="omicron.js"></script>
 <script src="state.js"></script>
 ```
 
@@ -125,7 +125,7 @@ owner.state('-> aState');
 
 With these tools we can model a simple yet thoroughly polite `person`, like that shown in the introductory example, who will behave appropriately according to the state we give it:
 
-> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, and then followed by a logically equivalent bit of [CoffeeScript](http://coffeescript.org/). *Please freely follow or ignore either according to taste.*
+> **Note:** from this point forward, example code will first be presented in hand-rolled JavaScript, and then followed by a logically equivalent bit of [CoffeeScript](http://coffeescript.org/). Please freely follow or ignore either according to taste.
 
 ```javascript
 var person = {
@@ -143,7 +143,7 @@ state( person, {
 
 person.greet();
 // >>> "Hello."
-person.state().be('Formal'); // [1]
+person.state('-> Formal');
 person.greet();
 // >>> "How do you do?"
 person.state().go('Casual'); // [1]
@@ -165,7 +165,7 @@ state person,
 
 person.greet()
 # >>> "Hello."
-person.state '-> Formal'
+person.state.be 'Formal' # [1]
 person.greet()
 # >>> "How do you do?"
 person.state -> 'Casual' # [3]
@@ -194,7 +194,7 @@ person.greet()
 <a name="overview" href="#overview" />
 ## Overview
 
-At this point it may be helpful first to gain a high-level view of the concepts involved in **State** before diving in further. The points below generally summarize the more in-depth discussions that follow in the next section.
+Before diving in further it may be helpful to gain a broad, high-level view of the concepts involved in **State**. To that end, the points below offer previews of the more in-depth discussions upcoming in the following section.
 
 * **States** — Formally, a **state** is an instance of `State` that encapsulates all or part of an **owner** object’s condition at a given moment. The owner may adopt different behaviors at various times by transitioning from one of its states to another.
 
@@ -373,7 +373,7 @@ The state model is a classic tree structure: any state may serve as a **supersta
 <a name="concepts--inheritance--the-root-state" href="#concepts--inheritance--the-root-state" />
 #### The root state
 
-For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. An empty-string selector may be used by an object to change its current state to the root state, so as to exhibit the object’s default behavior.
+For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. Either an empty-string selector or naked transition arrow may be used to change an object’s current state to the root state, causing the object to exhibit the its default behavior.
 
 ```javascript
 obj.state().root() === obj.state('');   // >>> true
@@ -678,7 +678,7 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 
 Unlike some state models, **State** does not confine currency to “leaf” states; rather, all states are by default **concrete** and thus may be targeted by a transition — even those which bear substates. However, it is still sometimes appropriate to author **abstract** states whose purpose is limited to serving as a common ancestor of descendant concrete states.
 
-* **abstract** — A state marked `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be redirected to one of its substates.
+* **abstract** — A state marked `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be forcibly redirected to one of its substates.
 
 * **default** — Marking a state `default` designates it as the intended redirection target for any transition that has targeted its abstract superstate.
 

@@ -1,7 +1,7 @@
 module "state/data"
 
 test "State.data", ->
-  NIL = Z.NIL
+  NIL = O.NIL
 
   class Class
     constructor: ->

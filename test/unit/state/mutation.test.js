@@ -29,10 +29,10 @@ test( "Complimentarity of `express()` / `mutate()`", function () {
     }
 
     id = o.state('S1').on( 'mutate', function ( mutation, delta ) {
-        var index = Z.keys( delta.events.tap )[0],
+        var index = O.keys( delta.events.tap )[0],
             compare = { events: { tap: {} } };
 
-        compare.events.tap[ index ] = Z.NIL;
+        compare.events.tap[ index ] = O.NIL;
 
         deepEqual( delta, compare,
             "delta.events.tap[" + index + "]:NIL"
@@ -45,7 +45,7 @@ test( "Complimentarity of `express()` / `mutate()`", function () {
     );
     o.state('S1').off( 'mutate', id );
 
-    keys = Z.keys( o.state('S1').express().events.tap );
+    keys = O.keys( o.state('S1').express().events.tap );
     ok(
         o.state('S1').express().events.tap[ keys[0] ] === 'S2',
         "ok"
@@ -56,7 +56,7 @@ test( "Complimentarity of `express()` / `mutate()`", function () {
     );
 
     list = {};
-    list[ keys[0] ] = list[ keys[1] ] = Z.NIL;
+    list[ keys[0] ] = list[ keys[1] ] = O.NIL;
     o.state('S1').mutate({
         events: {
             tap: [ f(0), f(1), f(2), list ]
@@ -67,7 +67,7 @@ test( "Complimentarity of `express()` / `mutate()`", function () {
         "ok"
     );
 
-    keys = Z.keys( o.state('S1').express().events.tap );
+    keys = O.keys( o.state('S1').express().events.tap );
     ok(
         o.state('S1').express().events.tap[ keys[0] ] === f[0],
         "ok"
