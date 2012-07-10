@@ -593,7 +593,7 @@ o.state('**');        // >>> [ State 'A', State 'AA', State 'AAA', State 'AB', S
 o = {}
 state o,
   A:
-    AA: state 'initial',
+    AA: state 'initial'
       AAA: state
     AB: state
   B: state
@@ -641,10 +641,10 @@ state( obj, 'abstract', {
 });
 ```
 ```coffeescript
-state obj, 'abstract',
-  Alive: state 'default initial mutable',
+state obj, 'abstract'
+  Alive: state 'default initial mutable'
     update: -> # ...
-  Dead: state 'final',
+  Dead: state 'final'
     update: -> # ...
 ```
 
@@ -783,7 +783,7 @@ class Chief
         task: 'compete'
 
   constructor: ->
-    state this, 'mutable',
+    state this, 'mutable'
       Enraged:
         Thermonuclear:
           data:
@@ -943,7 +943,7 @@ owner.bar();            // undefined
 log = console.log
 owner = {}
 
-state owner, 'abstract',
+state owner, 'abstract'
   foo: -> log "I exist!"
 
   A: state 'default'
@@ -1044,7 +1044,7 @@ class Document
       text = newText
       this
 
-  state @::, 'abstract',
+  state @::, 'abstract'
     freeze: -> # [3]
       result = @call 'save' # [4]
       @change 'Frozen'
@@ -1055,13 +1055,13 @@ class Document
         @change 'Saved', [ @owner.location(), @owner().read() ] # [5]
         @owner()
     
-    Saved: state 'initial',
+    Saved: state 'initial'
       edit: ->
         result = @superstate().apply 'edit', arguments # [2]
         @change 'Dirty'
         result
 
-      Frozen: state 'final',
+      Frozen: state 'final'
         edit: ->
         freeze: ->
 
@@ -1179,7 +1179,7 @@ zig();
 log = ( message, callback ) -> # ...
 
 class Foo
-  state @::, 'abstract',
+  state @::, 'abstract'
     Bar: state 'default initial'
     Baz: state
       transitions:
@@ -1521,9 +1521,9 @@ three.compute( 504030201 );  // >>> true
 ```coffeescript
 class DivisibleByThreeComputer
   constructor: ->
-    state this, 'abstract',
-      s0: state( 'initial default',
-            '0':'s0', '1':'s1' )
+    state this, 'abstract'
+      s0: state 'initial default'
+            '0':'s0', '1':'s1'
       s1:   '0':'s2', '1':'s0'
       s2:   '0':'s1', '1':'s2'
 
@@ -1753,9 +1753,9 @@ Further, it follows that, as reference-holding subhistories may be nested to any
 ```
 ```coffeescript
 class Whatever
-  state @::, 'finite history',
+  state @::, 'finite history'
     A: state
-    B: state 'history',
+    B: state 'history'
       BA: state
       BB: state
     C: state
