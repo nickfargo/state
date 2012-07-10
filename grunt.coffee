@@ -1,19 +1,27 @@
 { exec } = require 'child_process'
-fs       = require 'fs.extra'
-path     = require 'path'
-Z        = require '../zcore/zcore'
+fs       = require 'fs'
+util     = require 'util'
+O        = require '../omicron/omicron'
 
-tasks = "concat lint min qunit publish docco cleanup"
+tasks = "concat lint min qunit publish docco"
 
 list = ( pre, post, items ) ->
-  items[i] = pre + v + post for v, i in items.split /\s+/
+  items[i] = pre + v + post for v, i in items.split /\s*?\n+\s*/
+
+fs.copy = ( source, target, callback ) ->
+  fs.stat target, ( err ) ->
+    return callback new Error "#{target} exists" unless err
+    fs.stat source, ( err ) ->
+      return callback err if err
+      read = fs.createReadStream source
+      write = fs.createWriteStream target
+      util.pump read, write, callback
 
 module.exports = ( grunt ) ->
   lib = 'lib/'
   pub = '../state--gh-pages/'
   min = '-min'
   ext = '.js'
-  url = 'http://localhost:8000/test/'
 
   grunt.initConfig
     uglify: {}
@@ -64,11 +72,11 @@ module.exports = ( grunt ) ->
       target: '<config:concat.js.dest>'
 
     jshint:
-      options: Z.assign( """
+      options: O.assign( """
         eqeqeq immed latedef noarg undef
         boss eqnull expr shadow sub supernew multistr validthis laxbreak
         """, true )
-      globals: Z.assign( 'module exports require Z state', true )
+      globals: O.assign( 'module exports require O state', true )
 
     watch:
       files: '<config:concat.js.src>'
@@ -82,15 +90,21 @@ module.exports = ( grunt ) ->
       files: 'test/**/*.html'
 
   grunt.registerTask 'publish', '', ->
-    files = [ "state#{ext}", "state#{min}#{ext}" ]
+    files = list '', ext, """
+      state
+      state#{min}
+    """
 
-    check = ->
+    clearOldFiles = ->
       n = files.length
       incr = ( err ) -> continuation err unless --n
       for file in files
         file = pub + file
-        path.exists file, do ( file ) -> ( exists ) ->
+        fs.exists file, do ( file ) -> ( exists ) ->
           if exists then fs.unlink file, incr else do incr
+      continuation = copy
+
+    copyModules = ( err ) ->
       continuation = copy
 
     copy = ( err ) ->
@@ -99,7 +113,7 @@ module.exports = ( grunt ) ->
       fs.copy file, pub + file, incr for file in files
       continuation = ->
 
-    do check
+    do clearOldFiles
 
   grunt.registerTask 'docco', '', ->
     docco = ->
@@ -123,8 +137,8 @@ module.exports = ( grunt ) ->
     do docco
 
   grunt.registerTask 'cleanup', '', ->
-    fs.unlink 'grunt.js', ( err ) ->
-      console.log err if err
+    logError = ( err ) -> console.log err if err
+    fs.unlink 'grunt.js', logError
 
   grunt.registerTask 'default',
-    "server #{tasks} watch"
+    "server #{tasks} cleanup watch"
