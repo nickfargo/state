@@ -7,12 +7,12 @@ module( "state/attributes" );
         A: state( 'default' ),
         B: state( 'initial' ),
         C: state( 'conclusive', {
-            CA: {},
+            CA: state,
             CB: state( 'final' )
         })
     });
 
-    test( "Existential test", function () {
+    test( "Determination", function () {
         var o = new Class;
 
         ok( o.state().is('B') &&
@@ -21,34 +21,39 @@ module( "state/attributes" );
             "Initial state of instance inherits `initial` attribute from prototype."
         );
 
-        ok( o.state().root().isAbstract() &&
-            o.state().root().isRetained() &&
-            o.state().root().isShallow() &&
-            o.state().root().hasHistory(),
+        ok( o.state('').isAbstract() &&
+            o.state('').isRetained() &&
+            o.state('').isShallow() &&
+            o.state('').hasHistory(),
             "Root state of instance inherits attributes "+
             "[ `abstract`, `retained`, `shallow`, `history` ] from prototype."
         );
 
-        o.state().go('');
+        o.state('->');
         ok( o.state().is('A') &&
             o.state().isVirtual() &&
             o.state().isDefault(),
             ""
         );
 
-        o.state().go('C');
-        ok( o.state().is('C') &&
+        o.state('-> C');
+        o.state('-> B');
+        ok( !o.state().is('B') &&
+            o.state().is('C') &&
             o.state().isConclusive(),
-            ""
+            "Should disallow transition that exits from `conclusive` state"
         );
 
-        o.state().go('CB');
-        o.state('CB');
-        o.state().go('CA');
+        o.state('-> CB');
+        ok( o.state().is('CB'),
+            "Should allow transition that does not exit from `conclusive` state"
+        );
+
+        o.state('-> CA');
         ok( !o.state().is('CA') &&
             o.state().is('CB') &&
             o.state().isFinal(),
-            ""
+            "Should disallow transition that departs from `final` state"
         );
     });
 
