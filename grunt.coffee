@@ -35,7 +35,7 @@ module.exports = ( grunt ) ->
           state/constructor
           state/core
           state/internal
-          state/virtualization
+          state/realization
           state/expression
           state/mutation
           state/attributes

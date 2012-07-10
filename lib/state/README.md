@@ -8,7 +8,7 @@ var State = ( function () {
 
     // core.js
     // internal.js
-    // virtualization.js
+    // realization.js
     // expression.js
     // mutation.js
     // attributes.js

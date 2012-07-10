@@ -1,4 +1,4 @@
-module( "state/virtualization" );
+module( "state/realization" );
 
 test( "realize", function () {
 	function Class () {}
