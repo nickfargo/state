@@ -89,31 +89,23 @@ module.exports = ( grunt ) ->
     qunit:
       files: 'test/**/*.html'
 
+  # Copy published source and related bits to --gh-pages directory
   grunt.registerTask 'publish', '', ->
     files = list '', ext, """
       state
       state#{min}
+      ./node_modules/omicron/omicron
     """
 
-    clearOldFiles = ->
+    do ->
       n = files.length
-      incr = ( err ) -> continuation err unless --n
-      for file in files
-        file = pub + file
-        fs.exists file, do ( file ) -> ( exists ) ->
-          if exists then fs.unlink file, incr else do incr
-      continuation = copy
-
-    copyModules = ( err ) ->
-      continuation = copy
-
-    copy = ( err ) ->
-      n = files.length
-      incr = ( err ) -> continuation err unless --n
-      fs.copy file, pub + file, incr for file in files
+      increment = ( err ) -> continuation err unless --n
+      for source in files
+        target = pub + source.replace /.*\/(.*)$/, "$1"
+        fs.exists target, do ( target ) -> ( exists ) ->
+          copy = ( err ) -> fs.copy source, target, increment
+          if exists then fs.unlink target, copy else do copy
       continuation = ->
-
-    do clearOldFiles
 
   grunt.registerTask 'docco', '', ->
     docco = ->
