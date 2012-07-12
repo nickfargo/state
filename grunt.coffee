@@ -99,7 +99,7 @@ module.exports = ( grunt ) ->
       increment = ( err ) -> continuation err unless --n
       for source in files
         target = pub + source.replace /.*\/(.*)$/, "$1"
-        fs.exists target, do ( target ) -> ( exists ) ->
+        fs.exists target, do ( source, target ) -> ( exists ) ->
           copy = ( err ) -> fs.copy source, target, increment
           if exists then fs.unlink target, copy else do copy
       continuation = ->
