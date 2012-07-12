@@ -77,7 +77,7 @@ state( owner, [attributes], expression )
 
 ### Step 1 — Building a state expression
 
-The `expression` argument, usually in the form of an object literal, describes states, methods, and other features that will comprise the state implementation of `owner`:
+The `state` function’s `expression` argument, usually an object literal, describes the constituent states, methods, and other features that will form the state implementation of `owner`:
 
 ```javascript
 var owner = {
@@ -678,7 +678,9 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 
 Unlike some state models, **State** does not confine currency to “leaf” states; rather, all states are by default **concrete** and thus may be targeted by a transition — even those which bear substates. However, it is still sometimes appropriate to author **abstract** states whose purpose is limited to serving as a common ancestor of descendant concrete states.
 
-* **abstract** — A state marked `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be forcibly redirected to one of its substates.
+* **abstract** — A state that is `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be forcibly redirected to one of its substates.
+
+* **concrete** — Including the `concrete` attribute will override the abstraction that would otherwise have been inherited from an `abstract` protostate.
 
 * **default** — Marking a state `default` designates it as the intended redirection target for any transition that has targeted its abstract superstate.
 
@@ -720,6 +722,8 @@ Changes to a stateful object’s currency as a consequence of transitions, and t
 * **“finite mutable”** — A state that is, literally or by inheritance, both `finite` and `mutable` guarantees its hierarchical structure without imposing absolute immutability.
 
 * **“immutable history”** — A `history` state that also is, literally or by inheritance, `immutable` will record and traverse its history more efficiently, since it can optimize based on the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
+
+* **“abstract concrete”** is an invalid production, and if both attributes are literally applied to a state, `concrete` takes precedence and negates `abstract`.
 
 * * *
 

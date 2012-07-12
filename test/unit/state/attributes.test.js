@@ -2,8 +2,8 @@ module( "state/attributes" );
 
 ( function () {
 
-    function Class () {}
-    state( Class.prototype, 'abstract retained shallow history', {
+    function Parent () {}
+    state( Parent.prototype, 'abstract retained shallow history', {
         A: state( 'default' ),
         B: state( 'initial' ),
         C: state( 'conclusive', {
@@ -12,8 +12,57 @@ module( "state/attributes" );
         })
     });
 
+    O.inherit( Child, Parent );
+    function Child () {}
+    state( Child.prototype, 'concrete' );
+
+
+    test( "Abstraction", function () {
+        var o;
+
+        o = {};
+        state( o, {} );
+        ok( o.state().isConcrete() &&
+            !o.state().isAbstract(),
+            "Empty state defaults to `concrete`"
+        );
+
+        ok( Parent.prototype.state('').isAbstract() &&
+            !Parent.prototype.state('').isConcrete(),
+            "`abstract` attribute properly negates `concrete`"
+        );
+
+        ok( !Child.prototype.state('').isAbstract() &&
+            Child.prototype.state('').isConcrete(),
+            "First inheritor has nominally appropriate abstraction"
+        );
+
+        o = new Child;
+        ok( !o.state('').isAbstract() &&
+            o.state('').isConcrete(),
+            "Second inheritor has nominally appropriate abstraction"
+        );
+
+        o = new Parent;
+        state( o, 'abstract concrete', {} );
+        ok( !o.state('').isAbstract() &&
+            o.state('').isConcrete(),
+            "Bad production that includes both causes `abstract` to be negated"
+        );
+
+        o = new Child;
+        state( o, 'abstract', {} );
+        ok( o.state(),
+            "Second inheritor overrides abstraction overrides of first inheritor"
+        );
+        o.state('->');
+        ok( o.state().is('A'),
+            "Inherited `default` attribute on substate responds properly to overriding literal `abstract` superstate"
+        );
+    });
+
     test( "Determination", function () {
-        var o = new Class;
+        var o = new Parent;
 
         ok( o.state().is('B') &&
             o.state().isVirtual() &&
@@ -58,7 +107,7 @@ module( "state/attributes" );
     });
 
     test( "Behavioral test", function () {
-        var o = new Class;
+        var o = new Parent;
 
         ok( o.state().is('B'),
             "Inherits initialization from prototype."
