@@ -48,14 +48,11 @@ module.exports = ( grunt ) ->
           state/guards
           state/substates
           state/transitions
-          state/history
           state/__post
 
           state-expression
           state-controller
           state-event-emitter
-          state-history
-          state-concurrency
           transition
           transition-expression
 

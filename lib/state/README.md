@@ -21,7 +21,6 @@ var State = ( function () {
     // guards.js
     // substates.js
     // transitions.js
-    // history.js
 
     return State;
 }() );
