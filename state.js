@@ -3,8 +3,8 @@
 // 
 // [`LICENSE`](https://github.com/nickfargo/state/blob/master/LICENSE) MIT.
 // 
-// **State** is a micro-framework for implementing state-driven behavior
-// directly into any JavaScript object.
+// **State** is a framework for implementing state-driven behavior directly
+// into any JavaScript object.
 // 
 // [statejs.org](http://statejs.org/)
 // 
@@ -18,7 +18,7 @@
 var global = this,
 
     meta = {
-        VERSION: '0.0.4',
+        VERSION: '0.0.5',
 
         noConflict: ( function () {
             var original = global.state;
@@ -33,11 +33,10 @@ var global = this,
         }
     },
 
-    // The lone dependency of the **State** module is
-    // [Zcore](http://github.com/zvector/zcore), a library that assists with
-    // tasks such as object manipulation, differential operations, and
-    // facilitation of prototypal inheritance.
-    Z = typeof require !== 'undefined' ? require('zcore') : global.Z;
+    // The lone dependency of **State** is [Omicron](http://omicronjs.org),
+    // a library that assists with tasks such as object manipulation,
+    // differential operations, and facilitation of prototypal inheritance.
+    O = typeof require !== 'undefined' ? require('omicron') : global.O;
 
 
 var rxTransitionArrow       = /^\s*([\-|=]>)\s*(.*)/,
@@ -98,7 +97,7 @@ function state (
         expression;
 }
 
-Z.assign( state, meta );
+O.assign( state, meta );
 
 
 // <a class="icon-link" name="module--constants" href="#module--constants"></a>
@@ -162,6 +161,7 @@ var STATE_ATTRIBUTES = {
     // 
     // If a state is declared `static`, none of its contents may be changed
     // except for its substates.
+    // *(Reserved; not presently implemented.)*
     STATIC      : 0x8,
 
     // <a class="icon-link"
@@ -218,6 +218,16 @@ var STATE_ATTRIBUTES = {
     ABSTRACT    : 0x100,
 
     // <a class="icon-link"
+    //    name="module--constants--state-attributes--concrete"
+    //    href="#module--constants--state-attributes--concrete"></a>
+    // 
+    // ##### concrete
+    // 
+    // Marking a state `concrete` overrides an `abstract` attribute that would
+    // otherwise be inherited from a protostate.
+    CONCRETE    : 0x200,
+
+    // <a class="icon-link"
     //    name="module--constants--state-attributes--default"
     //    href="#module--constants--state-attributes--default"></a>
     // 
@@ -225,7 +235,7 @@ var STATE_ATTRIBUTES = {
     // 
     // Marking a state `default` designates it as the actual target for any
     // transition that targets its abstract superstate.
-    DEFAULT     : 0x200,
+    DEFAULT     : 0x400,
 
     // <a class="icon-link"
     //    name="module--constants--state-attributes--reflective"
@@ -238,7 +248,8 @@ var STATE_ATTRIBUTES = {
     // before it becomes inactive again it will “soak” into itself any new
     // properties that were added or changed on the owner while the state was
     // active.
-    REFLECTIVE  : 0x400,
+    // *(Reserved; not presently implemented.)*
+    REFLECTIVE  : 0x800,
 
     // <a class="icon-link"
     //    name="module--constants--state-attributes--history"
@@ -251,7 +262,8 @@ var STATE_ATTRIBUTES = {
     // is concerned only with the most recent internal state, a state’s history
     // can be traversed and altered, resulting in transitions back or forward
     // to previously or subsequently held internal states.
-    HISTORY     : 0x800,
+    // *(Reserved; not presently implemented.)*
+    HISTORY     : 0x1000,
 
     // <a class="icon-link"
     //    name="module--constants--state-attributes--retained"
@@ -264,7 +276,8 @@ var STATE_ATTRIBUTES = {
     // transition targeting that particular state will automatically be
     // redirected to whichever of its descendant states was most recently
     // current.
-    RETAINED    : 0x1000,
+    // *(Reserved; not presently implemented.)*
+    RETAINED    : 0x2000,
 
     // <a class="icon-link"
     //    name="module--constants--state-attributes--shallow"
@@ -276,7 +289,8 @@ var STATE_ATTRIBUTES = {
     // their internal state *deeply*, i.e., with a scope extending over all of
     // the state’s descendant states. Marking a state `shallow` limits the
     // scope of its persistence to its immediate substates only.
-    SHALLOW     : 0x2000,
+    // *(Reserved; not presently implemented.)*
+    SHALLOW     : 0x4000,
 
     // ##### versioned
     // 
@@ -298,7 +312,7 @@ var STATE_ATTRIBUTES = {
     // each region and the results reduced accordingly on their way back to the
     // owner.
     // *(Reserved; not presently implemented.)*
-    CONCURRENT  : 0x4000
+    CONCURRENT  : 0x8000
 //
 };
 
@@ -308,12 +322,13 @@ var STATE_ATTRIBUTES = {
 // 
 // #### State attribute modifiers
 // 
-// The subset of attributes that are valid keywords for the `attributes`
-// argument in a call to the exported [`state`](#module) function.
+// The subset of attributes that are valid or reserved keywords for the
+// `attributes` argument in a call to the exported [`state`](#module)
+// function.
 var STATE_ATTRIBUTE_MODIFIERS = [
         'mutable finite static immutable',
         'initial conclusive final',
-        'abstract default',
+        'abstract concrete default',
         'reflective',
         'history retained shallow versioned',
         'concurrent'
@@ -363,8 +378,8 @@ var TRANSITION_EVENT_TYPES =
 
 // The [`state`](#module) module is exported via CommonJS on the server, and
 // globally in the browser.
-Z.env.server && ( module.exports = exports = state );
-Z.env.client && ( global['state'] = state );
+O.env.server && ( module.exports = exports = state );
+O.env.client && ( global['state'] = state );
 
 // <a class="icon-link"
 //    name="module--constants--module"
@@ -374,7 +389,7 @@ Z.env.client && ( global['state'] = state );
 // 
 // References or creates a unique object visible only within the lexical scope
 // of this module.
-var __MODULE__ = Z.env.server ? module : { exports: state };
+var __MODULE__ = O.env.server ? module : { exports: state };
 
 // ## State <a class="icon-link" name="state" href="#state"></a>
 // 
@@ -415,6 +430,7 @@ var SA = STATE_ATTRIBUTES,
     CONCLUSIVE  = SA.CONCLUSIVE,
     FINAL       = SA.FINAL,
     ABSTRACT    = SA.ABSTRACT,
+    CONCRETE    = SA.CONCRETE,
     DEFAULT     = SA.DEFAULT,
     REFLECTIVE  = SA.REFLECTIVE,
     HISTORY     = SA.HISTORY,
@@ -425,13 +441,13 @@ var SA = STATE_ATTRIBUTES,
     PROTOSTATE_HERITABLE_ATTRIBUTES =
         MUTABLE     |  FINITE      |  STATIC     |  IMMUTABLE  |
         INITIAL     |  CONCLUSIVE  |  FINAL      |
-        ABSTRACT    |  DEFAULT     |
+        ABSTRACT    |  CONCRETE    |  DEFAULT    |
         REFLECTIVE  |
         HISTORY     |  RETAINED    |  SHALLOW    |
         CONCURRENT
     ;
 
-Z.assign( State, SA );
+O.assign( State, SA );
 
 // <a class="icon-link"
 //    name="state--constructor.js"
@@ -449,15 +465,14 @@ function State ( superstate, name, expression ) {
         return new State( superstate, name, expression );
     }
 
-    var attributes, controller, superstateAttributes, protostate,
-        protostateAttributes;
+    var attributes, controller, superAttributes, protostate, protoAttributes;
 
     attributes = expression && expression.attributes || NORMAL;
 
     // #### name
     // 
     // Returns the local name of this state.
-    this.name = Z.stringFunction( function () { return name || ''; } );
+    this.name = O.stringFunction( function () { return name || ''; } );
 
     // A root state is created by a [`StateController`](#state-controller),
     // which passes a reference to itself into the `superstate` parameter,
@@ -465,8 +480,8 @@ function State ( superstate, name, expression ) {
     // be created for this instance.
     if ( superstate instanceof StateController ) {
         controller = superstate; superstate = undefined;
-        controller.root = Z.thunk( this );
-        this.controller = Z.thunk( controller );
+        controller.root = O.thunk( this );
+        this.controller = O.thunk( controller );
     }
 
     // Otherwise this state is an inheritor of an existing superstate.
@@ -475,20 +490,40 @@ function State ( superstate, name, expression ) {
 
         // The `mutable` and `finite` attributes are inherited from the
         // superstate.
-        superstateAttributes = superstate.attributes();
-        attributes |= superstateAttributes & ( MUTABLE | FINITE );
+        superAttributes = superstate.attributes();
+        attributes |= superAttributes & ( MUTABLE | FINITE );
     }
 
     // The set of “protostate-heritable” attributes are inherited from the
     // protostate.
     if ( protostate = this.protostate() ) {
-        protostateAttributes = protostate.attributes();
-        attributes |= protostateAttributes & PROTOSTATE_HERITABLE_ATTRIBUTES;
+        protoAttributes = protostate.attributes();
+        protoAttributes &= PROTOSTATE_HERITABLE_ATTRIBUTES;
+
+        // Literal `concrete` forcibly contradicts literal `abstract`; if a
+        // bad production includes both attributes, negate `abstract`.
+        if ( attributes & CONCRETE ) {
+            attributes &= ~ABSTRACT;
+        }
+
+        // Literal `abstract` may override inherited `concrete`, and vice
+        // versa, so filter those attributes out of the protostate before
+        // inheriting.
+        if ( attributes & ( ABSTRACT | CONCRETE ) ) {
+            protoAttributes &= ~( ABSTRACT | CONCRETE );
+        }
+        attributes |= protoAttributes;
+    }
+
+    // If at this point the state is not `abstract`, then `concrete` must be
+    // imposed.
+    if ( ~attributes & ABSTRACT ) {
+        attributes |= CONCRETE;
     }
 
     // Literal or inherited `immutable` is an absolute contradiction of
     // `mutable` and implication of `finite`.
-    attributes |= ( superstateAttributes | protostateAttributes ) & IMMUTABLE;
+    attributes |= ( superAttributes | protoAttributes ) & IMMUTABLE;
     if ( attributes & IMMUTABLE ) {
         attributes &= ~MUTABLE;
         attributes |= FINITE;
@@ -500,7 +535,7 @@ function State ( superstate, name, expression ) {
     if ( attributes & VIRTUAL ) {
         this.attributes = privileged.attributes( attributes );
         this.realize = privileged.realize( attributes );
-        attributes & MUTABLE && Z.assign( this, mutableVirtualMethods );
+        attributes & MUTABLE && O.assign( this, mutableVirtualMethods );
     }
 
     // For a real state, the remainder of construction is delegated to the
@@ -510,14 +545,14 @@ function State ( superstate, name, expression ) {
     }
 
     // Additional property assignments for easy viewing in the inspector.
-    if ( Z.env.debug ) {
+    if ( O.env.debug ) {
         this[' <owner>'] = this.owner();
         this[' <path>']  = this.derivation( true ).join('.');
         this['<attr>']   = StateExpression.decodeAttributes( attributes );
     }
 }
 
-State.prototype.name = Z.noop;
+State.prototype.name = O.noop;
 
 var privileged = State.privileged = {};
 
@@ -529,7 +564,7 @@ var privileged = State.privileged = {};
 //
 // Methods for initializing and properly destroying a `State` instance.
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--init"
@@ -577,7 +612,7 @@ Z.assign( State.privileged, {
 
             // Descendant states are destroyed bottom-up.
             for ( stateName in substates ) {
-                if ( Z.hasOwn.call( substates, stateName ) ) {
+                if ( O.hasOwn.call( substates, stateName ) ) {
                     substates[ stateName ].destroy();
                 }
             }
@@ -642,7 +677,7 @@ Z.assign( State.privileged, {
     }
 });
 
-State.prototype.destroy = Z.thunk( false );
+State.prototype.destroy = O.thunk( false );
 
 // <a class="icon-link"
 //    name="state--internal.js"
@@ -684,17 +719,17 @@ State.privileged.peek = function (
           /*String*/ name
     ) {
         if ( referenceToModule !== __MODULE__ ) throw ReferenceError;
-        return name ? members[ name ] : Z.clone( members );
+        return name ? members[ name ] : O.clone( members );
     };
 };
 
-State.prototype.peek = Z.noop;
+State.prototype.peek = O.noop;
 
 // <a class="icon-link"
-//    name="state--virtualization.js"
-//    href="#state--virtualization.js"></a>
+//    name="state--realization.js"
+//    href="#state--realization.js"></a>
 // 
-// ### `state/virtualization.js`
+// ### `state/realization.js`
 //
 // Methods for realizing an incipient or virtual `State` instance.
 
@@ -728,15 +763,13 @@ function realize ( superstate, attributes, expression ) {
         guards      = {},
         substates   = {},
         transitions = {},
-        history     = attributes & HISTORY || attributes & RETAINED ?
-            new StateHistory( this ) :
-            null;
+        history     = null;
 
     // Method names are mapped to specific local variables. The named
     // methods are created on `this`, each of which is a partial application
     // of its corresponding method factory at
     // [`State.privileged`](#state--privileged).
-    Z.privilege( this, privileged, {
+    O.privilege( this, privileged, {
         'peek express mutate' : [ StateExpression, attributes, data,
             methods, events, guards, substates, transitions, history ],
         'superstate' : [ superstate ],
@@ -752,11 +785,8 @@ function realize ( superstate, attributes, expression ) {
         'destroy' : [ function ( s ) { return superstate = s; }, methods,
             events, substates ]
     });
-    history && Z.privilege( this, privileged, {
-        'history push replace' : [ history ]
-    });
 
-    Z.alias( this, {
+    O.alias( this, {
         addEvent: 'on bind',
         removeEvent: 'off unbind',
         emit: 'trigger'
@@ -776,9 +806,9 @@ function realize ( superstate, attributes, expression ) {
             addMethod = privileged.addMethod( methods );
         }
 
-        for ( key in owner ) if ( Z.hasOwn.call( owner, key ) ) {
+        for ( key in owner ) if ( O.hasOwn.call( owner, key ) ) {
             method = owner[ key ];
-            Z.isFunction( method ) && !method.isDelegator &&
+            O.isFunction( method ) && !method.isDelegator &&
                 this.method( key, false ) &&
                 addMethod.call( this, key, method );
         }
@@ -788,7 +818,7 @@ function realize ( superstate, attributes, expression ) {
     // mutation methods used during construction/realization can no longer
     // be used, and must be removed.
     if ( ~attributes & MUTABLE ) {
-        Z.forEach( 'mutate addMethod removeMethod addGuard removeGuard \
+        O.forEach( 'mutate addMethod removeMethod addGuard removeGuard \
             addTransition removeTransition'.split(/\s+/),
             function ( m ) {
                 delete self[ m ];
@@ -810,7 +840,7 @@ function realize ( superstate, attributes, expression ) {
     }
 
     // (Exposed for debugging.)
-    Z.env.debug && Z.assign( this, {
+    O.env.debug && O.assign( this, {
         __private__: this.peek( __MODULE__ )
     });
 
@@ -831,7 +861,7 @@ var mutableVirtualMethods = ( function () {
     var obj = {},
         names = 'addMethod addEvent addGuard addSubstate addTransition';
 
-    Z.forEach( names.split(' '), function ( name ) {
+    O.forEach( names.split(' '), function ( name ) {
         function realizer () {
             var method = this.realize()[ name ];
             if ( method !== realizer ) {
@@ -864,7 +894,7 @@ var mutableVirtualMethods = ( function () {
 State.privileged.realize = function ( attributes ) {
     return function ( expression ) {
         var superstate = this.superstate(),
-            addSubstate = Z.hasOwn.call( superstate, 'addSubstate' ) ?
+            addSubstate = O.hasOwn.call( superstate, 'addSubstate' ) ?
                 superstate.addSubstate :
                 privileged.addSubstate(
                     superstate.peek( __MODULE__, 'attributes' ),
@@ -879,7 +909,7 @@ State.privileged.realize = function ( attributes ) {
     };
 };
 
-State.prototype.realize = Z.getThis;
+State.prototype.realize = O.getThis;
 
 // <a class="icon-link"
 //    name="state--expression.js"
@@ -893,7 +923,7 @@ State.prototype.realize = Z.getThis;
 // 
 // #### express
 // 
-// Returns an expression of the state of `this` state — a snapshot of `this`
+// Returns an expression of the state of `this` state — a snapshot of the
 // state’s current contents.
 State.privileged.express = ( function () {
     function clone ( obj ) {
@@ -903,7 +933,7 @@ State.privileged.express = ( function () {
             value = obj[ key ];
             ( out || ( out = {} ) )[ key ] =
                 value && typeof value === 'object' ?
-                    Z.clone( obj[ key ] ) :
+                    O.clone( obj[ key ] ) :
                     value;
         }
         return out;
@@ -913,7 +943,7 @@ State.privileged.express = ( function () {
         if ( events === undefined ) return;
         var out = null, type, emitter;
         for ( type in events ) if ( emitter = events[ type ] ) {
-            ( out || ( out = {} ) )[ type ] = Z.clone( emitter.items );
+            ( out || ( out = {} ) )[ type ] = O.clone( emitter.items );
         }
         return out;
     }
@@ -921,7 +951,7 @@ State.privileged.express = ( function () {
     function recurse ( substates, typed ) {
         if ( substates === undefined ) return;
         var out = null;
-        Z.forEach( substates, function ( substate, name ) {
+        O.forEach( substates, function ( substate, name ) {
             ( out || ( out = {} ) )[ name ] = substate.express( typed );
         });
         return out;
@@ -938,7 +968,7 @@ State.privileged.express = ( function () {
         return function ( /*Boolean*/ typed ) {
             var expression = {};
 
-            Z.edit( expression, {
+            O.edit( expression, {
                 attributes:  attributes,
                 data:        clone( data ),
                 methods:     clone( methods ),
@@ -955,7 +985,7 @@ State.privileged.express = ( function () {
     };
 }() );
 
-State.prototype.express = Z.noop;
+State.prototype.express = O.noop;
 
 // <a class="icon-link"
 //    name="state--mutation.js"
@@ -983,7 +1013,7 @@ State.privileged.mutate = function (
             ( expr = new ExpressionConstructor( expr ) );
 
         var self = this,
-            NIL = Z.NIL,
+            NIL = O.NIL,
             before, emitter, name, value, after, delta;
 
         var addMethod, removeMethod;
@@ -1013,7 +1043,7 @@ State.privileged.mutate = function (
         // compared against the `NIL` value.
         emitter = methods && expr.methods;
         for ( name in emitter ) {
-            if ( Z.hasOwn.call( emitter, name ) ) {
+            if ( O.hasOwn.call( emitter, name ) ) {
                 value = emitter[ name ];
                 value !== NIL ?
                     this.addMethod( name, value ) :
@@ -1027,7 +1057,7 @@ State.privileged.mutate = function (
         // should be updated or deleted, or as an `Array` that also includes
         // one or more such `Object`s.
         if ( events && expr.events ) {
-            Z.forEach( expr.events, function ( object, type ) {
+            O.forEach( expr.events, function ( object, type ) {
                 var items, edit, add, i, l,
                     eventCollection = events[ type ];
 
@@ -1038,7 +1068,7 @@ State.privileged.mutate = function (
                 // If an event emitter object does not already exist for
                 // this event type, then one will be created, so long as
                 // `object` is expected to contain items to be added.
-                if ( !eventCollection && object && !Z.isEmpty( object ) ) {
+                if ( !eventCollection && object && !O.isEmpty( object ) ) {
                     eventCollection = events[ type ] =
                         new StateEventEmitter( self, type );
                 }
@@ -1048,7 +1078,7 @@ State.privileged.mutate = function (
                 edit = function ( object ) {
                     var key, value;
                     for ( key in object ) {
-                        if ( Z.hasOwn.call( object, key ) ) {
+                        if ( O.hasOwn.call( object, key ) ) {
                             value = object[ key ];
                             if ( value === NIL ) {
                                 eventCollection.remove( key );
@@ -1059,16 +1089,16 @@ State.privileged.mutate = function (
                     }
                 };
 
-                if ( Z.isArray( object ) ) {
+                if ( O.isArray( object ) ) {
                     add = function ( object ) {
                         return self.addEvent( type, object );
                     };
                     for ( i = 0, l = object.length; i < l; i++ ) {
                         value = object[i];
                         if ( value == null || value === NIL ) continue;
-                        ( Z.isPlainObject( value ) ? edit : add )( value );
+                        ( O.isPlainObject( value ) ? edit : add )( value );
                     }
-                } else if ( Z.isPlainObject( object ) ) {
+                } else if ( O.isPlainObject( object ) ) {
                     edit( object );
                 }
 
@@ -1079,13 +1109,13 @@ State.privileged.mutate = function (
 
         // Guards are stored as simple objects, and altering them causes no
         // side-effects, so a deep `edit` is sufficient.
-        guards && expr.guards && Z.edit( 'deep', guards, expr.guards );
+        guards && expr.guards && O.edit( 'deep', guards, expr.guards );
 
         // Substates are instances of [`State`](#State), which are either
         // created, destroyed, or recursively updated in place, as specified
         // by `expr.states`.
         emitter = substates && expr.states;
-        for ( name in emitter ) if ( Z.hasOwn.call( emitter, name ) ) {
+        for ( name in emitter ) if ( O.hasOwn.call( emitter, name ) ) {
             value = emitter[ name ];
             if ( name in substates ) {
                 value === NIL ?
@@ -1101,7 +1131,7 @@ State.privileged.mutate = function (
         // either created, deleted, or replaced, as specified by
         // `expr.transitions`.
         emitter = transitions && expr.transitions;
-        for ( name in emitter ) if ( Z.hasOwn.call( emitter, name ) ) {
+        for ( name in emitter ) if ( O.hasOwn.call( emitter, name ) ) {
             value = emitter[ name ];
             if ( name in transitions ) {
                 if ( value === NIL ) {
@@ -1121,8 +1151,8 @@ State.privileged.mutate = function (
         // mutation, which is emitted as part of a `mutate` event.
         if ( before ) {
             after = this.express();
-            delta = Z.diff( before, after );
-            if ( !Z.isEmpty( delta ) ) {
+            delta = O.diff( before, after );
+            if ( !O.isEmpty( delta ) ) {
                 this.emit( 'mutate', [ expr, delta, before, after ], false );
             }
         }
@@ -1143,11 +1173,11 @@ State.privileged.mutate = function (
 // forwarded.
 State.prototype.mutate = function ( expr ) {
     var name, value,
-        NIL = Z.NIL,
+        NIL = O.NIL,
         substates = this.substates(),
         emitter = expr.states;
 
-    for ( name in emitter ) if ( Z.hasOwn.call( emitter, name ) ) {
+    for ( name in emitter ) if ( O.hasOwn.call( emitter, name ) ) {
         value = emitter[ name ];
         if ( name in substates ) {
             value !== NIL && substates[ name ].mutate( value, false );
@@ -1177,8 +1207,8 @@ State.privileged.attributes = function ( /*Number*/ attributes ) {
     return function () { return attributes; };
 };
 
-Z.assign( State.prototype, {
-    attributes: Z.thunk( NORMAL ),
+O.assign( State.prototype, {
+    attributes: O.thunk( NORMAL ),
     isVirtual:    function () { return !!( this.attributes() & VIRTUAL    ); },
     isMutable:    function () { return !!( this.attributes() & MUTABLE    ); },
     isFinite:     function () { return !!( this.attributes() & FINITE     ); },
@@ -1188,6 +1218,7 @@ Z.assign( State.prototype, {
     isConclusive: function () { return !!( this.attributes() & CONCLUSIVE ); },
     isFinal:      function () { return !!( this.attributes() & FINAL      ); },
     isAbstract:   function () { return !!( this.attributes() & ABSTRACT   ); },
+    isConcrete:   function () { return !!( this.attributes() & CONCRETE   ); },
     isDefault:    function () { return !!( this.attributes() & DEFAULT    ); },
     isReflective: function () { return !!( this.attributes() & REFLECTIVE ); },
     hasHistory:   function () { return !!( this.attributes() & HISTORY    ); },
@@ -1202,7 +1233,7 @@ Z.assign( State.prototype, {
 // 
 // ### `state/model.js`
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--superstate"
@@ -1231,7 +1262,7 @@ Z.assign( State.privileged, {
     }
 });
 
-Z.assign( State.prototype, {
+O.assign( State.prototype, {
 
     // <a class="icon-link"
     //    name="state--prototype--owner"
@@ -1278,7 +1309,7 @@ Z.assign( State.prototype, {
     // 
     // The `superstate` method is overridden for non-root `State` instances
     // using [`State.privileged.superstate`](#state--privileged--superstate).
-    superstate: Z.noop,
+    superstate: O.noop,
 
     // <a class="icon-link"
     //    name="state--prototype--derivation"
@@ -1452,8 +1483,8 @@ Z.assign( State.prototype, {
             // Returns the root state of the next `prototype` in the chain.
             next = function () {
                 var fn, s;
-                return ( prototype = Z.getPrototypeOf( prototype ) ) &&
-                    Z.isFunction( fn = prototype[ controllerName ] ) &&
+                return ( prototype = O.getPrototypeOf( prototype ) ) &&
+                    O.isFunction( fn = prototype[ controllerName ] ) &&
                     ( s = fn.apply( prototype ) ) instanceof State &&
                     s.root();
             };
@@ -1566,7 +1597,7 @@ Z.assign( State.prototype, {
 // 
 // Methods that inspect or change the owner’s current state.
 
-Z.assign( State.prototype, {
+O.assign( State.prototype, {
 
     // <a class="icon-link"
     //    name="state--prototype--current"
@@ -1626,7 +1657,6 @@ Z.assign( State.prototype, {
 
         if ( !arguments.length ) return controller.change( this );
 
-        Z.isNumber( target ) && ( target = this.history( target ) );
         return controller.change.apply( controller,
             target instanceof State || typeof target === 'string' ?
                 arguments :
@@ -1661,7 +1691,7 @@ Z.assign( State.prototype, {
 // 
 // ### `state/query.js`
 
-Z.assign( State.prototype, {
+O.assign( State.prototype, {
 
     // <a class="icon-link"
     //    name="state--prototype--query"
@@ -1841,7 +1871,7 @@ Z.assign( State.prototype, {
     $: function ( expr ) {
         var args, match, method;
         if ( typeof expr === 'function' ) {
-            args = Z.slice.call( arguments );
+            args = O.slice.call( arguments );
             args[0] = expr = expr();
             if ( expr ) return this.change.apply( this, args );
         }
@@ -1851,7 +1881,7 @@ Z.assign( State.prototype, {
         ) {
             if ( arguments.length > 1 ) {
                 return this[ method ].apply( this, [ match[2] ]
-                    .concat( Z.slice.call( arguments, 1 ) ) );
+                    .concat( O.slice.call( arguments, 1 ) ) );
             } else return this[ method ]( match[2] );
         }
         else return this.query.apply( this, arguments );
@@ -1864,7 +1894,7 @@ Z.assign( State.prototype, {
 // 
 // ### `state/data.js`
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--data"
@@ -1900,21 +1930,20 @@ Z.assign( State.privileged, {
                 viaProto === undefined && ( viaProto = true );
             }
 
-            if ( edit && attributes & MUTABLE && !Z.isEmpty( edit ) ) {
+            if ( edit && attributes & MUTABLE && !O.isEmpty( edit ) ) {
                 if ( attributes & VIRTUAL ) {
                     return this.realize().data( edit );
                 }
                 
-                delta = Z.delta( data, edit );
-                if ( !this.__atomic__ && delta && !Z.isEmpty( delta ) ) {
-                    this.push( 'delta', this, null, delta );
+                delta = O.delta( data, edit );
+                if ( !this.__atomic__ && delta && !O.isEmpty( delta ) ) {
                     this.emit( 'mutate', [ edit, delta ], false );
                 }
 
                 return this;
             }
             else {
-                return Z.clone(
+                return O.clone(
                     viaSuper && ( superstate = this.superstate() ) &&
                         superstate.data(),
                     viaProto && ( protostate = this.protostate() ) &&
@@ -1926,63 +1955,7 @@ Z.assign( State.privileged, {
     }
 });
 
-Z.assign( State.prototype, {
-    data: State.privileged.data( undefined, null ),
-
-    // #### reflect
-    //
-    // Copies this state’s `data` into the owner object, with the exception of
-    // any properties that would collide with the owner’s accessor and
-    // delegator methods.
-    reflect: function () {
-        var owner = this.owner(),
-            data = this.data(),
-            key, fn;
-
-        if ( Z.isEmpty( data ) ) return owner;
-
-        // Always retain the owner’s accessor method and delegator methods.
-        for ( key in owner ) if ( Z.hasOwn.call( owner, key ) ) {
-            fn = owner[ key ];
-            if ( Z.isFunction( fn ) && ( fn.isDelegator || fn.isAccessor ) ) {
-                data[ key ] = fn;
-            }
-        }
-        return Z.edit( 'absolute delta', owner, data );
-    },
-
-    // #### soak
-    //
-    // Copies owner properties into this state’s `data`. Conjugate of
-    // `reflect`.
-    soak: function () {
-        var owner, copy, diff, key, fn;
-
-        if ( !this.isMutable() ) return;
-
-        owner = this.owner();
-        copy = {};
-
-        // Exclude the owner’s accessor method and delegator methods.
-        for ( key in owner ) if ( Z.hasOwn.call( owner, key ) ) {
-            fn = owner[ key ];
-            if ( !Z.isFunction( fn ) || !fn.isDelegator && !fn.isAccessor ) {
-                copy[ key ] = fn;
-            }
-        }
-
-        // First get a comparison of the state’s existing `data` to the owner.
-        diff = Z.diff( copy, this.data() );
-
-        // `soak` is non-destructive, so erase the `NIL`s from `diff` by
-        // applying it to itself before applying it to the state’s `data`.
-        Z.edit( 'deep', diff, diff );
-
-        this.data( diff );
-
-        return diff;
-    }
-});
+State.prototype.data = State.privileged.data( undefined, null );
 
 // <a class="icon-link"
 //    name="state--methods.js"
@@ -1992,7 +1965,7 @@ Z.assign( State.prototype, {
 
 function rootNoop () {}
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--method"
@@ -2061,7 +2034,7 @@ Z.assign( State.privileged, {
     // Returns an `Array` of names of methods defined for this state.
     methodNames: function ( methods ) {
         return function () {
-            return Z.keys( methods );
+            return O.keys( methods );
         };
     },
 
@@ -2102,7 +2075,7 @@ Z.assign( State.privileged, {
             }
 
             delegator.isDelegator = true;
-            if ( Z.env.debug ) {
+            if ( O.env.debug ) {
                 delegator.toString = function () { return "[delegator]"; };
             }
 
@@ -2161,10 +2134,10 @@ Z.assign( State.privileged, {
     }
 });
 
-Z.assign( State.prototype, {
+O.assign( State.prototype, {
     method: State.privileged.method( null ),
     methodNames: function () { return []; },
-    'addMethod removeMethod': Z.noop,
+    'addMethod removeMethod': O.noop,
 
     // <a class="icon-link"
     //    name="state--prototype--has-method"
@@ -2238,7 +2211,7 @@ Z.assign( State.prototype, {
     // 
     // Variadic [`apply`](#state--prototype--apply).
     call: function ( /*String*/ methodName ) {
-        return this.apply( methodName, Z.slice.call( arguments, 1 ) );
+        return this.apply( methodName, O.slice.call( arguments, 1 ) );
     }
 });
 
@@ -2248,7 +2221,7 @@ Z.assign( State.prototype, {
 // 
 // ### `state/events.js`
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--event"
@@ -2295,7 +2268,7 @@ Z.assign( State.privileged, {
             /*Function*/ fn,
               /*Object*/ context    // = this
         ) {
-            if ( !Z.hasOwn.call( events, eventType ) ) {
+            if ( !O.hasOwn.call( events, eventType ) ) {
                 events[ eventType ] = new StateEventEmitter( this, eventType );
             }
 
@@ -2361,7 +2334,7 @@ Z.assign( State.privileged, {
                 context = undefined;
             }
 
-            !args && ( args = [] ) || Z.isArray( args ) || ( args = [ args ] );
+            !args && ( args = [] ) || O.isArray( args ) || ( args = [ args ] );
             viaSuper === undefined && ( viaSuper = true );
             viaProto === undefined && ( viaProto = true );
 
@@ -2376,8 +2349,8 @@ Z.assign( State.privileged, {
     }
 });
 
-Z.assign( State.prototype, {
-    'event addEvent removeEvent emit trigger': Z.noop
+O.assign( State.prototype, {
+    'event addEvent removeEvent emit trigger': O.noop
 });
 
 // <a class="icon-link"
@@ -2386,7 +2359,7 @@ Z.assign( State.prototype, {
 // 
 // ### `state/guards.js`
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--guard"
@@ -2406,7 +2379,7 @@ Z.assign( State.privileged, {
             var guard, protostate;
 
             return (
-                ( guard = guards[ guardType ] ) && Z.clone( guard )
+                ( guard = guards[ guardType ] ) && O.clone( guard )
                     ||
                 ( protostate = this.protostate() ) &&
                         protostate.guard( guardType )
@@ -2426,7 +2399,7 @@ Z.assign( State.privileged, {
     // entries.
     addGuard: function ( guards ) {
         return function ( /*String*/ guardType, /*Object*/ guard ) {
-            return Z.edit(
+            return O.edit(
                 guards[ guardType ] || ( guards[ guardType ] = {} ),
                 guard
             );
@@ -2455,7 +2428,7 @@ Z.assign( State.privileged, {
                 return ( delete guards[ guardType ] ) ? guard : undefined;
             }
 
-            keys = Z.flatten( Z.slice.call( arguments, 1 ) );
+            keys = O.flatten( O.slice.call( arguments, 1 ) );
             for ( i = 0, l = keys.length; i < l; i++ ) {
                 key = keys[i];
                 if ( typeof key === 'string' ) {
@@ -2467,8 +2440,8 @@ Z.assign( State.privileged, {
     }
 });
 
-Z.assign( State.prototype, {
-    'guard addGuard removeGuard': Z.noop
+O.assign( State.prototype, {
+    'guard addGuard removeGuard': O.noop
 });
 
 // <a class="icon-link"
@@ -2477,7 +2450,7 @@ Z.assign( State.prototype, {
 // 
 // ### `state/substates.js`
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--substate"
@@ -2550,7 +2523,7 @@ Z.assign( State.privileged, {
             }
 
             // Include real substates.
-            for ( key in substates ) if ( Z.hasOwn.call( substates, key ) ) {
+            for ( key in substates ) if ( O.hasOwn.call( substates, key ) ) {
                 result.push( substates[ key ] );
                 if ( deep ) {
                     result = result.concat( substates[ key ].substates( true ) );
@@ -2659,11 +2632,11 @@ Z.assign( State.privileged, {
     }
 });
 
-Z.privilege( State.prototype, State.privileged, {
+O.privilege( State.prototype, State.privileged, {
     'substate substates': [ null ]
 });
-Z.assign( State.prototype, {
-    'addSubstate removeSubstate': Z.noop
+O.assign( State.prototype, {
+    'addSubstate removeSubstate': O.noop
 });
 
 // <a class="icon-link"
@@ -2672,7 +2645,7 @@ Z.assign( State.prototype, {
 // 
 // ### `state/transitions.js`
 
-Z.assign( State.privileged, {
+O.assign( State.privileged, {
 
     // <a class="icon-link"
     //    name="state--privileged--transition"
@@ -2697,7 +2670,7 @@ Z.assign( State.privileged, {
     // on this state.
     transitions: function ( transitions ) {
         return function () {
-            return Z.clone( transitions );
+            return O.clone( transitions );
         };
     },
 
@@ -2727,246 +2700,12 @@ Z.assign( State.privileged, {
     // #### removeTransition
     // 
     // (Not implemented)
-    removeTransition: Z.noop
+    removeTransition: O.noop
 });
 
-Z.assign( State.prototype, {
-    'transition addTransition removeTransition': Z.noop,
+O.assign( State.prototype, {
+    'transition addTransition removeTransition': O.noop,
     transitions: function () { return {}; }
-});
-
-// <a class="icon-link"
-//    name="state--history.js"
-//    href="#state--history.js"></a>
-// 
-// ### `state/history.js`
-
-Z.assign( State.privileged, {
-
-    // <a class="icon-link"
-    //    name="state--privileged--history"
-    //    href="#state--privileged--history"></a>
-    // 
-    // #### history
-    // 
-    history: function ( history ) {
-        return function ( indexDelta ) {
-            if ( indexDelta === undefined ) return history.express();
-            return history[ history.index + indexDelta ];
-        };
-    },
-
-    // <a class="icon-link"
-    //    name="state--privileged--push"
-    //    href="#state--privileged--push"></a>
-    // 
-    // #### push
-    // 
-    push: function ( history ) {
-        return function ( item ) {
-            var state, mutation, superstate;
-
-            item === 'string' && ( item = this.query( item, true, false ) );
-            if ( item instanceof State && item.isIn( this ) ) {
-                history.pushState( state = item );
-            } else if ( Z.isPlainObject( item ) ) {
-                history.pushMutation( mutation = item );
-            }
-
-            // While the history-keeping state is inactive, a state-`push`
-            // should not be propagated to any history-keeping superstates,
-            // whereas a mutation-`push` should be propagated whether active or
-            // inactive.
-            if ( state && this.isActive() || mutation ) {
-                superstate = this.superstate();
-                superstate && ( superstate = superstate.historian() );
-                superstate && superstate.push( item );
-            }
-        };
-    },
-
-    old_push: function ( history ) {
-        return function ( flags, state, transition, data ) {
-            var i, previous, current, superstate;
-
-            if ( typeof flags !== 'string' ) {
-                data = transition;
-                transition = state;
-                state = flags;
-                flags = undefined;
-            }
-
-            if ( !( state instanceof State && this.has( state ) ) ) return;
-
-            flags = Z.assign( flags );
-
-            i = history.index;
-            previous = i === undefined ? null : history[i];
-
-            i = history.index = i === undefined ? 0 : i + 1;
-            current = history[i] = {
-                state: state.toString(),
-                transition: undefined,
-                data: undefined
-            };
-
-            if ( flags.relative ) {
-                if ( previous ) {
-                    current.data = previous.data;
-                    previous.data = Z.delta( current.data, data );
-                } else {
-                    current.data = Z.clone( data );
-                }
-            } else {
-                current.data = Z.clone( data );
-                previous && ( previous.data = Z.diff( previous.data, data ) );
-            }
-
-            history.splice( ++i, history.length - i );
-
-            this.isActive() &&
-                ( superstate = this.superstate() ) &&
-                ( superstate = superstate.historian() ) &&
-                superstate.push( state, transition, flags, data );
-
-            1 || state.isCurrent() || this.goTo( state );
-
-            return history.length;
-        };
-    },
-
-    // <a class="icon-link"
-    //    name="state--privileged--replace"
-    //    href="#state--privileged--replace"></a>
-    // 
-    // #### replace
-    // 
-    replace: function ( history ) {
-        return function ( item ) {
-            item === 'string' && ( item = this.query( item ) );
-            if ( !item ) return;
-            if ( item instanceof State ) return history.replaceState( item );
-            if ( Z.isPlainObject( item ) ) return history.replaceMutation( item );
-        };
-    },
-
-    old_replace: function ( history ) {
-        return function ( flags, state, data ) {
-            var previous, current, next, delta,
-                i = history.index,
-                l = history.length;
-
-            if ( i === undefined ) {
-                this.push.apply( this, arguments );
-                return this;
-            }
-
-            if ( typeof flags !== 'string' ) {
-                data = state;
-                state = flags;
-                flags = undefined;
-            }
-
-            if ( !state.isIn( this ) ) return;
-
-            flags = Z.assign( flags );
-
-            current = history[i];
-            i > 0 && ( previous = history[ i - 1 ] );
-            i < l - 1 && ( next = history[ i + 1 ] );
-
-            current.state = state.toString();
-            delta = ( flags.relative ? Z.delta : Z.diff )( current.data, data );
-            if ( !Z.isEmpty( delta ) ) {
-                previous && Z.edit( true, previous.data, delta );
-                next && Z.edit( true, next.data, delta );
-            }
-            current.data = Z.clone( data );
-
-            0 && this.goTo( state );
-
-            return this;
-        };
-    }
-});
-
-Z.assign( State.prototype, {
-
-    // <a class="icon-link"
-    //    name="state--prototype--history"
-    //    href="#state--prototype--history"></a>
-    // 
-    // #### history
-    // 
-    history: function () {
-        var h = this.historian();
-        if ( h ) return h.history();
-    },
-
-    // <a class="icon-link"
-    //    name="state--prototype--historian"
-    //    href="#state--prototype--historian"></a>
-    // 
-    // #### historian
-    // 
-    // Returns `this` if it records a history, or else the nearest superstate
-    // that records a deep history.
-    historian: function () {
-        if ( this.hasHistory() ) return this;
-        for ( var s = this.superstate(); s; s = s.superstate() ) {
-            if ( s.hasHistory() && !s.isShallow() ) return s;
-        }
-    },
-
-    push: function ( flags, state, transition, data ) {
-        if ( typeof flags !== 'string' ) {
-            data = transition;
-            transition = state;
-            state = flags;
-            flags = undefined;
-        }
-
-        var historian = this.historian();
-
-        if ( historian ) {
-            // Before delegating to the historian, `state` must be resolved
-            // locally.
-            state instanceof State || ( state = this.query( state ) );
-
-            if ( state && state.isIn( this ) ) {
-                return historian.push( flags, state, transition, data );
-            }
-        }
-    },
-
-    replace: function ( flags, state, transition, data ) {
-        var historian = this.historian();
-
-        if ( historian ) {
-            // Before delegating to the historian, `state` must be resolved
-            // locally.
-            state instanceof State || ( state = this.query( state ) );
-
-            if ( state && state.isIn( this ) ) {
-                return historian.push( flags, state, transition, data );
-            }
-        }
-    },
-
-    /** */
-    pushHistory: global.history && global.history.pushState ?
-        function ( title, urlBase ) {
-            return global.history.pushState( this.data, title || this.toString(),
-                urlBase + '/' + this.derivation( true ).join('/') );
-        } : Z.noop,
-
-    /** */
-    replaceHistory: global.history && global.history.replaceState ?
-        function ( title, urlBase ) {
-            return global.history.replaceState( this.data, title || this.toString(),
-                urlBase + '/' + this.derivation( true ).join('/') );
-        } : Z.noop
-
 });
 
 // <a class="icon-link"
@@ -2994,20 +2733,20 @@ return State;
 // long form, which can be used later to create [`State`](#state) instances.
 var StateExpression = ( function () {
     var attributeMap =
-            Z.forEach( Z.assign( STATE_ATTRIBUTE_MODIFIERS ),
+            O.forEach( O.assign( STATE_ATTRIBUTE_MODIFIERS ),
                 function ( value, key, object ) {
                     object[ key ] = key.toUpperCase();
                 }),
 
         attributeFlags =
-            Z.forEach( Z.invert( STATE_ATTRIBUTES ),
+            O.forEach( O.invert( STATE_ATTRIBUTES ),
                 function ( value, key, object ) {
                     object[ key ] = value.toLowerCase();
                 }),
 
-        categoryMap    = Z.assign( STATE_EXPRESSION_CATEGORIES ),
-        eventTypes     = Z.assign( STATE_EVENT_TYPES ),
-        guardActions   = Z.assign( GUARD_ACTIONS );
+        categoryMap    = O.assign( STATE_EXPRESSION_CATEGORIES ),
+        eventTypes     = O.assign( STATE_EVENT_TYPES ),
+        guardActions   = O.assign( GUARD_ACTIONS );
 
     // <a class="icon-link"
     //    name="state-expression--constructor"
@@ -3028,12 +2767,12 @@ var StateExpression = ( function () {
             if ( !map ) { map = attributes; attributes = undefined; }
         }
 
-        Z.edit( 'deep all', this,
+        O.edit( 'deep all', this,
             map instanceof StateExpression ? map : interpret( map ) );
 
         attributes == null ?
             map && ( attributes = map.attributes ) :
-            Z.isNumber( attributes ) ||
+            O.isNumber( attributes ) ||
                 ( attributes = encodeAttributes( attributes ) );
 
         this.attributes = attributes || STATE_ATTRIBUTES.NORMAL;
@@ -3058,11 +2797,11 @@ var StateExpression = ( function () {
             result = STATE_ATTRIBUTES.NORMAL;
 
         if ( typeof attributes === 'string' ) {
-            attributes = Z.assign( attributes );
+            attributes = O.assign( attributes );
         }
 
-        for ( key in attributes ) {
-            if ( Z.hasOwn.call( attributes, key ) && key in attributeMap ) {
+        for ( key in attributes ) if ( O.hasOwn.call( attributes, key ) ) {
+            if ( key in attributeMap ) {
                 result |= STATE_ATTRIBUTES[ attributeMap[ key ] ];
             }
         }
@@ -3105,10 +2844,10 @@ var StateExpression = ( function () {
     // inferences for any shorthand notation encountered.
     function interpret ( /*Object*/ map ) {
         var key, value, object, category, item,
-            result = Z.assign( STATE_EXPRESSION_CATEGORIES, null );
+            result = O.assign( STATE_EXPRESSION_CATEGORIES, null );
 
         // Interpret and categorize the elements of the provided `map`.
-        for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
+        for ( key in map ) if ( O.hasOwn.call( map, key ) ) {
             value = map[ key ];
 
             // If `value` is just a reference to the exported `state` function,
@@ -3128,7 +2867,7 @@ var StateExpression = ( function () {
 
             // **Priority 2:** Recognize an explicitly named category object.
             else if ( key in result && value ) {
-                result[ key ] = Z.clone( result[ key ], value );
+                result[ key ] = O.clone( result[ key ], value );
             }
 
             // **Priority 3:** Use keys and value types to infer implicit
@@ -3139,9 +2878,9 @@ var StateExpression = ( function () {
                         'events' :
                     key in guardActions ?
                         'guards' :
-                    Z.isPlainObject( value ) ?
+                    O.isPlainObject( value ) ?
                         'states' :
-                    Z.isFunction( value ) ?
+                    O.isFunction( value ) ?
                         'methods' :
                     undefined;
 
@@ -3157,7 +2896,7 @@ var StateExpression = ( function () {
 
         // Event values are coerced into an array.
         object = result.events;
-        for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
+        for ( key in object ) if ( O.hasOwn.call( object, key ) ) {
             value = object[ key ];
             if ( typeof value === 'function' || typeof value === 'string' ) {
                 object[ key ] = [ value ];
@@ -3168,9 +2907,9 @@ var StateExpression = ( function () {
         // values are coerced into a single-element object with the value keyed
         // to the wildcard selector.
         object = result.guards;
-        for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
+        for ( key in object ) if ( O.hasOwn.call( object, key ) ) {
             value = object[ key ];
-            if ( !Z.isPlainObject( value ) ) {
+            if ( !O.isPlainObject( value ) ) {
                 object[ key ] = { '*': value };
             }
         }
@@ -3178,7 +2917,7 @@ var StateExpression = ( function () {
         // Transition values must be a
         // [`TransitionExpression`](#transition-expression).
         object = result.transitions;
-        for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
+        for ( key in object ) if ( O.hasOwn.call( object, key ) ) {
             value = object[ key ];
             if ( !( value instanceof TransitionExpression ) ) {
                 object[ key ] = new TransitionExpression( value );
@@ -3187,7 +2926,7 @@ var StateExpression = ( function () {
 
         // State values must be a [`StateExpression`](#state-expression).
         object = result.states;
-        for ( key in object ) if ( Z.hasOwn.call( object, key ) ) {
+        for ( key in object ) if ( O.hasOwn.call( object, key ) ) {
             value = object[ key ];
             if ( !( value instanceof StateExpression ) ) {
                 object[ key ] = new StateExpression( value );
@@ -3247,7 +2986,7 @@ var StateController = ( function () {
         name = options.name || 'state';
         owner[ name ] = createAccessor( owner, name, this );
 
-        Z.assign( this, {
+        O.assign( this, {
             // <a class="icon-link"
             //    name="state-controller--constructor--owner"
             //    href="#state-controller--constructor--owner"></a>
@@ -3255,7 +2994,7 @@ var StateController = ( function () {
             // #### owner
             // 
             // Returns the owner object on whose behalf this controller acts.
-            owner: Z.thunk( owner ),
+            owner: O.thunk( owner ),
 
             // <a class="icon-link"
             //    name="state-controller--constructor--name"
@@ -3266,7 +3005,7 @@ var StateController = ( function () {
             // Returns the name assigned to this controller. This is also the
             // key in `owner` that holds the `accessor` function associated
             // with this controller.
-            name: Z.stringFunction( function () { return name; } ),
+            name: O.stringFunction( function () { return name; } ),
 
             // <a class="icon-link"
             //    name="state-controller--constructor--current"
@@ -3276,7 +3015,7 @@ var StateController = ( function () {
             // 
             // Returns the controller’s current state, or currently active
             // transition.
-            current: Z.assign( function () { return current; }, {
+            current: O.assign( function () { return current; }, {
                 toString: function () {
                     if ( current ) return current.toString();
                 }
@@ -3300,7 +3039,7 @@ var StateController = ( function () {
             // 
             // Returns the currently active transition, or `undefined` if the
             // controller is not presently engaged in a transition.
-            transition: Z.assign( function () { return transition; }, {
+            transition: O.assign( function () { return transition; }, {
                 toString: function () {
                     if ( transition ) return transition.toString();
                 }
@@ -3347,7 +3086,7 @@ var StateController = ( function () {
         }
 
         // (Exposed for debugging.)
-        Z.env.debug && Z.assign( this.__private__ = {}, {
+        O.env.debug && O.assign( this.__private__ = {}, {
             root: root,
             owner: owner,
             options: options
@@ -3380,7 +3119,7 @@ var StateController = ( function () {
                 ) {
                     if ( arguments.length > 1 ) {
                         return current[ method ].apply( current, [ match[2] ]
-                            .concat( Z.slice.call( arguments, 1 ) ) );
+                            .concat( O.slice.call( arguments, 1 ) ) );
                     } else return current[ method ]( match[2] );
                 }
                 return current.query.apply( current, arguments );
@@ -3393,7 +3132,7 @@ var StateController = ( function () {
             // then forwarded.
             else if (
                 Object.prototype.isPrototypeOf.call( owner, this ) &&
-                !Z.hasOwn.call( this, name )
+                !O.hasOwn.call( this, name )
             ) {
                 new StateController( this, null, {
                     name: name,
@@ -3405,7 +3144,7 @@ var StateController = ( function () {
 
         accessor.isAccessor = true;
 
-        if ( Z.env.debug ) {
+        if ( O.env.debug ) {
             accessor.toString = function () {
                 return "[accessor] -> " + self.current().toString();
             };
@@ -3466,12 +3205,12 @@ var StateController = ( function () {
 
         if ( !guard ) return true;
 
-        for ( key in guard ) if ( Z.hasOwn.call( guard, key ) ) {
+        for ( key in guard ) if ( O.hasOwn.call( guard, key ) ) {
             value = guard[ key ];
             valueIsFn = typeof value === 'function';
 
-            valueIsFn && ( args || ( args = Z.slice.call( arguments, 1 ) ) );
-            selectors = Z.trim( key ).split( /\s*,+\s*/ );
+            valueIsFn && ( args || ( args = O.slice.call( arguments, 1 ) ) );
+            selectors = O.trim( key ).split( /\s*,+\s*/ );
             for ( i = 0, l = selectors.length; i < l; i++ ) {
                 if ( this.query( selectors[i], against ) ) {
                     result = valueIsFn ? !!value.apply( this, args ) : !!value;
@@ -3538,9 +3277,6 @@ var StateController = ( function () {
                 if ( origin.isFinal() ) return null;
 
                 // Ensure that `target` is a valid [`State`](#state).
-                if ( Z.isNumber( target ) ) {
-                    target; // TODO: Interpret number as history traversal
-                }
                 target instanceof State ||
                     ( target = target ? origin.query( target ) : this.root() );
                 if ( !target ||
@@ -3553,18 +3289,8 @@ var StateController = ( function () {
                 // Resolve `options` to an object if necessary.
                 if ( !options ) {
                     options = defaultOptions;
-                } else if ( Z.isArray( options ) ) {
+                } else if ( O.isArray( options ) ) {
                     options = { args: options };
-                }
-
-                // An ingressing transition that targets a retained state must
-                // be redirected to whichever of that state’s internal states
-                // was most recently current.
-                if ( !options.direct && target.isRetained() &&
-                        !target.isActive()
-                ) {
-                    state = target.history( 0 );
-                    target = state != null && target.query( state ) || target;
                 }
 
                 // A transition cannot target an abstract state directly, so
@@ -3666,9 +3392,6 @@ var StateController = ( function () {
                         transition && ( substate = pathToState.pop() );
                         state = substate
                     ) {
-                        if ( state.isShallow() && state.hasHistory() ) {
-                            state.push( substate );
-                        }
                         transition.attachTo( substate );
                         substate.emit( 'enter', transition, false );
                         transition.wasAborted() && ( transition = null );
@@ -3685,16 +3408,6 @@ var StateController = ( function () {
                     if ( transition ) {
                         setCurrent( target );
                         target.emit( 'arrive', transition, false );
-
-                        // For each state from `target` to `root` that records
-                        // a deep history, push a new element that points to
-                        // `target`.
-                        for ( state = target; state; state = superstate ) {
-                            superstate = state.superstate();
-                            if ( !state.isShallow() && state.hasHistory() ) {
-                                state.push( target );
-                            }
-                        }
 
                         // Any virtual states that were previously active are
                         // no longer needed.
@@ -3735,7 +3448,7 @@ var StateController = ( function () {
     //    href="#state-controller--prototype"></a>
     // 
     // ### Prototype methods
-    Z.assign( StateController.prototype, {
+    O.assign( StateController.prototype, {
 
         // <a class="icon-link"
         //    name="state-controller--prototype--to-string"
@@ -3768,20 +3481,20 @@ var StateController = ( function () {
                 ) {
                     transitions = state.transitions();
                     for ( key in transitions ) {
-                        if ( Z.hasOwn.call( transitions, key ) ) {
+                        if ( O.hasOwn.call( transitions, key ) ) {
                             expr = transitions[ key ];
                             if (
                                 ( !( guards = expr.guards ) ||
                                     (
                                         !( admit = guards.admit ) ||
-                                            Z.isEmpty( admit ) ||
+                                            O.isEmpty( admit ) ||
                                             evaluateGuard.call( origin, admit,
                                                 target, origin )
                                     )
                                         &&
                                     (
                                         !( release = guards.release ) ||
-                                            Z.isEmpty( release ) ||
+                                            O.isEmpty( release ) ||
                                             evaluateGuard.call( target,
                                                 release, origin, target )
                                     )
@@ -3860,7 +3573,7 @@ var StateEventEmitter = ( function () {
     //    href="#state-event-emitter--prototype"></a>
     // 
     // ### Prototype methods
-    Z.assign( StateEventEmitter.prototype, {
+    O.assign( StateEventEmitter.prototype, {
 
         // <a class="icon-link"
         //    name="state-event-emitter--prototype--guid"
@@ -3896,7 +3609,7 @@ var StateEventEmitter = ( function () {
         // Returns an array of all bound listeners.
         getAll: function () {
             var i, items = this.items, result = [];
-            for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
+            for ( i in items ) if ( O.hasOwn.call( items, i ) ) {
                 result.push( items[i] );
             }
             return result;
@@ -3914,7 +3627,7 @@ var StateEventEmitter = ( function () {
             /*Function | String*/ handler
         ) {
             var items = this.items;
-            Z.hasOwn.call( items, id ) || this.length++;
+            O.hasOwn.call( items, id ) || this.length++;
             items[ id ] = handler;
             return id;
         },
@@ -3928,7 +3641,7 @@ var StateEventEmitter = ( function () {
         // Retrieves the `id` string associated with the provided listener.
         key: function ( /*Function*/ listener ) {
             var i, items = this.items;
-            for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
+            for ( i in items ) if ( O.hasOwn.call( items, i ) ) {
                 if ( items[i] === listener ) return i;
             }
         },
@@ -3944,7 +3657,7 @@ var StateEventEmitter = ( function () {
             var i, items = this.items, result = [];
 
             result.toString = function () { return '[' + result.join() + ']'; };
-            for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
+            for ( i in items ) if ( O.hasOwn.call( items, i ) ) {
                 result.push( items[i] );
             }
             return result;
@@ -4009,7 +3722,7 @@ var StateEventEmitter = ( function () {
             if ( n === 0 ) return 0;
 
             items = this.items;
-            for ( i in items ) if ( Z.hasOwn.call( items, i ) ) delete items[i];
+            for ( i in items ) if ( O.hasOwn.call( items, i ) ) delete items[i];
             this.length = 0;
             return n;
         },
@@ -4033,9 +3746,9 @@ var StateEventEmitter = ( function () {
 
             state || ( state = this.state );
 
-            for ( i in items ) if ( Z.hasOwn.call( items, i ) ) {
+            for ( i in items ) if ( O.hasOwn.call( items, i ) ) {
                 item = items[i];
-                itemType = Z.type( item );
+                itemType = O.type( item );
 
                 if ( itemType === 'function' ) {
                     fn = item; context = state;
@@ -4075,517 +3788,6 @@ var StateEventEmitter = ( function () {
     return StateEventEmitter;
 }() );
 
-// ## StateHistory
-// 
-/*
-    ### How `mutationOffset` works
-
-    ' * ' : the precise location within the `history` array that describes the
-            present condition and composition of `this.state`
-    'Sta' : any string that names a state
-    'Mut' : any delta object that describes a mutation
-    'NIL' : the value `Z.NIL`, representing a stored `delete` operation
-    '~==' : "is essentially deep-equal to"
-    '<ƒ>' : an arbitrary function
-    
-                                                        7         *    11
-    indices            : [ Sta Sta Mut Sta Mut Mut Sta Sta Mut Mut Mut Sta Mut Sta ]
-    index              : 7
-    stateIndices       : [ 0  1  3  6  7  11  12  14 ]
-    stateIndicesIndex  : 4
-    mutationOffset     : 2
-              7                                           *                   11
-    [ ... 'StateA', { data:{a:NIL} }, { methods:{b:NIL} }, { data:{c:3} }, 'StateB' ... ]
-    
-    this.state.express() ~== state( 'mutable history', {
-                                 data: { a:1 },
-                                 methods: { b:<ƒ> },
-                                 states: {
-                                     StateA: {},
-                                     StateB: {}
-                                 }
-                             })
-    
-    
-    > this.mutate( 1 );
-    mutationOffset     : 3
-    
-              7                                                             *   11
-    [ ... 'StateA', { data:{a:NIL} }, { methods:{b:NIL} }, { data:{c:NIL} }, 'StateB' ... ]
-    
-    this.state.express() ~== state( ...
-                                 data: { a:1, c:3 },
-                                 methods: { b:<ƒ> }
-                             ... )
-    
-    
-    > this.mutate( -2 );
-    mutationOffset     : 1
-    
-              7                      *                                        11
-    [ ... 'StateA', { data:{a:NIL} }, { methods:{b:<ƒ>} }, { data:{c:3} }, 'StateB' ... ]
-    
-    this.state.express() ~== state( ...
-                                 data: { a:1 },
-                                 methods: {}
-                             ... )
-*/
-
-var StateHistory = ( function () {
-
-    var guid = 0;
-
-    function binarySearch ( sortedArray, key, min, max ) {
-        var i, k;
-        min || ( min = 0 );
-        max || ( max = sortedArray.length - 1 );
-        while ( min <= max ) {
-            i = ( min + max ) / 2 << 0;
-            k = sortedArray[i];
-            if      ( key < k ) max = i - 1;
-            else if ( key > k ) min = i + 1;
-            else    return i;
-        }
-    }
-
-    function StateHistory ( /*State*/ state ) {
-
-        // The state to which this history belongs.
-        this.state = state;
-
-        // The content of a history is stored as a “heap” of `elements`, whose
-        // keys are unique decimal integers supplied by the up-scope `guid`,
-        // which map to values that are either:
-        // 
-        // * a `String` that uniquely identifies a previously or subsequently
-        //   current `State` within the domain of `this.state`;
-        // 
-        // * an `Object` that represents a **mutation delta**, which contains
-        //   the key-value changes between adjacent mutations of `this.state`;
-        // 
-        // * a `Number` that is an **element reference** pointing to a
-        //   superhistory element, within which is contained the information
-        //   relevant to this element;
-        // 
-        // * or `null`, indicating a period of inactivity. Anytime the owner
-        //   object `exit`s a `history` state, a `null` entry is recorded.
-        this.elements = {};
-
-        // The element references of `this.elements` are indexed in an ordered
-        // list.
-        this.indices = [];
-
-        // `this.index` indirectly references, via `this.indices`, a state
-        // (string) element within `this.elements` that names the specific
-        // `State` that is presently **current** within the history.
-        this.index = undefined;
-
-        // By default a history is “deep”, in that it records a view into the
-        // timeline of its client `state`, which includes the active condition
-        // of and mutations to itself and all of its descendants. This is
-        // contrasted with a `shallow` history, which only records the active
-        // condition of the `state`’s immediate substates, and mutations to its
-        // own content.
-        // 
-        // As such the shallow history does not hold reference elements, and
-        // does not propagate traversals or `push`es.
-        this.isShallow = state.isShallow();
-
-        // A host state that bears the `immutable` attribute asserts that all
-        // of its descendant states will also be immutable; consequently the
-        // history does not need to record mutations or implement the
-        // structures and logic required to traverse the recorded mutations.
-        // 
-        // Absent that guarantee of absolute immutability, mutations will be
-        // stored within `this.indices` as deltas relative to the present
-        // expression of `this.state`. Traversal operations will update these
-        // deltas as necessary to reflect the movement of the `index` pointer.
-        if ( !( this.stateIsImmutable = state.isImmutable() ) ) {
-
-            // For faster traversals amidst mutations, `this.stateIndices`
-            // holds an array containing the specific indices within
-            // `this.indices` that point to states. A `stateIndex` property is
-            // added as well, such that, for `this.indices.length > 0`,
-            // `this.stateIndices[ this.stateIndex ]` is equal to `this.index`.
-            this.stateIndices = [];
-            this.stateIndex = undefined;
-
-            // A sequence of mutations is stored as a subarray of interstitial
-            // deltas between adjacent state elements. The history’s current
-            // state, including mutations undergone since the transition into
-            // that state, is precisely defined in relation to `this.index` by
-            // `this.mutationOffset`, which is a non-negative number of deltas
-            // ahead of `this.index`.
-            this.mutationOffset = 0;
-        }
-    }
-
-    Z.assign( StateHistory.prototype, {
-
-        // #### superhistory
-        //
-        superhistory: function () {
-            var superstate = this.state.superstate();
-            if ( superstate ) return superstate.historian();
-        },
-
-        // #### root
-        //
-        root: function () {
-            var sh = this.superhistory();
-            if ( sh ) return sh.root() || sh;
-        },
-
-        // #### createElement
-        // 
-        // type inferences of `item`:
-        // 
-        // * `Number` : pointer to a superhistory element
-        // * `String` : state path
-        // * `Object` : mutation delta
-        // * `null`   : state is inactive
-        createElement: function ( item ) {
-            this.elements[ guid += 1 ] = item;
-        },
-        
-        // #### indexOf
-        //
-        // Returns the index of the item within `this.indices` that holds the
-        // `key` for a particular member of `this.elements`.
-        indexOf: function () {
-            return function ( key ) {
-                return binarySearch( this.indices, key );
-            };
-        },
-
-        traverseToElement: function ( /*Number*/ key ) {
-            var targetIndex = binarySearch( this.indices, key );
-            if ( targetIndex ) return this.traverseToIndex( targetIndex );
-        },
-
-        traverseToIndex: function (
-             /*Number*/ targetIndex,
-            /*Boolean*/ directly      // = true
-        ) {
-            var indices = this.indices,
-                index = this.index,
-                step = targetIndex < index ? -1 : 1,
-                stateIndices, stateIndex, targetStateIndex, offset, expr, nMutations,
-                blockLength, i, delta, compoundDelta;
-
-            // If the host state and all of its descendants are immutable, then
-            // it is guaranteed that no mutations will be stored in `indices`.
-            // This means all of its elements will refer to states, so
-            // traversal operations can simply proceed per-element.
-            if ( this.stateIsImmutable ) {
-
-                // `directly` causes the traversal to jump straight to the
-                // targeted state and instigate a single transition; otherwise
-                // the traversal transitions through each state in order.
-                if ( directly ) {
-                    this.index = targetIndex;
-                    this.changeState( indices[ targetIndex ] );
-                } else {
-                    while ( index !== targetIndex ) {
-                        this.index = index += step;
-                        this.changeState( indices[ index ] );
-                    }
-                }
-            }
-
-            // Otherwise, since the host state or any of its descendants could
-            // be mutable, the possibility exists of mutations being stored in
-            // this history, in which case the traversal will involve applying
-            // these mutations to the host state and transforming the mutation
-            // deltas appropriately.
-            else {
-                stateIndices      = this.stateIndices;
-                stateIndex        = this.stateIndex;
-                targetStateIndex; // = `stateIndex` that is or is to the left of `targetIndex`
-                offset            = this.mutationOffset;
-
-                // Get a plain-object expression of this history’s state to
-                // apply deltas against.
-                expr = this.state.express();
-
-                // Process the elements of `indices` in blocks, each consisting
-                // of one state element at the tail, followed by a contiguous
-                // sequence of zero or more mutations.
-                while ( index !== targetIndex ) {
-
-                    // `blockLength` refers to the number of mutations in this
-                    // block; it does not account for the trailing state
-                    // element (thus its range is `[0..]`).
-                    blockLength = stateIndices[ stateIndex + 1 ] - index - 1;
-
-                    // `offset` (which on the first run of the outer loop will
-                    // already have been initialized to `this.mutationOffset`)
-                    // iterates either backward or forward through the
-                    // mutations in this block, accreting an aggregate delta,
-                    // which, immediately prior to the next state change, will
-                    // be applied to the state in a single mutation operation.
-                    if ( step < 0 ) {
-                        offset || ( offset = blockLength );
-                    } else {
-                        offset += 1;
-                    }
-
-                    while ( 0 < offset && offset <= blockLength ) {
-                        if ( index === targetIndex ) {
-                            if ( nMutations === 0 ) break;
-                            else nMutations--;
-                        }
-                        i = index + offset;
-                        delta = indices[i];
-                        indices[i] = Z.delta( expr, delta );
-                        compoundDelta = Z.clone( compoundDelta, delta );
-                        offset += step;
-                    }
-                    offset = 0;
-
-                    index = stateIndices[ stateIndex += step ];
-
-                    // If instigating transitions on each iteration, then the
-                    // transition for the next iteration’s block is made at the
-                    // end of this iteration.
-                    if ( !directly ) {
-                        if ( compoundDelta ) {
-                            this.mutateState( compoundDelta );
-                            compoundDelta = null;
-                        }
-                        this.index = index;
-                        this.changeState( indices[ index ] );
-                    }
-                }
-
-                if ( directly ) {
-                    compoundDelta && this.mutateState( compoundDelta );
-                    this.changeState( indices[ targetIndex ] );
-                }
-
-                this.mutationOffset = 0;
-            }
-        },
-
-        // #### traverse
-        // 
-        // Traverses the history by a given number of states, applying any
-        // interstitial mutations along the way, and by a given number of
-        // additional mutations upon arrival at the targeted state.
-        traverseBy: function (
-             /*Number*/ nStates,
-             /*Number*/ nMutations, // = 0
-            /*Boolean*/ directly    // = true
-        ) {
-            var elements, indices, index, length,
-                stateIndices, stateIndicesLength, stateIndex, mutationOffset,
-                targetIndex, targetStateIndex,
-                step, expr, blockLength, i, delta, compoundDelta;
-
-            typeof nStates === 'string';
-            if ( typeof nMutations === 'boolean' ) {
-                directly = nMutations;
-                nMutations = 0;
-            }
-            nMutations == null && ( nMutations = 0 );
-
-            elements = this.elements;
-            indices = this.indices;
-            index = this.index;
-            if ( index === undefined ) return;
-            length = indices.length;
-
-            directly === undefined && ( directly = true );
-
-            // If the host state and all of its descendants are immutable, then
-            // it is guaranteed that no mutations will be stored in `indices`.
-            // This means all of its elements will refer to states, so
-            // traversal operations can simply proceed per-element.
-            if ( this.stateIsImmutable ) {
-                
-                // Clamp `nStates` and acquire a `targetIndex`.
-                targetIndex = index + nStates;
-                    if ( targetIndex >= length ) {
-                        targetIndex = length - 1;
-                    } else if ( targetIndex < 0 ) {
-                        targetIndex = 0;
-                    }
-                nStates = targetIndex - index;
-                step = nStates < 0 ? -1 : 1;
-                
-                // `directly` causes the traversal to jump straight to the
-                // targeted state and instigate a single transition; otherwise
-                // the traversal transitions through each state in order.
-                if ( directly ) {
-                    this.index = targetIndex;
-                    this.changeState( indices[ targetIndex ] );
-                } else {
-                    while ( index !== targetIndex ) {
-                        this.index = index += step;
-                        this.changeState( indices[ index ] );
-                    }
-                }
-            }
-            
-            // Otherwise, since the host state or any of its descendants could
-            // be mutable, the possibility exists of mutations being stored in
-            // this history, in which case the traversal will involve applying
-            // these mutations to the host state and transforming the mutation
-            // deltas appropriately.
-            else {
-                // Clamp `nStates` and acquire a `targetIndex`.
-                stateIndices         = this.stateIndices;
-                stateIndicesLength   = stateIndices.length;
-                stateIndex           = this.stateIndex;
-                mutationOffset       = this.mutationOffset;
-                targetStateIndex     = stateIndex + nStates;
-                    if ( targetStateIndex >= stateIndicesLength ) {
-                        targetStateIndex = stateIndicesLength - 1;
-                    } else if ( targetStateIndex < 0 ) {
-                        targetStateIndex = 0;
-                    }
-                targetIndex          = stateIndices[ targetStateIndex ];
-                nStates              = targetStateIndex - stateIndex;
-                step                 = nStates < 0 ? -1 : 1;
-
-                // Get a plain-object expression of this history’s state to
-                // apply deltas against.
-                expr = this.state.express();
-
-                // Process the elements of `indices` in blocks, each consisting
-                // of one state element at the tail, followed by a contiguous
-                // sequence of zero or more mutations.
-                while ( index !== targetIndex || nMutations ) {
-
-                    // `blockLength` refers to the number of mutations in this
-                    // block; it does not account for the trailing state
-                    // element (thus its range is `[0..]`).
-                    blockLength = stateIndices[ stateIndex + 1 ] - index - 1;
-
-                    // `mutationOffset` (which on the first run of the outer
-                    // loop will already have been initialized to
-                    // `this.mutationOffset`) iterates either backward or
-                    // forward through the mutations in this block, accreting
-                    // an aggregate delta, which, immediately prior to the next
-                    // state change, will be applied to the state in a single
-                    // mutation operation.
-                    if ( step < 0 ) {
-                        mutationOffset || ( mutationOffset = blockLength );
-                    } else {
-                        mutationOffset += 1;
-                    }
-                    while ( 0 < mutationOffset && mutationOffset <= blockLength ) {
-                        if ( index === targetIndex ) {
-                            if ( nMutations === 0 ) break;
-                            else nMutations--;
-                        }
-                        i = index + mutationOffset;
-                        delta = indices[i];
-                        indices[i] = Z.delta( expr, delta );
-                        compoundDelta = Z.clone( compoundDelta, delta );
-                        mutationOffset += step;
-                    }
-                    mutationOffset = 0;
-
-                    index = stateIndices[ stateIndex += step ];
-
-                    // If instigating transitions on each iteration, then the
-                    // transition for the next iteration’s block is made at the
-                    // end of this iteration.
-                    if ( !directly ) {
-                        if ( compoundDelta ) {
-                            this.mutateState( compoundDelta );
-                            compoundDelta = null;
-                        }
-                        this.index = index;
-                        this.changeState( indices[ index ] );
-                    }
-                }
-
-                if ( directly ) {
-                    compoundDelta && this.mutateState( compoundDelta );
-                    this.changeState( indices[ targetIndex ] );
-                }
-
-                this.mutationOffset = 0;
-            }
-        },
-
-        changeState: function ( target ) {
-            var result;
-            this.traverse = Z.noop;
-            result = this.state.change( target );
-            delete this.traverse;
-            return result;
-        },
-
-        mutateState: function ( expr ) {
-            this.state.mutate( expr );
-        },
-
-        pushState: function ( state ) {
-            var elements = this.elements,
-                indices = this.indices,
-                index = this.index + this.mutationOffset + 1;
-
-            // Splice off the forward elements.
-            indices.splice( index, indices.length - index );
-
-            // Add `state` to the new end of `indices`.
-            this.index = index;
-            this.mutationOffset = 0;
-            state instanceof State || ( state = this.state.query( state ) );
-            indices[ index ] = state.toString();
-        },
-
-        replaceState: function ( state ) {
-            var indices = this.indices,
-                index = this.index;
-            // 
-        },
-
-        pushMutation: function ( mutation ) {
-
-        },
-
-        replaceMutation: function ( mutation ) {
-
-        },
-
-        previousStateIndex: function () {
-            return this.stateIndices ?
-                this.stateIndices[ this.stateIndex - 1 ] :
-                this.index - 1;
-        },
-
-        nextStateIndex: function () {
-            return this.stateIndices ?
-                this.stateIndices[ this.stateIndex + 1 ] :
-                this.index + 1;
-        },
-
-        currentState: function () {
-            var selector = this.indices[ this.index ];
-            return this.state.query( selector ) || selector;
-        },
-
-        previousState: function () {
-            var selector = this.indices[ this.previousStateIndex() ];
-            return this.state.query( selector ) || selector;
-        },
-
-        nextState: function () {
-            var selector = this.indices[ this.nextStateIndex() ];
-            return this.state.query( selector ) || selector;
-        },
-
-        destroy: function () {
-            this.state = this.indices = null;
-        }
-    });
-
-    return StateHistory;
-}() );
 // <a class="icon-link"
 //    name="transition"
 //    href="#transition"></a>
@@ -4601,7 +3803,7 @@ var StateHistory = ( function () {
 // propagating events in the familiar fashion.
 
 var Transition = ( function () {
-    Z.inherit( Transition, State );
+    O.inherit( Transition, State );
 
     // <a class="icon-link"
     //    name="transition--constructor"
@@ -4633,14 +3835,14 @@ var Transition = ( function () {
         }
 
         // (Exposed for debugging.)
-        Z.env.debug && Z.assign( this.__private__ = {}, {
+        O.env.debug && O.assign( this.__private__ = {}, {
             methods: methods,
             events: events,
             guards: guards,
             action: action
         });
 
-        Z.assign( this, {
+        O.assign( this, {
             // <a class="icon-link"
             //    name="transition--constructor--superstate"
             //    href="#transition--constructor--superstate"></a>
@@ -4734,7 +3936,7 @@ var Transition = ( function () {
             start: function () {
                 aborted = false;
                 this.emit( 'start', arguments, false );
-                if ( action && Z.isFunction( action ) ) {
+                if ( action && O.isFunction( action ) ) {
                     action.apply( this, arguments );
                     return this;
                 } else {
@@ -4796,14 +3998,14 @@ var Transition = ( function () {
         // [`Transition`](#transition) also inherits certain privileged methods
         // from [`State`](#state), which it obtains by partially applying the
         // corresponding members of [`State.privileged`](#state--privileged).
-        Z.privilege( this, State.privileged, {
+        O.privilege( this, State.privileged, {
             'express mutate' : [ TransitionExpression, undefined, null,
                 methods, events, guards ],
             'method methodNames addMethod removeMethod' : [ methods ],
             'event addEvent removeEvent emit' : [ events ],
             'guard addGuard removeGuard' : [ guards ]
         });
-        Z.alias( this, {
+        O.alias( this, {
             addEvent: 'on bind',
             removeEvent: 'off unbind',
             emit: 'trigger'
@@ -4843,10 +4045,10 @@ var Transition = ( function () {
 // **target** states.
 
 var TransitionExpression = ( function () {
-    var properties   = Z.assign( TRANSITION_PROPERTIES, null ),
-        categories   = Z.assign( TRANSITION_EXPRESSION_CATEGORIES, null ),
-        eventTypes   = Z.assign( TRANSITION_EVENT_TYPES ),
-        guardActions = Z.assign( GUARD_ACTIONS );
+    var properties   = O.assign( TRANSITION_PROPERTIES, null ),
+        categories   = O.assign( TRANSITION_EXPRESSION_CATEGORIES, null ),
+        eventTypes   = O.assign( TRANSITION_EVENT_TYPES ),
+        guardActions = O.assign( GUARD_ACTIONS );
 
     // <a class="icon-link"
     //    name="transition-expression--constructor"
@@ -4857,7 +4059,7 @@ var TransitionExpression = ( function () {
         if ( !( this instanceof TransitionExpression ) ) {
             return new TransitionExpression( map );
         }
-        Z.edit( 'deep all', this,
+        O.edit( 'deep all', this,
             map instanceof TransitionExpression ? map : interpret( map ) );
     }
 
@@ -4878,15 +4080,15 @@ var TransitionExpression = ( function () {
     // inferences for any shorthand notation encountered.
     function interpret ( map ) {
         var key, value, category, events, item,
-            result = Z.assign( {}, properties, categories );
+            result = O.assign( {}, properties, categories );
 
-        for ( key in map ) if ( Z.hasOwn.call( map, key ) ) {
+        for ( key in map ) if ( O.hasOwn.call( map, key ) ) {
             value = map[ key ];
             if ( key in properties ) {
                 result[ key ] = value;
             }
             else if ( key in categories ) {
-                result[ key ] = Z.clone( result[ key ], value );
+                result[ key ] = O.clone( result[ key ], value );
             }
             else {
                 category =
@@ -4894,7 +4096,7 @@ var TransitionExpression = ( function () {
                         'events' :
                     key in guardActions ?
                         'guards' :
-                    Z.isFunction( value ) ?
+                    O.isFunction( value ) ?
                         'methods' :
                     undefined;
 
@@ -4907,7 +4109,7 @@ var TransitionExpression = ( function () {
         }
         for ( key in ( events = result.events ) ) {
             value = events[ key ];
-            if ( Z.isFunction( value ) ) {
+            if ( O.isFunction( value ) ) {
                 events[ key ] = [ value ];
             }
         }
@@ -4919,7 +4121,7 @@ var TransitionExpression = ( function () {
 }() );
 
 // Classes are made available as members of the exported module.
-Z.assign( state, {
+O.assign( state, {
     State: State,
     StateExpression: StateExpression,
     StateController: StateController,
