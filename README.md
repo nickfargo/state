@@ -656,6 +656,7 @@ state obj, 'abstract'
 * **[Destination](#concepts--attributes--destination)**
 * **[Temporality](#concepts--attributes--temporality)**
 * **[Concurrency](#concepts--attributes--concurrency)**
+
 * **[Implications of selected attribute combinations](#concepts--attributes--implications-of-selected-attribute-combinations)**
 
 * * *
@@ -676,7 +677,7 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 <a name="concepts--attributes--abstraction" href="#concepts--attributes--abstraction" />
 #### Abstraction
 
-Unlike some state models, **State** does not confine currency to “leaf” states; rather, all states are by default **concrete** and thus may be targeted by a transition — even those which bear substates. However, it is still sometimes appropriate to author **abstract** states whose purpose is limited to serving as a common ancestor of descendant concrete states.
+**State** does not confine currency to “leaf” states; rather, all states — including substate-bearing interior states — are by default regarded as **concrete**, and thus may be targeted by a transition. Nevertheless, sometimes it may still be appropriate to author **abstract** states whose purpose is limited to serving as a common ancestor of descendant concrete states.
 
 * **abstract** — A state that is `abstract` cannot itself be current. Consequently a transition target that points to an abstract state will be forcibly redirected to one of its substates.
 
@@ -716,6 +717,8 @@ Changes to a stateful object’s currency as a consequence of transitions, and t
 
 * *concurrent* — (Reserved; not presently implemented.) 
 
+* * *
+
 <a name="concepts--attributes--implications-of-selected-attribute-combinations" href="#concepts--attributes--implications-of-selected-attribute-combinations" />
 #### Implications of selected attribute combinations
 
@@ -723,7 +726,7 @@ Changes to a stateful object’s currency as a consequence of transitions, and t
 
 * **“immutable history”** — A `history` state that also is, literally or by inheritance, `immutable` will record and traverse its history more efficiently, since it can optimize based on the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
 
-* **“abstract concrete”** is an invalid production, and if both attributes are literally applied to a state, `concrete` takes precedence and negates `abstract`.
+* **“abstract concrete”** is an invalid contradiction. If both attributes are literally applied to a state, `concrete` takes precedence and negates `abstract`.
 
 * * *
 
@@ -903,7 +906,7 @@ state owner,
       bang: -> @superstate().apply 'bang', arguments
 ```
 
-> **Note:** it is important here to recognize that these methods operate differently from their eponymous counterparts from `Function.prototype`, in that the first argument accepted by each is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated state).
+> **Note:** it may be important here to call attention to a significant difference distinguishing these methods from their familiar eponymous counterparts at `Function.prototype` — here, the first argument accepted by `apply` and `call` is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated `State`).
 
 [**View source:**](http://statejs.org/source/) [`State.prototype.apply`](http://statejs.org/source/#state--prototype--apply), [`State.privileged.method`](http://statejs.org/source/#state--privileged--method)
 
