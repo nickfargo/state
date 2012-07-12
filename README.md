@@ -216,6 +216,8 @@ Before diving in further it may be helpful to gain a broad, high-level view of t
 
 * [**Guards**](#concepts--guards) may be applied [to a state](#concepts--state-guards) to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Likewise guards may also be included [in transition expressions](#concepts--transition-guards), where they are used to select a particular transition to execute. Guards are evaluated as predicates if supplied as functions, or as boolean values otherwise.
 
+* [**History**](#concepts--history) — A state marked with the `history` attribute will keep a **history** of its own *internal state*. This includes a record of the states within its domain that have been current or active, which, if the state or any of its descendants are also `mutable`, is interspersed with a record of the mutations the state has undergone. The history can be traversed backward and forward, causing the object to transition to a previously or subsequently held internal state.
+
 * * *
 
 *Return to: [**Overview**](#overview)  <  [top](#top)*
@@ -237,6 +239,7 @@ Before diving in further it may be helpful to gain a broad, high-level view of t
 * **[Transitions](#concepts--transitions)**
 * **[Events](#concepts--events)**
 * **[Guards](#concepts--guards)**
+* **[History](#concepts--history)**
 
 * * *
 
@@ -650,6 +653,7 @@ state obj, 'abstract'
 * **[Mutability](#concepts--attributes--mutability)**
 * **[Abstraction](#concepts--attributes--abstraction)**
 * **[Destination](#concepts--attributes--destination)**
+* **[Temporality](#concepts--attributes--temporality)**
 
 * **[Implications of selected attribute combinations](#concepts--attributes--implications-of-selected-attribute-combinations)**
 
@@ -688,12 +692,25 @@ Currency must often be initialized or confined to particular states, as directed
 
 * **final** — Once a state marked `final` is entered, no further transitions are allowed.
 
+<a name="concepts--attributes--temporality" href="#concepts--attributes--temporality" />
+#### Temporality
+
+Changes to a stateful object’s currency as a consequence of transitions, and to states themselves, can be recorded and revisited on states that bear either of the temporality attributes `history` and `retained`.
+
+* **history** — Marking a state with the `history` attribute causes its internal state to be recorded in a sequential history. Whereas a `retained` state is concerned only with the most recent internal state, a state’s history can be traversed and altered, resulting in transitions back or forward to previously or subsequently held internal states.
+
+* **retained** — A `retained` state is one that preserves its own internal state, such that, after the state has become no longer active, a subsequent transition targeting that particular state will be automatically redirected to whichever of its descendant states was most recently current.
+
+* **shallow** — Normally, states that are `retained` or that keep a `history` persist their internal state *deeply*, i.e., with a scope extending over all of the state’s descendant states. Marking a state `shallow` limits the scope of its persistence to its immediate substates only.
+
 * * *
 
 <a name="concepts--attributes--implications-of-selected-attribute-combinations" href="#concepts--attributes--implications-of-selected-attribute-combinations" />
 #### Implications of selected attribute combinations
 
 * **“finite mutable”** — A state that is, literally or by inheritance, both `finite` and `mutable` guarantees its hierarchical structure without imposing absolute immutability.
+
+* **“immutable history”** — A `history` state that also is, literally or by inheritance, `immutable` will record and traverse its history more efficiently, since it can optimize based on the foreknowledge that its records cannot contain any local or downstream mutations that would otherwise need to be detected and interstitially applied over the course of a traversal.
 
 * **“abstract concrete”** is an invalid contradiction. If both attributes are literally applied to a state, `concrete` takes precedence and negates `abstract`.
 
@@ -1692,6 +1709,151 @@ scholar.graduate 3.4999
 *Return to: [**Guards**](#concepts--guards)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
 
 * * *
+
+
+
+<a name="concepts--history" href="#concepts--history" />
+### History
+
+A state that bears the `history` attribute will keep a record of which of its internal states have been current while the state has been active, and, unless the state is `immutable`, any mutations that it or any of its descendants have undergone.
+
+* * *
+
+* **[Traversing a history](#concepts--history--traversing)**
+* **[Deep and shallow histories](#concepts--history--deep-and-shallow-histories)**
+* **[Nesting histories](#concepts--history--nesting)**
+* **[Retaining internal state](#concepts--history--retaining-internal-state)**
+
+* * *
+
+<a name="concepts--history--traversing" href="#concepts--history--traversing" />
+#### Traversing a history
+
+Histories are a linear timeline that may be traversed backward or forward, causing the owner object to reassume previously or subsequently held states and mutations. Traversals that span one or more recorded states will cause the owner to undergo a sequence of transitions to the traversal target — or a single transition if ordered to traverse directly — provided that no such transition is disallowed by any presiding guards. For mutable states, at a more granular level traversals may also span any number of mutations recorded between adjacently recorded states.
+
+<a name="concepts--history--deep-and-shallow-histories" href="#concepts--history--deep-and-shallow-histories" />
+#### Deep and shallow histories
+
+By default a history is **deep**, in that it records the transitions and mutations observed throughout all of its state’s descendant states. If a state bears the `shallow` attribute, it will record a **shallow** history, which observes only the activity of the state’s immediate substates and mutations to itself.
+
+<a name="concepts--history--nesting" href="#concepts--history--nesting" />
+#### Nesting histories
+
+As any state may bear the `history` attribute, it follows that a state that records a deep history may have descendant states that themselves record a `history`. Thusly is defined the relation between a **superhistory** and **subhistory**, wherein the elements of a subhistory are **references** to specific elements of the deep superhistory, and as such the subhistory represents a localized view to the relevant subset of its superhistory.
+
+Further, it follows that, as reference-holding subhistories may be nested to any depth, the authoritative record of any descendant history lies with its topmost deep history, identified as its **root history**. A traversal performed on a subhistory is therefore simply a specialized expression of the generalized equivalent traversal in the context of the root history, where the actual traversal operation is performed.
+
+```javascript
+```
+```coffeescript
+class Whatever
+  state @::, 'finite history'
+    A: state
+    B: state 'history'
+      BA: state
+      BB: state
+    C: state
+
+# Create a `Whatever` and then tour through each of its states
+w = new Whatever
+w.state '-> A'
+w.state '-> B'
+w.state '-> BA'
+w.state('').data message: "Hi!"
+w.state '-> BB'
+w.state '-> C'
+w.state '->'
+
+# Examine the histories recorded
+w.state('').history()
+# >>> [ '', 'A', 'B', 'B.BA', { data: { message: NIL } }, 'B.BB', 'C', '' ]
+# .elements >>> { 1:'', 3:'A', 4:'B', 6:'B.BA', 8:{ data:... }, 9:'B.BB', 12:'C', 13:'' }
+# .history  >>> [ 1, 3, 4, 6, 8, 9, 12, 13 ]
+w.state('B').history()
+# >>> [ null, 'B', 'B.BA', 'B.BB', null ]
+# .elements >>> { 2:null, 5:4, 7:6, 10:9, 11:null }
+# .history  >>> [ 2, 5, 7, 10, 11 ]
+
+# Traverse back to the beginning
+w.state -> -1               # >>> State 'C'
+w.state().back 2            # >>> State 'BA'
+w.state().data().message    # >>> undefined
+w.state().go -3             # >>> State ''
+
+# Reexamine the histories, noting the change to the mutation
+w.state('').history()
+# >>> [ '', 'A', 'B', 'B.BA', { data: { message: "Hi!" } }, 'B.BB', 'C', '' ]
+w.state('B').history()
+# >>> [ null, 'B', 'B.BA', 'B.BB', null ]
+
+# Traverse forward to the end
+w.state -> 4                # >>> State 'BB'
+w.state().data().message    # >>> "Hi!"
+w.state().forward 2         # >>> State ''
+```
+
+<a name="concepts--history--retaining-internal-state" href="#concepts--history--retaining-internal-state" />
+#### Retaining internal state
+
+A state bearing the `retained` attribute causes an arriving transition to be automatically redirected to whichever of that state’s descendants was most recently the current state. If the `retained` state is also marked `history`, then its retained internal state is simply the history’s currently indexed state. Otherwise, the retained state creates a `StateHistory` for itself that is limited to recalling only its most recently current state.
+
+The next example describes a futuristic device which can function either as a toaster or as a refrigerator. No matter which mode it is in, if the device is powered `Off` and then back `On`, it will return to the state it held when it was last `On`:
+
+```javascript
+function Device () {}
+state( Device.prototype, 'abstract', {
+    Off: state( 'default initial' ),
+    On: state
+});
+
+Z.inherit( Airpad, Device );
+function Airpad () {}
+state( Airpad.prototype, {
+    On: state( 'abstract retained', {
+        Toasting: state( 'default' ),
+        Refrigerating: state
+    })
+});
+
+var airpad = new Airpad;
+airpad.state();                     // >>> State 'Off'
+
+airpad.state('-> On');              // >>> State 'Toasting'
+airpad.state('-> Refrigerating');   // >>> State 'Refrigerating'
+airpad.state('-> Off');             // >>> State 'Off'
+
+airpad.state('-> On');              // >>> State 'Refrigerating'
+```
+```coffeescript
+class Device
+  state @::, 'abstract'
+    Off: state 'default initial'
+    On: state
+
+class Airpad extends Device
+  state @::,
+    On: state 'abstract retained'
+      Toasting: state 'default'
+      Refrigerating: state
+
+airpad = new Airpad
+airpad.state()                      # >>> State 'Off'
+
+airpad.state '-> On'                # >>> State 'Toasting'
+airpad.state '-> Refrigerating'     # >>> State 'Refrigerating'
+airpad.state '-> Off'               # >>> State 'Off'
+
+airpad.state '-> On'                # >>> State 'Refrigerating'
+```
+
+[**View source:**](http://statejs.org/source/) [`StateController.privileged.change`](http://statejs.org/source/#state-controller--privileged--change)
+
+* * *
+
+*Return to: [**History**](#concepts--history)  <  [Concepts](#concepts)  <  [Overview](#overview)  <  [top](#top)*
+
+* * *
+
 
 
 
