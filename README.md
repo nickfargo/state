@@ -650,6 +650,7 @@ state obj, 'abstract'
 * **[Mutability](#concepts--attributes--mutability)**
 * **[Abstraction](#concepts--attributes--abstraction)**
 * **[Destination](#concepts--attributes--destination)**
+* **[Reflection](#concepts--attributes--reflection)**
 
 * **[Implications of selected attribute combinations](#concepts--attributes--implications-of-selected-attribute-combinations)**
 
@@ -687,6 +688,11 @@ Currency must often be initialized or confined to particular states, as directed
 * **conclusive** — Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
 * **final** — Once a state marked `final` is entered, no further transitions are allowed.
+
+<a name="concepts--attributes--reflection" href="#concepts--attributes--reflection" />
+#### Reflection
+
+* *reflective* — (Reserved; not presently implemented.) 
 
 * * *
 
