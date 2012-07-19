@@ -124,7 +124,9 @@ test( "Transitional event that causes transition abortion", function () {
     var o = {};
     state( o, {
         A: {
-            enter: function () { this.$('-> B'); }
+            enter: function () {
+                this.$('-> B');
+            }
         },
         B: state
     });

@@ -48,6 +48,7 @@ module.exports = ( grunt ) ->
           state/guards
           state/substates
           state/transitions
+          state/concurrency
           state/__post
 
           state-expression
