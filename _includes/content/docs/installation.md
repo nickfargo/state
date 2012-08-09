@@ -6,7 +6,7 @@
 
 The lone dependency of **State** is [**Omicron**](http://github.com/nickfargo/omicron/), a small set of object-focused utility functions useful for performing differential operations, facilitating inheritance, and other common tasks.
 
-<a class="download" href="/omicron.js"><strong>omicron.js</strong> (29kB)</a><a class="download" href="/omicron-min.js"><strong>omicron-min.js</strong> (1.9kB gz)</a>
+<a class="download" href="/omicron.js"><strong>omicron.js</strong> (18kB)</a><a class="download" href="/omicron-min.js"><strong>omicron-min.js</strong> (2.1kB gz)</a>
 
 * * *
 
