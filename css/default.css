@@ -1,0 +1,667 @@
+body,
+p {
+  font-size: 16px;
+  line-height: 22px;
+  color: #666;
+}
+
+.highlight pre {
+  display: none;
+}
+
+h1 {
+  font-size: 40px;
+  line-height: 48px;
+  margin: 1.5em 0 0.5em;
+}
+h2 {
+  font-size: 30px;
+  line-height: 40px;
+  margin: 1.5em 0 0.5em;
+}
+h3 {
+  font-size: 24px;
+  margin: 1.25em 0 0.33em;
+}
+h4 {
+  font-size: 20px;
+}
+h5 {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+h4,
+h5,
+h6 {
+  margin: 1em 0 0.25em;
+}
+
+h1 code, h1 a code,
+h2 code, h2 a code,
+h3 code, h3 a code,
+h4 code, h4 a code,
+h5 code, h5 a code,
+h6 code, h6 a code {
+  font-weight: bold;
+}
+
+p {
+  margin-bottom: 12px;
+}
+strong {
+  color: #555;
+}
+a strong {
+  color: inherit;
+}
+
+a {
+  color: #295888;
+  outline: none;
+  -webkit-transition: all 0.2s ease-out;
+     -moz-transition: all 0.2s ease-out;
+       -o-transition: all 0.2s ease-out;
+          transition: all 0.2s ease-out;
+}
+a:hover {
+  color: #002245;
+  text-decoration: none;
+  -webkit-transition: all 0.1s ease-out;
+     -moz-transition: all 0.1s ease-out;
+       -o-transition: all 0.1s ease-out;
+          transition: all 0.1s ease-out;
+}
+a code {
+  color: inherit;
+  font-weight: inherit;
+}
+h1 > a,
+h2 > a,
+h3 > a,
+h4 > a,
+h5 > a,
+h6 > a {
+  color: #456;
+}
+h1 > a:hover,
+h2 > a:hover,
+h3 > a:hover,
+h4 > a:hover,
+h5 > a:hover,
+h6 > a:hover {
+  color: #234;
+}
+p a {
+  font-weight: 500;
+}
+
+pre, tt, code {
+  font-family: Menlo, Consolas, Courier, monospace;
+  background-color: transparent;
+}
+pre {
+  padding: 0.87em 0.87em 0.7em;
+  margin: 0.75em 0;
+  font-size: 13px;
+  line-height: 18px;
+  background: rgba(128, 128, 128, 0.11);
+  border: 1px solid rgba(128, 128, 128, 0.15);
+  border-radius: 4px;
+}
+code {
+  padding: 1px 3px;
+  background: rgba(128, 128, 128, 0.12);
+  border: rgba(128, 128, 128, 0.25);
+  font-size: 95%;
+}
+pre code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+}
+li {
+  line-height: 22px;
+  margin: 0.25em 0;
+}
+blockquote {
+  line-height: 1.33em;
+}
+blockquote p {
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: normal;
+  color: #999;
+  margin: 0.5em 0;
+}
+
+.topbar {
+  position: fixed;
+  height: 108px;
+}
+  .topbar-inner,
+  .topbar .fill {
+    background-color: transparent;
+    background-image: -webkit-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
+    background-image:    -moz-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
+    background-image:     -ms-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
+    background-image:      -o-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
+    background-image:         linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
+    box-shadow:       0 0 20px rgba(16, 32, 48, 0.5),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  }
+  .topbar .lightstick {
+    background-color: hsla(96, 0%, 80%, 0);
+    background-image: -webkit-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
+    background-image:    -moz-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
+    background-image:     -ms-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
+    background-image:      -o-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
+    background-image:         linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
+    position: absolute;
+    z-index: 5;
+    width: 100%;
+    height: 7px;
+    bottom: 0;
+  }
+  .topbar .brand {
+    max-height: 64px;
+    font-size: 48px;
+    font-weight: 500;
+    padding: 48px 20px 12px;
+    margin-left: 0;
+    letter-spacing: -2px;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  }
+  .topbar .brand .tail {
+    font-weight: 300;
+    padding-left: 0.1em;
+    opacity: 0.2;
+  }
+  .topbar .subtitle {
+    padding: 0 0.5em;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 300;
+  }
+  .topbar ul.nav {
+    float: right;
+    font-size: 24px;
+  }
+  .topbar ul.nav li {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+  }
+  .topbar ul.nav li a {
+    font-size: 20px;
+    line-height: 24px;
+    padding: 72px 12px 12px;
+    margin: 0px;
+    color: rgba(255, 255, 255, 0.6);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+  }
+  .topbar ul.nav li.active a {
+    background-color: transparent;
+    background-image: -webkit-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
+    background-image:    -moz-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
+    background-image:     -ms-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
+    background-image:      -o-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
+    background-image:         linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
+    color: rgba(255, 255, 255, 0.9);
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+  }
+  .topbar .brand:hover,
+  .topbar ul.nav li a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+  }
+
+  .topbar ul.nav li a[href^="/docs"] {
+    border-color: hsl(192, 30%, 42%);
+  }
+  .topbar ul.nav li a[href^="/api"] {
+    border-color: hsl(160, 36%, 41%);
+  }
+  .topbar ul.nav li a[href^="/source"] {
+    border-color: hsl(96, 45%, 40%);
+  }
+  .topbar ul.nav li a[href^="/tests"] {
+    border-color: hsl(75, 66%, 34%);
+  }
+
+  .topbar ul.nav li .lightstick {
+    position: absolute;
+    z-index: 0;
+    width: 100%;
+    bottom: 0;
+    -webkit-transition: all 0.8s ease-out;
+       -moz-transition: all 0.8s ease-out;
+         -o-transition: all 0.8s ease-out;
+            transition: all 0.8s ease-out;
+  }
+  .topbar ul.nav li.indicated .lightstick {
+    z-index: 1;
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+  }
+  .topbar ul.nav li.active .lightstick {
+    z-index: 2;
+  }
+  .topbar ul.nav li a[href^="/docs"] + .lightstick {
+    background:                hsla(192,  40%, 50%, 0.6);
+    box-shadow:       0 0 24px hsla(192, 100%, 50%, 0),
+                      0 0 12px hsla(192, 100%, 50%, 0),
+                inset 0 0  3px hsla(192, 100%, 50%, 0);
+  }
+  .topbar ul.nav li.indicated a[href^="/docs"] + .lightstick {
+    background:                hsla(192,  90%, 60%, 0.97);
+    box-shadow:       0 0 24px hsla(192, 100%, 50%, 0.6),
+                      0 0 12px hsla(192, 100%, 50%, 0.8),
+                inset 0 0  3px hsla(192,  72%, 45%, 0.8);
+  }
+  .topbar ul.nav li.active a[href^="/docs"] + .lightstick {
+    background:                hsla(192, 100%, 93%, 0.98);
+    box-shadow:       0 0 36px hsla(192, 100%, 50%, 1),
+                      0 0 24px hsla(192, 100%, 50%, 1),
+                      0 0 12px hsla(192, 100%, 50%, 1),
+                inset 0 0  3px hsla(192, 100%, 50%, 1);
+  }
+  .topbar ul.nav li a[href^="/api"] + .lightstick {
+    background:                hsla(160,  46%, 50%, 0.6);
+    box-shadow:       0 0 24px hsla(160, 100%, 50%, 0),
+                      0 0 12px hsla(160, 100%, 50%, 0),
+                inset 0 0  3px hsla(160, 100%, 50%, 0);
+  }
+  .topbar ul.nav li.indicated a[href^="/api"] + .lightstick {
+    background:                hsla(160,  90%, 60%, 0.97);
+    box-shadow:       0 0 24px hsla(160, 100%, 50%, 0.6),
+                      0 0 12px hsla(160, 100%, 50%, 0.8),
+                inset 0 0  3px hsla(160,  72%, 45%, 0.8);
+  }
+  .topbar ul.nav li.active a[href^="/api"] + .lightstick {
+    background:                hsla(160, 100%, 93%, 0.98);
+    box-shadow:       0 0 36px hsla(160, 100%, 50%, 1),
+                      0 0 24px hsla(160, 100%, 50%, 1),
+                      0 0 12px hsla(160, 100%, 50%, 1),
+                inset 0 0  3px hsla(160, 100%, 50%, 1);
+  }
+  .topbar ul.nav li a[href^="/source"] + .lightstick {
+    background:                hsla(96,  52%, 50%, 0.6);
+    box-shadow:       0 0 24px hsla(96, 100%, 50%, 0),
+                      0 0 12px hsla(96, 100%, 50%, 0),
+                inset 0 0  3px hsla(96, 100%, 50%, 0);
+  }
+  .topbar ul.nav li.indicated a[href^="/source"] + .lightstick {
+    background:                hsla(96,  90%, 60%, 0.97);
+    box-shadow:       0 0 24px hsla(96, 100%, 50%, 0.6),
+                      0 0 12px hsla(96, 100%, 50%, 0.8),
+                inset 0 0  3px hsla(96,  72%, 45%, 0.8);
+  }
+  .topbar ul.nav li.active a[href^="/source"] + .lightstick {
+    background:                hsla(96, 100%, 93%, 0.98);
+    box-shadow:       0 0 36px hsla(96, 100%, 50%, 1),
+                      0 0 24px hsla(96, 100%, 50%, 1),
+                      0 0 12px hsla(96, 100%, 50%, 1),
+                inset 0 0  3px hsla(96, 100%, 50%, 1);
+  }
+  .topbar ul.nav li a[href^="/tests"] + .lightstick {
+    background:                hsla(75,  70%, 44%, 0.6);
+    box-shadow:       0 0 24px hsla(75, 100%, 50%, 0),
+                      0 0 12px hsla(75, 100%, 50%, 0),
+                inset 0 0  3px hsla(75, 100%, 50%, 0);
+  }
+  .topbar ul.nav li.indicated a[href^="/tests"] + .lightstick {
+    background:                hsla(75,  90%, 60%, 0.97);
+    box-shadow:       0 0 24px hsla(75, 100%, 50%, 0.6),
+                      0 0 12px hsla(75, 100%, 50%, 0.8),
+                inset 0 0  3px hsla(75,  72%, 45%, 0.8);
+  }
+  .topbar ul.nav li.active a[href^="/tests"] + .lightstick {
+    background:                hsla(75, 100%, 93%, 0.98);
+    box-shadow:       0 0 36px hsla(75, 100%, 50%, 1),
+                      0 0 24px hsla(75, 100%, 50%, 1),
+                      0 0 12px hsla(75, 100%, 50%, 1),
+                inset 0 0  3px hsla(75, 100%, 50%, 1);
+  }
+
+.content {
+  padding-top: 108px;
+}
+  .content a.download {
+    padding: 0.5em 1em 0.6em;
+    margin-right: 1px;
+    line-height: 3;
+    border-top: 1px solid rgba(255, 255, 255, 0.65);
+    border-bottom: 1px solid hsla(210, 30%, 42%, 0.35);
+    border-radius: 1.5em 0 0 1.5em;
+    box-shadow: 0 0 4px rgba(0,0,0,0.25);
+    font-size: 21px;
+    font-weight: normal;
+    color: hsl(210, 30%, 42%);
+    background-image: -webkit-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
+    background-image:    -moz-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
+    background-image:     -ms-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
+    background-image:      -o-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
+    background-image:         linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
+    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(210, 13%, 57%, 0.3);
+  }
+  .content a.download[href$="min.js"] {
+    border-radius: 0 1.5em 1.5em 0;
+  }
+  .content a.download[href^="/omicron"] {
+    font-size: 14px;
+  }
+  .content a.download:hover {
+    color: hsl(210, 58%, 32%);
+  }
+
+  .content a[href^="/docs"],
+  .content a[href^="/api"],
+  .content a[href^="/source"],
+  .content a[href^="/tests"] {
+    padding: 0.05em  0.2em;
+    margin: -0.05em -0.2em;
+    border-radius: 0.25em;
+  }
+  .content blockquote a[href^="/docs"],
+  .content blockquote a[href^="/api"],
+  .content blockquote a[href^="/source"],
+  .content blockquote a[href^="/tests"] {
+    padding: 1px 10px 2px;
+    margin: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.65);
+    border-bottom: 1px solid;
+    border-radius: 14px;
+    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+    font-weight: 500;
+    line-height: 1.67;
+  }
+
+  .content a[href^="/docs"] {
+    color:             hsl(192, 30%, 42%);
+    background-color: hsla(192, 30%, 42%, 0.06);
+  }
+  .content a[href^="/docs"]:hover {
+    color:             hsl(192, 58%, 32%);
+    background-color: hsla(192, 58%, 32%, 0.07);
+  }
+  .content blockquote a[href^="/docs"] {
+    border-bottom-color: hsla(192, 30%, 42%, 0.35);
+    background-image: -webkit-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
+    background-image:    -moz-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
+    background-image:     -ms-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
+    background-image:      -o-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
+    background-image:         linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
+    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(192, 13%, 57%, 0.3);
+  }
+  .content blockquote a[href^="/docs"]:hover {
+  }
+
+  .content a[href^="/api"] {
+    color:             hsl(160, 36%, 41%);
+    background-color: hsla(160, 36%, 41%, 0.06);
+  }
+  .content a[href^="/api"]:hover {
+    color:             hsl(160, 60%, 31%);
+    background-color: hsla(160, 60%, 31%, 0.07);
+  }
+  .content blockquote a[href^="/api"] {
+    border-bottom-color: hsla(160, 36%, 41%, 0.35);
+    background-image: -webkit-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
+    background-image:    -moz-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
+    background-image:     -ms-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
+    background-image:      -o-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
+    background-image:         linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
+    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(160, 15%, 57%, 0.3);
+  }
+  .content blockquote a[href^="/api"]:hover {
+  }
+
+  .content a[href^="/source"] {
+    color:             hsl(96, 45%, 40%);
+    background-color: hsla(96, 45%, 40%, 0.06);
+  }
+  .content a[href^="/source"]:hover {
+    color:             hsl(96, 60%, 30%);
+    background-color: hsla(96, 60%, 30%, 0.07);
+  }
+  .content blockquote a[href^="/source"] {
+    border-bottom-color: hsla(96, 45%, 40%, 0.35);
+    background-image: -webkit-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
+    background-image:    -moz-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
+    background-image:     -ms-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
+    background-image:      -o-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
+    background-image:         linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
+    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(96, 23%, 57%, 0.3);
+  }
+  .content blockquote a[href^="/source"]:hover {
+  }
+
+  .content a[href^="/tests"] {
+    color:             hsl(75, 66%, 34%);
+    background-color: hsla(75, 66%, 31%, 0.06);
+  }
+  .content a[href^="/tests"]:hover {
+    color:             hsl(75, 66%, 26%);
+    background-color: hsla(75, 66%, 26%, 0.07);
+  }
+  .content blockquote a[href^="/tests"] {
+    border-bottom-color: hsla(75, 66%, 34%, 0.35);
+    background-image: -webkit-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
+    background-image:    -moz-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
+    background-image:     -ms-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
+    background-image:      -o-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
+    background-image:         linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
+    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(75, 13%, 57%, 0.3);
+  }
+  .content blockquote a[href^="/tests"]:hover {
+  }
+
+  .content a[href^="/docs"] code,
+  .content a[href^="/api"] code,
+  .content a[href^="/source"] code,
+  .content a[href^="/tests"] code {
+    padding: 0;
+    background: transparent;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
+.row > [class*="span"] {
+  padding: 0 5px;
+}
+
+.toc {
+  position: fixed;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  top: 108px;
+  bottom: 36px;
+  width: 280px;
+  padding-top: 20px;
+  border-bottom: 1px solid #eee;
+}
+  .toc ul {
+    list-style-type: none;
+  }
+  .toc ul li {
+    line-height: 1.33
+  }
+  .toc > ul ul {
+    font-size: 95%;
+    margin-left: 1em;
+  }
+  .toc > ul ul a {
+    font-size: 90%;
+  }
+  .toc > ul > ul ul {
+    font-size: 90%;
+    margin: 0 0 0.5em 1em;
+  }
+  .toc > ul > li {
+    margin: 0 0 0.5em;
+  }
+  .toc ul li a {
+    padding: 0 0.25em;
+    color: #00438A;
+  }
+  .toc ul li a:hover {
+    color: #002245;
+  }
+  .toc::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  .toc::-webkit-scrollbar-thumb {
+    background: rgba( 0,0,0, 0.1 );
+    border: 3px solid #fff;
+    border-radius: 6px;
+  }
+  .toc::-webkit-scrollbar-track-piece {
+    width: 7px;
+    height: 7px;
+    margin: 5px;
+  }
+
+.controls {
+  position: fixed;
+  bottom: 0;
+  width: 280px;
+  height: 36px;
+  box-shadow: -20px -10px 20px white;
+  border-top: 1px solid #eee;
+}
+  .controls ul {
+    margin: 0;
+    list-style-type: none;
+    opacity: 0.6;
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+  }
+  .controls:hover ul {
+    opacity: 1.0;
+  }
+  .controls ul li {
+    float: left;
+    padding: 0;
+    margin: 0;
+  }
+  .controls ul li a {
+    float: left;
+    margin: 6px;
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    opacity: 0.13;
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+  }
+  .controls ul li a:hover {
+    opacity: 0.9;
+  }
+  .controls ul li.active a {
+    opacity: 0.75;
+  }
+  .controls ul li.active a:hover {
+    opacity: 1.0;
+  }
+  .controls ul li.javascript a {
+    background-image: url(/img/javascript-logo.png);
+  }
+  .controls ul li.coffeescript a {
+    background-image: url(/img/coffeescript-logo.png);
+  }
+
+.markdown-body {
+  margin-top: -20px;
+}
+
+.tags {
+  margin-bottom: 1em;
+  font-size: 13px;
+}
+.tags .tag {
+  padding: 2px 6px;
+  border: 1px solid rgba(128, 128, 128, 0.5);
+  border-radius: 12px;
+  background: rgba(128, 128, 128, 0.25);
+  font-weight: bold;
+  color: rgba(64, 128, 192, 0.9);
+}
+
+.abstract {
+  margin: 40px 0 1em;
+}
+.abstract p {
+  font-size: 125%;
+  line-height: 1.33;
+}
+.abstract pre {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.backcrumb {
+  padding: 8px 16px;
+  margin: 1em 0 4em;
+  border: 1px solid transparent;
+  border-radius: 0 0 16px 16px;
+  background: rgba(128, 128, 128, 0.25);
+}
+.backcrumb > a.section {
+  font-weight: bold;
+}
+
+.local-toc {
+  border-radius: 16px;
+  background: rgba(128, 128, 128, 0.15);
+}
+  .local-toc ul {
+    padding: 1em 2em 1em 3em;
+    margin: 0;
+  }
+    .local-toc ul li {
+      font-weight: bold;
+    }
+
+footer {
+  float: right;
+  width: 640px;
+  height: 36px;
+  padding: 0;
+  margin-top: 120px;
+  font-size: 12px;
+}
+  footer ul {
+    float: right;
+    margin: 0;
+    padding: 0 12px;
+  }
+  footer ul li {
+    display: block;
+    float: left;
+    padding: 7px;
+    margin: 0;
+  }
