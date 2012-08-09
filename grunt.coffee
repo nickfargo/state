@@ -51,6 +51,7 @@ module.exports = ( grunt ) ->
           state/concurrency
           state/__post
 
+          root-state
           state-expression
           state-controller
           state-event-emitter
