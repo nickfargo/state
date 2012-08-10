@@ -59,12 +59,12 @@ $( function () {
 
 // Language preferences
 ( function () {
-  var $pre = $('pre');
+  var $pre = $('.highlight pre');
   var language = {
     selected     : window.localStorage && localStorage.getItem('language')
                      || 'javascript',
-    javascript   : { elements: null, control: null },
-    coffeescript : { elements: null, control: null }
+    javascript   : { $elements: null, $control: null },
+    coffeescript : { $elements: null, $control: null }
   };
   var javascript = language.javascript;
   var coffeescript = language.coffeescript;
@@ -103,51 +103,55 @@ $( function () {
         localOffset = $h.offset().top - $pageScrollTop();
       }
 
-      language[ active ].elements.show();
-      language[ hidden ].elements.hide();
+      language[ active ].$elements.show();
+      language[ hidden ].$elements.hide();
 
       if ( $h && $h.length ) {
         $page.scrollTop( $h.offset().top - localOffset );
       }
       
-      language[ active ].control.addClass('active');
-      language[ hidden ].control.removeClass('active');
+      language[ active ].$control.addClass('active');
+      language[ hidden ].$control.removeClass('active');
 
       window.localStorage.setItem( 'language', active );
     };
   }
 
-  javascript.elements =
+  // Establish sets of paired JS/CS pre blocks
+  javascript.$elements =
     $pre.has('code.javascript').filter( function () {
       return $(this).parent().next().has('pre > code.coffeescript').length;
     });
-  coffeescript.elements =
+  coffeescript.$elements =
     $pre.has('code.coffeescript');
+
+  // Display all unpaired pre blocks
+  $pre.not( javascript.$elements ).not( coffeescript.$elements ).show();
 
   // Get language preference controls
   $ul = $('.controls ul.languages');
   if ( $ul.length ) {
-    javascript.control = $( 'li.javascript', $ul );
-    coffeescript.control = $( 'li.coffeescript', $ul );
+    javascript.$control = $( 'li.javascript', $ul );
+    coffeescript.$control = $( 'li.coffeescript', $ul );
   }
   // Or add them if not already present
   else {
-    javascript.control   = $item('javascript');
-    coffeescript.control = $item('coffeescript');
+    javascript.$control   = $item('javascript');
+    coffeescript.$control = $item('coffeescript');
     $('<ul>')
       .addClass('languages')
-      .append( javascript.control, coffeescript.control )
+      .append( javascript.$control, coffeescript.$control )
       .appendTo('.controls');
   }
 
-  javascript.control.click(
+  javascript.$control.click(
     makeClickListener( 'javascript', 'coffeescript' )
   );
-  coffeescript.control.click(
+  coffeescript.$control.click(
     makeClickListener( 'coffeescript', 'javascript' )
   );
 
-  language[ language.selected ].control.click();
+  language[ language.selected ].$control.click();
 }() );
 
 
