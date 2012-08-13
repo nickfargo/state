@@ -9,9 +9,7 @@ class Kid
 junior = new Kid
 
 junior.state().emit 'gotIceCream'
-junior.state()
-# >>> State 'Happy'
+junior.state()                         # >>> State 'Happy'
 
 junior.state().emit 'spilledIceCream'
-junior.state()
-# >>> State 'Sad'
+junior.state()                         # >>> State 'Sad'

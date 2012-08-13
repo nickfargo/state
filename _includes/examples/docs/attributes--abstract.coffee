@@ -5,5 +5,9 @@ class Mover
       Running: state
 
 mover = new Mover
-mover.state '->'         # >>> State 'Walking'
-mover.state '-> Moving'  # >>> State 'Walking'
+
+mover.state '->'
+mover.state()            # >>> State 'Walking'
+
+mover.state '-> Moving'
+mover.state()            # >>> State 'Walking'

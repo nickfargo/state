@@ -20,7 +20,7 @@ state( Scholar.prototype, 'abstract', {
                 var gpa = this.data().gpa;
                 return 3.75 <= gpa && gpa < 3.9;
             },
-            action: function () { /* swat down recruiters */ }
+            action: function () { /* choose internship */ }
         },
         Laude: {
             origin: 'Matriculated', target: 'Graduated',

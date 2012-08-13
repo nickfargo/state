@@ -17,8 +17,9 @@ root.on 'noSuchMethod:bar', ( args... ) ->
 
 owner.foo()             # log <<< "I exist!"
 owner.bar()             # log <<< "So do I!"
-owner.state '-> B'      # State 'B'
+owner.state '-> B'
+owner.state()           # >>> State 'B'
 owner.foo()             # log <<< "I exist!"
-owner.bar()             # undefined
+owner.bar()             # >>> undefined
 # log <<< "`owner` has no method 'bar' in this state!"
 # log <<< "Here’s another way to trap a bad call to 'bar'."

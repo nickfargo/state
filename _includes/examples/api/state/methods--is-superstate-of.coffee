@@ -1,5 +1,8 @@
 mover = {}
-state mover, Moving: Running: Sprinting: state
+state mover
+  Moving:
+    Running:
+      Sprinting: state
 
 s = mover.state 'Moving'      # >>> State 'Moving'
 s.isSuperstateOf 'Sprinting'  # >>> true

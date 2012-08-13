@@ -17,8 +17,10 @@ mover.state().mutate({
     Stationary: state
 });
 
-mover.state('-> Stationary');         // >>> State 'Stationary'
+mover.state('-> Stationary');
+mover.state();                        // >>> State 'Stationary'
 mover.state().isMutable();            // >>> true [2], [3]
 
-mover.state('-> Moving');             // >>> State 'Moving'
+mover.state('-> Moving');
+mover.state();                        // >>> State 'Moving'
 mover.state().isMutable();            // >>> true [3]

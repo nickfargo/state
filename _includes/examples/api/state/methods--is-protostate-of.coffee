@@ -14,7 +14,8 @@ a.isProtostateOf c        # >>> true
 b.isProtostateOf c        # >>> true [1]
 a is b                    # >>> false [1]
 
-canary.state '-> Dead'    # >>> State 'Dead'
+canary.state '-> Dead'
+canary.state()            # >>> State 'Dead'
 
 a = Animal::state 'Dead'  # >>> State 'Dead'
 b = Bird::state 'Dead'    # >>> State 'Dead'

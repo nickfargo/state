@@ -19,7 +19,7 @@ class Scholar
   
       Magna: t
         admit: -> 3.75 <= @owner().gpa < 3.9
-        action: -> # choose favorite internship
+        action: -> # choose internship
   
       Laude: t
         admit: -> 3.50 <= @owner().gpa < 3.75

@@ -10,40 +10,47 @@ p {
 }
 
 h1 {
+  margin: 1.5em 0 0.5em;
   font-size: 40px;
   line-height: 48px;
-  margin: 1.5em 0 0.5em;
 }
 h2 {
-  font-size: 30px;
-  line-height: 40px;
   margin: 1.5em 0 0.5em;
+  font-size: 30px;
+  line-height: 44px;
 }
 h3 {
   font-size: 24px;
-  margin: 1.25em 0 0.33em;
 }
 h4 {
   font-size: 20px;
 }
 h5 {
   font-size: 18px;
-  font-weight: 500;
+}
+h6 {
+  font-size: 16px;
+  text-transform: none;
+  color: inherit;
 }
 
+h3,
 h4,
 h5,
 h6 {
-  margin: 1em 0 0.25em;
+  margin: 1.25em 0 0.33em;
+  line-height: 1.75em;
 }
 
-h1 code, h1 a code,
-h2 code, h2 a code,
-h3 code, h3 a code,
-h4 code, h4 a code,
-h5 code, h5 a code,
-h6 code, h6 a code {
+h1, h1 code, h1 a code,
+h2, h2 code, h2 a code,
+h3, h3 code, h3 a code,
+h4, h4 code, h4 a code,
+h5, h5 code, h5 a code {
   font-weight: bold;
+}
+h6, h6 code, h6 a code {
+  font-weight: 500;
 }
 
 p {

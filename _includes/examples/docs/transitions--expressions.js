@@ -29,17 +29,17 @@ var foo = new Foo;
 
 function zig () {
     var transition;
-    foo.state();                   // State 'Bar'
+    foo.state();                   // >>> State 'Bar'
     foo.state('-> Baz');           // (enacts `Zig` of `Baz`)
-    transition = foo.state();      // Transition 'Zig'
+    transition = foo.state();      // >>> Transition 'Zig'
     transition.on( 'end', zag );
 }
 
 function zag () {
     var transition;
-    foo.state();                   // State 'Baz'
+    foo.state();                   // >>> State 'Baz'
     foo.state('-> Bar');           // (enacts `Zag` of root state)
-    transition = foo.state();      // Transition `Zag`
+    transition = foo.state();      // >>> Transition `Zag`
     transition.on( 'end', stop );
 }
 

@@ -7,8 +7,18 @@ state( Mover.prototype, {
 });
 
 var mover = new Mover;
-mover.state('-> Walking');     // >>> State 'Walking'
-mover.state('-> Stationary');  // >>> State 'Stationary'
-mover.state('-> Moving');      // >>> State 'Moving'
-mover.state('-> Walking');     // >>> null
-mover.state('-> Stationary');  // >>> null
+
+mover.state('-> Walking');
+mover.state();                 // >>> State 'Walking'
+
+mover.state('-> Stationary');
+mover.state();                 // >>> State 'Stationary'
+
+mover.state('-> Moving');
+mover.state();                 // >>> State 'Moving'
+
+mover.state('-> Walking');
+mover.state();                 // >>> State 'Moving'
+
+mover.state('-> Stationary');
+mover.state();                 // >>> State 'Moving'

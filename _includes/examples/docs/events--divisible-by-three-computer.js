@@ -16,6 +16,7 @@ DivisibleByThreeComputer.prototype.compute = function ( number ) {
 }
 
 var three = new DivisibleByThreeComputer;
+
 three.compute( 8 );          // >>> false
 three.compute( 78 );         // >>> true
 three.compute( 1000 );       // >>> false

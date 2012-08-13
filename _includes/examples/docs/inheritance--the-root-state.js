@@ -1,2 +1,3 @@
 obj.state().root() === obj.state('');   // >>> true
-obj.state('->');                        // >>> State ''
+obj.state('->');
+obj.state();                            // >>> State ''

@@ -12,5 +12,6 @@ raygun.shoot.isDelegator                    # >>> true
 raygun.state('').method('shoot') is shoot   # >>> true
 
 raygun.shoot()                              # >>> "pew!"
-raygun.state '-> RapidFire'                 # >>> State 'RapidFire'
+raygun.state '-> RapidFire'
+raygun.state()                              # >>> State 'RapidFire'
 raygun.shoot()                              # >>> "pew pew pew!"

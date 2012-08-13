@@ -19,44 +19,11 @@ Listeners receive the `expression` object from which the state was constructed.
 Since construction is not complete until the state’s substates have themselves been constructed, the full `construct` event sequence of a state tree proceeds bottom-up.
 
 {% highlight javascript %}
-var mover = {};
-state( mover, {
-    construct: function ( expression ) {
-        console.log( "root state constructed" );
-    },
-
-    Moving: {
-        construct: function ( expression ) {
-            console.log( "State '" + this.name() + "' constructed" );
-        },
-
-        Walking: {
-            construct: function ( expression ) {
-                console.log(
-                    "State '" + this.name() + "' constructed" );
-            }
-        }
-    }
-});
+{% include examples/api/state/events--construct.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-mover = {}
-state mover,
-  construct: ( expression ) ->
-    console.log "root state constructed"
-  
-  Moving:
-    construct: ( expression ) ->
-      console.log "State '#{ @name() }' constructed"
-    
-    Walking:
-      construct: ( expression ) ->
-        console.log "State '#{ @name() }' constructed"
-
-# log <<< State 'Walking' constructed
-# log <<< State 'Moving' constructed
-# log <<< root state constructed
+{% include examples/api/state/events--construct.coffee %}
 {% endhighlight %}
 
 
@@ -70,7 +37,7 @@ function () {}
 () ->
 {% endhighlight %}
 
-A state is properly deallocated with a call to [`destroy`](#state--methods--destroy), either on itself or on a superstate. The `destroy` event is emitted immediately prior to the state and its contents being cleared.
+A state is properly deallocated with a call to the [`destroy` method](#state--methods--destroy) of either itself or a superstate. The `destroy` event is emitted immediately prior to the state and its contents being cleared.
 
 Listeners of `destroy` are called with no arguments.
 

@@ -1,4 +1,5 @@
-s = mover.state '-> Running'  # >>> State 'Running'
-s.isVirtual()                 # >>> true
+mover.state '-> Running'
+s = mover.state()               # >>> State 'Running'
+s.isVirtual()                   # >>> true
 s.addMethod 'move', -> "Boing"
-s.isVirtual()                 # >>> false
+s.isVirtual()                   # >>> false

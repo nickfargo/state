@@ -7,4 +7,5 @@ mover = new Mover
 state mover,
   Moving: state 'concrete'
 
-mover.state '-> Moving'  # >>> State 'Moving'
+mover.state '-> Moving'
+mover.state()            # >>> State 'Moving'

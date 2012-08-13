@@ -6,18 +6,18 @@ Events in **State** follow the familiar **emitter** pattern: `State` exposes met
 
 #### [Existential events](#concepts--events--existential)
 
-##### `construct`
+##### construct
 
 After a state has been fully constructed, it emits a `construct` event. 
 
-> [`construct`](/api/#state--events--construct)
+> [construct](/api/#state--events--construct)
 
 
-##### `destroy`
+##### destroy
 
 Immediately before a state is cleared from its superstate, or before the owner object’s state implementation is destroyed in the case of a root state, it emits a `destroy` event.
 
-> [`destroy`](/api/#state--events--destroy)
+> [destroy](/api/#state--events--destroy)
 
 
 #### [Transitional events](#concepts--events--transitional)
@@ -26,58 +26,58 @@ During a transition’s traversal from its origin state to its target state, the
 
 > See also: [**The transition lifecycle**](#concepts--transitions--lifecycle)
 
-##### `State depart`
+##### depart (`State`)
 
 The beginning of the transition consists of exactly one `depart` event that is always emitted from the origin state.
 
-> [`depart`](/api/#state--events--depart)
+> [depart](/api/#state--events--depart)
 
-##### `Transition enter`
+##### enter (`Transition`)
 
 Next the owner object’s currency is passed from the origin state to the new `Transition`, and the transition emits an `enter` event.
 
-> [`enter`](/api/#transition--events--enter)
+> [enter](/api/#transition--events--enter)
 
-##### `State exit`
+##### exit (`State`)
 
 This is followed by the *ascending phase* of the transition, which consists of zero or more `exit` events, one each from amongst the origin state and any of its superstates that will no longer be active as a result of the transition.
 
-> [`exit`](/api/#state--events--exit)
+> [exit](/api/#state--events--exit)
 
-##### `Transition start`
+##### start (`Transition`)
 
 When the transition reaches the top of its domain, the ascending phase ends and the *action phase* begins. The transition emits a `start` event, and its *action* function is invoked.
 
-> [`start`](/api/#transition--events--start)
+> [start](/api/#transition--events--start)
 
-##### `Transition end`
+##### end (`Transition`)
 
 When the transition’s action function calls [`end`](/api/#transition--methods--end), signifying the end of its action phase, the transition emits an `end` event, and the *descending phase* begins.
 
-> [`end`](/api/#transition--events--end)
+> [end](/api/#transition--events--end)
 
-##### `State enter`
+##### enter (`State`)
 
 The descending phase of the transition consists of zero or more `enter` events, one for each state that will become newly active.
 
-> [`enter`](/api/#state--events--enter)
+> [enter](/api/#state--events--enter)
 
-##### `Transition exit`
+##### exit (`Transition`)
 
 After the transition has `enter`ed its target state, the descending phase ends, the transition emits an `exit` event, and the object’s currency is passed from the transition to the target state.
 
-> [`exit`](/api/#transition--events--exit)
+> [exit](/api/#transition--events--exit)
 
-##### `State arrive`
+##### arrive (`State`)
 
 Finally, an `arrive` event will occur exactly once, specifically at the target state, marking the end of the transition.
 
-> [`arrive`](/api/#state--events--arrive)
+> [arrive](/api/#state--events--arrive)
 
 
 #### [Mutation events](#concepts--events--mutation)
 
-##### `mutate`
+##### mutate
 
 When a state’s contents are altered, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 

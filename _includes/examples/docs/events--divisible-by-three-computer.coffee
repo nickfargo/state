@@ -12,7 +12,8 @@ class DivisibleByThreeComputer
     @state().is 's0'
 
 three = new DivisibleByThreeComputer
-three.compute 8              # >>> false
-three.compute 78             # >>> true
-three.compute 1000           # >>> false
-three.compute 504030201      # >>> true
+
+three.compute 8          # >>> false
+three.compute 78         # >>> true
+three.compute 1000       # >>> false
+three.compute 504030201  # >>> true

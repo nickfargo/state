@@ -6,5 +6,9 @@ class Mover
       Running: state 'default'
 
 mover = new Mover
-mover.state '->'         # >>> State 'Running'
-mover.state '-> Moving'  # >>> State 'Running'
+
+mover.state '->'
+mover.state()            # >>> State 'Running'
+
+mover.state '-> Moving'
+mover.state()            # >>> State 'Running'
