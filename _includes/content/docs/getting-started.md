@@ -132,3 +132,5 @@ person.greet()            # >>> "Hello."
 <div class="backcrumb">
 ⏎  <a class="section" href="#getting-started">Getting started</a>
 </div>
+
+* * *

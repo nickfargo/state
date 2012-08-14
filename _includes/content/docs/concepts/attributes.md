@@ -36,6 +36,7 @@ Including the `mutable` attribute in a weakly immutable state’s expression lif
 
 > [isMutable](/api/#state--methods--is-mutable)
 > [mutate (method)](/api/#state--methods--mutate)
+> [mutate (event)](/api/#state--events--mutate)
 
 
 ##### [finite](#concepts--attributes--mutability--finite)

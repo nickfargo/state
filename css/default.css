@@ -1,8 +1,9 @@
 body,
 p {
+  background-color: #f1f1f1;
   font-size: 16px;
-  line-height: 22px;
-  color: #666;
+  line-height: 23px;
+  color: #606060;
 }
 
 .highlight pre {
@@ -34,6 +35,14 @@ h6 {
   color: inherit;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: #484848;
+}
+
 h3,
 h4,
 h5,
@@ -56,6 +65,20 @@ h6, h6 code, h6 a code {
 p {
   margin-bottom: 12px;
 }
+ol {
+  margin: 0 0 12px 36px;
+}
+hr {
+  margin: 30px 0 20px;
+  border: 1px solid transparent;
+  border-top-color: #e7e7e7;
+  border-bottom-color: #fbfbfb;
+  box-shadow: 0 -16px 32px rgba(0,0,0,0.05),
+              0  -8px 16px rgba(0,0,0,0.05),
+              0  -4px  8px rgba(0,0,0,0.05),
+              0  -1px  2px rgba(0,0,0,0.05);
+}
+
 strong {
   color: #555;
 }
@@ -112,14 +135,15 @@ pre {
   margin: 0.75em 0;
   font-size: 13px;
   line-height: 18px;
-  background: rgba(128, 128, 128, 0.11);
+  background: rgba(128, 128, 128, 0.07);
   border: 1px solid rgba(128, 128, 128, 0.15);
   border-radius: 4px;
 }
 code {
   padding: 1px 3px;
-  background: rgba(128, 128, 128, 0.12);
-  border: rgba(128, 128, 128, 0.25);
+  margin: 0 -1px;
+  background: rgba(128, 128, 128, 0.07);
+  border: 1px solid rgba(128, 128, 128, 0.05);
   font-size: 95%;
 }
 pre code {
@@ -129,18 +153,23 @@ pre code {
   font-size: inherit;
 }
 li {
-  line-height: 22px;
+  line-height: 23px;
   margin: 0.25em 0;
 }
 blockquote {
   line-height: 1.33em;
+  border-left: 8px solid rgba(128, 128, 128, 0.1);
+  padding: 1px 0 1px 15px;
 }
 blockquote p {
   font-size: inherit;
   line-height: inherit;
   font-weight: normal;
-  color: #999;
+  color: #808080;
   margin: 0.5em 0;
+}
+blockquote ol {
+  margin-left: 24px;
 }
 
 .topbar {
@@ -392,12 +421,12 @@ blockquote p {
   .content blockquote a[href^="/api"],
   .content blockquote a[href^="/source"],
   .content blockquote a[href^="/tests"] {
-    padding: 1px 10px 2px;
+    padding: 1px 10px 3px;
     margin: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.65);
     border-bottom: 1px solid;
     border-radius: 14px;
-    box-shadow: 0 0 2px rgba(0,0,0,0.25);
+    box-shadow: 0 0 3px rgba(0,0,0,0.1), 0 1px 5px rgba(0,0,0,0.07);
     font-weight: 500;
     line-height: 1.67;
   }
@@ -488,6 +517,7 @@ blockquote p {
   .content a[href^="/tests"] code {
     padding: 0;
     background: transparent;
+    border: none;
     font-weight: bold;
     white-space: nowrap;
   }
@@ -539,7 +569,7 @@ blockquote p {
   }
   .toc::-webkit-scrollbar-thumb {
     background: rgba( 0,0,0, 0.1 );
-    border: 3px solid #fff;
+    border: 3px solid #f1f1f1;
     border-radius: 6px;
   }
   .toc::-webkit-scrollbar-track-piece {
@@ -553,7 +583,7 @@ blockquote p {
   bottom: 0;
   width: 280px;
   height: 36px;
-  box-shadow: -20px -10px 20px white;
+  box-shadow: -20px -10px 20px #f1f1f1;
   border-top: 1px solid #eee;
 }
   .controls ul {

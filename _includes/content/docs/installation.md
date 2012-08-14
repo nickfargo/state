@@ -49,3 +49,5 @@ which will expose the module at `window.state`. You may wish to avoid the global
 state = window.state.noConflict()
 # ...
 {% endhighlight %}
+
+* * *
