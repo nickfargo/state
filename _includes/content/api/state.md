@@ -16,3 +16,5 @@ In addition, a state also recognizes the owner object’s prototypal inheritance
 {% include content/api/state/attributes.md %}
 {% include content/api/state/events.md %}
 {% include content/api/state/methods.md %}
+
+* * *

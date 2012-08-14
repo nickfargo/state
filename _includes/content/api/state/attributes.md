@@ -1,6 +1,6 @@
 ### [Attributes](#state--attributes)
 
-State attributes are included into a state expression by preceding the `expression` argument of a call to `state()` with a space-delimited string argument that names the attributes to be applied.
+State attributes are included into a state expression by preceding the `expression` argument of a call to [`state()`](#module) with a space-delimited string argument that names the attributes to be applied.
 
 {% highlight javascript %}
 {% include examples/docs/attributes.js %}
@@ -9,6 +9,9 @@ State attributes are included into a state expression by preceding the `expressi
 {% highlight coffeescript %}
 {% include examples/docs/attributes.coffee %}
 {% endhighlight %}
+
+> [Attributes](/docs/#concepts--attributes)
+
 
 #### [mutable](#state--attributes--mutable)
 

@@ -11,3 +11,5 @@ A transition acts within the **domain** of the least common ancestor between its
 
 {% include content/api/transition/events.md %}
 {% include content/api/transition/methods.md %}
+
+* * *

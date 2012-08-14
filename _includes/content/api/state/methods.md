@@ -116,10 +116,11 @@ If the root state is destroyed, the owner is given back any methods it bore prio
 
 * * *
 
-The **model methods** in this section are used to inspect the `State` object model.
+Methods in this section are used to inspect the `State` object model.
 
 > [Inheritance](/docs/#concepts--inheritance)
 > [`state/model.js`](/source/#state--model.js)
+> [`state/query.js`](/source/#state--query.js)
 
 
 #### [owner](#state--methods--owner)
@@ -434,10 +435,60 @@ Returns the `State` that is `this` state’s most deeply nested state bearing th
 > [`State::initialSubstate`](/source/#state--prototype--initial-substate)
 
 
+#### [query](#state--methods--query)
+
+Alias: **match**
+
+{% highlight javascript %}
+this.query( selector, against, descend, ascend, viaProto )
+{% endhighlight %}
+
+* `selector` : string
+* [`against`] : `State`
+* [`descend = true`] : boolean
+* [`ascend = true`] : boolean
+* [`viaProto = true`] : boolean
+
+Matches a `selector` string with the state or states it represents in the context of `this` state. If no match exists in `this` context, the selector is reevaluated in the context of all its substates and descendant states, and if necessary in the context of its superstates and all of their descendants, until all possible locations in the state tree have been exhausted.
+
+Returns the matched `State`, or an `Array` containing the set of matched states. If a state to be tested `against` is provided, then a boolean is returned, indicating whether `against` is the matched state itself or is included in the matching set.
+
+Setting `descend` to `false` disables recursion through the substates of `this`, and likewise setting `ascend` to `false` disables the subsequent recursion through its superstates.
+
+Calling an owner object’s accessor method with a selector string invokes `query` on the owner’s current state.
+
+
+> [Getting started](/docs/#getting-started)
+> [Selectors](/docs/#concepts--selectors)
+> [`State::query`](/source/#state--prototype--query)
+
+
+#### [$](#state--methods--dollarsign)
+
+{% highlight javascript %}
+this.$( selector )
+{% endhighlight %}
+
+* `selector` : string
+
+Convenience method that mimics the behavior of the owner’s accessor method. If the first argument is a transition arrow selector string, the call is aliased to `change`. If passed a plain selector string, the call is aliased to `query`.
+
+{% highlight javascript %}
+this.$('-> Awake')
+{% endhighlight %}
+
+Aliases to [`change`](#state--change), instigating a transition to the `Awake` state.
+
+{% highlight javascript %}
+this.$('Awake')
+{% endhighlight %}
+
+Aliases to [`query`](#state--query), returning the `State` named `'Awake'`.
+
 
 * * *
 
-The **currency methods** in this section determine or decide which of an owner object’s `State`s are presently **current** or **active**, and thus will influence the behavior exhibited by the owner.
+The **currency methods** in this section determine or decide which of an owner object’s `State`s are presently **current** or **active**, and thus presently influence the behavior exhibited by the owner.
 
 > [`state/currency.js`](/source/#state--currency.js)
 
@@ -491,69 +542,9 @@ The `options` parameter is an optional map that may include:
 * `failure` : function — callback to be executed if the transition attempt is blocked by a guard.
 
 
-
 * * *
 
-The `query` method is used, either directly or via an owner object’s accessor method, to inspect and traverse the owner’s state graph.
-
-> [`state/query.js`](/source/#state--query.js)
-
-
-#### [query](#state--methods--query)
-
-Alias: **match**
-
-{% highlight javascript %}
-this.query( selector, against, descend, ascend, viaProto )
-{% endhighlight %}
-
-* `selector` : string
-* [`against`] : `State`
-* [`descend = true`] : boolean
-* [`ascend = true`] : boolean
-* [`viaProto = true`] : boolean
-
-Matches a `selector` string with the state or states it represents in the context of `this` state. If no match exists in `this` context, the selector is reevaluated in the context of all its substates and descendant states, and if necessary in the context of its superstates and all of their descendants, until all possible locations in the state tree have been exhausted.
-
-Returns the matched `State`, or an `Array` containing the set of matched states. If a state to be tested `against` is provided, then a boolean is returned, indicating whether `against` is the matched state itself or is included in the matching set.
-
-Setting `descend` to `false` disables recursion through the substates of `this`, and likewise setting `ascend` to `false` disables the subsequent recursion through its superstates.
-
-Calling an owner object’s accessor method with a selector string invokes `query` on the owner’s current state.
-
-
-> [Getting started](/docs/#getting-started)
-> [Selectors](/docs/#concepts--selectors)
-> [`State::query`](/source/#state--prototype--query)
-
-
-#### [$](#state--methods--dollarsign)
-
-{% highlight javascript %}
-this.$( selector )
-{% endhighlight %}
-
-* `selector` : string
-
-Convenience method that mimics the behavior of the owner’s accessor method: if the first argument is a transition arrow selector string, the call is aliased to `change`; or if passed a plain selector string, the call is aliased to `query`.
-
-{% highlight javascript %}
-this.$('-> Awake')
-{% endhighlight %}
-
-Aliases to [`change`](#state--change), instigating a transition to the `Awake` state.
-
-{% highlight javascript %}
-this.$('Awake')
-{% endhighlight %}
-
-Aliases to [`query`](#state--query), returning the `State` named `'Awake'`.
-
-
-
-* * *
-
-The **attribute methods** in this section are predicates that inspect the attributes of a `State`.
+The **attribute methods** in this section are predicates that inspect the attributes that have been affixed to a `State`.
 
 > [Attributes](/docs/#concepts--attributes)
 > [`state/attributes.js`](/source/#state--attributes.js)
@@ -706,6 +697,8 @@ See also: [**defaultSubstate**](#state--methods--default-substate)
 
 
 * * *
+
+The [`data`](#state--methods--data) method below allows states to hold arbitrary **data**.
 
 > [Data](/docs/#concepts--data)
 > [`state/data.js`](/source/#state--data.js)
@@ -867,10 +860,11 @@ The variadic companion to `apply`.
 
 * * *
 
-The **event methods** in this section implement a typical **event emitter** pattern.
+The **event methods** in this section are an implementation of the common **event emitter** pattern.
 
-Built-in event types are listed and described in the [Events](/docs/#concepts--events) section of the documentation.
+> See also: [Events](#state--events)
 
+> [Events](/docs/#state--events)
 > [`state/events.js`](/source/#state--events.js)
 
 

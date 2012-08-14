@@ -50,4 +50,8 @@ state = window.state.noConflict()
 # ...
 {% endhighlight %}
 
+<div class="backcrumb">
+⏎  <a class="section" href="#installation">Installation</a>
+</div>
+
 * * *

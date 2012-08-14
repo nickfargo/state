@@ -16,7 +16,7 @@ h1 {
   line-height: 48px;
 }
 h2 {
-  margin: 1.5em 0 0.5em;
+  margin: 0.5em 0;
   font-size: 30px;
   line-height: 44px;
 }
@@ -76,7 +76,10 @@ hr {
   box-shadow: 0 -16px 32px rgba(0,0,0,0.05),
               0  -8px 16px rgba(0,0,0,0.05),
               0  -4px  8px rgba(0,0,0,0.05),
-              0  -1px  2px rgba(0,0,0,0.05);
+              0  -1px  2px rgba(0,0,0,0.05),
+              0  10px 20px rgba(255,255,255,0.4),
+              0  4px   8px rgba(255,255,255,0.4),
+              0  1px   2px rgba(255,255,255,0.3);
 }
 
 strong {
@@ -89,18 +92,26 @@ a strong {
 a {
   color: #295888;
   outline: none;
-  -webkit-transition: all 0.2s ease-out;
-     -moz-transition: all 0.2s ease-out;
-       -o-transition: all 0.2s ease-out;
-          transition: all 0.2s ease-out;
+  -webkit-transition: 0.3s ease-out;
+     -moz-transition: 0.3s ease-out;
+       -o-transition: 0.3s ease-out;
+          transition: 0.3s ease-out;
+  -webkit-transition-property: color, background-color;
+     -moz-transition-property: color, background-color;
+       -o-transition-property: color, background-color;
+          transition-property: color, background-color;
 }
 a:hover {
   color: #002245;
   text-decoration: none;
-  -webkit-transition: all 0.1s ease-out;
-     -moz-transition: all 0.1s ease-out;
-       -o-transition: all 0.1s ease-out;
-          transition: all 0.1s ease-out;
+  -webkit-transition: 0.2s ease-out;
+     -moz-transition: 0.2s ease-out;
+       -o-transition: 0.2s ease-out;
+          transition: 0.2s ease-out;
+  -webkit-transition-property: color, background-color;
+     -moz-transition-property: color, background-color;
+       -o-transition-property: color, background-color;
+          transition-property: color, background-color;
 }
 a code {
   color: inherit;
@@ -157,7 +168,7 @@ li {
   margin: 0.25em 0;
 }
 blockquote {
-  line-height: 1.33em;
+  line-height: inherit;
   border-left: 8px solid rgba(128, 128, 128, 0.1);
   padding: 1px 0 1px 15px;
 }
@@ -228,10 +239,17 @@ blockquote ol {
     position: relative;
     padding: 0;
     margin: 0;
-    -webkit-transition: all 0.2s ease-out;
-       -moz-transition: all 0.2s ease-out;
-         -o-transition: all 0.2s ease-out;
-            transition: all 0.2s ease-out;
+  }
+  .topbar .brand:hover,
+  .topbar ul.nav li a {
+    -webkit-transition: 0.2s ease-out;
+       -moz-transition: 0.2s ease-out;
+         -o-transition: 0.2s ease-out;
+            transition: 0.2s ease-out;
+    -webkit-transition-property: color, background-color;
+       -moz-transition-property: color, background-color;
+         -o-transition-property: color, background-color;
+            transition-property: color, background-color;
   }
   .topbar ul.nav li a {
     font-size: 20px;
@@ -240,10 +258,6 @@ blockquote ol {
     margin: 0px;
     color: rgba(255, 255, 255, 0.6);
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    -webkit-transition: all 0.2s ease-out;
-       -moz-transition: all 0.2s ease-out;
-         -o-transition: all 0.2s ease-out;
-            transition: all 0.2s ease-out;
   }
   .topbar ul.nav li.active a {
     background-color: transparent;
@@ -253,19 +267,11 @@ blockquote ol {
     background-image:      -o-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
     background-image:         linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
     color: rgba(255, 255, 255, 0.9);
-    -webkit-transition: all 0.2s ease-out;
-       -moz-transition: all 0.2s ease-out;
-         -o-transition: all 0.2s ease-out;
-            transition: all 0.2s ease-out;
   }
   .topbar .brand:hover,
   .topbar ul.nav li a:hover {
     background-color: rgba(255,255,255,0.1);
     color: #fff;
-    -webkit-transition: all 0.2s ease-out;
-       -moz-transition: all 0.2s ease-out;
-         -o-transition: all 0.2s ease-out;
-            transition: all 0.2s ease-out;
   }
 
   .topbar ul.nav li a[href^="/docs"] {
@@ -286,17 +292,28 @@ blockquote ol {
     z-index: 0;
     width: 100%;
     bottom: 0;
-    -webkit-transition: all 0.8s ease-out;
-       -moz-transition: all 0.8s ease-out;
-         -o-transition: all 0.8s ease-out;
-            transition: all 0.8s ease-out;
+    -webkit-transition: 0.8s ease-out;
+       -moz-transition: 0.8s ease-out;
+         -o-transition: 0.8s ease-out;
+            transition: 0.8s ease-out;
+  }
+  .topbar ul.nav li.indicated .lightstick,
+  .topbar ul.nav li.active    .lightstick {
+    -webkit-transition: 0.2s ease-out;
+       -moz-transition: 0.2s ease-out;
+         -o-transition: 0.2s ease-out;
+            transition: 0.2s ease-out;
+  }
+  .topbar ul.nav li           .lightstick,
+  .topbar ul.nav li.indicated .lightstick,
+  .topbar ul.nav li.active    .lightstick {
+    -webkit-transition-property: background-color, box-shadow;
+       -moz-transition-property: background-color, box-shadow;
+         -o-transition-property: background-color, box-shadow;
+            transition-property: background-color, box-shadow;
   }
   .topbar ul.nav li.indicated .lightstick {
     z-index: 1;
-    -webkit-transition: all 0.2s ease-out;
-       -moz-transition: all 0.2s ease-out;
-         -o-transition: all 0.2s ease-out;
-            transition: all 0.2s ease-out;
   }
   .topbar ul.nav li.active .lightstick {
     z-index: 2;
@@ -433,11 +450,11 @@ blockquote ol {
 
   .content a[href^="/docs"] {
     color:             hsl(192, 30%, 42%);
-    background-color: hsla(192, 30%, 42%, 0.06);
+    background-color: hsla(192, 30%, 42%, 0.01);
   }
   .content a[href^="/docs"]:hover {
     color:             hsl(192, 58%, 32%);
-    background-color: hsla(192, 58%, 32%, 0.07);
+    background-color: hsla(192, 58%, 32%, 0.06);
   }
   .content blockquote a[href^="/docs"] {
     border-bottom-color: hsla(192, 30%, 42%, 0.35);
@@ -453,11 +470,11 @@ blockquote ol {
 
   .content a[href^="/api"] {
     color:             hsl(160, 36%, 41%);
-    background-color: hsla(160, 36%, 41%, 0.06);
+    background-color: hsla(160, 36%, 41%, 0.01);
   }
   .content a[href^="/api"]:hover {
     color:             hsl(160, 60%, 31%);
-    background-color: hsla(160, 60%, 31%, 0.07);
+    background-color: hsla(160, 60%, 31%, 0.06);
   }
   .content blockquote a[href^="/api"] {
     border-bottom-color: hsla(160, 36%, 41%, 0.35);
@@ -473,11 +490,11 @@ blockquote ol {
 
   .content a[href^="/source"] {
     color:             hsl(96, 45%, 40%);
-    background-color: hsla(96, 45%, 40%, 0.06);
+    background-color: hsla(96, 45%, 40%, 0.01);
   }
   .content a[href^="/source"]:hover {
     color:             hsl(96, 60%, 30%);
-    background-color: hsla(96, 60%, 30%, 0.07);
+    background-color: hsla(96, 60%, 30%, 0.06);
   }
   .content blockquote a[href^="/source"] {
     border-bottom-color: hsla(96, 45%, 40%, 0.35);
@@ -493,11 +510,11 @@ blockquote ol {
 
   .content a[href^="/tests"] {
     color:             hsl(75, 66%, 34%);
-    background-color: hsla(75, 66%, 31%, 0.06);
+    background-color: hsla(75, 66%, 31%, 0.01);
   }
   .content a[href^="/tests"]:hover {
     color:             hsl(75, 66%, 26%);
-    background-color: hsla(75, 66%, 26%, 0.07);
+    background-color: hsla(75, 66%, 26%, 0.06);
   }
   .content blockquote a[href^="/tests"] {
     border-bottom-color: hsla(75, 66%, 34%, 0.35);
@@ -530,6 +547,7 @@ blockquote ol {
   position: fixed;
   overflow-x: hidden;
   overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
   top: 108px;
   bottom: 36px;
   width: 280px;
@@ -583,17 +601,19 @@ blockquote ol {
   bottom: 0;
   width: 280px;
   height: 36px;
+}
+.controls.overlaid {
   box-shadow: -20px -10px 20px #f1f1f1;
   border-top: 1px solid #eee;
 }
   .controls ul {
     margin: 0;
     list-style-type: none;
-    opacity: 0.6;
-    -webkit-transition: all 0.2s ease-out;
-       -moz-transition: all 0.2s ease-out;
-         -o-transition: all 0.2s ease-out;
-            transition: all 0.2s ease-out;
+    opacity: 0.7;
+    -webkit-transition: opacity 0.2s ease-out;
+       -moz-transition: opacity 0.2s ease-out;
+         -o-transition: opacity 0.2s ease-out;
+            transition: opacity 0.2s ease-out;
   }
   .controls:hover ul {
     opacity: 1.0;
@@ -610,10 +630,10 @@ blockquote ol {
     height: 24px;
     background-size: contain;
     opacity: 0.13;
-    -webkit-transition: all 0.2s ease-out;
-       -moz-transition: all 0.2s ease-out;
-         -o-transition: all 0.2s ease-out;
-            transition: all 0.2s ease-out;
+    -webkit-transition: opacity 0.2s ease-out;
+       -moz-transition: opacity 0.2s ease-out;
+         -o-transition: opacity 0.2s ease-out;
+            transition: opacity 0.2s ease-out;
   }
   .controls ul li a:hover {
     opacity: 0.9;
@@ -630,10 +650,6 @@ blockquote ol {
   .controls ul li.coffeescript a {
     background-image: url(/img/coffeescript-logo.png);
   }
-
-.markdown-body {
-  margin-top: -20px;
-}
 
 .tags {
   margin-bottom: 1em;
