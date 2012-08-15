@@ -1,6 +1,6 @@
 ## [state()](#module)
 
-The **State** module is exported as a function named `state` (not to be confused with the constructor [`State`](#state)).
+The **State** module is exported as a function named `state`. This can be used either to build a **state expression** that declares the content for a state or system of states, or to apply a state expression to an object to give the object a working state implementation.
 
 {% highlight javascript %}
 state( owner, attributes, expression )

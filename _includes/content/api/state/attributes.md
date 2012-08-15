@@ -19,7 +19,22 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 
 The `mutable` attribute is inherited from both superstates and protostates, unless any also bear the [`immutable`](#state--attributes--immutable) attribute.
 
-> [mutable](/docs/#concepts--attributes--mutability--mutable)
+{% highlight javascript %}
+{% include examples/api/state/attributes--mutable.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--mutable.coffee %}
+{% endhighlight %}
+
+{% include captions/api/state/attributes--mutable.md %}
+
+> See also: 
+> [`isMutable`](#state--methods--is-mutable),
+> [`mutate` (method)](#state--methods--mutate),
+> [`mutate` (event)](#state--events--mutate)
+
+> [Mutability attributes](/docs/#concepts--attributes--mutability)
 
 
 #### [finite](#state--attributes--finite)
@@ -28,7 +43,20 @@ Declaring a state `finite` guarantees its hierarchical structure by hiding its `
 
 The `finite` attribute is inherited from both superstates and protostates, and is imposed with higher precedence than [`mutable`](#state--attributes--mutable).
 
-> [finite](/docs/#concepts--attributes--mutability--finite)
+{% highlight javascript %}
+{% include examples/api/state/attributes--finite.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--finite.coffee %}
+{% endhighlight %}
+
+{% include captions/api/state/attributes--finite.md %}
+
+> See also:
+> [`isFinite`](#state--methods--is-finite)
+
+> [Mutability attributes](/docs/#concepts--attributes--mutability)
 
 
 #### [immutable](#state--attributes--immutable)
@@ -39,7 +67,20 @@ The `immutable` attribute is inherited from both superstates and protostates, an
 
 An inheriting owner object may still extend the state implementation of its prototype with states that are new or extend protostates, but any of these that inherit from an `immutable` state will also bear the `immutable` attribute themselves.
 
-> [immutable](/docs/#concepts--attributes--mutability--immutable)
+{% highlight javascript %}
+{% include examples/api/state/attributes--immutable.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--immutable.coffee %}
+{% endhighlight %}
+
+{% include captions/api/state/attributes--immutable.md %}
+
+> See also:
+> [`isImmutable`](#state--methods--is-immutable)
+
+> [Mutability attributes](/docs/#concepts--attributes--mutability)
 
 
 #### [abstract](#state--attributes--abstract)
@@ -50,7 +91,18 @@ The redirection target of an `abstract` state is determined by seeking its first
 
 The `abstract` attribute is inherited from protostates.
 
-> [abstract](/docs/#concepts--attributes--abstraction--abstract)
+{% highlight javascript %}
+{% include examples/api/state/attributes--abstract.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--abstract.coffee %}
+{% endhighlight %}
+
+> See also:
+> [`isAbstract`](#state--methods--is-abstract)
+
+> [Abstraction attributes](/docs/#concepts--attributes--abstraction)
 
 
 #### [concrete](#state--attributes--concrete)
@@ -61,7 +113,18 @@ Any state that is not abstract is by definition concrete, even if not literally 
 
 The `concrete` attribute is inherited from protostates.
 
-> [concrete](/docs/#concepts--attributes--abstraction--concrete)
+{% highlight javascript %}
+{% include examples/api/state/attributes--concrete.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--concrete.coffee %}
+{% endhighlight %}
+
+> See also:
+> [`isConcrete`](#state--methods--is-concrete)
+
+> [Abstraction attributes](/docs/#concepts--attributes--abstraction)
 
 
 #### [default](#state--attributes--default)
@@ -70,7 +133,20 @@ Marking a state `default` designates it as the intended redirection target for a
 
 The `default` attribute is inherited from protostates.
 
-> [default](/docs/#concepts--attributes--abstraction--default)
+{% highlight javascript %}
+{% include examples/api/state/attributes--default.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--default.coffee %}
+{% endhighlight %}
+
+> See also:
+> [`isDefault`](#state--methods--is-default),
+> [`defaultSubstate`](#state--methods--default-substate)
+
+> [Abstraction attributes](/docs/#concepts--attributes--abstraction)
+> [`State::defaultSubstate`](/source/#state--prototype--default-substate)
 
 
 #### [initial](#state--attributes--initial)
@@ -81,7 +157,20 @@ For an object that inherits its entire state implementation from its prototype, 
 
 The `initial` attribute is inherited from protostates.
 
-> [initial](/docs/#concepts--attributes--destination--initial)
+{% highlight javascript %}
+{% include examples/api/state/attributes--initial.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--initial.coffee %}
+{% endhighlight %}
+
+> See also:
+> [`isInitial`](#state--methods--is-initial),
+> [`initialSubstate`](#state--methods--initial-substate)
+
+> [Destination attributes](/docs/#concepts--attributes--destination)
+> [`State::initialSubstate`](/source/#state--prototype--initial-substate)
 
 
 #### [conclusive](#state--attributes--conclusive)
@@ -90,7 +179,18 @@ Once a `conclusive` state is entered, it cannot be exited, although transitions 
 
 The `conclusive` attribute is inherited from protostates.
 
-> [conclusive](/docs/#concepts--attributes--destination--conclusive)
+{% highlight javascript %}
+{% include examples/api/state/attributes--conclusive.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--conclusive.coffee %}
+{% endhighlight %}
+
+> See also:
+> [`isConclusive`](#state--methods--is-conclusive)
+
+> [Destination attributes](/docs/#concepts--attributes--destination)
 
 
 #### [final](#state--attributes--final)
@@ -101,4 +201,15 @@ A `final` state is not necessarily [`conclusive`](#state--attributes--conclusive
 
 The `final` attribute is inherited from protostates.
 
-> [final](/docs/#concepts--attributes--destination--final)
+{% highlight javascript %}
+{% include examples/api/state/attributes--final.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/attributes--final.coffee %}
+{% endhighlight %}
+
+> See also:
+> [`isFinal`](#state--methods--is-final)
+
+> [Destination attributes](/docs/#concepts--attributes--destination)

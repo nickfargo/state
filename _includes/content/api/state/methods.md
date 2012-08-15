@@ -585,7 +585,8 @@ Returns a boolean indicating whether `this` state bears the `mutable` attribute.
 
 By default, states are **weakly immutable**; i.e., once a `State` has been constructed, its declared data, methods, guards, substates, and transitions cannot be altered. By including the `mutable` attribute in the state’s expression, this restriction is lifted. Mutability is also inherited from any of a state’s superstates or protostates.
 
-> [`mutable` attribute](/docs/#concepts--attributes--mutability--mutable)
+> See also:
+> [`mutable`](#state--attributes--mutable)
 
 
 #### [isFinite](#state--methods--is-finite)
@@ -598,7 +599,8 @@ Returns a boolean indicating whether `this` state bears the `finite` attribute.
 
 If a state is declared `finite`, no substates or descendant states may be added, nor may any be removed without also destroying the state itself.
 
-> [`finite` attribute](/docs/#concepts--attributes--mutability--finite)
+> See also:
+> [`finite`](#state--attributes--finite)
 
 
 #### [isImmutable](#state--methods--is-immutable)
@@ -611,7 +613,51 @@ Returns a boolean indicating whether `this` state bears the `immutable` attribut
 
 A literal or inherited `immutable` attribute causes a state to become **strongly immutable**, wherein it guarantees immutability absolutely, throughout all inheriting states. The `immutable` attribute also implies `finite`, and contradicts and overrides any literal or inherited `mutable` attribute.
 
-> [`immutable` attribute](/docs/#concepts--attributes--mutability--immutable)
+> See also:
+> [`immutable`](#state--attributes--immutable)
+
+
+#### [isAbstract](#state--methods--is-abstract)
+
+{% highlight javascript %}
+this.isAbstract()
+{% endhighlight %}
+
+Returns a boolean indicating whether `this` state is `abstract`.
+
+An `abstract` state is used only as a source of inheritance, and cannot itself be current. A transition that directly targets an abstract state will be automatically redirected to one of its substates.
+
+> See also:
+> [`abstract`](#state--attributes--abstract)
+
+
+#### [isConcrete](#state--methods--is-concrete)
+
+{% highlight javascript %}
+this.isConcrete()
+{% endhighlight %}
+
+Returns a boolean indicating whether `this` state is `concrete`.
+
+All non-abstract states are concrete. Marking a state with the `concrete` attribute in a state expression will override any `abstract` attribute, particularly such as would otherwise be inherited from a protostate.
+
+> See also:
+> [`concrete`](#state--attributes--concrete)
+
+
+#### [isDefault](#state--methods--is-default)
+
+{% highlight javascript %}
+this.isDefault()
+{% endhighlight %}
+
+Returns a boolean indicating whether `this` state bears the `default` attribute.
+
+Marking a state `default` designates it as the specific redirection target for any transition that targets its abstract superstate.
+
+> See also:
+> [`default`](#state--attributes--default),
+> [`defaultSubstate`](#state--methods--default-substate)
 
 
 #### [isInitial](#state--methods--is-initial)
@@ -626,7 +672,9 @@ Marking a state `initial` specifies which state a newly stateful object should a
 
 Objects inheriting from a stateful prototype will have their initial state set to the prototype’s current state.
 
-> [`initial` attribute](/docs/#concepts--attributes--destination--initial)
+> See also:
+> [`initial`](#state--attributes--initial),
+> [`initialSubstate`](#state--methods--initial-substate)
 
 
 #### [isConclusive](#state--methods--is-conclusive)
@@ -639,7 +687,7 @@ Returns a boolean indicating whether `this` state bears the `conclusive` attribu
 
 Once a state marked `conclusive` is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
-> [`conclusive` attribute](/docs/#concepts--attributes--destination--conclusive)
+> [`conclusive`](#state--attributes--conclusive)
 
 
 #### [isFinal](#state--methods--is-final)
@@ -652,48 +700,7 @@ Returns a boolean indicating whether `this` state bears the `final` attribute.
 
 Once a state marked `final` is entered, no further outbound transitions within its local region are allowed.
 
-> [`final` attribute](/docs/#concepts--attributes--destination--final)
-
-
-#### [isAbstract](#state--methods--is-abstract)
-
-{% highlight javascript %}
-this.isAbstract()
-{% endhighlight %}
-
-Returns a boolean indicating whether `this` state is `abstract`.
-
-An `abstract` state is used only as a source of inheritance, and cannot itself be current. A transition that directly targets an abstract state will be automatically redirected to one of its substates.
-
-> [`abstract` attribute](/docs/#concepts--attributes--abstraction--abstract)
-
-
-#### [isConcrete](#state--methods--is-concrete)
-
-{% highlight javascript %}
-this.isConcrete()
-{% endhighlight %}
-
-Returns a boolean indicating whether `this` state is `concrete`.
-
-All non-abstract states are concrete. Marking a state with the `concrete` attribute in a state expression will override any `abstract` attribute, particularly such as would otherwise be inherited from a protostate.
-
-> [`concrete` attribute](/docs/#concepts--attributes--abstraction--concrete)
-
-
-#### [isDefault](#state--methods--is-default)
-
-{% highlight javascript %}
-this.isDefault()
-{% endhighlight %}
-
-Returns a boolean indicating whether `this` state bears the `default` attribute.
-
-Marking a state `default` designates it as the specific redirection target for any transition that targets its abstract superstate.
-
-See also: [**defaultSubstate**](#state--methods--default-substate)
-
-> [`default` attribute](/docs/#concepts--attributes--abstraction--default)
+> [`final`](#state--attributes--final)
 
 
 * * *

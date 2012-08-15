@@ -73,7 +73,7 @@ This example of a simple `Document` type demonstrates state method inheritance a
 {% include examples/docs/methods--example.coffee %}
 {% endhighlight %}
 
-{% include captions/docs/concepts--methods--example.md %}
+{% include captions/docs/methods--example.md %}
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--methods">Methods</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>
