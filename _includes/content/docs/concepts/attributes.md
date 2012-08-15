@@ -58,7 +58,7 @@ Declaring a state `finite` guarantees its hierarchical structure, such that desc
 
 ##### [immutable](#concepts--attributes--mutability--immutable)
 
-Adding `immutable` makes a state **strongly immutable**, whereupon immutability is permanent and absolute: `immutable` contradicts and overrules `mutable`, and implies `finite`, irrespective of whether the attributes are literal or inherited.
+Adding `immutable` makes a state **strongly immutable**, whereupon immutability is permanent and absolute: `immutable` contradicts and overrules `mutable`, and implies `finite`, irrespective of whether any of the attributes are literal or inherited.
 
 An inheriting owner object may still extend its prototype’s state implementation with states that are new or extend protostates, but any of these that inherit from an `immutable` state will also bear the `immutable` attribute themselves.
 
@@ -163,7 +163,7 @@ Once a `conclusive` state is entered, it cannot be exited, although transitions 
 
 ##### [final](#concepts--attributes--destination--final)
 
-Once a state marked `final` is entered, no further transitions are allowed. 
+Once an object’s currency arrives at a `final` state, no further transitions are allowed.
 
 {% highlight javascript %}
 {% include examples/docs/attributes--final.js %}

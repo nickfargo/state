@@ -14,7 +14,7 @@ state( mover, 'mutable abstract', {
     }
 });
 
-// Add a 'report' method to each of the four states.
+// Add a 'report' method to each of the states.
 O.forEach( mover.state('').substates( true ), function ( substate ) {
     substate.addMethod( 'report', function () {
         console.log( "I'm in state '" + this.name() + "'" );

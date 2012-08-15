@@ -9,7 +9,7 @@ state mover, 'mutable abstract'
       move: -> "boing boing"
       Sprinting: state
 
-# Add a 'report' method to each of the four states.
+# Add a 'report' method to each of the states.
 for substate in mover.state('').substates true
   substate.addMethod 'report', ->
     console.log "I'm in state '#{ @name() }'"

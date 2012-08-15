@@ -200,11 +200,11 @@ blockquote ol {
   }
   .topbar .lightstick {
     background-color: hsla(96, 0%, 80%, 0);
-    background-image: -webkit-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
-    background-image:    -moz-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
-    background-image:     -ms-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
-    background-image:      -o-linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
-    background-image:         linear-gradient(top,hsla(0,0%,100%,0.3),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.4) 90%, hsla(50,10%,40%,0.24));
+    background-image: -webkit-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
+    background-image:    -moz-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
+    background-image:     -ms-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
+    background-image:      -o-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
+    background-image:         linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
     position: absolute;
     z-index: 5;
     width: 100%;
@@ -584,9 +584,10 @@ blockquote ol {
   .toc::-webkit-scrollbar {
     width: 11px;
     height: 11px;
+    opacity: 0;
   }
   .toc::-webkit-scrollbar-thumb {
-    background: rgba( 0,0,0, 0.1 );
+    background-color: rgba( 0,0,0, 0.02 );
     border: 3px solid #f1f1f1;
     border-radius: 6px;
   }
@@ -594,6 +595,9 @@ blockquote ol {
     width: 7px;
     height: 7px;
     margin: 5px;
+  }
+  .toc:hover::-webkit-scrollbar-thumb {
+    background-color: rgba( 0,0,0, 0.1 );
   }
 
 .controls {
