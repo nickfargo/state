@@ -29,9 +29,9 @@ Any state may be ordered to keep a **history** of its own internal state. Entrie
 
 #### [Optimization](#about--roadmap--optimization)
 
-* **Make per-instance contents public by default** to avoid cost of closures. Add `protected` attribute or similar to allow heavier enforcement of privacy if so desired.
+* **Add `closed` and `open` attributes** or similar to allow contents of `State` instances to be either hidden or exposed. Closed retains some measure of enforcement of immutability, while open would reduce memory overhead.
 
-* **Further granularize the `State realize` function** such that each of the internal data, methods, etc. objects, and their associated per-instance methods, would be dynamically added only as needed.
+* **Further granularize the `State realize` function** such that each of the internal closed objects (`data`, `methods`, etc.), and their associated per-instance methods, would be dynamically added only as needed.
 
 * **Allow opt-in to ES5’s meta-programming features and Harmony Proxies** on supporting platforms to more deeply embed the state implementation into objects.
 

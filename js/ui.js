@@ -169,22 +169,22 @@ $( function () {
   var $source = $li.has('a[href^="/source"]');
   var $tests  = $li.has('a[href^="/tests"]' );
 
-  $('.content a[href^="/docs"]')
+  $('.content a[href^="/docs"], .topbar ul.nav li a[href^="/docs"]')
     .on( 'mouseenter', { $el: $docs }, addIndicated )
     .on( 'mouseleave', { $el: $docs }, removeIndicated )
   ;
 
-  $('.content a[href^="/api"]')
+  $('.content a[href^="/api"], .topbar ul.nav li a[href^="/api"]')
     .on( 'mouseenter', { $el: $api }, addIndicated )
     .on( 'mouseleave', { $el: $api }, removeIndicated )
   ;
 
-  $('.content a[href^="/source"]')
+  $('.content a[href^="/source"], .topbar ul.nav li a[href^="/source"]')
     .on( 'mouseenter', { $el: $source }, addIndicated )
     .on( 'mouseleave', { $el: $source }, removeIndicated )
   ;
 
-  $('.content a[href^="/tests"]')
+  $('.content a[href^="/tests"], .topbar ul.nav li a[href^="/tests"]')
     .on( 'mouseenter', { $el: $tests }, addIndicated )
     .on( 'mouseleave', { $el: $tests }, removeIndicated )
   ;

@@ -687,6 +687,7 @@ Returns a boolean indicating whether `this` state bears the `conclusive` attribu
 
 Once a state marked `conclusive` is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
+> See also:
 > [`conclusive`](#state--attributes--conclusive)
 
 
@@ -700,6 +701,7 @@ Returns a boolean indicating whether `this` state bears the `final` attribute.
 
 Once a state marked `final` is entered, no further outbound transitions within its local region are allowed.
 
+> See also:
 > [`final`](#state--attributes--final)
 
 
