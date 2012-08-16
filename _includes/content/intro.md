@@ -8,7 +8,7 @@
 {% include examples/intro.coffee %}
 {% endhighlight %}
 
-[States](/api/#state) have a rich [object model](/docs/#concepts--inheritance) that allows them both to be [nested and heritable](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit also from states held by prototypes](/docs/#concepts--inheritance--protostates) of the object to which they belong.
+[States](/api/#state) have a rich [object model](/docs/#concepts--inheritance) that allows them to be [nested and heritable](/docs/#concepts--inheritance--superstates-and-substates), and they also [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of the object to which they belong.
 
 States [emit events](/docs/#concepts--events), are configurable with simple [attribute keywords](/docs/#concepts--attributes), and can bear [method overrides](/docs/#concepts--methods) that express [polymorphic behavior](/docs/#concepts--methods--context).
 
