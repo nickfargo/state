@@ -3,7 +3,7 @@ state object,
   A: state 'initial'
     admit: false
     release: D: false
-  B:
+  B: state 'mutable'
     admit: false
     release:
       'C, D': true

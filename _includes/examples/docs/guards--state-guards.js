@@ -4,13 +4,13 @@ state( object, {
         admit: false,
         release: { D: false }
     }),
-    B: {
+    B: state( 'mutable', {
         data: { bleep: 'bleep' },
         release: {
             'C, D': true,
             'C.**': false
         }
-    },
+    }),
     C: {
         data: { blorp: 'blorp' },
         admit: true,
