@@ -3,7 +3,9 @@
 var $page = $('html, body');
 
 
-// Anchored headings
+// Anchored headings: any heading elements containing a hash-linked anchor
+// element are given an 'id' based on the anchor’s href. Allows for clean
+// plain-markdown production, e.g.: `### [Heading name](#heading-name)`.
 $( function () {
   var rx = /^\#(.*)/;
   var $ha = $('h1, h2, h3, h4, h5').children('a[href^="#"]');
@@ -14,7 +16,8 @@ $( function () {
   });
 });
 
-// Local tables of contents
+// Local tables of contents: fill any 'local-toc'-classed element with a list
+// of the subheadings relative to the heading that immediately precedes it.
 $( function () {
   var rxHLevel = /^h/i;
   $('div.local-toc').each( function () {
