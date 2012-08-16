@@ -576,12 +576,12 @@ blockquote ol {
   }
 
   .content a[href*="://github.com/"] {
-    color:             hsl(58, 66%, 34%);
-    background-color: hsla(58, 66%, 31%, 0.01);
+    color:             hsl(58, 66%, 28%);
+    background-color: hsla(58, 66%, 25%, 0.01);
   }
   .content a[href*="://github.com/"]:hover {
-    color:             hsl(58, 66%, 26%);
-    background-color: hsla(58, 66%, 26%, 0.06);
+    color:             hsl(58, 66%, 20%);
+    background-color: hsla(58, 66%, 20%, 0.06);
   }
   .content blockquote a[href*="://github.com/"] {
     border-bottom-color: hsla(75, 66%, 34%, 0.35);

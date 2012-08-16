@@ -35,7 +35,7 @@ The lexical information afforded by binding state methods to their associated st
 {% include examples/docs/methods--context.coffee %}
 {% endhighlight %}
 
-> **Note** — it may be important here to call attention to a significant difference distinguishing these methods from their familiar eponymous counterparts at `Function.prototype`: in `State`, the first argument accepted by `apply` and `call` is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated `State`).
+> **Note** — it may be important here to call attention to a significant difference distinguishing these methods from their eponymous counterparts at `Function.prototype`: in `State`, the first argument accepted by `apply` and `call` is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated `State`).
 
 > [apply](/api/#state--methods--apply)
 > [method](/api/#state--methods--method)
