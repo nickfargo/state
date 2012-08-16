@@ -23,9 +23,12 @@ States [emit events](/docs/#concepts--events), are configurable with simple [att
 
 ### [API](/api/)
 
+> [`state()`](/api/#module)
 > [`State`](/api/#state)
 > [`Transition`](/api/#transition)
 
 ### [Annotated source](/source/)
 
 ### [Unit tests](/tests/)
+
+### [View on GitHub](http://github.com/nickfargo/state)
