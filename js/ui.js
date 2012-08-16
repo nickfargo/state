@@ -157,12 +157,12 @@ $( function () {
 
 // Lightsticks
 ( function () {
-  var $li, patterns, i, l, pattern, $el, data;
+  var $li, patterns, i, l, p, $el, data;
 
-  function addIndicated ( event ) {
+  function addIndicatedClass ( event ) {
     event.data.$el.addClass('indicated');
   }
-  function removeIndicated ( event ) {
+  function removeIndicatedClass ( event ) {
     event.data.$el.removeClass('indicated');
   }
 
@@ -175,12 +175,12 @@ $( function () {
     'a[href*="://github.com/"]'
   ];
   for ( i = 0, l = patterns.length; i < l; i++ ) {
-    pattern = patterns[i];
-    $el = $li.has( pattern );
+    p = patterns[i];
+    $el = $li.has( p );
     data = { $el: $el };
-    $( '.content ' + pattern + ', .topbar ul li ' + pattern )
-      .on( 'mouseenter', data, addIndicated )
-      .on( 'mouseleave', data, removeIndicated )
+    $( '.content ' + p + ', .topbar ul li ' + p + ', footer ' + p )
+      .on( 'mouseenter', data, addIndicatedClass )
+      .on( 'mouseleave', data, removeIndicatedClass )
     ;
   }
 }() );
