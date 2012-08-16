@@ -157,37 +157,32 @@ $( function () {
 
 // Lightsticks
 ( function () {
+  var $li, patterns, i, l, pattern, $el, data;
+
   function addIndicated ( event ) {
     event.data.$el.addClass('indicated');
   }
   function removeIndicated ( event ) {
     event.data.$el.removeClass('indicated');
   }
-  var $li     = $('.topbar ul.nav li');
-  var $docs   = $li.has('a[href^="/docs"]'  );
-  var $api    = $li.has('a[href^="/api"]'   );
-  var $source = $li.has('a[href^="/source"]');
-  var $tests  = $li.has('a[href^="/tests"]' );
 
-  $('.content a[href^="/docs"], .topbar ul.nav li a[href^="/docs"]')
-    .on( 'mouseenter', { $el: $docs }, addIndicated )
-    .on( 'mouseleave', { $el: $docs }, removeIndicated )
-  ;
-
-  $('.content a[href^="/api"], .topbar ul.nav li a[href^="/api"]')
-    .on( 'mouseenter', { $el: $api }, addIndicated )
-    .on( 'mouseleave', { $el: $api }, removeIndicated )
-  ;
-
-  $('.content a[href^="/source"], .topbar ul.nav li a[href^="/source"]')
-    .on( 'mouseenter', { $el: $source }, addIndicated )
-    .on( 'mouseleave', { $el: $source }, removeIndicated )
-  ;
-
-  $('.content a[href^="/tests"], .topbar ul.nav li a[href^="/tests"]')
-    .on( 'mouseenter', { $el: $tests }, addIndicated )
-    .on( 'mouseleave', { $el: $tests }, removeIndicated )
-  ;
+  $li = $('.topbar ul li');
+  patterns = [
+    'a[href^="/docs"]',
+    'a[href^="/api"]',
+    'a[href^="/source"]',
+    'a[href^="/tests"]',
+    'a[href*="://github.com/"]'
+  ];
+  for ( i = 0, l = patterns.length; i < l; i++ ) {
+    pattern = patterns[i];
+    $el = $li.has( pattern );
+    data = { $el: $el };
+    $( '.content ' + pattern + ', .topbar ul li ' + pattern )
+      .on( 'mouseenter', data, addIndicated )
+      .on( 'mouseleave', data, removeIndicated )
+    ;
+  }
 }() );
 
 }( jQuery ) );

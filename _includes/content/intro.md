@@ -1,4 +1,4 @@
-**State** is a simple framework for implementing [state-driven behavior](/docs/#concepts--methods) into arbitrary JavaScript objects.
+**State** is a framework for implementing [state-driven behavior](/docs/#concepts--methods) into arbitrary JavaScript objects.
 
 {% highlight javascript %}
 {% include examples/intro.js %}
@@ -8,7 +8,9 @@
 {% include examples/intro.coffee %}
 {% endhighlight %}
 
-[States](/api/#state) have a rich [object model](/docs/#concepts--inheritance) that allows them both to be [nested and heritable](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit also from states held by prototypes](/docs/#concepts--inheritance--protostates) of the object to which they belong. States [emit events](/docs/#concepts--events), are configurable with simple [attribute keywords](/docs/#concepts--attributes), and can bear [method overrides](/docs/#concepts--methods) that express [polymorphic behavior](/docs/#concepts--methods--context).
+[States](/api/#state) have a rich [object model](/docs/#concepts--inheritance) that allows them both to be [nested and heritable](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit also from states held by prototypes](/docs/#concepts--inheritance--protostates) of the object to which they belong.
+
+States [emit events](/docs/#concepts--events), are configurable with simple [attribute keywords](/docs/#concepts--attributes), and can bear [method overrides](/docs/#concepts--methods) that express [polymorphic behavior](/docs/#concepts--methods--context).
 
 [Transitions](/api/#transition) between states can be [conditionally guarded](/docs/#concepts--guards), [synchronous or asynchronous](/docs/#concepts--transitions--lifecycle), and defined [generically across multiple states](/docs/#concepts--transitions--expressions).
 
@@ -25,3 +27,5 @@
 > [`Transition`](/api/#transition)
 
 ### [Annotated source](/source/)
+
+### [Unit tests](/tests/)

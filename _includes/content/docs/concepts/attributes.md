@@ -18,9 +18,11 @@ State expressions may include a space-delimited set of **attributes**, provided 
 
 #### [Mutability attributes](#concepts--attributes--mutability)
 
-By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed — a condition that can be affected at construct-time by the mutability attributes `mutable`, `finite`, and `immutable`.
+By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed — a condition that can be affected at construct-time by the mutability attributes `mutable`, `finite`, and `immutable`, listed here in order of increasing precedence.
 
-Each attribute is implicitly inherited from any of the state’s ancestors, be they superstates or protostates. They are listed in order of increasing precedence.
+Declaring a state `mutable` allows it and any states that inherit from it to be modified after it is constructed. This can be partially restricted by declaring `finite`, which disallows addition or removal of substates. Mutability can be ultimately restricted by declaring a state `immutable`, which disallows modification absolutely, for all inheritors.
+
+Each of the mutability attributes is implicitly inherited from any of the state’s ancestors, be they superstates or protostates.
 
 > [mutable](/api/#state--attributes--mutable)
 > [finite](/api/#state--attributes--finite)
@@ -33,7 +35,7 @@ Each attribute is implicitly inherited from any of the state’s ancestors, be t
 
 Transitions that target an `abstract` state are redirected to its `default` substate. If no substate is marked `default`, the transition is redirected to the abstract state’s first substate. If the redirection target is itself `abstract`, the redirection recurses until a concrete descendant is found.
 
-Each of the abstraction attributes is inherited from protostates, but not from superstates. States may override an inherited `abstract` attribute by applying the `concrete` attribute.
+Each of the abstraction attributes is inherited from protostates, but not from superstates. States may override an `abstract` attribute by applying the `concrete` attribute.
 
 > [abstract](/api/#state--attributes--abstract)
 > [concrete](/api/#state--attributes--concrete)
@@ -44,6 +46,8 @@ Each of the abstraction attributes is inherited from protostates, but not from s
 
 An object’s currency must often be initialized or confined to particular states, as directed by the destination attributes `initial`, `conclusive`, and `final`.
 
+The `conclusive` attribute traps an object’s currency; once a conclusive state is entered, it cannot be exited, though transitions that take place entirely within the conclusive state may proceed. Similarly, once an object arrives at a `final` state, no further transitions are allowed.
+
 Each of the destination attributes are inherited from protostates, but not from superstates.
 
 > [initial](/api/#state--attributes--initial)
@@ -51,11 +55,6 @@ Each of the destination attributes are inherited from protostates, but not from 
 > [final](/api/#state--attributes--final)
 
 
-#### [Idioms of certain attribute combinations](#concepts--attributes--idioms)
-
-* **“finite mutable”** — A state that is, literally or by inheritance, both `finite` and `mutable` guarantees its hierarchical structure without imposing absolute immutability.
-
-* **“abstract concrete”** is an invalid contradiction. If both attributes are literally applied to a state, `concrete` takes precedence and negates `abstract`.
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--attributes">Attributes</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

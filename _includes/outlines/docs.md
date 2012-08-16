@@ -19,7 +19,6 @@
     * [Mutability](#concepts--attributes--mutability)
     * [Abstraction](#concepts--attributes--abstraction)
     * [Destination](#concepts--attributes--destination)
-    * [Idioms](#concepts--attributes--idioms)
   * [Data](#concepts--data)
   * [Methods](#concepts--methods)
     * [Delegator methods](#concepts--methods--delegators)

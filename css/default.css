@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'Octicons Regular';
+    src: url('/font/octicons-regular-webfont.eot?v=2#iefix') format('embedded-opentype'), url('/font/octicons-regular-webfont.woff?v=2') format('woff'), url('/font/octicons-regular-webfont.ttf?v=2') format('truetype'), url('/font/octicons-regular-webfont.svg?v=2#newFontRegular') format('svg');
+    unicode-range: U+f208-f20b, U+f25a-f25c, U+f273, U+f278, U+f27f, U+f281;
+    font-weight: normal;
+    font-style: normal;
+}
+
 body,
 p {
   background-color: #f1f1f1;
@@ -64,6 +72,7 @@ h6, h6 code, h6 a code {
 
 p {
   margin-bottom: 12px;
+  margin: 1em 0;
 }
 ol {
   margin: 0 0 12px 36px;
@@ -216,9 +225,12 @@ blockquote ol {
     font-size: 48px;
     font-weight: 500;
     padding: 48px 20px 12px;
+    /*padding: 48px 20px 12px 72px;*/
     margin-left: 0;
     letter-spacing: -2px;
     text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    /*background: url(/img/dodecagem-120px.png) 12px 45px no-repeat;*/
+    /*background-size: 60px;*/
   }
   .topbar .brand .tail {
     font-weight: 300;
@@ -233,15 +245,17 @@ blockquote ol {
   }
   .topbar ul.nav {
     float: right;
+  }
+  .topbar ul {
     font-size: 24px;
   }
-  .topbar ul.nav li {
+  .topbar ul li {
     position: relative;
     padding: 0;
     margin: 0;
   }
   .topbar .brand:hover,
-  .topbar ul.nav li a {
+  .topbar ul li a {
     -webkit-transition: 0.2s ease-out;
        -moz-transition: 0.2s ease-out;
          -o-transition: 0.2s ease-out;
@@ -251,7 +265,8 @@ blockquote ol {
          -o-transition-property: color, background-color;
             transition-property: color, background-color;
   }
-  .topbar ul.nav li a {
+  .topbar ul li a {
+    max-height: 24px;
     font-size: 20px;
     line-height: 24px;
     padding: 72px 12px 12px;
@@ -259,7 +274,7 @@ blockquote ol {
     color: rgba(255, 255, 255, 0.6);
     text-shadow: 0 2px 4px rgba(0,0,0,0.5);
   }
-  .topbar ul.nav li.active a {
+  .topbar ul li.active a {
     background-color: transparent;
     background-image: -webkit-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
     background-image:    -moz-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
@@ -269,25 +284,25 @@ blockquote ol {
     color: rgba(255, 255, 255, 0.9);
   }
   .topbar .brand:hover,
-  .topbar ul.nav li a:hover {
+  .topbar ul li a:hover {
     background-color: rgba(255,255,255,0.1);
     color: #fff;
   }
 
-  .topbar ul.nav li a[href^="/docs"] {
+  .topbar ul li a[href^="/docs"] {
     border-color: hsl(192, 30%, 42%);
   }
-  .topbar ul.nav li a[href^="/api"] {
+  .topbar ul li a[href^="/api"] {
     border-color: hsl(160, 36%, 41%);
   }
-  .topbar ul.nav li a[href^="/source"] {
+  .topbar ul li a[href^="/source"] {
     border-color: hsl(96, 45%, 40%);
   }
-  .topbar ul.nav li a[href^="/tests"] {
+  .topbar ul li a[href^="/tests"] {
     border-color: hsl(75, 66%, 34%);
   }
 
-  .topbar ul.nav li .lightstick {
+  .topbar ul li .lightstick {
     position: absolute;
     z-index: 0;
     width: 100%;
@@ -297,102 +312,140 @@ blockquote ol {
          -o-transition: 0.8s ease-out;
             transition: 0.8s ease-out;
   }
-  .topbar ul.nav li.indicated .lightstick,
-  .topbar ul.nav li.active    .lightstick {
+  .topbar ul li.indicated .lightstick,
+  .topbar ul li.active    .lightstick {
     -webkit-transition: 0.2s ease-out;
        -moz-transition: 0.2s ease-out;
          -o-transition: 0.2s ease-out;
             transition: 0.2s ease-out;
   }
-  .topbar ul.nav li           .lightstick,
-  .topbar ul.nav li.indicated .lightstick,
-  .topbar ul.nav li.active    .lightstick {
+  .topbar ul li           .lightstick,
+  .topbar ul li.indicated .lightstick,
+  .topbar ul li.active    .lightstick {
     -webkit-transition-property: background-color, box-shadow;
        -moz-transition-property: background-color, box-shadow;
          -o-transition-property: background-color, box-shadow;
             transition-property: background-color, box-shadow;
   }
-  .topbar ul.nav li.indicated .lightstick {
+  .topbar ul li.indicated .lightstick {
     z-index: 1;
   }
-  .topbar ul.nav li.active .lightstick {
+  .topbar ul li.active .lightstick {
     z-index: 2;
   }
-  .topbar ul.nav li a[href^="/docs"] + .lightstick {
+  .topbar ul li a + .lightstick {
+    background:                hsla(  0,   0%, 50%, 0.6);
+    box-shadow:       0 0 24px hsla(  0, 100%, 50%, 0),
+                      0 0 12px hsla(  0, 100%, 50%, 0),
+                inset 0 0  3px hsla(  0, 100%, 50%, 0);
+  }
+  .topbar ul li.indicated a + .lightstick {
+    background:                hsla(  0,  90%, 60%, 0.97);
+    box-shadow:       0 0 24px hsla(  0, 100%, 50%, 0.6),
+                      0 0 12px hsla(  0, 100%, 50%, 0.8),
+                inset 0 0  3px hsla(  0,  72%, 45%, 0.8);
+  }
+  .topbar ul li.active a + .lightstick {
+    background:                hsla(  0, 100%, 93%, 0.98);
+    box-shadow:       0 0 36px hsla(  0, 100%, 50%, 1),
+                      0 0 24px hsla(  0, 100%, 50%, 1),
+                      0 0 12px hsla(  0, 100%, 50%, 1),
+                inset 0 0  3px hsla(  0, 100%, 50%, 1);
+  }
+  .topbar ul li a[href^="/docs"] + .lightstick {
     background:                hsla(192,  40%, 50%, 0.6);
     box-shadow:       0 0 24px hsla(192, 100%, 50%, 0),
                       0 0 12px hsla(192, 100%, 50%, 0),
                 inset 0 0  3px hsla(192, 100%, 50%, 0);
   }
-  .topbar ul.nav li.indicated a[href^="/docs"] + .lightstick {
+  .topbar ul li.indicated a[href^="/docs"] + .lightstick {
     background:                hsla(192,  90%, 60%, 0.97);
     box-shadow:       0 0 24px hsla(192, 100%, 50%, 0.6),
                       0 0 12px hsla(192, 100%, 50%, 0.8),
                 inset 0 0  3px hsla(192,  72%, 45%, 0.8);
   }
-  .topbar ul.nav li.active a[href^="/docs"] + .lightstick {
+  .topbar ul li.active a[href^="/docs"] + .lightstick {
     background:                hsla(192, 100%, 93%, 0.98);
     box-shadow:       0 0 36px hsla(192, 100%, 50%, 1),
                       0 0 24px hsla(192, 100%, 50%, 1),
                       0 0 12px hsla(192, 100%, 50%, 1),
                 inset 0 0  3px hsla(192, 100%, 50%, 1);
   }
-  .topbar ul.nav li a[href^="/api"] + .lightstick {
+  .topbar ul li a[href^="/api"] + .lightstick {
     background:                hsla(160,  46%, 50%, 0.6);
     box-shadow:       0 0 24px hsla(160, 100%, 50%, 0),
                       0 0 12px hsla(160, 100%, 50%, 0),
                 inset 0 0  3px hsla(160, 100%, 50%, 0);
   }
-  .topbar ul.nav li.indicated a[href^="/api"] + .lightstick {
+  .topbar ul li.indicated a[href^="/api"] + .lightstick {
     background:                hsla(160,  90%, 60%, 0.97);
     box-shadow:       0 0 24px hsla(160, 100%, 50%, 0.6),
                       0 0 12px hsla(160, 100%, 50%, 0.8),
                 inset 0 0  3px hsla(160,  72%, 45%, 0.8);
   }
-  .topbar ul.nav li.active a[href^="/api"] + .lightstick {
+  .topbar ul li.active a[href^="/api"] + .lightstick {
     background:                hsla(160, 100%, 93%, 0.98);
     box-shadow:       0 0 36px hsla(160, 100%, 50%, 1),
                       0 0 24px hsla(160, 100%, 50%, 1),
                       0 0 12px hsla(160, 100%, 50%, 1),
                 inset 0 0  3px hsla(160, 100%, 50%, 1);
   }
-  .topbar ul.nav li a[href^="/source"] + .lightstick {
+  .topbar ul li a[href^="/source"] + .lightstick {
     background:                hsla(96,  52%, 50%, 0.6);
     box-shadow:       0 0 24px hsla(96, 100%, 50%, 0),
                       0 0 12px hsla(96, 100%, 50%, 0),
                 inset 0 0  3px hsla(96, 100%, 50%, 0);
   }
-  .topbar ul.nav li.indicated a[href^="/source"] + .lightstick {
+  .topbar ul li.indicated a[href^="/source"] + .lightstick {
     background:                hsla(96,  90%, 60%, 0.97);
     box-shadow:       0 0 24px hsla(96, 100%, 50%, 0.6),
                       0 0 12px hsla(96, 100%, 50%, 0.8),
                 inset 0 0  3px hsla(96,  72%, 45%, 0.8);
   }
-  .topbar ul.nav li.active a[href^="/source"] + .lightstick {
+  .topbar ul li.active a[href^="/source"] + .lightstick {
     background:                hsla(96, 100%, 93%, 0.98);
     box-shadow:       0 0 36px hsla(96, 100%, 50%, 1),
                       0 0 24px hsla(96, 100%, 50%, 1),
                       0 0 12px hsla(96, 100%, 50%, 1),
                 inset 0 0  3px hsla(96, 100%, 50%, 1);
   }
-  .topbar ul.nav li a[href^="/tests"] + .lightstick {
+  .topbar ul li a[href^="/tests"] + .lightstick {
     background:                hsla(75,  70%, 44%, 0.6);
     box-shadow:       0 0 24px hsla(75, 100%, 50%, 0),
                       0 0 12px hsla(75, 100%, 50%, 0),
                 inset 0 0  3px hsla(75, 100%, 50%, 0);
   }
-  .topbar ul.nav li.indicated a[href^="/tests"] + .lightstick {
+  .topbar ul li.indicated a[href^="/tests"] + .lightstick {
     background:                hsla(75,  90%, 60%, 0.97);
     box-shadow:       0 0 24px hsla(75, 100%, 50%, 0.6),
                       0 0 12px hsla(75, 100%, 50%, 0.8),
                 inset 0 0  3px hsla(75,  72%, 45%, 0.8);
   }
-  .topbar ul.nav li.active a[href^="/tests"] + .lightstick {
+  .topbar ul li.active a[href^="/tests"] + .lightstick {
     background:                hsla(75, 100%, 93%, 0.98);
     box-shadow:       0 0 36px hsla(75, 100%, 50%, 1),
                       0 0 24px hsla(75, 100%, 50%, 1),
                       0 0 12px hsla(75, 100%, 50%, 1),
                 inset 0 0  3px hsla(75, 100%, 50%, 1);
+  }
+  .topbar ul li a[href*="://github.com/"] + .lightstick {
+    background:                hsla(58,  60%, 44%, 0.6);
+    box-shadow:       0 0 24px hsla(58, 100%, 50%, 0),
+                      0 0 12px hsla(58, 100%, 50%, 0),
+                inset 0 0  3px hsla(58, 100%, 50%, 0);
+  }
+  .topbar ul li.indicated a[href*="://github.com/"] + .lightstick {
+    background:                hsla(58,  90%, 60%, 0.97);
+    box-shadow:       0 0 24px hsla(58, 100%, 50%, 0.6),
+                      0 0 12px hsla(58, 100%, 50%, 0.8),
+                inset 0 0  3px hsla(58,  72%, 45%, 0.8);
+  }
+  .topbar ul li.active a[href*="://github.com/"] + .lightstick {
+    background:                hsla(58, 100%, 93%, 0.98);
+    box-shadow:       0 0 36px hsla(58, 100%, 50%, 1),
+                      0 0 24px hsla(58, 100%, 50%, 1),
+                      0 0 12px hsla(58, 100%, 50%, 1),
+                inset 0 0  3px hsla(58, 100%, 50%, 1);
   }
 
 .content {
@@ -429,7 +482,8 @@ blockquote ol {
   .content a[href^="/docs"],
   .content a[href^="/api"],
   .content a[href^="/source"],
-  .content a[href^="/tests"] {
+  .content a[href^="/tests"],
+  .content a[href*="://github.com/"] {
     padding: 0.05em  0.2em;
     margin: -0.05em -0.2em;
     border-radius: 0.25em;
@@ -437,7 +491,8 @@ blockquote ol {
   .content blockquote a[href^="/docs"],
   .content blockquote a[href^="/api"],
   .content blockquote a[href^="/source"],
-  .content blockquote a[href^="/tests"] {
+  .content blockquote a[href^="/tests"],
+  .content blockquote a[href*="://github.com/"] {
     padding: 1px 10px 3px;
     margin: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.65);
@@ -465,8 +520,6 @@ blockquote ol {
     background-image:         linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
     text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(192, 13%, 57%, 0.3);
   }
-  .content blockquote a[href^="/docs"]:hover {
-  }
 
   .content a[href^="/api"] {
     color:             hsl(160, 36%, 41%);
@@ -484,8 +537,6 @@ blockquote ol {
     background-image:      -o-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
     background-image:         linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
     text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(160, 15%, 57%, 0.3);
-  }
-  .content blockquote a[href^="/api"]:hover {
   }
 
   .content a[href^="/source"] {
@@ -505,8 +556,6 @@ blockquote ol {
     background-image:         linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
     text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(96, 23%, 57%, 0.3);
   }
-  .content blockquote a[href^="/source"]:hover {
-  }
 
   .content a[href^="/tests"] {
     color:             hsl(75, 66%, 34%);
@@ -525,13 +574,30 @@ blockquote ol {
     background-image:         linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
     text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(75, 13%, 57%, 0.3);
   }
-  .content blockquote a[href^="/tests"]:hover {
+
+  .content a[href*="://github.com/"] {
+    color:             hsl(58, 66%, 34%);
+    background-color: hsla(58, 66%, 31%, 0.01);
+  }
+  .content a[href*="://github.com/"]:hover {
+    color:             hsl(58, 66%, 26%);
+    background-color: hsla(58, 66%, 26%, 0.06);
+  }
+  .content blockquote a[href*="://github.com/"] {
+    border-bottom-color: hsla(75, 66%, 34%, 0.35);
+    background-image: -webkit-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
+    background-image:    -moz-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
+    background-image:     -ms-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
+    background-image:      -o-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
+    background-image:         linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
+    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(58, 13%, 57%, 0.3);
   }
 
   .content a[href^="/docs"] code,
   .content a[href^="/api"] code,
   .content a[href^="/source"] code,
-  .content a[href^="/tests"] code {
+  .content a[href^="/tests"] code,
+  .content a[href*="://github.com/"] code {
     padding: 0;
     background: transparent;
     border: none;
@@ -722,3 +788,80 @@ footer {
     padding: 7px;
     margin: 0;
   }
+
+
+
+/* sprites.less reset */
+[class^="icon-"], [class*=" icon-"] {
+    display: inline;
+    width: auto;
+    height: auto;
+    line-height: inherit;
+    vertical-align: baseline;
+    background-image: none;
+    background-position: 0% 0%;
+    background-repeat: repeat;
+}
+li[class^="icon-"], li[class*=" icon-"] {
+    display: block;
+}
+/*  Font Awesome styles
+    ------------------------------------------------------- */
+[class^="icon-"]:before, [class*=" icon-"]:before {
+    font-family: 'Octicons Regular';
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+    -webkit-font-smoothing:antialiased;
+    -moz-transition:color .15s ease-in 0;
+    -webkit-transition:color .15s ease-in 0;
+}
+a [class^="icon-"], a [class*=" icon-"] {
+    display: inline-block;
+    text-decoration: inherit;
+}
+/* makes the font 33% larger relative to the icon container */
+.icon-large:before {
+    vertical-align: top;
+    font-size: 1.3333333333333333em;
+}
+
+.btn [class^="icon-"], .btn [class*=" icon-"] {
+    /* keeps button heights with and without icons the same */
+    line-height: .9em;
+}
+li [class^="icon-"], li [class*=" icon-"] {
+    display: inline-block;
+    width: 1.25em;
+    text-align: center;
+}
+li .icon-large[class^="icon-"], li .icon-large[class*=" icon-"] {
+    /* 1.5 increased font size for icon-large * 1.25 width */
+    width: 1.875em;
+}
+
+
+li[class^="icon-"], li[class*=" icon-"] {
+    margin-left: 0;
+    list-style-type: none;
+}
+li[class^="icon-"]:before, li[class*=" icon-"]:before {
+    text-indent: -2em;
+    text-align: center;
+}
+li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
+    text-indent: -1.3333333333333333em;
+}
+
+.icon-octocat:before               { content: "\f208"; }
+.icon-site-message:before, .icon-blacktocat:before          { content: "\f209"; }
+.icon-invertocat:before                 { content: "\f20a"; }
+.icon-download:before            { content: "\f20b"; }
+.icon-arr-collapsed:before          { content: "\f25a"; }
+.icon-arr-expanded:before         { content: "\f25b"; }
+.icon-link:before      { content: "\f25c"; }
+.icon-jump-up:before           { content: "\f273"; }
+.icon-chevron:before           { content: "\f278"; }
+.icon-external-link:before           { content: "\f27f"; }
+.icon-x:before      { content: "\f281"; }

@@ -49,7 +49,7 @@ All of the examples given to this point have created stateful objects by applyin
 {% include examples/docs/inheritance--protostates--1.coffee %}
 {% endhighlight %}
 
-At this point `person` inherits the `state` property from its prototype, as it lacks a state implementation of its own. However, calling `person.state` automatically imbues `person` with a new state implementation, along with its own `state` method.
+At this point `person` inherits the `state` method from its prototype, as it lacks a state implementation of its own. However, calling `person.state()` automatically creates a new state implementation for `person`.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--2.js %}
@@ -59,7 +59,7 @@ At this point `person` inherits the `state` property from its prototype, as it l
 {% include examples/docs/inheritance--protostates--2.coffee %}
 {% endhighlight %}
 
-The state tree of `person` will consist only of an empty root state, but this is sufficient to allow the object to inherit all the content from the states of its prototype, which it identifies as its **protostates**. It will maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
+Now, `person` will automatically inherit all content from the states of its prototype, which it identifies as its **protostates**. It will maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--3.js %}
@@ -71,7 +71,7 @@ The state tree of `person` will consist only of an empty root state, but this is
 
 ##### Under the hood
 
-When an accessor method (`person.state`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it does not, and is instead attempting to inherit the accessor (`state`) of a prototype, then an empty state implementation is automatically created for the inheritor, which in turn generates a corresponding new accessor method (`person.state`), to which the original call is then forwarded.
+When an accessor method (`person.state`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it does not, and is instead attempting to inherit the accessor (`state`) of a prototype, then an empty state implementation is automatically created for the inheritor, which in turn generates a corresponding new accessor method (`person.state`), to which the original call is then forwarded. The new state tree of `person` will consist only of an empty root state, but this is sufficient to allow the object to inherit from any of its protostates.
 
 The inheritor may adopt a protostate as its current state just as it would with a state of its own. When that happens, a temporary, lightweight **virtual state** is created within the state implementation of the inheritor, acting as a stand-in for the protostate. Virtual states exist only so long as they are active; once the object transitions elsewhere, any virtual states consequently rendered inactive are automatically destroyed.
 
