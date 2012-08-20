@@ -16,9 +16,9 @@ permalink: pretty
 
 packages:
   state:
-    version: 0.0.5
-    size: 149kB
-    size_gz: 8.6kB
+    version: 0.0.6
+    size: 136kB
+    size_gz: 8.5kB
   omicron:
     version: 0.1.7
     size: 18kB

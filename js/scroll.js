@@ -28,9 +28,9 @@ function scroll ( event ) {
          window.location.hash;
   frag = href.replace( /^\#(.*)/, "$1" );
   if ( !frag ) return;
-  $h = $( href );
+  $h = $( href.replace( /\./g, '\\.' ) );
   if ( !$h.length ) {
-    $a = $( "a[name=" + frag + "]" );
+    $a = $( "a[name=" + frag.replace( /\./g, '\\.' ) + "]" );
     $h = $a.parent().next();
   }
   if ( !$h.length ) return;

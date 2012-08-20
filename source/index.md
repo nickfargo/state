@@ -3,4 +3,4 @@ layout: source
 title: Source - State.js
 ---
 
-{% include content/source/state.html %}
+<div>{% include content/source/state.html %}</div>

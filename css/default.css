@@ -874,6 +874,24 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 #source .text a code {
   font-weight: bold;
 }
+#source .text h3,
+#source .text h4,
+#source .text h5,
+#source .text h6 {
+  margin: 0 0 0.25em;
+}
+#source .text h3 {
+  font-size: 21px;
+}
+#source .text h3 code {
+  font-size: 90%;
+}
+#source .text h4 {
+  font-size: 18px
+}
+#source .text h5,
+#source .text h6 {
+}
 
 #source .code {
   width: 560px;

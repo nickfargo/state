@@ -1,15 +1,16 @@
-// Copyright (C) 2011-2012
-// Nick Fargo, Z Vector Inc.
+// Copyright (C) 2011-2012 Nick Fargo, Z Vector Inc.
 // 
-// [`LICENSE`](https://github.com/nickfargo/state/blob/master/LICENSE) MIT.
+// [`LICENSE`](http://github.com/nickfargo/state/blob/master/LICENSE) MIT.
 // 
 // **State** is a framework for implementing state-driven behavior directly
 // into any JavaScript object.
 // 
-// [statejs.org](http://statejs.org/)
-// 
-// <a class="icon-large icon-octocat"
-//    href="http://github.com/nickfargo/state/"></a>
+// [statejs.org](/)
+// [docs](/docs/)
+// [api](/api/)
+// [tests](/tests/)
+//
+// <a class="icon-invertocat" href="http://github.com/nickfargo/state"></a>
 
 ;( function ( undefined ) {
 
@@ -18,7 +19,7 @@
 var global = this,
 
     meta = {
-        VERSION: '0.0.5',
+        VERSION: '0.0.6',
 
         noConflict: ( function () {
             var original = global.state;
@@ -43,7 +44,7 @@ var rxTransitionArrow       = /^\s*([\-|=]>)\s*(.*)/,
     transitionArrowMethods  = { '->': 'change', '=>': 'changeTo' };
 
 
-// ## state( ... ) <a class="icon-link" name="module" href="#module"></a>
+// ## [state()](#module)
 // 
 // The `state` module is exported as a function. This is used either: (1) to
 // generate a formal [`StateExpression`](#state-expression); or (2) to bestow
@@ -100,15 +101,9 @@ function state (
 O.assign( state, meta );
 
 
-// <a class="icon-link" name="module--constants" href="#module--constants"></a>
-// 
-// ### Module-level constants
+// ### [Module-level constants](#module--constants)
 
-// <a class="icon-link"
-//    name="module--constants--state-attributes"
-//    href="#module--constants--state-attributes"></a>
-// 
-// #### State attributes
+// #### [State attributes](#module--constants--state-attributes)
 // 
 // Attribute values are stored as a bit field in a [`State`](#state) instance.
 // Most attributes enumerated here also correspond with a
@@ -117,11 +112,7 @@ O.assign( state, meta );
 var STATE_ATTRIBUTES = {
     NORMAL      : 0x0,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--virtual"
-    //    href="#module--constants--state-attributes--virtual"></a>
-    // 
-    // ##### virtual
+    // ##### [virtual](#module--constants--state-attributes--virtual)
     // 
     // A **virtual state** is a lightweight inheritor of a **protostate**
     // located higher in the owner object’s prototype chain. Notably, as
@@ -129,11 +120,7 @@ var STATE_ATTRIBUTES = {
     // for the `virtual` attribute.
     VIRTUAL     : 0x1,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--mutable"
-    //    href="#module--constants--state-attributes--mutable"></a>
-    // 
-    // ##### mutable
+    // ##### [mutable](#module--constants--state-attributes--mutable)
     // 
     // By default, states are **weakly immutable**; i.e., once a `State` has
     // been constructed, its declared data, methods, guards, substates, and
@@ -142,33 +129,21 @@ var STATE_ATTRIBUTES = {
     // inherited from any of a state’s superstates or protostates.
     MUTABLE     : 0x2,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--finite"
-    //    href="#module--constants--state-attributes--finite"></a>
-    // 
-    // ##### finite
+    // ##### [finite](#module--constants--state-attributes--finite)
     // 
     // If a state is declared `finite`, no substates or descendant states may
     // be added, nor may any be removed without also destroying the state
     // itself.
     FINITE      : 0x4,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--static"
-    //    href="#module--constants--state-attributes--static"></a>
-    // 
-    // ##### static
+    // ##### [static](#module--constants--state-attributes--static)
     // 
     // If a state is declared `static`, none of its contents may be changed
     // except for its substates.
     // *(Reserved; not presently implemented.)*
     STATIC      : 0x8,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--immutable"
-    //    href="#module--constants--state-attributes--immutable"></a>
-    // 
-    // ##### immutable
+    // ##### [immutable](#module--constants--state-attributes--immutable)
     // 
     // Adding the `immutable` attribute causes a state to become **strongly
     // immutable**, wherein it guarantees immutability absolutely, throughout
@@ -176,72 +151,44 @@ var STATE_ATTRIBUTES = {
     // `mutable` attributes.
     IMMUTABLE   : 0x10,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--initial"
-    //    href="#module--constants--state-attributes--initial"></a>
-    // 
-    // ##### initial
+    // ##### [initial](#module--constants--state-attributes--initial)
     // 
     // Marking a state `initial` specifies which state a newly stateful object
     // should assume.
     INITIAL     : 0x20,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--conclusive"
-    //    href="#module--constants--state-attributes--conclusive"></a>
-    // 
-    // ##### conclusive
+    // ##### [conclusive](#module--constants--state-attributes--conclusive)
     // 
     // Once a state marked `conclusive` is entered, it cannot be exited,
     // although transitions may still freely traverse within its substates.
     CONCLUSIVE  : 0x40,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--final"
-    //    href="#module--constants--state-attributes--final"></a>
-    // 
-    // ##### final
+    // ##### [final](#module--constants--state-attributes--final)
     // 
     // Once a state marked `final` is entered, no further outbound transitions
     // within its local region are allowed.
     FINAL       : 0x80,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--abstract"
-    //    href="#module--constants--state-attributes--abstract"></a>
-    // 
-    // ##### abstract
+    // ##### [abstract](#module--constants--state-attributes--abstract)
     // 
     // An `abstract` state is used only as a source of inheritance, and cannot
     // itself be current. Consequently a transition that targets an abstract
     // state will be automatically redirected to one of its substates.
     ABSTRACT    : 0x100,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--concrete"
-    //    href="#module--constants--state-attributes--concrete"></a>
-    // 
-    // ##### concrete
+    // ##### [concrete](#module--constants--state-attributes--concrete)
     // 
     // Marking a state `concrete` overrides an `abstract` attribute that would
     // otherwise be inherited from a protostate.
     CONCRETE    : 0x200,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--default"
-    //    href="#module--constants--state-attributes--default"></a>
-    // 
-    // ##### default
+    // ##### [default](#module--constants--state-attributes--default)
     // 
     // Marking a state `default` designates it as the actual target for any
     // transition that targets its abstract superstate.
     DEFAULT     : 0x400,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--reflective"
-    //    href="#module--constants--state-attributes--reflective"></a>
-    // 
-    // ##### reflective
+    // ##### [reflective](#module--constants--state-attributes--reflective)
     // 
     // A state marked `reflective` copies or “reflects” its properties onto
     // the owner whenever it becomes active. If the state is `mutable`, then
@@ -251,11 +198,7 @@ var STATE_ATTRIBUTES = {
     // *(Reserved; not presently implemented.)*
     REFLECTIVE  : 0x800,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--history"
-    //    href="#module--constants--state-attributes--history"></a>
-    // 
-    // ##### history
+    // ##### [history](#module--constants--state-attributes--history)
     // 
     // Marking a state with the `history` attribute causes its internal state
     // to be recorded in a sequential **history**. Whereas a `retained` state
@@ -265,11 +208,7 @@ var STATE_ATTRIBUTES = {
     // *(Reserved; not presently implemented.)*
     HISTORY     : 0x1000,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--retained"
-    //    href="#module--constants--state-attributes--retained"></a>
-    // 
-    // ##### retained
+    // ##### [retained](#module--constants--state-attributes--retained)
     // 
     // A `retained` state is one that preserves its own internal state, such
     // that, after the state has become no longer active, a subsequent
@@ -279,11 +218,7 @@ var STATE_ATTRIBUTES = {
     // *(Reserved; not presently implemented.)*
     RETAINED    : 0x2000,
 
-    // <a class="icon-link"
-    //    name="module--constants--state-attributes--shallow"
-    //    href="#module--constants--state-attributes--shallow"></a>
-    // 
-    // ##### shallow
+    // ##### [shallow](#module--constants--state-attributes--shallow)
     // 
     // Normally, states that are `retained` or that keep a `history` persist
     // their internal state *deeply*, i.e., with a scope extending over all of
@@ -292,7 +227,7 @@ var STATE_ATTRIBUTES = {
     // *(Reserved; not presently implemented.)*
     SHALLOW     : 0x4000,
 
-    // ##### versioned
+    // ##### [versioned](#module--constants--state-attributes--versioned)
     // 
     // Would cause alterations to a state to result in a reflexive transition,
     // with a delta object distinguishing the prior version of the state from
@@ -301,7 +236,7 @@ var STATE_ATTRIBUTES = {
     // *(Reserved; not presently implemented.)*
     VERSIONED   : undefined,
 
-    // ##### concurrent
+    // ##### [concurrent](#module--constants--state-attributes--concurrent)
     // 
     // In a state marked `concurrent`, the substates are considered
     // **concurrent orthogonal regions**. Upon entering a concurrent state,
@@ -316,11 +251,7 @@ var STATE_ATTRIBUTES = {
 //
 };
 
-// <a class="icon-link"
-//    name="module--constants--state-attribute-modifiers"
-//    href="#module--constants--state-attribute-modifiers"></a>
-// 
-// #### State attribute modifiers
+// #### [State attribute modifiers](#module--constants--state-attribute-modifiers)
 // 
 // The subset of attributes that are valid or reserved keywords for the
 // `attributes` argument in a call to the exported [`state`](#module)
@@ -334,45 +265,27 @@ var STATE_ATTRIBUTE_MODIFIERS = [
         'concurrent'
     ].join(' ');
 
-// <a class="icon-link"
-//    name="module--constants--state-expression-categories"
-//    href="#module--constants--state-expression-categories"></a>
-// 
+// #### [State expression categories](#module--constants--state-expression-categories)
 var STATE_EXPRESSION_CATEGORIES =
         'data methods events guards states transitions';
 
-// <a class="icon-link"
-//    name="module--constants--state-event-types"
-//    href="#module--constants--state-event-types"></a>
-// 
+// #### [State event types](#module--constants--state-event-types)
 var STATE_EVENT_TYPES =
         'construct depart exit enter arrive destroy mutate noSuchMethod';
 
-// <a class="icon-link"
-//    name="module--constants--guard-actions"
-//    href="#module--constants--guard-actions"></a>
-// 
+// #### [Guard actions](#module--constants--guard-actions)
 var GUARD_ACTIONS =
         'admit release';
 
-// <a class="icon-link"
-//    name="module--constants--transition-properties"
-//    href="#module--constants--transition-properties"></a>
-// 
+// #### [Transition properties](#module--constants--transition-properties)
 var TRANSITION_PROPERTIES =
         'origin source target action conjugate';
 
-// <a class="icon-link"
-//    name="module--constants--transition-expression-categories"
-//    href="#module--constants--transition-expression-categories"></a>
-// 
+// #### [Transition expression categories](#module--constants--transition-expression-categories)
 var TRANSITION_EXPRESSION_CATEGORIES =
         'methods events guards';
 
-// <a class="icon-link"
-//    name="module--constants--transition-event-types"
-//    href="#module--constants--transition-event-types"></a>
-// 
+// #### [Transition event types](#module--constants--transition-event-types)
 var TRANSITION_EVENT_TYPES =
         'construct destroy enter exit start end abort';
 
@@ -381,45 +294,26 @@ var TRANSITION_EVENT_TYPES =
 O.env.server && ( module.exports = exports = state );
 O.env.client && ( global['state'] = state );
 
-// <a class="icon-link"
-//    name="module--constants--module"
-//    href="#module--constants--module"></a>
-// 
-// #### module
+// #### [module](#module--constants--module)
 // 
 // References or creates a unique object visible only within the lexical scope
 // of this module.
 var __MODULE__ = O.env.server ? module : { exports: state };
 
-// ## State <a class="icon-link" name="state" href="#state"></a>
+// ## [State](#state)
 // 
-// A **state** models a set of behaviors on behalf of an owner object. The
-// owner may undergo **transitions** that change its **current** state from
-// one to another, and in so doing adopt a different set of behaviors.
-// 
-// Distinct behaviors are modeled in each state by defining a set of method
-// overrides, to which calls made on the owner will be redirected so long as a
-// state remains current.
-// 
-// States are structured as a rooted tree, where **substates** inherit from a
-// single **superstate**. While a substate is current, it and all of its
-// ancestor superstates are considered to be **active**.
-// 
-// In addition, a state also recognizes the owner object’s prototypal
-// inheritance, identifying an identically named and positioned state in the
-// prototype as its **protostate**. Stateful behavior is inherited *from
-// protostates first*, then from superstates.
+// > [State](/api/#state)
 
-// <a class="icon-link"
-//    name="state--__pre.js"
-//    href="#state--__pre.js"></a>
-// 
-// ### `state/__pre.js`
+// ### [`state/__pre.js`](#state--__pre.js)
 
 var State = ( function () {
 
 var SA = STATE_ATTRIBUTES,
     
+    // Attribute bitfield constants will be used extensively in the `State`
+    // [constructor](#state--constructor.js) and the
+    // [attribute methods](#state--attributes.js), so make them accessible
+    // as free variables.
     NORMAL      = SA.NORMAL,
     VIRTUAL     = SA.VIRTUAL,
     MUTABLE     = SA.MUTABLE,
@@ -438,6 +332,7 @@ var SA = STATE_ATTRIBUTES,
     SHALLOW     = SA.SHALLOW,
     CONCURRENT  = SA.CONCURRENT,
 
+    // All attributes except `virtual` are inherited via protostates.
     PROTOSTATE_HERITABLE_ATTRIBUTES =
         MUTABLE     |  FINITE      |  STATIC     |  IMMUTABLE  |
         INITIAL     |  CONCLUSIVE  |  FINAL      |
@@ -449,17 +344,9 @@ var SA = STATE_ATTRIBUTES,
 
 O.assign( State, SA );
 
-// <a class="icon-link"
-//    name="state--constructor.js"
-//    href="#state--constructor.js"></a>
-// 
-// ### `state/constructor.js`
+// ### [`state/constructor.js`](#state--constructor.js)
 
-// <a class="icon-link"
-//    name="state--constructor"
-//    href="#state--constructor"></a>
-//
-// ### Constructor
+// ### [Constructor](#state--constructor)
 function State ( superstate, name, expression ) {
     if ( !( this instanceof State ) ) {
         return new State( superstate, name, expression );
@@ -469,9 +356,11 @@ function State ( superstate, name, expression ) {
 
     attributes = expression && expression.attributes || NORMAL;
 
-    // #### name
+    // #### [name](#state--constructor--name)
     // 
     // Returns the local name of this state.
+    //
+    // > [name](/api/#state--methods--name)
     this.name = O.stringFunction( function () { return name || ''; } );
 
     // A root state is created by a [`StateController`](#state-controller),
@@ -556,23 +445,17 @@ State.prototype.name = O.noop;
 
 var privileged = State.privileged = {};
 
-// <a class="icon-link"
-//    name="state--core.js"
-//    href="#state--core.js"></a>
-// 
-// ### `state/core.js`
+// ### [`state/core.js`](#state--core.js)
 //
 // Methods for initializing and properly destroying a `State` instance.
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--init"
-    //    href="#state--privileged--init"></a>
-    // 
-    // #### init
+    // #### [init](#state--privileged--init)
     // 
     // Builds out the state’s members based on the expression provided.
+    //
+    // > [init](#state--methods--init)
     init: function ( /*Function*/ expressionConstructor ) {
         return function ( /*<expressionConstructor> | Object*/ expression ) {
             this.__initializing__ = true;
@@ -583,14 +466,12 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--destroy"
-    //    href="#state--privileged--destroy"></a>
-    // 
-    // #### destroy
+    // #### [destroy](#state--privileged--destroy)
     // 
     // Attempts to cleanly destroy this state and all of its substates.
     // A `destroy` event is issued to each state after it is destroyed.
+    //
+    // > [destroy](#state--methods--destroy)
     destroy: function ( setSuperstate, methods, events, substates ) {
         return function () {
             var superstate = this.superstate(),
@@ -649,12 +530,14 @@ O.assign( State.privileged, {
             else {
                 for ( methodName in methods ) {
                     delegator = owner[ methodName ];
-                    method = delegator.original;
-                    if ( method ) {
-                        delete delegator.original;
-                        owner[ methodName ] = method;
-                    } else {
-                        delete owner[ methodName ];
+                    if ( delegator ) {
+                        method = delegator.original;
+                        if ( method ) {
+                            delete delegator.original;
+                            owner[ methodName ] = method;
+                        } else {
+                            delete owner[ methodName ];
+                        }
                     }
                 }
 
@@ -666,12 +549,13 @@ O.assign( State.privileged, {
 
             setSuperstate( undefined );
 
-            // A flag is set that can be observed later by anything retaining a
-            // reference to this state (e.g. a memoization) which would be
+            // A flag is set that can be observed later by anything retaining
+            // a reference to this state (e.g. a memoization) which would be
             // withholding it from being garbage-collected. A well-behaved
-            // retaining entity should check this flag as necessary to reassert
-            // the validity of its reference, and discard the reference after it
-            // observes `destroyed` to have been set to `true`.
+            // retaining entity should check this flag as necessary to
+            // reassert the validity of its reference, and discard the
+            // reference after it observes `destroyed` to have been set to
+            // `true`.
             return this.destroyed = true;
         };
     }
@@ -679,17 +563,11 @@ O.assign( State.privileged, {
 
 State.prototype.destroy = O.thunk( false );
 
-// <a class="icon-link"
-//    name="state--internal.js"
-//    href="#state--internal.js"></a>
-// 
-// ### `state/internal.js`
+// ### [`state/internal.js`](#state--internal.js)
+//
+// For internal use only. Code here is not documented in the public API.
 
-// <a class="icon-link"
-//    name="state--privileged--peek"
-//    href="#state--privileged--peek"></a>
-// 
-// #### peek
+// #### [peek](#state--privileged--peek)
 // 
 // Exposes private entities to code within the same module-level lexical
 // scope. Callers must authenticate themselves as internal by providing a
@@ -725,19 +603,11 @@ State.privileged.peek = function (
 
 State.prototype.peek = O.noop;
 
-// <a class="icon-link"
-//    name="state--realization.js"
-//    href="#state--realization.js"></a>
-// 
-// ### `state/realization.js`
+// ### [`state/realization.js`](#state--realization.js)
 //
 // Methods for realizing an incipient or virtual `State` instance.
 
-// <a class="icon-link"
-//    name="state--private--realize"
-//    href="#state--private--realize"></a>
-// 
-// #### realize
+// #### [realize](#state--private--realize)
 // 
 // Continues construction of an incipient [`State`](#state), or equivalently,
 // converts a virtual state into a *real* state.
@@ -748,10 +618,10 @@ State.prototype.peek = O.noop;
 // protostates, but can also be converted at some later time to a real `State`
 // if necessary.
 // 
-// *See also:*
-// [`State constructor`](#state--constructor),
-// [`StateController virtualize`](#state-controller--private--virtualize),
-// [`State.privileged.realize`](#state--privileged--realize)
+// > See also:
+// > [`State constructor`](#state--constructor),
+// > [`StateController virtualize`](#state-controller--private--virtualize),
+// > [`State.privileged.realize`](#state--privileged--realize)
 function realize ( superstate, attributes, expression ) {
     var owner, addMethod, key, method,
         self = this;
@@ -847,11 +717,7 @@ function realize ( superstate, attributes, expression ) {
     return this;
 }
 
-// <a class="icon-link"
-//    name="state--private--mutable-virtual-methods"
-//    href="#state--private--mutable-virtual-methods"></a>
-// 
-// #### mutableVirtualMethods
+// #### [mutableVirtualMethods](#state--private--mutable-virtual-methods)
 // 
 // A set of methods that will be mixed into mutable virtual states. When
 // called, these first [`realize`](#state--private--realize) the state and
@@ -874,11 +740,7 @@ var mutableVirtualMethods = ( function () {
     return obj;
 }() );
 
-// <a class="icon-link"
-//    name="state--privileged--realize"
-//    href="#state--privileged--realize"></a>
-// 
-// #### realize
+// #### [realize](#state--privileged--realize)
 // 
 // Transforms a virtual state into a “real” state.
 // 
@@ -890,7 +752,9 @@ var mutableVirtualMethods = ( function () {
 // exist thereafter as an abiding member of its superstate’s set of
 // substates.
 // 
-// *See also:* [`State realize`](#state--private--realize) 
+// > See also: [`State realize`](#state--private--realize)
+//
+// > [realize](/api/#state--methods--realize)
 State.privileged.realize = function ( attributes ) {
     return function ( expression ) {
         var superstate = this.superstate(),
@@ -911,17 +775,9 @@ State.privileged.realize = function ( attributes ) {
 
 State.prototype.realize = O.getThis;
 
-// <a class="icon-link"
-//    name="state--expression.js"
-//    href="#state--expression.js"></a>
-// 
-// ### `state/expression.js`
+// ### [`state/expression.js`](#state--expression.js)
 
-// <a class="icon-link"
-//    name="state--privileged--express"
-//    href="#state--privileged--express"></a>
-// 
-// #### express
+// #### [express](#state--privileged--express)
 // 
 // Returns an expression of the state of `this` state — a snapshot of the
 // state’s current contents.
@@ -987,17 +843,9 @@ State.privileged.express = ( function () {
 
 State.prototype.express = O.noop;
 
-// <a class="icon-link"
-//    name="state--mutation.js"
-//    href="#state--mutation.js"></a>
-// 
-// ### `state/mutation.js`
+// ### [`state/mutation.js`](#state--mutation.js)
 
-// <a class="icon-link"
-//    name="state--privileged--mutate"
-//    href="#state--privileged--mutate"></a>
-// 
-// #### mutate
+// #### [mutate](#state--privileged--mutate)
 // 
 // Transactionally mutates the state by adding, updating, or removing items
 // as specified by the expression provided in `expr`. 
@@ -1161,24 +1009,23 @@ State.privileged.mutate = function (
     };
 };
 
-// <a class="icon-link"
-//    name="state--prototype--mutate"
-//    href="#state--prototype--mutate"></a>
-// 
-// #### mutate
+// #### [mutate](#state--prototype--mutate)
 // 
 // By default states are weakly immutable and their contents cannot be
-// changed. However, a weak-immutable superstate may contain a mutable
-// substate, to which the corresponding part of a mutation operation can be
-// forwarded.
+// changed, so they will not possess a `mutate` instance method unless they
+// bear the `mutable` attribute. However, because a weak-immutable superstate
+// may contain mutable substates, any parts of a mutation operation that
+// correspond to mutable states must be recursed.
+//
+// > See also: [mutate (instance)](#state--privileged--mutate)
 State.prototype.mutate = function ( expr ) {
     var name, value,
         NIL = O.NIL,
-        substates = this.substates(),
-        emitter = expr.states;
+        ss = expr.states,
+        substates = this.substates();
 
-    for ( name in emitter ) if ( O.hasOwn.call( emitter, name ) ) {
-        value = emitter[ name ];
+    for ( name in ss ) if ( O.hasOwn.call( ss, name ) ) {
+        value = ss[ name ];
         if ( name in substates ) {
             value !== NIL && substates[ name ].mutate( value, false );
         } else {
@@ -1187,22 +1034,18 @@ State.prototype.mutate = function ( expr ) {
     }
 };
 
-// <a class="icon-link"
-//    name="state--attributes.js"
-//    href="#state--attributes.js"></a>
-// 
-// ### `state/attributes.js`
+// ### [`state/attributes.js`](#state--attributes.js)
 //
 // Methods that inspect a state’s attributes.
+//
+// > [Attributes](/docs/#concepts--attributes)
+// > [Attributes](/api/#state--attributes)
 
-
-// <a class="icon-link"
-//    name="state--privileged--attributes"
-//    href="#state--privileged--attributes"></a>
-// 
-// #### attributes
+// #### [attributes](#state--privileged--attributes)
 // 
 // Returns the bit-field representing the state’s attribute flags.
+//
+// > [attributes](/api/#state--methods--attributes)
 State.privileged.attributes = function ( /*Number*/ attributes ) {
     return function () { return attributes; };
 };
@@ -1227,22 +1070,16 @@ O.assign( State.prototype, {
     isConcurrent: function () { return !!( this.attributes() & CONCURRENT ); }
 });
 
-// <a class="icon-link"
-//    name="state--model.js"
-//    href="#state--model.js"></a>
-// 
-// ### `state/model.js`
+// ### [`state/model.js`](#state--model.js)
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--superstate"
-    //    href="#state--privileged--superstate"></a>
-    // 
-    // #### superstate
+    // #### [superstate](#state--privileged--superstate)
     // 
     // Returns the immediate superstate, or the nearest state in the superstate
     // chain with the provided `stateName`.
+    //
+    // > [superstate](/api/#state--methods--superstate)
     superstate: function ( /*State*/ superstate ) {
         return function (
             /*String*/ stateName // optional
@@ -1264,23 +1101,17 @@ O.assign( State.privileged, {
 
 O.assign( State.prototype, {
 
-    // <a class="icon-link"
-    //    name="state--prototype--owner"
-    //    href="#state--prototype--owner"></a>
-    // 
-    // #### owner
+    // #### [owner](#state--prototype--owner)
     // 
     // Gets the owner object to which this state’s controller belongs.
+    //
+    // > [owner](/api/#state--methods--owner)
     owner: function () {
         var controller = this.controller();
         if ( controller ) return controller.owner();
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--controller"
-    //    href="#state--prototype--controller"></a>
-    // 
-    // #### controller
+    // #### [controller](#state--prototype--controller)
     // 
     // Gets the [`StateController`](#state-controller) to which this state
     // belongs.
@@ -1289,37 +1120,31 @@ O.assign( State.prototype, {
         if ( superstate ) return superstate.controller();
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--root"
-    //    href="#state--prototype--root"></a>
-    // 
-    // #### root
+    // #### [root](#state--prototype--root)
     // 
     // Gets the root state, i.e. the top-level superstate of this state.
+    //
+    // > [root](/api/#state--methods--root)
     root: function () {
         var controller = this.controller();
         if ( controller ) return controller.root();
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--superstate"
-    //    href="#state--prototype--superstate"></a>
-    // 
-    // #### superstate
+    // #### [superstate](#state--prototype--superstate)
     // 
     // The `superstate` method is overridden for non-root `State` instances
     // using [`State.privileged.superstate`](#state--privileged--superstate).
+    //
+    // > [superstate](/api/#state--methods--superstate)
     superstate: O.noop,
 
-    // <a class="icon-link"
-    //    name="state--prototype--derivation"
-    //    href="#state--prototype--derivation"></a>
-    // 
-    // #### derivation
+    // #### [derivation](#state--prototype--derivation)
     // 
     // Returns an object array of this state’s superstate chain, starting after
     // the root state and ending at `this`. If `byName` is set to `true`, a
     // string array of the states’ names is returned instead.
+    //
+    // > [derivation](/api/#state--methods--derivation)
     derivation: function ( /*Boolean*/ byName ) {
         var result = [], s, ss = this;
         while ( ( s = ss ) && ( ss = s.superstate() ) ) {
@@ -1328,41 +1153,35 @@ O.assign( State.prototype, {
         return result;
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--path"
-    //    href="#state--prototype--path"></a>
-    // 
-    // #### path
+    // #### [path](#state--prototype--path)
     // 
     // Returns this state’s fully qualified name.
     // 
     // *Alias:* **toString**
+    //
+    // > [path](/api/#state--methods--path)
     'path toString': function () {
         return this.derivation( true ).join('.');
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--depth"
-    //    href="#state--prototype--depth"></a>
-    // 
-    // #### depth
+    // #### [depth](#state--prototype--depth)
     // 
     // Returns the number of superstates this state has. The root state returns
     // `0`, its immediate substates return `1`, etc.
+    //
+    // > [depth](/api/#state--methods--depth)
     depth: function () {
         var n = 0, s = this;
         while ( s = s.superstate() ) n++;
         return n;
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--common"
-    //    href="#state--prototype--common"></a>
-    // 
-    // #### common
+    // #### [common](#state--prototype--common)
     // 
     // Returns the least common ancestor of `this` and `other`. If `this` is
     // itself an ancestor of `other`, or vice versa, that ancestor is returned.
+    //
+    // > [common](/api/#state--methods--common)
     common: function ( /*State | String*/ other ) {
         var state;
 
@@ -1381,49 +1200,41 @@ O.assign( State.prototype, {
         }
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--is"
-    //    href="#state--prototype--is"></a>
-    // 
-    // #### is
+    // #### [is](#state--prototype--is)
     // 
     // Determines whether `this` is `state`.
+    //
+    // > [is](/api/#state--methods--is)
     is: function ( /*State | String*/ state ) {
         state instanceof State || ( state = this.query( state ) );
         return state === this;
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--is-in"
-    //    href="#state--prototype--is-in"></a>
-    // 
-    // #### isIn
+    // #### [isIn](#state--prototype--is-in)
     // 
     // Determines whether `this` is or is a substate of `state`.
+    //
+    // > [isIn](/api/#state--methods--is-in)
     isIn: function ( /*State | String*/ state ) {
         state instanceof State || ( state = this.query( state ) );
         return state === this || state.isSuperstateOf( this );
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--has"
-    //    href="#state--prototype--has"></a>
-    // 
-    // #### has
+    // #### [has](#state--prototype--has)
     // 
     // Determines whether `this` is or is a superstate of `state`.
+    //
+    // > [has](/api/#state--methods--has)
     has: function ( /*State | String */ state ) {
         state instanceof State || ( state = this.query( state ) );
         return this === state || this.isSuperstateOf( state );
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--is-superstate-of"
-    //    href="#state--prototype--is-superstate-of"></a>
-    // 
-    // #### isSuperstateOf
+    // #### [isSuperstateOf](#state--prototype--is-superstate-of)
     // 
     // Determines whether `this` is a superstate of `state`.
+    //
+    // > [isSuperstateOf](/api/#state--methods--is-superstate-of)
     isSuperstateOf: function ( /*State | String*/ state ) {
         var superstate;
         state instanceof State || ( state = this.query( state ) );
@@ -1432,11 +1243,7 @@ O.assign( State.prototype, {
             false;
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--protostate"
-    //    href="#state--prototype--protostate"></a>
-    // 
-    // #### protostate
+    // #### [protostate](#state--prototype--protostate)
     // 
     // Returns the **protostate**, the state analogous to `this` found in the
     // next object in the owner’s prototype chain that has one. A state
@@ -1450,6 +1257,8 @@ O.assign( State.prototype, {
     // A state and its protostate will always share an identical name and
     // identical derivation pattern, as will the respective superstates of
     // both, relative to one another.
+    //
+    // > [protostate](/api/#state--methods--protostate)
     protostate: ( function () {
         var memoize;
         
@@ -1509,14 +1318,12 @@ O.assign( State.prototype, {
         };
     }() ),
 
-    // <a class="icon-link"
-    //    name="state--prototype--is-protostate-of"
-    //    href="#state--prototype--is-protostate-of"></a>
-    // 
-    // #### isProtostateOf
+    // #### [isProtostateOf](#state--prototype--is-protostate-of)
     // 
     // Determines whether `this` is a state analogous to `state` on any object
     // in the prototype chain of `state`’s owner.
+    //
+    // > [isProtostateOf](/api/#state--methods--is-protostate-of)
     isProtostateOf: function ( /*State | String*/ state ) {
         var protostate;
         state instanceof State || ( state = this.query( state ) );
@@ -1525,15 +1332,13 @@ O.assign( State.prototype, {
             false;
     },
 
-    // <a class="icon-link"
-    //    name="state--substates--default-substate"
-    //    href="#state--substates--default-substate"></a>
-    // 
-    // #### defaultSubstate
+    // #### [defaultSubstate](#state--substates--default-substate)
     // 
     // Returns the first substate marked `default`, or simply the first
     // substate. Recursion continues into the protostate only if no local
-    // descendant states are marked `initial`.
+    // substates are marked `default`.
+    //
+    // > [defaultSubstate](/api/#state--methods--default-substate)
     defaultSubstate: function (
         /*Boolean*/ viaProto, // = true
                        first
@@ -1555,16 +1360,14 @@ O.assign( State.prototype, {
         return first;
     },
 
-    // <a class="icon-link"
-    //    name="state--substates--initial-substate"
-    //    href="#state--substates--initial-substate"></a>
-    // 
-    // #### initialSubstate
+    // #### [initialSubstate](#state--substates--initial-substate)
     // 
     // Performs a “depth-within-breadth-first” recursive search to locate the
     // most deeply nested `initial` state by way of the greatest `initial`
     // descendant state. Recursion continues into the protostate only if no
     // local descendant states are marked `initial`.
+    //
+    // > [initialSubstate](/api/#state--methods--initial-substate)
     initialSubstate: function (
         /*Boolean*/ viaProto // = true
     ) {
@@ -1589,58 +1392,44 @@ O.assign( State.prototype, {
     }
 });
 
-// <a class="icon-link"
-//    name="state--currency.js"
-//    href="#state--currency.js"></a>
-// 
-// ### `state/currency.js`
+// ### [`state/currency.js`](#state--currency.js)
 // 
 // Methods that inspect or change the owner’s current state.
 
 O.assign( State.prototype, {
 
-    // <a class="icon-link"
-    //    name="state--prototype--current"
-    //    href="#state--prototype--current"></a>
-    // 
-    // #### current
+    // #### [current](#state--prototype--current)
     // 
     // Gets the local controller’s current state.
+    //
+    // > [current](/api/#state--methods--current)
     current: function () {
         var controller = this.controller();
         if ( controller ) return this.controller().current();
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--is-current"
-    //    href="#state--prototype--is-current"></a>
-    // 
-    // #### isCurrent
+    // #### [isCurrent](#state--prototype--is-current)
     // 
     // Returns a `Boolean` indicating whether `this` is the owner’s current
     // state.
+    //
+    // > [isCurrent](/api/#state--methods--is-current)
     isCurrent: function () {
         return this.current() === this;
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--is-active"
-    //    href="#state--prototype--is-active"></a>
-    // 
-    // #### isActive
+    // #### [isActive](#state--prototype--is-active)
     // 
     // Returns a `Boolean` indicating whether `this` or one of its substates is
     // the owner’s current state.
+    //
+    // > [isActive](/api/#state--methods--is-active)
     isActive: function () {
         var current = this.current();
         return current === this || this.isSuperstateOf( current );
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--change"
-    //    href="#state--prototype--change"></a>
-    // 
-    // #### change
+    // #### [change](#state--prototype--change)
     // 
     // Forwards a `change` command to the state’s controller and returns its
     // result. Calling with no arguments directs the controller to change to
@@ -1648,7 +1437,9 @@ O.assign( State.prototype, {
     // 
     // *Aliases:* **go**, **be**
     //
-    // *See also:* [`StateController.privileged.change`](#state-controller--privileged--change)
+    // > See also: [`StateController.privileged.change`](#state-controller--privileged--change)
+    //
+    // > [change](/api/#state--methods--change)
     'change go be': function (
         /*State | String*/ target,  // optional
                 /*Object*/ options  // optional
@@ -1664,17 +1455,13 @@ O.assign( State.prototype, {
         );
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--change-to"
-    //    href="#state--prototype--change-to"></a>
-    // 
-    // #### changeTo
+    // #### [changeTo](#state--prototype--change-to)
     // 
     // Calls `change` without regard to a `target`’s retained internal state.
     // 
     // *Alias:* **goTo**
     // 
-    // *See also:* [`State.prototype.change`](#state--prototype--change)
+    // > See also: [`State::change`](#state--prototype--change)
     'changeTo goTo': function (
         /*State | String*/ target,
                 /*Object*/ options  // optional
@@ -1685,19 +1472,11 @@ O.assign( State.prototype, {
     }
 });
 
-// <a class="icon-link"
-//    name="state--query.js"
-//    href="#state--query.js"></a>
-// 
-// ### `state/query.js`
+// ### [`state/query.js`](#state--query.js)
 
 O.assign( State.prototype, {
 
-    // <a class="icon-link"
-    //    name="state--prototype--query"
-    //    href="#state--prototype--query"></a>
-    // 
-    // #### query
+    // #### [query](#state--prototype--query)
     // 
     // Matches a `selector` string with the state or states it represents,
     // evaluated first in the context of `this`, then its substates, and then
@@ -1714,6 +1493,9 @@ O.assign( State.prototype, {
     // recursion through its superstates.
     // 
     // *Alias:* **match**
+    //
+    // > [Selectors](/docs/#concepts--selectors)
+    // > [query](/api/#state--methods--query)
     'query match': function (
          /*String*/ selector,
           /*State*/ against, // optional
@@ -1855,18 +1637,14 @@ O.assign( State.prototype, {
         return against ? false : null;
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--$"
-    //    href="#state--prototype--$"></a>
-    // 
-    // #### $
+    // #### [$](#state--prototype--dollarsign)
     // 
     // Convenience method that either aliases to
     // [`change`](#state--prototype--change) if passed a function for the first
     // argument, or aliases to [`query`](#state--prototype--query) if passed a
     // string — thereby mimicking the behavior of the object’s accessor method.
     // 
-    // *See also:*
+    // > See also:
     // [`StateController createAccessor`](#state-controller--private--create-accessor)
     $: function ( expr ) {
         var args, match, method;
@@ -1888,34 +1666,28 @@ O.assign( State.prototype, {
     }
 });
 
-// <a class="icon-link"
-//    name="state--data.js"
-//    href="#state--data.js"></a>
-// 
-// ### `state/data.js`
+// ### [`state/data.js`](#state--data.js)
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--data"
-    //    href="#state--privileged--data"></a>
-    // 
-    // #### data
+    // #### [data](#state--privileged--data)
     // 
     // Either retrieves or edits a block of data associated with this state.
     // 
-    // `data( [Boolean viaSuper], [Boolean viaProto] )`
-    // 
-    // Retrieves data attached to this state, including all data from inherited
-    // states, unless specified otherwise by the inheritance flags `viaSuper`
-    // and `viaProto`.
-    // 
-    // `data( Object edit )`
-    // 
-    // Edits data on this state. For keys in `edit` whose values are set to the
-    // `NIL` directive, the matching keys in `data` are deleted. If the
-    // operation results in a change to `data`, a `mutate` event is emitted for
-    // this state.
+    // If called with no arguments, or with boolean arguments, `data` returns
+    // a copy of the data attached to this state, including all data from
+    // inherited states, unless specified otherwise by the inheritance flags
+    // `viaSuper` and `viaProto`.
+    //
+    // If called with an object-typed argument, `data` edits the data held on
+    // this state. For keys in `edit` whose values are set to the `NIL`
+    // directive, the matching keys in the state’s data are deleted. If the
+    // operation results in a change to the state’s data, a
+    // [`mutate`](/api/#state--attributes--mutate) event is emitted for this
+    // state.
+    //
+    // > [Data](/docs/#concepts--data)
+    // > [data](/api/#state--methods--data)
     data: function (
         /*Number*/ attributes,
         /*Object*/ data
@@ -1957,25 +1729,19 @@ O.assign( State.privileged, {
 
 State.prototype.data = State.privileged.data( undefined, null );
 
-// <a class="icon-link"
-//    name="state--methods.js"
-//    href="#state--methods.js"></a>
-// 
-// ### `state/methods.js`
+// ### [`state/methods.js`](#state--methods.js)
 
 function rootNoop () {}
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--method"
-    //    href="#state--privileged--method"></a>
-    // 
-    // #### method
+    // #### [method](#state--privileged--method)
     // 
     // Retrieves the named method held on this state. If no method is found,
     // step through this state’s protostate chain to find one. If no method is
     // found there, step up the superstate hierarchy and repeat the search.
+    //
+    // > [method](/api/#state--methods--method)
     method: function ( methods ) {
         return function (
              /*String*/ methodName,
@@ -2025,27 +1791,23 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--method-names"
-    //    href="#state--privileged--method-names"></a>
-    // 
-    // #### methodNames
+    // #### [methodNames](#state--privileged--method-names)
     // 
     // Returns an `Array` of names of methods defined for this state.
+    //
+    // > [methodNames](/api/#state--methods--method-names)
     methodNames: function ( methods ) {
         return function () {
             return O.keys( methods );
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--add-method"
-    //    href="#state--privileged--add-method"></a>
-    // 
-    // #### addMethod
+    // #### [addMethod](#state--privileged--add-method)
     // 
     // Adds a method to this state, which will be callable directly from the
     // owner, but with its context bound to the state.
+    //
+    // > [addMethod](/api/#state--methods--add-method)
     addMethod: function ( methods ) {
 
         // ##### createDelegator
@@ -2069,6 +1831,8 @@ O.assign( State.privileged, {
         // within the local [`StateController`](#state-controller). However,
         // for any a priori methods relocated to the root state, the context
         // appropriately remains bound to the owner object.
+        //
+        // > [Delegator methods](/docs/#concepts--methods--delegators)
         function createDelegator ( accessorKey, methodName, original ) {
             function delegator () {
                 return this[ accessorKey ]().apply( methodName, arguments );
@@ -2084,6 +1848,7 @@ O.assign( State.privileged, {
             return delegator;
         }
 
+        //
         return function ( /*String*/ methodName, /*Function*/ fn ) {
             var controller = this.controller(),
                 controllerName = controller.name(),
@@ -2099,9 +1864,8 @@ O.assign( State.privileged, {
                     !root.method( methodName, false, false )
                 ) {
                     ownerMethod = owner[ methodName ];
-                    if ( ownerMethod === undefined || ownerMethod.isDelegator ) {
-                        ownerMethod = rootNoop;
-                    }
+                    ( ownerMethod === undefined || ownerMethod.isDelegator ) &&
+                        ( ownerMethod = rootNoop );
                     root.addMethod( methodName, ownerMethod );
                 }
 
@@ -2117,14 +1881,12 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--remove-method"
-    //    href="#state--privileged--remove-method"></a>
-    // 
-    // #### removeMethod
+    // #### [removeMethod](#state--privileged--remove-method)
     // 
     // Dissociates the named method from this state object and returns its
     // function.
+    //
+    // > [removeMethod](/api/#state--methods--remove-method)
     removeMethod: function ( methods ) {
         return function ( /*String*/ methodName ) {
             var fn = methods[ methodName ];
@@ -2139,35 +1901,27 @@ O.assign( State.prototype, {
     methodNames: function () { return []; },
     'addMethod removeMethod': O.noop,
 
-    // <a class="icon-link"
-    //    name="state--prototype--has-method"
-    //    href="#state--prototype--has-method"></a>
-    // 
-    // #### hasMethod
+    // #### [hasMethod](#state--prototype--has-method)
     // 
     // Determines whether `this` possesses or inherits a method named
     // `methodName`.
+    //
+    // > [hasMethod](/api/#state--methods--has-method)
     hasMethod: function ( /*String*/ methodName ) {
         var method = this.method( methodName );
         return method && method !== rootNoop;
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--has-own-method"
-    //    href="#state--prototype--has-own-method"></a>
-    // 
-    // #### hasOwnMethod
+    // #### [hasOwnMethod](#state--prototype--has-own-method)
     // 
     // Determines whether `this` directly possesses a method named `methodName`.
+    //
+    // > [hasOwnMethod](/api/#state--methods--has-own-method)
     hasOwnMethod: function ( /*String*/ methodName ) {
         return !!this.method( methodName, false, false );
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--apply"
-    //    href="#state--prototype--apply"></a>
-    // 
-    // #### apply
+    // #### [apply](#state--prototype--apply)
     // 
     // Finds a state method and applies it in the appropriate context. If the
     // method was originally defined in the owner, the context will be the
@@ -2176,6 +1930,8 @@ O.assign( State.prototype, {
     // corresponding state belonging to the inheriting owner. If the named
     // method does not exist locally and cannot be inherited, a `noSuchMethod`
     // event is emitted and the call returns `undefined`.
+    //
+    // > [apply](/api/#state--methods--apply)
     apply: function (
         /*String*/ methodName,
          /*Array*/ args         // optional
@@ -2203,31 +1959,21 @@ O.assign( State.prototype, {
         return method.apply( context, args );
     },
 
-    // <a class="icon-link"
-    //    name="state--prototype--call"
-    //    href="#state--prototype--call"></a>
-    // 
-    // #### call
+    // #### [call](#state--prototype--call)
     // 
     // Variadic [`apply`](#state--prototype--apply).
+    //
+    // > [call](/api/#state--methods--call)
     call: function ( /*String*/ methodName ) {
         return this.apply( methodName, O.slice.call( arguments, 1 ) );
     }
 });
 
-// <a class="icon-link"
-//    name="state--events.js"
-//    href="#state--events.js"></a>
-// 
-// ### `state/events.js`
+// ### [`state/events.js`](#state--events.js)
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--event"
-    //    href="#state--privileged--event"></a>
-    // 
-    // #### event
+    // #### [event](#state--privileged--event)
     // 
     // Returns a registered event listener, or the number of listeners
     // registered, for a given event `type`.
@@ -2236,6 +1982,8 @@ O.assign( State.privileged, {
     // provided, the event listener associated with that `id` is returned. If no
     // `id` is provided, the number of event listeners registered to `type` is
     // returned.
+    //
+    // > [event](/api/#state--methods--event)
     event: function ( events ) {
         return function (
                     /*String*/ eventType,
@@ -2251,17 +1999,15 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--add-event"
-    //    href="#state--privileged--add-event"></a>
-    // 
-    // #### addEvent
+    // #### [addEvent](#state--privileged--add-event)
     // 
     // Binds an event listener to the specified `eventType` and returns a unique
     // identifier for the listener. Built-in event types are listed at
     // `STATE_EVENT_TYPES`.
     // 
     // *Aliases:* **on**, **bind**
+    //
+    // > [addEvent](/api/#state--methods--add-event)
     addEvent: function ( events ) {
         return function (
               /*String*/ eventType,
@@ -2276,27 +2022,21 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--remove-event"
-    //    href="#state--privileged--remove-event"></a>
-    // 
-    // #### removeEvent
+    // #### [removeEvent](#state--privileged--remove-event)
     // 
     // Unbinds the event listener with the specified `id` that was supplied by
     // [`addEvent`](#state--privileged--add-event).
     // 
     // *Aliases:* **off**, **unbind**
+    //
+    // > [removeEvent](/api/#state--methods--remove-event)
     removeEvent: function ( events ) {
         return function ( /*String*/ eventType, /*String*/ id ) {
             return events[ eventType ].remove( id );
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--emit"
-    //    href="#state--privileged--emit"></a>
-    // 
-    // #### emit
+    // #### [emit](#state--privileged--emit)
     // 
     // Invokes all listeners bound to the given event type.
     //
@@ -2310,6 +2050,8 @@ O.assign( State.privileged, {
     // otherwise directed by setting `viaSuper` or `viaProto` to `false`.
     // 
     // *Alias:* **trigger**
+    //
+    // > [emit](/api/#state--methods--emit)
     emit: function ( events ) {
         return function (
              /*String*/ eventType,
@@ -2353,19 +2095,11 @@ O.assign( State.prototype, {
     'event addEvent removeEvent emit trigger': O.noop
 });
 
-// <a class="icon-link"
-//    name="state--guards.js"
-//    href="#state--guards.js"></a>
-// 
-// ### `state/guards.js`
+// ### [`state/guards.js`](#state--guards.js)
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--guard"
-    //    href="#state--privileged--guard"></a>
-    // 
-    // #### guard
+    // #### [guard](#state--privileged--guard)
     // 
     // Gets a **guard** entity for this state. A guard is a value or function
     // that will be evaluated, as either a boolean or predicate, respectively,
@@ -2373,7 +2107,9 @@ O.assign( State.privileged, {
     // or released from the state to which the guard is applied. Guards are
     // inherited from protostates, but not from superstates.
     // 
-    // *See also:* [`StateController evaluateGuard`](#state-controller--private--evaluate-guard)
+    // > See also: [`StateController evaluateGuard`](#state-controller--private--evaluate-guard)
+    //
+    // > [guard](/api/#state--methods--guard)
     guard: function ( guards ) {
         return function ( /*String*/ guardType ) {
             var guard, protostate;
@@ -2389,14 +2125,12 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--add-guard"
-    //    href="#state--privileged--add-guard"></a>
-    // 
-    // #### addGuard
+    // #### [addGuard](#state--privileged--add-guard)
     // 
     // Adds a guard to this state, or augments an existing guard with additional
     // entries.
+    //
+    // > [addGuard](/api/#state--methods--add-guard)
     addGuard: function ( guards ) {
         return function ( /*String*/ guardType, /*Object*/ guard ) {
             return O.edit(
@@ -2406,14 +2140,12 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--remove-guard"
-    //    href="#state--privileged--remove-guard"></a>
-    // 
-    // #### removeGuard
+    // #### [removeGuard](#state--privileged--remove-guard)
     // 
     // Removes a guard from this state, or removes specific entries from an
     // existing guard.
+    //
+    // > [removeGuard](/api/#state--methods--remove-guard)
     removeGuard: function ( guards ) {
         return function (
                     /*String*/ guardType
@@ -2444,23 +2176,17 @@ O.assign( State.prototype, {
     'guard addGuard removeGuard': O.noop
 });
 
-// <a class="icon-link"
-//    name="state--substates.js"
-//    href="#state--substates.js"></a>
-// 
-// ### `state/substates.js`
+// ### [`state/substates.js`](#state--substates.js)
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--substate"
-    //    href="#state--privileged--substate"></a>
-    // 
-    // #### substate
+    // #### [substate](#state--privileged--substate)
     // 
     // Retrieves the named substate of `this` state. If no such substate
     // exists in the local state, any identically named substate held on a
     // protostate will be returned.
+    //
+    // > [substate](/api/#state--methods--substate)
     substate: function ( attributes, substates ) {
         return function (
              /*String*/ stateName,
@@ -2490,15 +2216,13 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--substates"
-    //    href="#state--privileged--substates"></a>
-    // 
-    // #### substates
+    // #### [substates](#state--privileged--substates)
     // 
     // Returns an `Array` of this state’s substates. If the boolean `deep`
     // argument is `true`, returns a depth-first flattened array containing all
     // of this state’s descendant states.
+    //
+    // > [substates](/api/#state--methods--substates)
     substates: function ( attributes, substates ) {
         return function (
             /*Boolean*/ deep,    // = false
@@ -2534,34 +2258,21 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--add-substate"
-    //    href="#state--privileged--add-substate"></a>
-    // 
-    // #### addSubstate
+    // #### [addSubstate](#state--privileged--add-substate)
     // 
     // Creates a state from the supplied `stateExpression` and adds it as a
     // substate of this state. If a substate with the same `stateName` already
     // exists, it is first destroyed and then replaced. If the new substate is
     // being added to the controller’s root state, a reference is added
     // directly on the controller itself as well.
+    //
+    // > [addSubstate](/api/#state--methods--add-substate)
     addSubstate: function ( attributes, substates ) {
         return function (
                                       /*String*/ stateName,
             /*StateExpression | Object | State*/ stateExpression
         ) {
             var substate, controller;
-
-            if ( ~attributes & MUTABLE ) {
-                "catch!";
-            }
-            if ( stateExpression instanceof State &&
-                 stateExpression.isVirtual() &&
-                 stateExpression.superstate() === this &&
-                 stateExpression.protostate().superstate().isProtostateOf( this )
-            ) {
-                "catch!";
-            }
 
             if ( attributes & VIRTUAL ) {
                 return this.realize().addSubstate( stateName, stateExpression );
@@ -2588,13 +2299,11 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--remove-substate"
-    //    href="#state--privileged--remove-substate"></a>
-    // 
-    // #### removeSubstate
+    // #### [removeSubstate](#state--privileged--remove-substate)
     // 
     // Removes the named substate from the local state, if possible.
+    //
+    // > [removeSubstate](/api/#state--methods--remove-substate)
     removeSubstate: function ( attributes, substates ) {
         return function ( /*String*/ stateName ) {
             var controller, current, transition,
@@ -2639,48 +2348,38 @@ O.assign( State.prototype, {
     'addSubstate removeSubstate': O.noop
 });
 
-// <a class="icon-link"
-//    name="state--transitions.js"
-//    href="#state--transitions.js"></a>
-// 
-// ### `state/transitions.js`
+// ### [`state/transitions.js`](#state--transitions.js)
 
 O.assign( State.privileged, {
 
-    // <a class="icon-link"
-    //    name="state--privileged--transition"
-    //    href="#state--privileged--transition"></a>
-    // 
-    // #### transition
+    // #### [transition](#state--privileged--transition)
     // 
     // Returns the named transition expression held on this state.
+    //
+    // > [transition](/api/#state--methods--transition)
     transition: function ( transitions ) {
         return function ( /*String*/ transitionName ) {
             return transitions[ transitionName ];
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--transitions"
-    //    href="#state--privileged--transitions"></a>
-    // 
-    // #### transitions
+    // #### [transitions](#state--privileged--transitions)
     // 
     // Returns an object containing all of the transition expressions defined
     // on this state.
+    //
+    // > [transitions](/api/#state--methods--transitions)
     transitions: function ( transitions ) {
         return function () {
             return O.clone( transitions );
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--add-transition"
-    //    href="#state--privileged--add-transition"></a>
-    // 
-    // #### addTransition
+    // #### [addTransition](#state--privileged--add-transition)
     // 
     // Registers a transition expression to this state.
+    //
+    // > [addTransition](/api/#state--methods--add-transition)
     addTransition: function ( transitions ) {
         return function (
                                    /*String*/ name,
@@ -2693,11 +2392,7 @@ O.assign( State.privileged, {
         };
     },
 
-    // <a class="icon-link"
-    //    name="state--privileged--remove-transition"
-    //    href="#state--privileged--remove-transition"></a>
-    // 
-    // #### removeTransition
+    // #### [removeTransition](#state--privileged--remove-transition)
     // 
     // (Not implemented)
     removeTransition: O.noop
@@ -2708,21 +2403,13 @@ O.assign( State.prototype, {
     transitions: function () { return {}; }
 });
 
-// <a class="icon-link"
-//    name="state--__post.js"
-//    href="#state--__post.js"></a>
-// 
-// ### `state/__post.js`
+// ### [`state/__post.js`](#state--__post.js)
 
 return State;
 
 }() );
 
-// <a class="icon-link"
-//    name="state-expression"
-//    href="#state-expression"></a>
-// 
-// ## StateExpression
+// ## [StateExpression](#state-expression)
 // 
 // A **state expression** formalizes a definition of a state’s contents.
 // States are declared by calling the module’s exported [`state()`](#module)
@@ -2748,11 +2435,7 @@ var StateExpression = ( function () {
         eventTypes     = O.assign( STATE_EVENT_TYPES ),
         guardActions   = O.assign( GUARD_ACTIONS );
 
-    // <a class="icon-link"
-    //    name="state-expression--constructor"
-    //    href="#state-expression--constructor"></a>
-    // 
-    // ### Constructor
+    // ### [Constructor](#state-expression--constructor)
     function StateExpression (
         /*String | Object*/ attributes, // optional
                  /*Object*/ map
@@ -2778,17 +2461,9 @@ var StateExpression = ( function () {
         this.attributes = attributes || STATE_ATTRIBUTES.NORMAL;
     }
 
-    // <a class="icon-link"
-    //    name="state-expression--class"
-    //    href="#state-expression--class"></a>
-    // 
-    // ### Class functions
+    // ### [Class functions](#state-expression--class)
 
-    // <a class="icon-link"
-    //    name="state-expression--class--encode-attributes"
-    //    href="#state-expression--class--encode-attributes"></a>
-    // 
-    // #### encodeAttributes
+    // #### [encodeAttributes](#state-expression--class--encode-attributes)
     // 
     // Returns the bit-field integer represented by the provided set of
     // attributes.
@@ -2810,11 +2485,7 @@ var StateExpression = ( function () {
     }
     StateExpression.encodeAttributes = encodeAttributes;
 
-    // <a class="icon-link"
-    //    name="state-expression--class--decode-attributes"
-    //    href="#state-expression--class--decode-attributes"></a>
-    // 
-    // #### decodeAttributes
+    // #### [decodeAttributes](#state-expression--class--decode-attributes)
     // 
     // Returns the space-delimited set of attribute names represented by the
     // provided bit-field integer.
@@ -2827,17 +2498,9 @@ var StateExpression = ( function () {
     }
     StateExpression.decodeAttributes = decodeAttributes;
 
-    // <a class="icon-link"
-    //    name="state-expression--private"
-    //    href="#state-expression--private"></a>
-    // 
-    // ### Class-private functions
+    // ### [Class-private functions](#state-expression--private)
 
-    // <a class="icon-link"
-    //    name="state-expression--private--interpret"
-    //    href="#state-expression--private--interpret"></a>
-    // 
-    // #### interpret
+    // #### [interpret](#state-expression--private--interpret)
     // 
     // Transforms a plain object map into a well-formed
     // [`StateExpression`](#state-expression), making the appropriate
@@ -2939,11 +2602,7 @@ var StateExpression = ( function () {
     return StateExpression;
 }() );
 
-// <a class="icon-link"
-//    name="state-controller"
-//    href="#state-controller"></a>
-// 
-// ## StateController
+// ## [StateController](#state-controller)
 // 
 // A **state controller** maintains the identity of the owner’s **current
 // state**, and facilitates transitions from one state to another. It provides
@@ -2952,11 +2611,7 @@ var StateExpression = ( function () {
 // methods that are valid given the current state.
 var StateController = ( function () {
 
-    // <a class="icon-link"
-    //    name="state-controller--constructor"
-    //    href="#state-controller--constructor"></a>
-    // 
-    // ### Constructor
+    // ### [Constructor](#state-controller--constructor)
     function StateController (
                           /*Object*/ owner,      // = {}
         /*StateExpression | Object*/ expression, // optional
@@ -2987,31 +2642,19 @@ var StateController = ( function () {
         owner[ name ] = createAccessor( owner, name, this );
 
         O.assign( this, {
-            // <a class="icon-link"
-            //    name="state-controller--constructor--owner"
-            //    href="#state-controller--constructor--owner"></a>
-            // 
-            // #### owner
+            // #### [owner](#state-controller--constructor--owner)
             // 
             // Returns the owner object on whose behalf this controller acts.
             owner: O.thunk( owner ),
 
-            // <a class="icon-link"
-            //    name="state-controller--constructor--name"
-            //    href="#state-controller--constructor--name"></a>
-            // 
-            // #### name
+            // #### [name](#state-controller--constructor--name)
             // 
             // Returns the name assigned to this controller. This is also the
             // key in `owner` that holds the `accessor` function associated
             // with this controller.
             name: O.stringFunction( function () { return name; } ),
 
-            // <a class="icon-link"
-            //    name="state-controller--constructor--current"
-            //    href="#state-controller--constructor--current"></a>
-            // 
-            // #### current
+            // #### [current](#state-controller--constructor--current)
             // 
             // Returns the controller’s current state, or currently active
             // transition.
@@ -3021,21 +2664,13 @@ var StateController = ( function () {
                 }
             }),
 
-            // <a class="icon-link"
-            //    name="state-controller--constructor--change"
-            //    href="#state-controller--constructor--change"></a>
-            // 
-            // #### change
+            // #### [change](#state-controller--constructor--change)
             // 
             // *See* [`StateController.privileged.change`](#state-controller--privileged--change)
             change: StateController.privileged.change(
                 setCurrent, setTransition ),
 
-            // <a class="icon-link"
-            //    name="state-controller--constructor--transition"
-            //    href="#state-controller--constructor--transition"></a>
-            // 
-            // #### transition
+            // #### [transition](#state-controller--constructor--transition)
             // 
             // Returns the currently active transition, or `undefined` if the
             // controller is not presently engaged in a transition.
@@ -3045,11 +2680,7 @@ var StateController = ( function () {
                 }
             }),
 
-            // <a class="icon-link"
-            //    name="state-controller--constructor--destroy"
-            //    href="#state-controller--constructor--destroy"></a>
-            // 
-            // #### destroy
+            // #### [destroy](#state-controller--constructor--destroy)
             // 
             // Destroys this controller and all of its states, and returns the
             // owner to its original condition.
@@ -3095,11 +2726,7 @@ var StateController = ( function () {
 
     // ### Class-private functions
 
-    // <a class="icon-link"
-    //    name="state-controller--private--create-accessor"
-    //    href="#state-controller--private--create-accessor"></a>
-    // 
-    // #### createAccessor
+    // #### [createAccessor](#state-controller--private--create-accessor)
     // 
     // Returns an `accessor` function, which will serve as an owner object’s
     // interface to the implementation of its state.
@@ -3153,11 +2780,7 @@ var StateController = ( function () {
         return accessor;
     }
 
-    // <a class="icon-link"
-    //    name="state-controller--private--virtualize"
-    //    href="#state-controller--private--virtualize"></a>
-    // 
-    // #### virtualize
+    // #### [virtualize](#state-controller--private--virtualize)
     // 
     // Creates a transient virtual state within the local state hierarchy to
     // represent `protostate`, along with as many virtual superstates as are
@@ -3188,11 +2811,7 @@ var StateController = ( function () {
         }
     }
 
-    // <a class="icon-link"
-    //    name="state-controller--private--evaluate-guard"
-    //    href="#state-controller--private--evaluate-guard"></a>
-    // 
-    // #### evaluateGuard
+    // #### [evaluateGuard](#state-controller--private--evaluate-guard)
     // 
     // Returns the `Boolean` result of the guard function at `guardName`
     // defined on this state, as evaluated against `testState`, or `true` if no
@@ -3222,18 +2841,10 @@ var StateController = ( function () {
         return result;
     }
 
-    // <a class="icon-link"
-    //    name="state-controller--privileged"
-    //    href="#state-controller--privileged"></a>
-    // 
-    // ### External privileged methods
+    // ### [External privileged methods](#state-controller--privileged)
     StateController.privileged = {
 
-        // <a class="icon-link"
-        //    name="state-controller--privileged--change"
-        //    href="#state-controller--privileged--change"></a>
-        // 
-        // #### change
+        // #### [change](#state-controller--privileged--change)
         // 
         // Attempts to execute a state transition. Handles asynchronous
         // transitions, generation of appropriate events, and construction of
@@ -3443,28 +3054,16 @@ var StateController = ( function () {
         }
     };
 
-    // <a class="icon-link"
-    //    name="state-controller--prototype"
-    //    href="#state-controller--prototype"></a>
-    // 
-    // ### Prototype methods
+    // ### [Prototype methods](#state-controller--prototype)
     O.assign( StateController.prototype, {
 
-        // <a class="icon-link"
-        //    name="state-controller--prototype--to-string"
-        //    href="#state-controller--prototype--to-string"></a>
-        // 
-        // #### toString
+        // #### [toString](#state-controller--prototype--to-string)
         // 
         toString: function () {
             return this.current().toString();
         },
 
-        // <a class="icon-link"
-        //    name="state-controller--prototype--get-transition-expression-for"
-        //    href="#state-controller--prototype--get-transition-expression-for"></a>
-        // 
-        // #### getTransitionExpressionFor
+        // #### [getTransitionExpressionFor](#state-controller--prototype--get-transition-expression-for)
         // 
         // Finds the appropriate transition expression for the given origin and
         // target states. If no matching transitions are defined in any of the
@@ -3539,11 +3138,7 @@ var StateController = ( function () {
 
     return StateController;
 }() );
-// <a class="icon-link"
-//    name="state-event-emitter"
-//    href="#state-event-emitter"></a>
-// 
-// ## StateEventEmitter
+// ## [StateEventEmitter](#state-event-emitter)
 // 
 // A state holds event listeners for a given event type in a `StateEventEmitter`
 // instance.
@@ -3556,11 +3151,7 @@ var StateController = ( function () {
 var StateEventEmitter = ( function () {
     var guid = 0;
 
-    // <a class="icon-link"
-    //    name="state-event-emitter"
-    //    href="#state-event-emitter"></a>
-    // 
-    // ### Constructor
+    // ### [Constructor](#state-event-emitter)
     function StateEventEmitter ( state, type ) {
         this.state = state;
         this.type = type;
@@ -3568,18 +3159,10 @@ var StateEventEmitter = ( function () {
         this.length = 0;
     }
 
-    // <a class="icon-link"
-    //    name="state-event-emitter--prototype"
-    //    href="#state-event-emitter--prototype"></a>
-    // 
-    // ### Prototype methods
+    // ### [Prototype methods](#state-event-emitter--prototype)
     O.assign( StateEventEmitter.prototype, {
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--guid"
-        //    href="#state-event-emitter--prototype--guid"></a>
-        // 
-        // #### guid
+        // #### [guid](#state-event-emitter--prototype--guid)
         // 
         // Produces a unique numeric string, to be used as a key for bound
         // event listeners.
@@ -3587,11 +3170,7 @@ var StateEventEmitter = ( function () {
             return ( guid += 1 ).toString();
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--get"
-        //    href="#state-event-emitter--prototype--get"></a>
-        // 
-        // #### get
+        // #### [get](#state-event-emitter--prototype--get)
         // 
         // Retrieves a bound listener associated with the provided `id` string
         // as returned by the prior call to
@@ -3600,11 +3179,7 @@ var StateEventEmitter = ( function () {
             return this.items[ id ];
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--get-all"
-        //    href="#state-event-emitter--prototype--get-all"></a>
-        // 
-        // #### getAll
+        // #### [getAll](#state-event-emitter--prototype--get-all)
         // 
         // Returns an array of all bound listeners.
         getAll: function () {
@@ -3615,11 +3190,7 @@ var StateEventEmitter = ( function () {
             return result;
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--set"
-        //    href="#state-event-emitter--prototype--set"></a>
-        // 
-        // #### set
+        // #### [set](#state-event-emitter--prototype--set)
         // 
         // Adds or replaces a handler bound to a specific key.
         set: function (
@@ -3632,11 +3203,7 @@ var StateEventEmitter = ( function () {
             return id;
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--key"
-        //    href="#state-event-emitter--prototype--key"></a>
-        // 
-        // #### key
+        // #### [key](#state-event-emitter--prototype--key)
         // 
         // Retrieves the `id` string associated with the provided listener.
         key: function ( /*Function*/ listener ) {
@@ -3646,11 +3213,7 @@ var StateEventEmitter = ( function () {
             }
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--keys"
-        //    href="#state-event-emitter--prototype--keys"></a>
-        // 
-        // #### keys
+        // #### [keys](#state-event-emitter--prototype--keys)
         // 
         // Returns the set of `id` strings associated with all bound listeners.
         keys: function () {
@@ -3663,11 +3226,7 @@ var StateEventEmitter = ( function () {
             return result;
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--add"
-        //    href="#state-event-emitter--prototype--add"></a>
-        // 
-        // #### add
+        // #### [add](#state-event-emitter--prototype--add)
         // 
         // Binds a listener, along with an optional context object, to be
         // called when the the emitter
@@ -3687,11 +3246,7 @@ var StateEventEmitter = ( function () {
             return id;
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--remove"
-        //    href="#state-event-emitter--prototype--remove"></a>
-        // 
-        // #### remove
+        // #### [remove](#state-event-emitter--prototype--remove)
         // 
         // Unbinds a listener. Accepts either the numeric string returned by
         // [`add`](#state-event-emitter--prototype--add) or a reference to
@@ -3709,11 +3264,7 @@ var StateEventEmitter = ( function () {
             return fn;
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--empty"
-        //    href="#state-event-emitter--prototype--empty"></a>
-        // 
-        // #### empty
+        // #### [empty](#state-event-emitter--prototype--empty)
         // 
         // Removes all listeners, and returns the number of listeners removed.
         empty: function () {
@@ -3727,11 +3278,7 @@ var StateEventEmitter = ( function () {
             return n;
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--emit"
-        //    href="#state-event-emitter--prototype--emit"></a>
-        // 
-        // #### emit
+        // #### [emit](#state-event-emitter--prototype--emit)
         // 
         // Invokes all bound listeners, with the provided array of `args`, and
         // in the context of the bound or provided `state`.
@@ -3772,11 +3319,7 @@ var StateEventEmitter = ( function () {
             target && state.change( target );
         },
 
-        // <a class="icon-link"
-        //    name="state-event-emitter--prototype--destroy"
-        //    href="#state-event-emitter--prototype--destroy"></a>
-        // 
-        // #### destroy
+        // #### [destroy](#state-event-emitter--prototype--destroy)
         // 
         destroy: function () {
             this.empty();
@@ -3788,11 +3331,7 @@ var StateEventEmitter = ( function () {
     return StateEventEmitter;
 }() );
 
-// <a class="icon-link"
-//    name="transition"
-//    href="#transition"></a>
-// 
-// ## Transition
+// ## [Transition](#transition)
 // 
 // A `Transition` is a transient `State` adopted by a controller as it changes
 // from one of its proper `State`s to another.
@@ -3801,15 +3340,13 @@ var StateEventEmitter = ( function () {
 // between its **origin** and **target** states. During this time it behaves as
 // if it were a substate of that domain state, inheriting method calls and
 // propagating events in the familiar fashion.
-
+//
+// > [Transitions](/docs/#concepts--transitions)
+// > [Transition](/api/#transition)
 var Transition = ( function () {
     O.inherit( Transition, State );
 
-    // <a class="icon-link"
-    //    name="transition--constructor"
-    //    href="#transition--constructor"></a>
-    // 
-    // ### Constructor
+    // ### [Constructor](#transition--constructor)
     function Transition ( target, source, expression, callback ) {
         if ( !( this instanceof Transition ) ) {
             return TransitionExpression.apply( this, arguments );
@@ -3843,59 +3380,41 @@ var Transition = ( function () {
         });
 
         O.assign( this, {
-            // <a class="icon-link"
-            //    name="transition--constructor--superstate"
-            //    href="#transition--constructor--superstate"></a>
-            // 
-            // #### superstate
+            // #### [superstate](#transition--constructor--superstate)
             // 
             // A [`Transition`](#transition) instance uses `superstate` to
             // track its position as it traverses the [`State`](#state) subtree
             // that defines its domain.
+            //
+            // > [superstate](/api/#transition--methods--superstate)
             superstate: function () { return attachment; },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--attach-to"
-            //    href="#transition--constructor--attach-to"></a>
-            // 
-            // #### attachTo
+            // #### [attachTo](#transition--constructor--attach-to)
             attachTo: function ( state ) { return attachment = state; },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--controller"
-            //    href="#transition--constructor--controller"></a>
-            // 
-            // #### controller
+            // #### [controller](#transition--constructor--controller)
             controller: function () { return controller; },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--origin"
-            //    href="#transition--constructor--origin"></a>
-            // 
-            // #### origin
+            // #### [origin](#transition--constructor--origin)
             // 
             // A transition’s **origin** is the controller’s most recently
             // active [`State`](#state) that is not itself a
             // [`Transition`](#transition).
+            //
+            // > [origin](/api/#transition--methods--origin)
             origin: function () {
                 return source instanceof Transition ? source.origin() : source;
             },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--source"
-            //    href="#transition--constructor--source"></a>
-            // 
-            // #### source
+            // #### [source](#transition--constructor--source)
             // 
             // A transition’s **source** is the [`State`](#state) or
             // [`Transition`](#transition) that immediately preceded `this`.
+            //
+            // > [source](/api/#transition--methods--source)
             source: function () { return source; },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--target"
-            //    href="#transition--constructor--target"></a>
-            // 
-            // #### target
+            // #### [target](#transition--constructor--target)
             // 
             // The intended destination [`State`](#state) for this transition.
             // If a target is invalidated by a controller that
@@ -3903,36 +3422,30 @@ var Transition = ( function () {
             // before this transition completes, then this transition is
             // aborted and the `change` call will create a new transition with
             // `this` as its `source`.
+            //
+            // > [target](/api/#transition--methods--target)
             target: function () { return target; },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--set-callback"
-            //    href="#transition--constructor--set-callback"></a>
-            // 
-            // #### setCallback
+            // #### [setCallback](#transition--constructor--set-callback)
             // 
             // Allows the callback function to be set or changed prior to the
             // transition’s completion.
             setCallback: function ( fn ) { return callback = fn; },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--was-aborted"
-            //    href="#transition--constructor--was-aborted"></a>
-            // 
-            // #### wasAborted
+            // #### [wasAborted](#transition--constructor--was-aborted)
+            //
+            // > [wasAborted](/api/#transition--methods--was-aborted)
             wasAborted: function () { return aborted; },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--start"
-            //    href="#transition--constructor--start"></a>
-            // 
-            // #### start
+            // #### [start](#transition--constructor--start)
             // 
             // Starts the transition; if an `action` is defined, that function
             // is responsible for declaring an end to the transition by calling
             // [`end()`](#transitions--constructor--end). Otherwise, the
             // transition is necessarily synchronous and is concluded
             // immediately.
+            //
+            // > [start](/api/#transition--methods--start)
             start: function () {
                 aborted = false;
                 this.emit( 'start', arguments, false );
@@ -3944,11 +3457,7 @@ var Transition = ( function () {
                 }
             },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--abort"
-            //    href="#transition--constructor--abort"></a>
-            // 
-            // #### abort
+            // #### [abort](#transition--constructor--abort)
             // 
             // Indicates that a transition won’t directly reach its target
             // state; for example, if a new transition is initiated while an
@@ -3962,15 +3471,13 @@ var Transition = ( function () {
                 return this;
             },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--end"
-            //    href="#transition--constructor--end"></a>
-            // 
-            // #### end
+            // #### [end](#transition--constructor--end)
             // 
             // Indicates that a transition has completed and has reached its
             // intended target. The transition is subsequently retired, along
             // with any preceding aborted transitions.
+            //
+            // > [end](/api/#transition--methods--end)
             end: function () {
                 if ( !aborted ) {
                     this.emit( 'end', arguments, false );
@@ -3980,11 +3487,7 @@ var Transition = ( function () {
                 return target;
             },
 
-            // <a class="icon-link"
-            //    name="transition--constructor--destroy"
-            //    href="#transition--constructor--destroy"></a>
-            // 
-            // #### destroy
+            // #### [destroy](#transition--constructor--destroy)
             // 
             // Destroys this transition and clears its held references, and
             // does the same for any aborted `source` transitions that preceded
@@ -4014,11 +3517,7 @@ var Transition = ( function () {
         State.privileged.init( TransitionExpression ).call( this, expression );
     }
 
-    // <a class="icon-link"
-    //    name="transition--prototype--depth"
-    //    href="#transition--prototype--depth"></a>
-    // 
-    // #### depth
+    // #### [depth](#transition--prototype--depth)
     // 
     Transition.prototype.depth = function () {
         var s = this.source(),
@@ -4034,11 +3533,7 @@ var Transition = ( function () {
 
     return Transition;
 }() );
-// <a class="icon-link"
-//    name="transition-expression"
-//    href="#transition-expression"></a>
-// 
-// ## TransitionExpression
+// ## [TransitionExpression](#transition-expression)
 // 
 // A [`State`](#state) may hold **transition expressions** that describe the
 // transition that will take place between any two given **origin** and
@@ -4050,11 +3545,7 @@ var TransitionExpression = ( function () {
         eventTypes   = O.assign( TRANSITION_EVENT_TYPES ),
         guardActions = O.assign( GUARD_ACTIONS );
 
-    // <a class="icon-link"
-    //    name="transition-expression--constructor"
-    //    href="#transition-expression--constructor"></a>
-    // 
-    // ### Constructor
+    // ### [Constructor](#transition-expression--constructor)
     function TransitionExpression ( map ) {
         if ( !( this instanceof TransitionExpression ) ) {
             return new TransitionExpression( map );
@@ -4063,17 +3554,9 @@ var TransitionExpression = ( function () {
             map instanceof TransitionExpression ? map : interpret( map ) );
     }
 
-    // <a class="icon-link"
-    //    name="transition-expression--private"
-    //    href="#transition-expression--private"></a>
-    // 
-    // ### Class-private functions
+    // ### [Class-private functions](#transition-expression--private)
 
-    // <a class="icon-link"
-    //    name="transition-expression--private--interpret"
-    //    href="#transition-expression--private--interpret"></a>
-    // 
-    // #### interpret
+    // #### [interpret](#transition-expression--private--interpret)
     // 
     // Rewrites a plain object map as a well-formed
     // [`TransitionExpression`](#transition-expression), making the appropriate
