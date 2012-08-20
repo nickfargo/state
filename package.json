@@ -1,6 +1,6 @@
 {
     "name"          : "state",
-    "version"       : "0.0.5",
+    "version"       : "0.0.6",
     "description"   : "Objects that behave",
     "homepage"      : "http://statejs.org/",
     "keywords"      : [ "state", "transition", "behavior", "behaviour", "fsm", "machine", "state machine", "state transition system" ],
