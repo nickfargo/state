@@ -26,6 +26,8 @@ Since construction is not complete until the state’s substates have themselves
 {% include examples/api/state/events--construct.coffee %}
 {% endhighlight %}
 
+> [Existential events](/docs/#concepts--events--existential)
+
 
 #### [destroy](#state--events--destroy)
 
@@ -40,6 +42,8 @@ function () {}
 A state is properly deallocated with a call to the [`destroy` method](#state--methods--destroy) of either itself or a superstate. The `destroy` event is emitted immediately prior to the state and its contents being cleared.
 
 Listeners of `destroy` are called with no arguments.
+
+> [Existential events](/docs/#concepts--events--existential)
 
 
 #### [depart](#state--events--depart)

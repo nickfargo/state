@@ -91,7 +91,7 @@ person.greet()  # >>> "Hello."
 
 #### [Step 3 — Transitioning between states](#getting-started--transitioning-between-states)
 
-The object’s current state may be reassigned to a different state by calling its `change` method and providing it the name of a state to be targeted. Transitioning between states allows an object to exhibit different behaviors:
+The object’s current state may be reassigned to a different state by calling its [`change`](/api/#state--prototype--change) method and providing it the name of a state to be targeted. Transitioning between states allows an object to exhibit different behaviors:
 
 {% highlight javascript %}
 person.state().change('Formal');
@@ -109,25 +109,25 @@ A sugary alternative to `change()` is to prepend a **transition arrow** to the t
 
 {% highlight javascript %}
 person.state('-> Casual');
-person.state();             // State 'Casual'
-person.greet();             // >>> "Hi!"
+person.state();                   // State 'Casual'
+person.greet();                   // >>> "Hi!"
 
-person.state('->');         // [1]
-person.state();             // State ''
-person.greet();             // >>> "Hello."
+person.state('->');               // [1]
+person.state();                   // State ''
+person.greet();                   // >>> "Hello."
 {% endhighlight %}
 
 {% highlight coffeescript %}
 person.state '-> Casual'
-person.state()            # >>> State 'Casual'
-person.greet()            # >>> "Hi!"
+person.state()                  # >>> State 'Casual'
+person.greet()                  # >>> "Hi!"
 
-person.state '->'         # [1]
-person.state()            # >>> State ''
-person.greet()            # >>> "Hello."
+person.state '->'               # [1]
+person.state()                  # >>> State ''
+person.greet()                  # >>> "Hello."
 {% endhighlight %}
 
-> 1. A naked transition arrow targets the root state (`''`).
+> 1. A naked transition arrow implies a transition that targets the root state (`''`).
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#getting-started">Getting started</a>

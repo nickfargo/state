@@ -598,16 +598,11 @@ blockquote ol {
   .content a[href^="/source"] code,
   .content a[href^="/tests"] code,
   .content a[href*="://github.com/"] code {
-    padding: 0;
     background: transparent;
     border: none;
     font-weight: bold;
     white-space: nowrap;
   }
-
-.row > [class*="span"] {
-  padding: 0 5px;
-}
 
 .toc {
   position: fixed;
@@ -865,3 +860,30 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 .icon-chevron:before           { content: "\f278"; }
 .icon-external-link:before           { content: "\f27f"; }
 .icon-x:before      { content: "\f281"; }
+
+
+
+#source .text {
+  width: 360px;
+  min-height: 1px;
+}
+#source .text p {
+  font-size: 14px;
+  line-height: 20px;
+}
+#source .text a code {
+  font-weight: bold;
+}
+
+#source .code {
+  width: 560px;
+}
+#source .code pre {
+  padding: 12px 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}

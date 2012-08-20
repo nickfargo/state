@@ -85,9 +85,9 @@ An inheriting owner object may still extend the state implementation of its prot
 
 #### [abstract](#state--attributes--abstract)
 
-A state that is `abstract` cannot itself be current. Consequently a transition that targets an abstract state will be forcibly redirected to the appropriate concrete descendant state.
+A state that is `abstract` cannot itself be current. Consequently a transition that targets an abstract state will be forcibly redirected to the appropriate [`concrete`](#state--attributes--concrete) descendant of the abstract state.
 
-The redirection target of an `abstract` state is determined by seeking its first substate marked [`default`](#state--attributes--default). If no `default` substate exists, the first substate is targeted. If the redirection target is itself `abstract`, then the process is repeated until a concrete descendant is found. If an `abstract` state has no concrete descendants, currency is directed to the deepest descendant.
+The redirection target of an `abstract` state is determined by seeking its first substate marked [`default`](#state--attributes--default). If no `default` substate exists, the first substate is targeted. If the redirection target is itself abstract, then the process is repeated until a concrete descendant is found. If an abstract state has no concrete descendants, currency is directed as deep as possible via the first substate at each level.
 
 The `abstract` attribute is inherited from protostates.
 

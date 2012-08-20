@@ -35,7 +35,7 @@ The lexical information afforded by binding state methods to their associated st
 {% include examples/docs/methods--context.coffee %}
 {% endhighlight %}
 
-> **Note** — it may be important here to call attention to a significant difference distinguishing these methods from their eponymous counterparts at `Function.prototype`: in `State`, the first argument accepted by `apply` and `call` is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated `State`).
+Worth noting here is the significant difference distinguishing these methods from their eponymous `Function.prototype` counterparts. In `State`, the first argument accepted by `apply` and `call` is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated `State`).
 
 > [apply](/api/#state--methods--apply)
 > [method](/api/#state--methods--method)
@@ -46,9 +46,9 @@ The lexical information afforded by binding state methods to their associated st
 
 In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the invocation will fail and return `undefined`.
 
-**State** allows such a contingency to be “trapped” by emitting a generic `noSuchMethod` [**event**](#concepts--events), whose listeners take as arguments the sought `methodName` and an `Array` of the arguments provided to the failed invocation.
+**State** allows such a contingency to be trapped by emitting a generic `noSuchMethod` [**event**](#concepts--events). Listeners take as arguments the sought `methodName` and an `Array` of the arguments provided to the failed invocation.
 
-Additionally, a specific `noSuchMethod:<methodName>` event type is emitted as well, whose listeners take just the arguments as provided to the failed invocation.
+A specific `noSuchMethod:<methodName>` event is emitted as well, whose listeners take just the arguments as provided to the failed invocation.
 
 {% highlight javascript %}
 {% include examples/docs/methods--nonexistent.js %}

@@ -1,12 +1,22 @@
 ## [Installation](#installation)
 
-<a class="download" href="/state.js"><strong>state.js</strong> (149kB)</a><a class="download" href="/state-min.js"><strong>state-min.js</strong> (8.6kB gz)</a>
+<a class="download" href="/state.js">
+  <strong>state.js</strong> {{ site.packages.state.version }} ({{ site.packages.state.size }})
+</a>
+<a class="download" href="/state-min.js">
+  <strong>{{ site.packages.state.size_gz }}</strong> min/gz
+</a>
 
 * * *
 
 The lone dependency of **State** is [**Omicron**](http://github.com/nickfargo/omicron/), a small set of object-focused utility functions useful for performing differential operations, facilitating inheritance, and other common tasks.
 
-<a class="download" href="/omicron.js"><strong>omicron.js</strong> (18kB)</a><a class="download" href="/omicron-min.js"><strong>omicron-min.js</strong> (2.1kB gz)</a>
+<a class="download" href="/omicron.js">
+  <strong>omicron.js</strong> {{ site.packages.omicron.version }} ({{ site.packages.omicron.size }})
+</a>
+<a class="download" href="/omicron-min.js">
+  <strong>{{ site.packages.omicron.size_gz }}</strong> min/gz
+</a>
 
 * * *
 

@@ -22,18 +22,11 @@ If called with no arguments, the accessor method of a stateful object (`object.s
 {% include examples/docs/selectors.coffee %}
 {% endhighlight %}
 
-Selectors are similarly put to use elsewhere as well: for example, a [transition](#concepts--transitions)’s `origin` and `target` properties are evaluated as selectors, and several `State` methods, including `change`, `is`, `isIn`, `has`, `isSuperstateOf`, and `isProtostateOf`, accept a selector as their main argument.
+Selectors are similarly put to use elsewhere as well: for example, a [transition](#concepts--transitions)’s `origin` and `target` properties are evaluated as selectors, and several `State` methods, including [`change`](/api/#state--methods--change), [`is`](/api/#state--methods--is), [`isIn`](/api/#state--methods--is-in), [`has`](/api/#state--methods--has), [`isSuperstateOf`](/api/#state--methods--is-superstate-of), and [`isProtostateOf`](/api/#state--methods--is-protostate-of), accept a selector as their main argument.
 
 > [query](/api/#state--methods--query)
 > [$](/api/#state--methods--dollarsign)
 > [`State::query`](/source/#state--prototype--query)
-
-> [change](/api/#state--methods--change)
-> [is](/api/#state--methods--is)
-> [isIn](/api/#state--methods--is)
-> [has](/api/#state--methods--is-in)
-> [isSuperstateOf](/api/#state--methods--is-superstate-of)
-> [isProtostateOf](/api/#state--methods--is-protostate-of)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--selectors">Selectors</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

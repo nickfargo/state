@@ -1,6 +1,6 @@
 ---
 layout: api
-title: state.js API
+title: API - State.js
 ---
 
 {% include content/api/module.md %}

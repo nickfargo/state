@@ -13,3 +13,13 @@ tag_dir: tag
 pygments: true
 markdown: rdiscount
 permalink: pretty
+
+packages:
+  state:
+    version: 0.0.5
+    size: 149kB
+    size_gz: 8.6kB
+  omicron:
+    version: 0.1.7
+    size: 18kB
+    size_gz: 2.1kB

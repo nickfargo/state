@@ -64,6 +64,6 @@ function scroll ( event ) {
 }
 
 $( document ).on( 'ready', scroll );
-$('.toc, .markdown-body').on( 'click', 'a[href^="#"]', scroll );
+$('.toc, .markdown-body, #source .text').on( 'click', 'a[href^="#"]', scroll );
 
 }( jQuery ) );
