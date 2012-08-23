@@ -3,7 +3,8 @@ fs       = require 'fs'
 util     = require 'util'
 O        = require '../omicron/omicron'
 
-tasks = "concat lint min qunit publish docco"
+#tasks = "concat lint min qunit publish docco"
+tasks = "concat lint min qunit"
 
 list = ( pre, post, items ) ->
   items[i] = pre + v + post for v, i in items.split /\s*?\n+\s*/
@@ -86,7 +87,7 @@ module.exports = ( grunt ) ->
     qunit:
       files: 'test/**/*.html'
 
-  # Copy published source and related bits to --gh-pages directory
+  # Copy published source and related bits to `../state--gh-pages`
   grunt.registerTask 'publish', '', ->
     files = list '', ext, """
       state
