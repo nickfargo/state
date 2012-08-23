@@ -3,6 +3,25 @@
 
 module( "StateEvent" );
 
+test( "once method", function () {
+    var o = {};
+    state( o, {
+        A: state
+    });
+
+    var n = 0, visits = 0;
+    var vId = o.state('A').on( 'enter', function () { visits += 1; } );
+    var nId = o.state('A').once( 'enter', function () { n += 1; } );
+
+    o.state('-> A')
+         .$('->')
+         .$('-> A');
+
+    ok( visits === 2 && n === 1,
+        "Visited twice, `once` listener invoked once"
+    );
+});
+
 test( "String as transition target", function () {
     var o = {};
     state( o, {
