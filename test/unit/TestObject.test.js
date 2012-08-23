@@ -76,13 +76,14 @@ function TestObject ( initialState ) {
 				}
 			},
 
-			// a **transition**
-			wiggle: Transition({
-				origin: '*',
-				action: function () {
-					this.end();
+			transitions: {
+				wiggle: {
+					origin: '*',
+					action: function () {
+						this.end();
+					}
 				}
-			})
+			}
 		},
 
 		// State 3. Verbose: elements are explicitly categorized
@@ -214,11 +215,11 @@ function TestObject ( initialState ) {
 					// /*
 					action: function () {
 						// do some business
-						console && console.log( Date.now() + " - HANG ON, I'M OPERATING" );
+						console && console.log( Date.now() + " - action start" );
 						var self = this;
 						setTimeout( function () {
 							self.end();
-							console && console.log( Date.now() + " - I'M DONE NOW GET ON WITH IT" );
+							console && console.log( Date.now() + " - action end" );
 						}, 1000 );
 					},
 					// */
