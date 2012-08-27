@@ -7,7 +7,7 @@
     "author"        : "Nick Fargo <nick@zvector.com>",
     "contributors"  : [],
     "dependencies"  : {
-        "omicron"   : ">=0.1.7"
+        "omicron"   : ">=0.1.8"
     },
     "repository"    : {
         "type"      : "git",
