@@ -73,6 +73,7 @@ module.exports = ( grunt ) ->
       options: O.assign( """
         eqeqeq immed latedef noarg undef
         boss eqnull expr shadow sub supernew multistr validthis laxbreak
+          loopfunc
         """, true )
       globals: O.assign( 'module exports require O state', true )
 
