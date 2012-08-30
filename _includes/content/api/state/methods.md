@@ -108,7 +108,7 @@ this.destroy()
 
 Attempts to cleanly destroy `this` state and all of its descendant states. A `destroy` event is issued by each state as it is destroyed.
 
-Returns `true` if `this` is successfully destroyed, or `false` otherwise.
+Returns `true` if `this` state is successfully destroyed, or `false` otherwise.
 
 If the root state is destroyed, the owner is given back any methods it bore prior to its state implementation.
 
