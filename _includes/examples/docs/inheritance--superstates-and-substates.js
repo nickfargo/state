@@ -17,7 +17,6 @@ function Person () {
             Familiar: {
                 hug: function ( friend ) {
                     this.owner().give( friend, 'O' );
-                    return this;
                 },
 
                 greet: function ( friend ) {
@@ -27,7 +26,6 @@ function Person () {
                 Intimate: {
                     kiss: function ( spouse ) {
                         this.owner().give( spouse, 'X' );
-                        return this;
                     },
 
                     greet: function ( spouse ) {

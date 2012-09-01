@@ -12,11 +12,11 @@ class Person
         greet: ( acquaintance ) -> "Hi!"
     
         Familiar:
-          hug: ( friend ) -> @owner().give friend, 'O' ; this
+          hug: ( friend ) -> @owner().give friend, 'O'
           greet: ( friend ) -> @owner().hug friend
     
           Intimate:
-            kiss: ( spouse ) -> @owner().give spouse, 'X' ; this
+            kiss: ( spouse ) -> @owner().give spouse, 'X'
             greet: ( spouse ) ->
               @superstate().call 'greet', spouse
               @owner().kiss spouse
