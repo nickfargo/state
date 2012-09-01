@@ -69,7 +69,7 @@ Now, `person` will automatically inherit all content from the states of its prot
 {% include examples/docs/inheritance--protostates--3.coffee %}
 {% endhighlight %}
 
-##### Under the hood
+##### [Under the hood](#concepts--inheritance--protostates--under-the-hood)
 
 When an accessor method (`person.state`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it does not, and is instead attempting to inherit the accessor (`state`) of a prototype, then an empty state implementation is automatically created for the inheritor, which in turn generates a corresponding new accessor method (`person.state`), to which the original call is then forwarded. The new state tree of `person` will consist only of an empty root state, but this is sufficient to allow the object to inherit from any of its protostates.
 
