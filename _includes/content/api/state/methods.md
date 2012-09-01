@@ -51,9 +51,11 @@ this.mutate( expression )
 
 * `expression` : ( `StateExpression` | object )
 
-Transactionally mutates `this` state by adding, updating, or removing items as implied by the contents of `expression`. If the transaction causes a mutation, `this` emits a `mutate` event.
+Transactionally mutates `this` state by adding, updating, or removing items as implied by the contents of `expression`. Removal is indicated with the unique `O.NIL` reference.
 
 Returns `this`.
+
+If the transaction causes a mutation, `this` emits a [`mutate` event](/docs/#concepts--events--mutation).
 
 {% highlight javascript %}
 {% include examples/api/state/methods--mutate.js %}
@@ -63,7 +65,6 @@ Returns `this`.
 {% include examples/api/state/methods--mutate.coffee %}
 {% endhighlight %}
 
-> [The `mutate` event](/docs/#concepts--events--mutation)
 > [`State.privileged.mutate`](/source/#state--privileged--mutate)
 
 
@@ -73,7 +74,7 @@ Returns `this`.
 this.realize()
 {% endhighlight %}
 
-If `this` state is `virtual` — i.e., a lightweight `State` whose content is entirely inherited — then calling `realize` transforms `this` into a “real” state that can bear content of its own. If `this` is already real then calling `realize` has no effect.
+Transforms `this` [virtual state](/docs/#concepts--inheritance--protostates--under-the-hood) into a “real” state that can bear content of its own. If `this` is already real instead of virtual, then calling `realize` has no effect.
 
 Returns `this`.
 
