@@ -21,7 +21,7 @@ States [emit events](/docs/#concepts--events), are configurable with simple [att
 > [Overview](/docs/#overview)
 > [Concepts](/docs/#concepts)
 
-### [API](/api/)
+### [API reference](/api/)
 
 > [`state()`](/api/#module)
 > [`State`](/api/#state)

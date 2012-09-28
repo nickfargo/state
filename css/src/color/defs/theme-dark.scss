@@ -1,0 +1,10 @@
+$bg-color           : hsl( 210, 17%, 12% );
+$fg-color           : hsl(  48,  2%, 67% );
+$strong-color       : scale-color( $fg-color, $lightness: +20% );
+
+$link-color         : hsl(  48, 33%, 83% );
+$link-hover-color   : hsl(  48, 67%, 90% );
+$h-link-color       : hsl(  48, 17%, 75% );
+$h-link-hover-color : hsl(  48, 25%, 83% );
+
+$neutral-color      : hsl(  48,  4%, 50% );

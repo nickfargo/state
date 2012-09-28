@@ -51,7 +51,7 @@ The traversal sequence decomposes into an **ascending phase**, an **action phase
 
 #### [Aborted transitions](#concepts--transitions--aborted)
 
-Should a new transition be started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, retaining by reference the same `origin` state as that of the aborted transition, and the traversal will resume, starting with a `depart` and `exit` event emitted on the aborted transition. Further redirections of the pending traversal will continue to grow this `source` chain until a transition finally arrives at its `target` state.
+If a new transition is started while a transition is already in progress, an `abort` event is emitted on the previous transition. The new transition will reference the aborted transition as its `source`, retaining by reference the same `origin` state as that of the aborted transition, and the traversal will resume, starting with a `depart` and `exit` event emitted on the aborted transition. Further redirections of the pending traversal will continue to grow this `source` chain until a transition finally arrives at its `target` state.
 
 > [`Transition`](/source/#transition)
 > [`TransitionExpression`](/source/#transition-expression)

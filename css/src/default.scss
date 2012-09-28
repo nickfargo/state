@@ -1,0 +1,26 @@
+@import "vendor-prefixes";
+@import "rendering";
+@import "fonts";
+@import "metrics";
+
+@import "color/defs/sections";
+@import "color/defs/lightstick";
+
+
+@import "desktop/elements";
+
+
+
+body {
+  &.theme-light {
+    @import "color/defs/theme-light";
+    @import "color/defs/common-derivatives";
+    @import "color/properties";
+  }
+
+  &.theme-dark {
+    @import "color/defs/theme-dark";
+    @import "color/defs/common-derivatives";
+    @import "color/properties";
+  }
+}

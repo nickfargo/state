@@ -37,3 +37,7 @@
     * [State guards](#concepts--guards--state-guards)
     * [Transition guards](#concepts--guards--transition-guards)
 * [About this project](#about)
+  * [Design goals](#about--design-goals)
+  * [Roadmap](#about--roadmap)
+    * [Features](#about--roadmap--features)
+    * [Optimization](#about--roadmap--optimization)

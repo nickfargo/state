@@ -1,0 +1,12 @@
+$bg-highlight-color  : scale-color( $bg-color, $lightness: +40% );
+$bg-shadow-color     : scale-color( $bg-color, $lightness:  -5% );
+
+$h-color             : scale-color( $fg-color, $lightness: -25% );
+$hr-highlight-color  : scale-color( $bg-color, $lightness: +75% );
+$hr-shadow-color     : scale-color( $bg-color, $lightness:  -4% );
+
+$code-bg-color               : mix( $neutral-color, $bg-color, 07% );
+$code-block-border-color     : mix( $neutral-color, $bg-color, 15% );
+$code-inline-border-color    : mix( $neutral-color, $bg-color, 05% );
+
+$blockquote-spacer-color     : mix( $neutral-color, $bg-color, 10% );

@@ -1,907 +1,300 @@
 @font-face {
-    font-family: 'Octicons Regular';
-    src: url('/font/octicons-regular-webfont.eot?v=2#iefix') format('embedded-opentype'), url('/font/octicons-regular-webfont.woff?v=2') format('woff'), url('/font/octicons-regular-webfont.ttf?v=2') format('truetype'), url('/font/octicons-regular-webfont.svg?v=2#newFontRegular') format('svg');
-    unicode-range: U+f208-f20b, U+f25a-f25c, U+f273, U+f278, U+f27f, U+f281;
-    font-weight: normal;
-    font-style: normal;
-}
+  font-family: 'Octicons Regular';
+  src: url("/font/octicons-regular-webfont.eot?v=2#iefix") format("embedded-opentype"), url("/font/octicons-regular-webfont.woff?v=2") format("woff"), url("/font/octicons-regular-webfont.ttf?v=2") format("truetype"), url("/font/octicons-regular-webfont.svg?v=2#newFontRegular") format("svg");
+  font-weight: normal;
+  font-style: normal; }
 
-body,
-p {
-  background-color: #f1f1f1;
+html {
+  overflow-y: scroll;
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%; }
+
+html, body {
+  padding: 0;
+  margin: 0; }
+
+body, p {
+  margin: 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: normal;
   font-size: 16px;
-  line-height: 23px;
-  color: #606060;
-}
+  line-height: 23px; }
 
 .highlight pre {
-  display: none;
-}
+  display: none; }
 
 h1 {
-  margin: 1.5em 0 0.5em;
   font-size: 40px;
   line-height: 48px;
-}
+  margin: 60px 0 20px; }
+
 h2 {
-  margin: 0.5em 0;
   font-size: 30px;
   line-height: 44px;
-}
+  margin: 15px 0 15px; }
+
 h3 {
   font-size: 24px;
-}
+  line-height: 40px;
+  margin: 30px 0 8px; }
+
 h4 {
   font-size: 20px;
-}
+  line-height: 35px;
+  margin: 25px 0 7px; }
+
 h5 {
   font-size: 18px;
-}
+  line-height: 32px;
+  margin: 22px 0 6px; }
+
 h6 {
   font-size: 16px;
-  text-transform: none;
-  color: inherit;
-}
+  line-height: 23px;
+  margin: 20px 0 5px; }
 
-h1,
-h2,
-h3,
-h4,
-h5 {
-  color: #484848;
-}
+h1, h1 code, h1 a code, h2, h2 code, h2 a code, h3, h3 code, h3 a code, h4, h4 code, h4 a code, h5, h5 code, h5 a code {
+  font-weight: bold; }
 
-h3,
-h4,
-h5,
 h6 {
-  margin: 1.25em 0 0.33em;
-  line-height: 1.75em;
-}
-
-h1, h1 code, h1 a code,
-h2, h2 code, h2 a code,
-h3, h3 code, h3 a code,
-h4, h4 code, h4 a code,
-h5, h5 code, h5 a code {
-  font-weight: bold;
-}
-h6, h6 code, h6 a code {
-  font-weight: 500;
-}
+  text-transform: none; }
+  h6, h6 code, h6 a code {
+    font-weight: 500; }
 
 p {
-  margin-bottom: 12px;
-  margin: 1em 0;
-}
+  margin: 16px 0 12px; }
+  p a {
+    font-weight: 500; }
+
 ol {
-  margin: 0 0 12px 36px;
-}
+  margin: 0 0 12px 36px; }
+
 hr {
   margin: 30px 0 20px;
-  border: 1px solid transparent;
-  border-top-color: #e7e7e7;
-  border-bottom-color: #fbfbfb;
-  box-shadow: 0 -16px 32px rgba(0,0,0,0.05),
-              0  -8px 16px rgba(0,0,0,0.05),
-              0  -4px  8px rgba(0,0,0,0.05),
-              0  -1px  2px rgba(0,0,0,0.05),
-              0  10px 20px rgba(255,255,255,0.4),
-              0  4px   8px rgba(255,255,255,0.4),
-              0  1px   2px rgba(255,255,255,0.3);
-}
-
-strong {
-  color: #555;
-}
-a strong {
-  color: inherit;
-}
+  border: 1px solid transparent; }
 
 a {
-  color: #295888;
   outline: none;
-  -webkit-transition: 0.3s ease-out;
-     -moz-transition: 0.3s ease-out;
-       -o-transition: 0.3s ease-out;
-          transition: 0.3s ease-out;
-  -webkit-transition-property: color, background-color;
-     -moz-transition-property: color, background-color;
-       -o-transition-property: color, background-color;
-          transition-property: color, background-color;
-}
-a:hover {
-  color: #002245;
-  text-decoration: none;
-  -webkit-transition: 0.2s ease-out;
-     -moz-transition: 0.2s ease-out;
-       -o-transition: 0.2s ease-out;
-          transition: 0.2s ease-out;
-  -webkit-transition-property: color, background-color;
-     -moz-transition-property: color, background-color;
-       -o-transition-property: color, background-color;
-          transition-property: color, background-color;
-}
-a code {
-  color: inherit;
-  font-weight: inherit;
-}
-h1 > a,
-h2 > a,
-h3 > a,
-h4 > a,
-h5 > a,
-h6 > a {
-  color: #456;
-}
-h1 > a:hover,
-h2 > a:hover,
-h3 > a:hover,
-h4 > a:hover,
-h5 > a:hover,
-h6 > a:hover {
-  color: #234;
-}
-p a {
-  font-weight: 500;
-}
+  -webkit-transition: 0.3s, ease-out;
+  -moz-transition: 0.3s, ease-out;
+  -ms-transition: 0.3s, ease-out;
+  -o-transition: 0.3s, ease-out;
+  transition: 0.3s, ease-out; }
+  a:hover {
+    text-decoration: none;
+    -webkit-transition: 0.2s, ease-out;
+    -moz-transition: 0.2s, ease-out;
+    -ms-transition: 0.2s, ease-out;
+    -o-transition: 0.2s, ease-out;
+    transition: 0.2s, ease-out; }
+  a, a:hover {
+    -webkit-transition-property: color, background-color;
+    -moz-transition-property: color, background-color;
+    -ms-transition-property: color, background-color;
+    -o-transition-property: color, background-color;
+    transition-property: color, background-color; }
 
-pre, tt, code {
-  font-family: Menlo, Consolas, Courier, monospace;
-  background-color: transparent;
-}
-pre {
-  padding: 0.87em 0.87em 0.7em;
-  margin: 0.75em 0;
-  font-size: 13px;
-  line-height: 18px;
-  background: rgba(128, 128, 128, 0.07);
-  border: 1px solid rgba(128, 128, 128, 0.15);
-  border-radius: 4px;
-}
-code {
-  padding: 1px 3px;
-  margin: 0 -1px;
-  background: rgba(128, 128, 128, 0.07);
-  border: 1px solid rgba(128, 128, 128, 0.05);
-  font-size: 95%;
-}
-pre code {
-  padding: 0;
-  background: transparent;
-  border: none;
-  font-size: inherit;
-}
-li {
-  line-height: 23px;
-  margin: 0.25em 0;
-}
-blockquote {
-  line-height: inherit;
-  border-left: 8px solid rgba(128, 128, 128, 0.1);
-  padding: 1px 0 1px 15px;
-}
-blockquote p {
-  font-size: inherit;
-  line-height: inherit;
-  font-weight: normal;
-  color: #808080;
-  margin: 0.5em 0;
-}
-blockquote ol {
-  margin-left: 24px;
-}
+.container {
+  width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+  zoom: 1; }
+  .container::before, .container::after {
+    display: table;
+    content: "";
+    zoom: 1; }
+  .container::after {
+    clear: both; }
 
-.topbar {
+.hero {
   position: fixed;
-  height: 108px;
-}
-  .topbar-inner,
-  .topbar .fill {
+  z-index: 10000;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 540px;
+  overflow: visible; }
+  .hero .fill {
     background-color: transparent;
-    background-image: -webkit-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
-    background-image:    -moz-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
-    background-image:     -ms-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
-    background-image:      -o-linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
-    background-image:         linear-gradient(top, hsl(210,25%,29%), hsla(210,50%,13%,0.9)90%, hsla(210,50%,19%,0.9));
-    box-shadow:       0 0 20px rgba(16, 32, 48, 0.5),
-                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  }
-  .topbar .lightstick {
-    background-color: hsla(96, 0%, 80%, 0);
-    background-image: -webkit-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
-    background-image:    -moz-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
-    background-image:     -ms-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
-    background-image:      -o-linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
-    background-image:         linear-gradient(top,hsla(0,0%,100%,0.2),hsla(0,0%,100%,0.08) 10%,hsla(0,0%,100%,0.32) 30%,hsla(0,0%,93%,0.03) 70%, hsla(50,10%,90%,0.2) 90%, hsla(50,10%,40%,0.24));
+    background-image: -webkit-linear-gradient(top, #374a5c, rgba(17, 33, 50, 0.9) 90%, rgba(24, 48, 73, 0.9));
+    background-image: -moz-linear-gradient(top, #374a5c, rgba(17, 33, 50, 0.9) 90%, rgba(24, 48, 73, 0.9));
+    background-image: -ms-linear-gradient(top, #374a5c, rgba(17, 33, 50, 0.9) 90%, rgba(24, 48, 73, 0.9));
+    background-image: -o-linear-gradient(top, #374a5c, rgba(17, 33, 50, 0.9) 90%, rgba(24, 48, 73, 0.9));
+    background-image: linear-gradient(top, #374a5c, rgba(17, 33, 50, 0.9) 90%, rgba(24, 48, 73, 0.9));
+    box-shadow: 0 0 20px rgba(16, 32, 48, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.1); }
+  .hero .brand .logo {
+    width: 640px;
+    height: 640px;
+    margin: 0 auto;
+    background-image: url(); }
+  .hero .brand .title {
+    font-size: 96px;
+    text-align: center; }
+  .hero .lightstick {
     position: absolute;
     z-index: 5;
+    bottom: 0;
     width: 100%;
     height: 7px;
-    bottom: 0;
-  }
-  .topbar .brand {
-    max-height: 64px;
-    font-size: 48px;
-    font-weight: 500;
-    padding: 48px 20px 12px;
-    /*padding: 48px 20px 12px 72px;*/
-    margin-left: 0;
-    letter-spacing: -2px;
-    text-shadow: 0 4px 8px rgba(0,0,0,0.5);
-    /*background: url(/img/dodecagem-120px.png) 12px 45px no-repeat;*/
-    /*background-size: 60px;*/
-  }
-  .topbar .brand .tail {
-    font-weight: 300;
-    padding-left: 0.1em;
-    opacity: 0.2;
-  }
-  .topbar .subtitle {
-    padding: 0 0.5em;
-    font-size: 16px;
-    font-style: italic;
-    font-weight: 300;
-  }
-  .topbar ul.nav {
-    float: right;
-  }
-  .topbar ul {
-    font-size: 24px;
-  }
-  .topbar ul li {
-    position: relative;
-    padding: 0;
-    margin: 0;
-  }
-  .topbar .brand:hover,
-  .topbar ul li a {
-    -webkit-transition: 0.2s ease-out;
-       -moz-transition: 0.2s ease-out;
-         -o-transition: 0.2s ease-out;
-            transition: 0.2s ease-out;
-    -webkit-transition-property: color, background-color;
-       -moz-transition-property: color, background-color;
-         -o-transition-property: color, background-color;
-            transition-property: color, background-color;
-  }
-  .topbar ul li a {
-    max-height: 24px;
-    font-size: 20px;
-    line-height: 24px;
-    padding: 72px 12px 12px;
-    margin: 0px;
-    color: rgba(255, 255, 255, 0.6);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-  }
-  .topbar ul li.active a {
     background-color: transparent;
-    background-image: -webkit-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
-    background-image:    -moz-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
-    background-image:     -ms-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
-    background-image:      -o-linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
-    background-image:         linear-gradient(top, rgba(0,0,0,0), rgba(0,0,0,0.2) 71%, rgba(0,0,0,0.4));
-    color: rgba(255, 255, 255, 0.9);
-  }
-  .topbar .brand:hover,
-  .topbar ul li a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: #fff;
-  }
-
-  .topbar ul li a[href^="/docs"] {
-    border-color: hsl(192, 30%, 42%);
-  }
-  .topbar ul li a[href^="/api"] {
-    border-color: hsl(160, 36%, 41%);
-  }
-  .topbar ul li a[href^="/source"] {
-    border-color: hsl(96, 45%, 40%);
-  }
-  .topbar ul li a[href^="/tests"] {
-    border-color: hsl(75, 66%, 34%);
-  }
-
-  .topbar ul li .lightstick {
+    background-image: -webkit-linear-gradient(top, rgba(26, 26, 26, 0.4), rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.2) 30%, rgba(255, 255, 255, 0) 80%, rgba(232, 231, 227, 0.2) 95%, rgba(112, 109, 92, 0.24));
+    background-image: -moz-linear-gradient(top, rgba(26, 26, 26, 0.4), rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.2) 30%, rgba(255, 255, 255, 0) 80%, rgba(232, 231, 227, 0.2) 95%, rgba(112, 109, 92, 0.24));
+    background-image: -ms-linear-gradient(top, rgba(26, 26, 26, 0.4), rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.2) 30%, rgba(255, 255, 255, 0) 80%, rgba(232, 231, 227, 0.2) 95%, rgba(112, 109, 92, 0.24));
+    background-image: -o-linear-gradient(top, rgba(26, 26, 26, 0.4), rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.2) 30%, rgba(255, 255, 255, 0) 80%, rgba(232, 231, 227, 0.2) 95%, rgba(112, 109, 92, 0.24));
+    background-image: linear-gradient(top, rgba(26, 26, 26, 0.4), rgba(255, 255, 255, 0.2) 20%, rgba(255, 255, 255, 0.2) 30%, rgba(255, 255, 255, 0) 80%, rgba(232, 231, 227, 0.2) 95%, rgba(112, 109, 92, 0.24)); }
+  .hero ul.nav li .lightstick {
     position: absolute;
     z-index: 0;
     width: 100%;
     bottom: 0;
     -webkit-transition: 0.8s ease-out;
-       -moz-transition: 0.8s ease-out;
-         -o-transition: 0.8s ease-out;
-            transition: 0.8s ease-out;
-  }
-  .topbar ul li.indicated .lightstick,
-  .topbar ul li.active    .lightstick {
+    -moz-transition: 0.8s ease-out;
+    -ms-transition: 0.8s ease-out;
+    -o-transition: 0.8s ease-out;
+    transition: 0.8s ease-out; }
+  .hero ul.nav li.indicated .lightstick, .hero ul.nav li.active .lightstick {
     -webkit-transition: 0.2s ease-out;
-       -moz-transition: 0.2s ease-out;
-         -o-transition: 0.2s ease-out;
-            transition: 0.2s ease-out;
-  }
-  .topbar ul li           .lightstick,
-  .topbar ul li.indicated .lightstick,
-  .topbar ul li.active    .lightstick {
+    -moz-transition: 0.2s ease-out;
+    -ms-transition: 0.2s ease-out;
+    -o-transition: 0.2s ease-out;
+    transition: 0.2s ease-out; }
+  .hero ul.nav li .lightstick, .hero ul.nav li.indicated .lightstick, .hero ul.nav li.active .lightstick {
     -webkit-transition-property: background-color, box-shadow;
-       -moz-transition-property: background-color, box-shadow;
-         -o-transition-property: background-color, box-shadow;
-            transition-property: background-color, box-shadow;
-  }
-  .topbar ul li.indicated .lightstick {
-    z-index: 1;
-  }
-  .topbar ul li.active .lightstick {
-    z-index: 2;
-  }
-  .topbar ul li a + .lightstick {
-    background:                hsla(  0,   0%, 50%, 0.6);
-    box-shadow:       0 0 24px hsla(  0, 100%, 50%, 0),
-                      0 0 12px hsla(  0, 100%, 50%, 0),
-                inset 0 0  3px hsla(  0, 100%, 50%, 0);
-  }
-  .topbar ul li.indicated a + .lightstick {
-    background:                hsla(  0,  90%, 60%, 0.97);
-    box-shadow:       0 0 24px hsla(  0, 100%, 50%, 0.6),
-                      0 0 12px hsla(  0, 100%, 50%, 0.8),
-                inset 0 0  3px hsla(  0,  72%, 45%, 0.8);
-  }
-  .topbar ul li.active a + .lightstick {
-    background:                hsla(  0, 100%, 93%, 0.98);
-    box-shadow:       0 0 36px hsla(  0, 100%, 50%, 1),
-                      0 0 24px hsla(  0, 100%, 50%, 1),
-                      0 0 12px hsla(  0, 100%, 50%, 1),
-                inset 0 0  3px hsla(  0, 100%, 50%, 1);
-  }
-  .topbar ul li a[href^="/docs"] + .lightstick {
-    background:                hsla(192,  40%, 50%, 0.6);
-    box-shadow:       0 0 24px hsla(192, 100%, 50%, 0),
-                      0 0 12px hsla(192, 100%, 50%, 0),
-                inset 0 0  3px hsla(192, 100%, 50%, 0);
-  }
-  .topbar ul li.indicated a[href^="/docs"] + .lightstick {
-    background:                hsla(192,  90%, 60%, 0.97);
-    box-shadow:       0 0 24px hsla(192, 100%, 50%, 0.6),
-                      0 0 12px hsla(192, 100%, 50%, 0.8),
-                inset 0 0  3px hsla(192,  72%, 45%, 0.8);
-  }
-  .topbar ul li.active a[href^="/docs"] + .lightstick {
-    background:                hsla(192, 100%, 93%, 0.98);
-    box-shadow:       0 0 36px hsla(192, 100%, 50%, 1),
-                      0 0 24px hsla(192, 100%, 50%, 1),
-                      0 0 12px hsla(192, 100%, 50%, 1),
-                inset 0 0  3px hsla(192, 100%, 50%, 1);
-  }
-  .topbar ul li a[href^="/api"] + .lightstick {
-    background:                hsla(160,  46%, 50%, 0.6);
-    box-shadow:       0 0 24px hsla(160, 100%, 50%, 0),
-                      0 0 12px hsla(160, 100%, 50%, 0),
-                inset 0 0  3px hsla(160, 100%, 50%, 0);
-  }
-  .topbar ul li.indicated a[href^="/api"] + .lightstick {
-    background:                hsla(160,  90%, 60%, 0.97);
-    box-shadow:       0 0 24px hsla(160, 100%, 50%, 0.6),
-                      0 0 12px hsla(160, 100%, 50%, 0.8),
-                inset 0 0  3px hsla(160,  72%, 45%, 0.8);
-  }
-  .topbar ul li.active a[href^="/api"] + .lightstick {
-    background:                hsla(160, 100%, 93%, 0.98);
-    box-shadow:       0 0 36px hsla(160, 100%, 50%, 1),
-                      0 0 24px hsla(160, 100%, 50%, 1),
-                      0 0 12px hsla(160, 100%, 50%, 1),
-                inset 0 0  3px hsla(160, 100%, 50%, 1);
-  }
-  .topbar ul li a[href^="/source"] + .lightstick {
-    background:                hsla(96,  52%, 50%, 0.6);
-    box-shadow:       0 0 24px hsla(96, 100%, 50%, 0),
-                      0 0 12px hsla(96, 100%, 50%, 0),
-                inset 0 0  3px hsla(96, 100%, 50%, 0);
-  }
-  .topbar ul li.indicated a[href^="/source"] + .lightstick {
-    background:                hsla(96,  90%, 60%, 0.97);
-    box-shadow:       0 0 24px hsla(96, 100%, 50%, 0.6),
-                      0 0 12px hsla(96, 100%, 50%, 0.8),
-                inset 0 0  3px hsla(96,  72%, 45%, 0.8);
-  }
-  .topbar ul li.active a[href^="/source"] + .lightstick {
-    background:                hsla(96, 100%, 93%, 0.98);
-    box-shadow:       0 0 36px hsla(96, 100%, 50%, 1),
-                      0 0 24px hsla(96, 100%, 50%, 1),
-                      0 0 12px hsla(96, 100%, 50%, 1),
-                inset 0 0  3px hsla(96, 100%, 50%, 1);
-  }
-  .topbar ul li a[href^="/tests"] + .lightstick {
-    background:                hsla(75,  70%, 44%, 0.6);
-    box-shadow:       0 0 24px hsla(75, 100%, 50%, 0),
-                      0 0 12px hsla(75, 100%, 50%, 0),
-                inset 0 0  3px hsla(75, 100%, 50%, 0);
-  }
-  .topbar ul li.indicated a[href^="/tests"] + .lightstick {
-    background:                hsla(75,  90%, 60%, 0.97);
-    box-shadow:       0 0 24px hsla(75, 100%, 50%, 0.6),
-                      0 0 12px hsla(75, 100%, 50%, 0.8),
-                inset 0 0  3px hsla(75,  72%, 45%, 0.8);
-  }
-  .topbar ul li.active a[href^="/tests"] + .lightstick {
-    background:                hsla(75, 100%, 93%, 0.98);
-    box-shadow:       0 0 36px hsla(75, 100%, 50%, 1),
-                      0 0 24px hsla(75, 100%, 50%, 1),
-                      0 0 12px hsla(75, 100%, 50%, 1),
-                inset 0 0  3px hsla(75, 100%, 50%, 1);
-  }
-  .topbar ul li a[href*="://github.com/"] + .lightstick {
-    background:                hsla(58,  60%, 44%, 0.6);
-    box-shadow:       0 0 24px hsla(58, 100%, 50%, 0),
-                      0 0 12px hsla(58, 100%, 50%, 0),
-                inset 0 0  3px hsla(58, 100%, 50%, 0);
-  }
-  .topbar ul li.indicated a[href*="://github.com/"] + .lightstick {
-    background:                hsla(58,  90%, 60%, 0.97);
-    box-shadow:       0 0 24px hsla(58, 100%, 50%, 0.6),
-                      0 0 12px hsla(58, 100%, 50%, 0.8),
-                inset 0 0  3px hsla(58,  72%, 45%, 0.8);
-  }
-  .topbar ul li.active a[href*="://github.com/"] + .lightstick {
-    background:                hsla(58, 100%, 93%, 0.98);
-    box-shadow:       0 0 36px hsla(58, 100%, 50%, 1),
-                      0 0 24px hsla(58, 100%, 50%, 1),
-                      0 0 12px hsla(58, 100%, 50%, 1),
-                inset 0 0  3px hsla(58, 100%, 50%, 1);
-  }
+    -moz-transition-property: background-color, box-shadow;
+    -ms-transition-property: background-color, box-shadow;
+    -o-transition-property: background-color, box-shadow;
+    transition-property: background-color, box-shadow; }
+  .hero ul.nav li a[href^="/docs"] + .lightstick {
+    background: #4d9eb3;
+    box-shadow: 0 0 24px rgba(0, 204, 255, 0), 0 0 12px rgba(0, 204, 255, 0), inset 0 0 3px rgba(0, 204, 255, 0); }
+  .hero ul.nav li.indicated a[href^="/docs"] + .lightstick {
+    background: #4d9eb3;
+    box-shadow: 0 0 24px #00ccff, 0 0 12px #00ccff, inset 0 0 3px #20a4c5; }
+  .hero ul.nav li.active a[href^="/docs"] + .lightstick {
+    background: #4d9eb3;
+    box-shadow: 0 0 36px #00ccff, 0 0 24px #00ccff, 0 0 12px #00ccff, inset 0 0 3px #20a4c5; }
+  .hero ul.nav li a[href^="/api"] + .lightstick {
+    background: #45ba93;
+    box-shadow: 0 0 24px rgba(0, 255, 170, 0), 0 0 12px rgba(0, 255, 170, 0), inset 0 0 3px rgba(0, 255, 170, 0); }
+  .hero ul.nav li.indicated a[href^="/api"] + .lightstick {
+    background: #45ba93;
+    box-shadow: 0 0 24px #00ffaa, 0 0 12px #00ffaa, inset 0 0 3px #20c58e; }
+  .hero ul.nav li.active a[href^="/api"] + .lightstick {
+    background: #45ba93;
+    box-shadow: 0 0 36px #00ffaa, 0 0 24px #00ffaa, 0 0 12px #00ffaa, inset 0 0 3px #20c58e; }
+  .hero ul.nav li a[href^="/source"] + .lightstick {
+    background: #72c23d;
+    box-shadow: 0 0 24px rgba(102, 255, 0, 0), 0 0 12px rgba(102, 255, 0, 0), inset 0 0 3px rgba(102, 255, 0, 0); }
+  .hero ul.nav li.indicated a[href^="/source"] + .lightstick {
+    background: #72c23d;
+    box-shadow: 0 0 24px #66ff00, 0 0 12px #66ff00, inset 0 0 3px #62c520; }
+  .hero ul.nav li.active a[href^="/source"] + .lightstick {
+    background: #72c23d;
+    box-shadow: 0 0 36px #66ff00, 0 0 24px #66ff00, 0 0 12px #66ff00, inset 0 0 3px #62c520; }
+  .hero ul.nav li a[href^="/tests"] + .lightstick {
+    background: #97bf22;
+    box-shadow: 0 0 24px rgba(191, 255, 0, 0), 0 0 12px rgba(191, 255, 0, 0), inset 0 0 3px rgba(191, 255, 0, 0); }
+  .hero ul.nav li.indicated a[href^="/tests"] + .lightstick {
+    background: #97bf22;
+    box-shadow: 0 0 24px #bfff00, 0 0 12px #bfff00, inset 0 0 3px #9cc520; }
+  .hero ul.nav li.active a[href^="/tests"] + .lightstick {
+    background: #97bf22;
+    box-shadow: 0 0 36px #bfff00, 0 0 24px #bfff00, 0 0 12px #bfff00, inset 0 0 3px #9cc520; }
+  .hero ul.nav li a[href^="/github"] + .lightstick {
+    background: #b4af2d;
+    box-shadow: 0 0 24px rgba(255, 247, 0, 0), 0 0 12px rgba(255, 247, 0, 0), inset 0 0 3px rgba(255, 247, 0, 0); }
+  .hero ul.nav li.indicated a[href^="/github"] + .lightstick {
+    background: #b4af2d;
+    box-shadow: 0 0 24px #fff700, 0 0 12px #fff700, inset 0 0 3px #c5c020; }
+  .hero ul.nav li.active a[href^="/github"] + .lightstick {
+    background: #b4af2d;
+    box-shadow: 0 0 36px #fff700, 0 0 24px #fff700, 0 0 12px #fff700, inset 0 0 3px #c5c020; }
+  .hero.state-stage {
+    position: absolute;
+    top: 0px;
+    -webkit-transition: top, 0.8s, ease-in-out;
+    -moz-transition: top, 0.8s, ease-in-out;
+    -ms-transition: top, 0.8s, ease-in-out;
+    -o-transition: top, 0.8s, ease-in-out;
+    transition: top, 0.8s, ease-in-out; }
+    .hero.state-stage .brand {
+      zoom: 1;
+      -webkit-transform: scale(1, 1);
+      -moz-transform: scale(1, 1);
+      -ms-transform: scale(1, 1);
+      -o-transform: scale(1, 1);
+      transform: scale(1, 1);
+      -webkit-transition: -webkit-transform -moz-transform -ms-transform -o-transform transform, 0.8s, ease-in-out;
+      -moz-transition: -webkit-transform -moz-transform -ms-transform -o-transform transform, 0.8s, ease-in-out;
+      -ms-transition: -webkit-transform -moz-transform -ms-transform -o-transform transform, 0.8s, ease-in-out;
+      -o-transition: -webkit-transform -moz-transform -ms-transform -o-transform transform, 0.8s, ease-in-out;
+      transition: -webkit-transform -moz-transform -ms-transform -o-transform transform, 0.8s, ease-in-out; }
+    .hero.state-stage ul.nav {
+      float: none;
+      margin: 0 auto; }
+  .hero.state-header {
+    position: fixed;
+    top: -432px;
+    -webkit-transition: top, 0.8s, ease-in-out;
+    -moz-transition: top, 0.8s, ease-in-out;
+    -ms-transition: top, 0.8s, ease-in-out;
+    -o-transition: top, 0.8s, ease-in-out;
+    transition: top, 0.8s, ease-in-out; }
+    .hero.state-header .brand {
+      zoom: 0.5;
+      margin-left: 0;
+      -webkit-transition: zoom, 0.8s, ease-in-out;
+      -moz-transition: zoom, 0.8s, ease-in-out;
+      -ms-transition: zoom, 0.8s, ease-in-out;
+      -o-transition: zoom, 0.8s, ease-in-out;
+      transition: zoom, 0.8s, ease-in-out; }
+    .hero.state-header ul.nav {
+      float: right; }
 
-.content {
-  padding-top: 108px;
-}
-  .content a.download {
-    padding: 0.5em 1em 0.6em;
-    margin-right: 1px;
-    line-height: 3;
-    border-top: 1px solid rgba(255, 255, 255, 0.65);
-    border-bottom: 1px solid hsla(210, 30%, 42%, 0.35);
-    border-radius: 1.5em 0 0 1.5em;
-    box-shadow: 0 0 4px rgba(0,0,0,0.25);
-    font-size: 21px;
-    font-weight: normal;
-    color: hsl(210, 30%, 42%);
-    background-image: -webkit-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
-    background-image:    -moz-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
-    background-image:     -ms-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
-    background-image:      -o-linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
-    background-image:         linear-gradient(top, hsl(210, 10%, 95%), hsl(210, 20%, 90%));
-    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(210, 13%, 57%, 0.3);
-  }
-  .content a.download[href$="min.js"] {
-    border-radius: 0 1.5em 1.5em 0;
-  }
-  .content a.download[href^="/omicron"] {
-    font-size: 14px;
-  }
-  .content a.download:hover {
-    color: hsl(210, 58%, 32%);
-  }
-
-  .content a[href^="/docs"],
-  .content a[href^="/api"],
-  .content a[href^="/source"],
-  .content a[href^="/tests"],
-  .content a[href*="://github.com/"] {
-    padding: 0.05em  0.2em;
-    margin: -0.05em -0.2em;
-    border-radius: 0.25em;
-  }
-  .content blockquote a[href^="/docs"],
-  .content blockquote a[href^="/api"],
-  .content blockquote a[href^="/source"],
-  .content blockquote a[href^="/tests"],
-  .content blockquote a[href*="://github.com/"] {
-    padding: 1px 10px 3px;
-    margin: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.65);
-    border-bottom: 1px solid;
-    border-radius: 14px;
-    box-shadow: 0 0 3px rgba(0,0,0,0.1), 0 1px 5px rgba(0,0,0,0.07);
-    font-weight: 500;
-    line-height: 1.67;
-  }
-
-  .content a[href^="/docs"] {
-    color:             hsl(192, 30%, 42%);
-    background-color: hsla(192, 30%, 42%, 0.01);
-  }
-  .content a[href^="/docs"]:hover {
-    color:             hsl(192, 58%, 32%);
-    background-color: hsla(192, 58%, 32%, 0.06);
-  }
-  .content blockquote a[href^="/docs"] {
-    border-bottom-color: hsla(192, 30%, 42%, 0.35);
-    background-image: -webkit-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
-    background-image:    -moz-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
-    background-image:     -ms-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
-    background-image:      -o-linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
-    background-image:         linear-gradient(top, hsl(192, 10%, 95%), hsl(192, 20%, 90%));
-    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(192, 13%, 57%, 0.3);
-  }
-
-  .content a[href^="/api"] {
-    color:             hsl(160, 36%, 41%);
-    background-color: hsla(160, 36%, 41%, 0.01);
-  }
-  .content a[href^="/api"]:hover {
-    color:             hsl(160, 60%, 31%);
-    background-color: hsla(160, 60%, 31%, 0.06);
-  }
-  .content blockquote a[href^="/api"] {
-    border-bottom-color: hsla(160, 36%, 41%, 0.35);
-    background-image: -webkit-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
-    background-image:    -moz-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
-    background-image:     -ms-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
-    background-image:      -o-linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
-    background-image:         linear-gradient(top, hsl(160, 12%, 95%), hsl(160, 22%, 90%));
-    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(160, 15%, 57%, 0.3);
-  }
-
-  .content a[href^="/source"] {
-    color:             hsl(96, 45%, 40%);
-    background-color: hsla(96, 45%, 40%, 0.01);
-  }
-  .content a[href^="/source"]:hover {
-    color:             hsl(96, 60%, 30%);
-    background-color: hsla(96, 60%, 30%, 0.06);
-  }
-  .content blockquote a[href^="/source"] {
-    border-bottom-color: hsla(96, 45%, 40%, 0.35);
-    background-image: -webkit-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
-    background-image:    -moz-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
-    background-image:     -ms-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
-    background-image:      -o-linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
-    background-image:         linear-gradient(top, hsl(96, 20%, 95%), hsl(96, 30%, 90%));
-    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(96, 23%, 57%, 0.3);
-  }
-
-  .content a[href^="/tests"] {
-    color:             hsl(75, 66%, 34%);
-    background-color: hsla(75, 66%, 31%, 0.01);
-  }
-  .content a[href^="/tests"]:hover {
-    color:             hsl(75, 66%, 26%);
-    background-color: hsla(75, 66%, 26%, 0.06);
-  }
-  .content blockquote a[href^="/tests"] {
-    border-bottom-color: hsla(75, 66%, 34%, 0.35);
-    background-image: -webkit-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
-    background-image:    -moz-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
-    background-image:     -ms-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
-    background-image:      -o-linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
-    background-image:         linear-gradient(top, hsl(75, 10%, 95%), hsl(75, 20%, 90%));
-    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(75, 13%, 57%, 0.3);
-  }
-
-  .content a[href*="://github.com/"] {
-    color:             hsl(58, 66%, 28%);
-    background-color: hsla(58, 66%, 25%, 0.01);
-  }
-  .content a[href*="://github.com/"]:hover {
-    color:             hsl(58, 66%, 20%);
-    background-color: hsla(58, 66%, 20%, 0.06);
-  }
-  .content blockquote a[href*="://github.com/"] {
-    border-bottom-color: hsla(75, 66%, 34%, 0.35);
-    background-image: -webkit-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
-    background-image:    -moz-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
-    background-image:     -ms-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
-    background-image:      -o-linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
-    background-image:         linear-gradient(top, hsl(58, 10%, 95%), hsl(58, 20%, 90%));
-    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(58, 13%, 57%, 0.3);
-  }
-
-  .content a[href^="/docs"] code,
-  .content a[href^="/api"] code,
-  .content a[href^="/source"] code,
-  .content a[href^="/tests"] code,
-  .content a[href*="://github.com/"] code {
-    background: transparent;
-    border: none;
-    font-weight: bold;
-    white-space: nowrap;
-  }
-
-.toc {
-  position: fixed;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch;
-  top: 108px;
-  bottom: 36px;
-  width: 280px;
-  padding-top: 20px;
-  border-bottom: 1px solid #eee;
-}
-  .toc ul {
-    list-style-type: none;
-  }
-  .toc ul li {
-    line-height: 1.33
-  }
-  .toc > ul ul {
-    font-size: 95%;
-    margin-left: 1em;
-  }
-  .toc > ul ul a {
-    font-size: 90%;
-  }
-  .toc > ul > ul ul {
-    font-size: 90%;
-    margin: 0 0 0.5em 1em;
-  }
-  .toc > ul > li {
-    margin: 0 0 0.5em;
-  }
-  .toc ul li a {
-    padding: 0 0.25em;
-    color: #00438A;
-  }
-  .toc ul li a:hover {
-    color: #002245;
-  }
-  .toc::-webkit-scrollbar {
-    width: 11px;
-    height: 11px;
-    opacity: 0;
-  }
-  .toc::-webkit-scrollbar-thumb {
-    background-color: rgba( 0,0,0, 0.02 );
-    border: 3px solid #f1f1f1;
-    border-radius: 6px;
-  }
-  .toc::-webkit-scrollbar-track-piece {
-    width: 7px;
-    height: 7px;
-    margin: 5px;
-  }
-  .toc:hover::-webkit-scrollbar-thumb {
-    background-color: rgba( 0,0,0, 0.1 );
-  }
-
-.controls {
-  position: fixed;
-  bottom: 0;
-  width: 280px;
-  height: 36px;
-}
-.controls.overlaid {
-  box-shadow: -20px -10px 20px #f1f1f1;
-  border-top: 1px solid #eee;
-}
-  .controls ul {
-    margin: 0;
-    list-style-type: none;
-    opacity: 0.7;
-    -webkit-transition: opacity 0.2s ease-out;
-       -moz-transition: opacity 0.2s ease-out;
-         -o-transition: opacity 0.2s ease-out;
-            transition: opacity 0.2s ease-out;
-  }
-  .controls:hover ul {
-    opacity: 1.0;
-  }
-  .controls ul li {
-    float: left;
-    padding: 0;
-    margin: 0;
-  }
-  .controls ul li a {
-    float: left;
-    margin: 6px;
-    width: 24px;
-    height: 24px;
-    background-size: contain;
-    opacity: 0.13;
-    -webkit-transition: opacity 0.2s ease-out;
-       -moz-transition: opacity 0.2s ease-out;
-         -o-transition: opacity 0.2s ease-out;
-            transition: opacity 0.2s ease-out;
-  }
-  .controls ul li a:hover {
-    opacity: 0.9;
-  }
-  .controls ul li.active a {
-    opacity: 0.75;
-  }
-  .controls ul li.active a:hover {
-    opacity: 1.0;
-  }
-  .controls ul li.javascript a {
-    background-image: url(/img/javascript-logo.png);
-  }
-  .controls ul li.coffeescript a {
-    background-image: url(/img/coffeescript-logo.png);
-  }
-
-.tags {
-  margin-bottom: 1em;
-  font-size: 13px;
-}
-.tags .tag {
-  padding: 2px 6px;
-  border: 1px solid rgba(128, 128, 128, 0.5);
-  border-radius: 12px;
-  background: rgba(128, 128, 128, 0.25);
-  font-weight: bold;
-  color: rgba(64, 128, 192, 0.9);
-}
-
-.abstract {
-  margin: 40px 0 1em;
-}
-.abstract p {
-  font-size: 125%;
-  line-height: 1.33;
-}
-.abstract pre {
-  font-size: inherit;
-  line-height: inherit;
-}
-
-.backcrumb {
-  padding: 8px 16px;
-  margin: 1em 0 4em;
-  border: 1px solid transparent;
-  border-radius: 0 0 16px 16px;
-  background: rgba(128, 128, 128, 0.25);
-}
-.backcrumb > a.section {
-  font-weight: bold;
-}
-
-.local-toc {
-  border-radius: 16px;
-  background: rgba(128, 128, 128, 0.15);
-}
-  .local-toc ul {
-    padding: 1em 2em 1em 3em;
-    margin: 0;
-  }
-    .local-toc ul li {
-      font-weight: bold;
-    }
-
-footer {
-  float: right;
-  width: 640px;
-  height: 36px;
-  padding: 0;
-  margin-top: 120px;
-  font-size: 12px;
-}
-  footer ul {
-    float: right;
-    margin: 0;
-    padding: 0 12px;
-  }
-  footer ul li {
-    display: block;
-    float: left;
-    padding: 7px;
-    margin: 0;
-  }
-
-
-
-/* sprites.less reset */
-[class^="icon-"], [class*=" icon-"] {
-    display: inline;
-    width: auto;
-    height: auto;
-    line-height: inherit;
-    vertical-align: baseline;
-    background-image: none;
-    background-position: 0% 0%;
-    background-repeat: repeat;
-}
-li[class^="icon-"], li[class*=" icon-"] {
-    display: block;
-}
-/*  Font Awesome styles
-    ------------------------------------------------------- */
-[class^="icon-"]:before, [class*=" icon-"]:before {
-    font-family: 'Octicons Regular';
-    font-weight: normal;
-    font-style: normal;
-    display: inline-block;
-    text-decoration: inherit;
-    -webkit-font-smoothing:antialiased;
-    -moz-transition:color .15s ease-in 0;
-    -webkit-transition:color .15s ease-in 0;
-}
-a [class^="icon-"], a [class*=" icon-"] {
-    display: inline-block;
-    text-decoration: inherit;
-}
-/* makes the font 33% larger relative to the icon container */
-.icon-large:before {
-    vertical-align: top;
-    font-size: 1.3333333333333333em;
-}
-
-.btn [class^="icon-"], .btn [class*=" icon-"] {
-    /* keeps button heights with and without icons the same */
-    line-height: .9em;
-}
-li [class^="icon-"], li [class*=" icon-"] {
-    display: inline-block;
-    width: 1.25em;
-    text-align: center;
-}
-li .icon-large[class^="icon-"], li .icon-large[class*=" icon-"] {
-    /* 1.5 increased font size for icon-large * 1.25 width */
-    width: 1.875em;
-}
-
-
-li[class^="icon-"], li[class*=" icon-"] {
-    margin-left: 0;
-    list-style-type: none;
-}
-li[class^="icon-"]:before, li[class*=" icon-"]:before {
-    text-indent: -2em;
-    text-align: center;
-}
-li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
-    text-indent: -1.3333333333333333em;
-}
-
-.icon-octocat:before               { content: "\f208"; }
-.icon-site-message:before, .icon-blacktocat:before          { content: "\f209"; }
-.icon-invertocat:before                 { content: "\f20a"; }
-.icon-download:before            { content: "\f20b"; }
-.icon-arr-collapsed:before          { content: "\f25a"; }
-.icon-arr-expanded:before         { content: "\f25b"; }
-.icon-link:before      { content: "\f25c"; }
-.icon-jump-up:before           { content: "\f273"; }
-.icon-chevron:before           { content: "\f278"; }
-.icon-external-link:before           { content: "\f27f"; }
-.icon-x:before      { content: "\f281"; }
-
-
-
-#source .text {
-  width: 360px;
-  min-height: 1px;
-}
-#source .text p {
-  font-size: 14px;
-  line-height: 20px;
-}
-#source .text a code {
-  font-weight: bold;
-}
-#source .text h3,
-#source .text h4,
-#source .text h5,
-#source .text h6 {
-  margin: 0 0 0.25em;
-}
-#source .text h3 {
-  font-size: 21px;
-}
-#source .text h3 code {
-  font-size: 90%;
-}
-#source .text h4 {
-  font-size: 18px
-}
-#source .text h5,
-#source .text h6 {
-}
-
-#source .code {
-  width: 560px;
-}
-#source .code pre {
-  padding: 12px 0;
-  margin: 0;
-  font-size: 12px;
-  line-height: 16px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-}
+body.theme-light, body.theme-light p {
+  background-color: #f0f0f0;
+  color: #616161; }
+body.theme-light strong {
+  color: #4e4e4e; }
+body.theme-light a, body.theme-light a strong, body.theme-light a code {
+  color: #295989; }
+body.theme-light a:hover {
+  color: #002142; }
+body.theme-light h1, body.theme-light h2, body.theme-light h3, body.theme-light h4, body.theme-light h5 {
+  color: #494949; }
+  body.theme-light h1, body.theme-light h1 code, body.theme-light h1 a code, body.theme-light h2, body.theme-light h2 code, body.theme-light h2 a code, body.theme-light h3, body.theme-light h3 code, body.theme-light h3 a code, body.theme-light h4, body.theme-light h4 code, body.theme-light h4 a code, body.theme-light h5, body.theme-light h5 code, body.theme-light h5 a code {
+    font-weight: bold; }
+body.theme-light h6 {
+  color: #616161; }
+body.theme-light h1 > a, body.theme-light h2 > a, body.theme-light h3 > a, body.theme-light h4 > a, body.theme-light h5 > a, body.theme-light h6 > a {
+  color: #435465; }
+  body.theme-light h1 > a:hover, body.theme-light h2 > a:hover, body.theme-light h3 > a:hover, body.theme-light h4 > a:hover, body.theme-light h5 > a:hover, body.theme-light h6 > a:hover {
+    color: #223344; }
+body.theme-light hr {
+  border-top-color: #e6e6e6;
+  border-bottom-color: #fbfbfb;
+  box-shadow: 0 -16px 32px #e4e4e4, 0 -8px 16px #e4e4e4, 0 -4px 8px #e4e4e4, 0 -1px 2px #e4e4e4, 0 10px 20px #f6f6f6, 0 4px 8px #f6f6f6, 0 1px 2px #f6f6f6; }
+body.theme-dark, body.theme-dark p {
+  background-color: #191f24;
+  color: #adaca9; }
+body.theme-dark strong {
+  color: #bdbcba; }
+body.theme-dark a, body.theme-dark a strong, body.theme-dark a code {
+  color: #e2dcc5; }
+body.theme-dark a:hover {
+  color: #f7f0d4; }
+body.theme-dark h1, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4, body.theme-dark h5 {
+  color: #83827e; }
+  body.theme-dark h1, body.theme-dark h1 code, body.theme-dark h1 a code, body.theme-dark h2, body.theme-dark h2 code, body.theme-dark h2 a code, body.theme-dark h3, body.theme-dark h3 code, body.theme-dark h3 a code, body.theme-dark h4, body.theme-dark h4 code, body.theme-dark h4 a code, body.theme-dark h5, body.theme-dark h5 code, body.theme-dark h5 a code {
+    font-weight: bold; }
+body.theme-dark h6 {
+  color: #adaca9; }
+body.theme-dark h1 > a, body.theme-dark h2 > a, body.theme-dark h3 > a, body.theme-dark h4 > a, body.theme-dark h5 > a, body.theme-dark h6 > a {
+  color: #cac6b4; }
+  body.theme-dark h1 > a:hover, body.theme-dark h2 > a:hover, body.theme-dark h3 > a:hover, body.theme-dark h4 > a:hover, body.theme-dark h5 > a:hover, body.theme-dark h6 > a:hover {
+    color: #dedac9; }
+body.theme-dark hr {
+  border-top-color: #181d22;
+  border-bottom-color: #bdc7d0;
+  box-shadow: 0 -16px 32px #181d22, 0 -8px 16px #181d22, 0 -4px 8px #181d22, 0 -1px 2px #181d22, 0 10px 20px #64788d, 0 4px 8px #64788d, 0 1px 2px #64788d; }

@@ -13,6 +13,7 @@ tag_dir: tag
 pygments: true
 markdown: rdiscount
 permalink: pretty
+exclude: art/*
 
 packages:
   state:
@@ -20,6 +21,6 @@ packages:
     size: 136kB
     size_gz: 8.5kB
   omicron:
-    version: 0.1.7
-    size: 18kB
+    version: 0.1.8
+    size: 19kB
     size_gz: 2.1kB

@@ -1,0 +1,198 @@
+html {
+  overflow-y: scroll;
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;  
+}
+html, body {
+  padding: 0;
+  margin: 0;
+}
+body, p {
+  margin: 0;
+  font-family: $font-stack;
+  font-weight: normal;
+  font-size  : nth( $h-font-sizes, 6 );
+  line-height: nth( $h-line-heights, 6 );
+}
+
+.highlight pre {
+  display: none;
+}
+
+@for $i from 1 through 6 {
+  h#{$i} {
+    font-size: nth( $h-font-sizes, $i );
+    line-height: nth( $h-line-heights, $i );
+    margin: nth( $h-margins-top, $i ) 0 nth( $h-margins-bottom, $i );
+  }
+}
+h1,h2,h3,h4,h5 {
+  &, code, a code { font-weight: bold; }
+}
+h6 {
+  text-transform: none;
+  &, code, a code { font-weight: 500; }
+}
+
+p {
+  margin: 16px 0 12px;
+
+  a {
+    font-weight: 500;
+  }
+}
+ol {
+  margin: 0 0 12px 36px;
+}
+hr {
+  margin: 30px 0 20px;
+  border: 1px solid transparent;
+}
+
+a {
+  outline: none;
+  @include transition( 0.3s, ease-out );
+
+  &:hover {
+    text-decoration: none;
+    @include transition( 0.2s, ease-out );
+  }
+
+  &, &:hover {
+    @include transition-property( color, background-color );
+  }
+}
+
+.container {
+  width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+  zoom: 1;
+
+  &::before, &::after {
+    display: table;
+    content: "";
+    zoom: 1;
+  }
+
+  &::after {
+    clear: both;
+  }
+}
+
+.hero {
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 540px;
+  overflow: visible;
+
+  .fill {
+    background-color: transparent;
+    @include linear-gradient(
+      background-image, top,
+      hsla( 210,  25%,  29%, 1    )    ,
+      hsla( 210,  50%,  13%, 0.90 ) 90%,
+      hsla( 210,  50%,  19%, 0.90 )
+    );
+    box-shadow:       0 0 20px rgba( 16, 32, 48, 0.5 ),
+                inset 0 -1px 0 rgba(  0,  0,  0, 0.1 );
+  }
+
+  .brand {
+    .logo {
+      width: 640px;
+      height: 640px;
+      margin: 0 auto;
+      background-image: url();
+    }
+    .title {
+      font-size: 96px;
+      text-align: center;
+    }
+  }
+
+  .lightstick {
+    position: absolute;
+    z-index: 5;
+    bottom: 0;
+    width: 100%;
+    height: 7px;
+    background-color: transparent;
+    @include linear-gradient(
+      background-image, top,
+      hsla(   0,   0%,  10%, 0.40 )    ,
+      hsla(   0,   0%, 100%, 0.20 ) 20%,
+      hsla(   0,   0%, 100%, 0.20 ) 30%,
+      hsla(   0,   0%, 100%, 0.00 ) 80%,
+      hsla(  50,  10%,  90%, 0.20 ) 95%,
+      hsla(  50,  10%,  40%, 0.24 )
+    );
+  }
+
+  ul.nav {
+    li {
+      .lightstick {
+        position: absolute;
+        z-index: 0;
+        width: 100%;
+        bottom: 0;
+        @include transition( 0.8s ease-out );
+      }
+
+      &.indicated .lightstick,
+      &.active    .lightstick {
+        @include transition( 0.2s ease-out );
+      }
+
+      &           .lightstick,
+      &.indicated .lightstick,
+      &.active    .lightstick {
+        @include transition-property( background-color, box-shadow );
+      }
+    }
+
+    @include lightstick( docs,   $docs-color,   $docs-color-bg   );
+    @include lightstick( api,    $api-color,    $api-color-bg    );
+    @include lightstick( source, $source-color, $source-color-bg );
+    @include lightstick( tests,  $tests-color,  $tests-color-bg  );
+    @include lightstick( github, $github-color, $github-color-bg );
+  }
+
+
+  &.state-stage {
+    position: absolute;
+    top: 0px;
+    @include transition( top, 0.8s, ease-in-out );
+
+    .brand {
+      zoom: 1;
+      @include transform( scale(1,1) );
+      @include transition( vendor-explode(transform), 0.8s, ease-in-out );
+    }
+
+    ul.nav {
+      float: none;
+      margin: 0 auto;
+    }
+  }
+
+  &.state-header {
+    position: fixed;
+    top: -432px;
+    @include transition( top, 0.8s, ease-in-out );
+
+    .brand {
+      zoom: 0.5;
+      margin-left: 0;
+      @include transition( zoom, 0.8s, ease-in-out );
+    }
+
+    ul.nav {
+      float: right;
+    }
+  }
+}

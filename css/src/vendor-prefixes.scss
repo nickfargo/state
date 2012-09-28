@@ -1,0 +1,35 @@
+@mixin transition ( $args... ) {
+  -webkit-transition: #{$args};
+     -moz-transition: #{$args};
+      -ms-transition: #{$args};
+       -o-transition: #{$args};
+          transition: #{$args};
+}
+
+@mixin transition-property ( $properties... ) {
+  -webkit-transition-property: #{$properties};
+     -moz-transition-property: #{$properties};
+      -ms-transition-property: #{$properties};
+       -o-transition-property: #{$properties};
+          transition-property: #{$properties};
+}
+
+@mixin linear-gradient ( $property, $args... ) {
+  #{$property}: -webkit-linear-gradient( #{$args} );
+  #{$property}:    -moz-linear-gradient( #{$args} );
+  #{$property}:     -ms-linear-gradient( #{$args} );
+  #{$property}:      -o-linear-gradient( #{$args} );
+  #{$property}:         linear-gradient( #{$args} );
+}
+
+@mixin transform ( $args... ) {
+  -webkit-transform: #{$args};
+     -moz-transform: #{$args};
+      -ms-transform: #{$args};
+       -o-transform: #{$args};
+          transform: #{$args};
+}
+
+@function vendor-explode ( $term ) {
+  @return -webkit-#{$term} -moz-#{$term} -ms-#{$term} -o-#{$term} #{$term};
+}

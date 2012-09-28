@@ -1,0 +1,33 @@
+@mixin lightstick ( $section, $color, $color-bg ) {
+  @include lightstick-default(   $section, $color, $color-bg );
+  @include lightstick-indicated( $section, $color, $color-bg );
+  @include lightstick-active(    $section, $color, $color-bg );
+}
+
+@mixin lightstick-default ( $section, $color, $color-bg ) {
+  $transparent: transparentize( $color, 1.0 );
+
+  li a[href^="/#{$section}"] + .lightstick {
+    background: $color-bg;
+    box-shadow: 0 0 24px $transparent,
+                0 0 12px $transparent,
+          inset 0 0  3px $transparent;
+  }
+}
+@mixin lightstick-indicated ( $section, $color, $color-bg ) {
+  li.indicated a[href^="/#{$section}"] + .lightstick {
+    background: $color-bg;
+    box-shadow: 0 0 24px -hsla-( $color, 0,   0%,   0%, 0.4 ),
+                0 0 12px -hsla-( $color, 0,   0%,   0%, 0.2 ),
+          inset 0 0  3px -hsla-( $color, 0, -28%,  -5%, 0.2 );
+  }
+}
+@mixin lightstick-active ( $section, $color, $color-bg ) {
+  li.active a[href^="/#{$section}"] + .lightstick {
+    background: $color-bg;
+    box-shadow: 0 0 36px -hsla-( $color, 0,   0%,   0%, 0.4 ),
+                0 0 24px -hsla-( $color, 0,   0%,   0%, 0.2 ),
+                0 0 12px -hsla-( $color, 0,   0%,   0%, 0.2 ),
+          inset 0 0  3px -hsla-( $color, 0, -28%,  -5%, 0.2 );
+  }
+}

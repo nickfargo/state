@@ -19,11 +19,13 @@ Apart from the addition of the `object.state()` method, a call to `state()` must
 
 ### [Roadmap](#about--roadmap)
 
-#### [Concurrency](#about--roadmap--concurrency)
+#### [Features](#about--roadmap--features)
+
+##### [Concurrency](#about--roadmap--features--concurrency)
 
 Whereas an object’s state is most typically conceptualized as an exclusive-OR operation (i.e., its current state is always fixed to exactly one state), a state may instead be defined as **concurrent**, relating its substates in an “AND” composition, where occupation of the concurrent state implies simultaneous occupation of each of its immediate substates.
 
-#### [History](#about--roadmap--history)
+##### [History](#about--roadmap--features--history)
 
 Any state may be ordered to keep a **history** of its own internal state. Entries are recorded in the history anytime the given state is involved in a transition, or experiences a change to its internal content or structure. The history may be traversed in either direction, and elements replaced or pushed onto the stack at its current index. When a transition targets a **retained** state, it will consult that state’s history and redirect itself back to whichever of the state’s substates was most recently current.
 

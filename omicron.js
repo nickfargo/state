@@ -1,9 +1,26 @@
-( function ( undefined ) {
+// Copyright (C) 2011-2012
+// Nick Fargo, Z Vector Inc.
+//
+// [`LICENSE`](https://github.com/nickfargo/omicron/blob/master/LICENSE) MIT.
+//
+// Omicron (**“O”**) is a small JavaScript library of functions and tools that
+// assist with:
+//
+// * Object manipulation and differential operations
+// * Prototypal inheritance
+// * Selected general tasks: safe typing, functional iteration, etc.
+//
+// [omicronjs.org](http://omicronjs.org/)
+// 
+// <a class="icon-large icon-octocat"
+//    href="http://github.com/nickfargo/omicron/"></a>
+
+;( function ( undefined ) {
 
 var global = this,
 
     O = {
-        VERSION: '0.1.6',
+        VERSION: '0.1.8',
         env: {
             server: typeof module !== 'undefined' &&
                     typeof require !== 'undefined' &&
@@ -17,25 +34,25 @@ var global = this,
         whitespace: /\s+/
     },
 
-    // #### NIL
-    // 
-    // Unique object reference. Used by `edit` and related differential
-    // operation functions, where an object with a property whose value is set
-    // to `NIL` indicates the absence or deletion of the corresponding
-    // property on an associated operand.
-    NIL = O.NIL = ( function () { function NIL () {} return new NIL; } )(),
+    // #### [NIL](#nil)
+    //
+    // Unique object reference. Used by [`edit`](#edit) and the related
+    // differential operation functions, where an object with a property whose
+    // value is set to `NIL` indicates the absence or deletion of the
+    // corresponding property on an associated operand.
+    NIL = O.NIL = ( function () { function NIL () {} return new NIL; }() ),
 
-    // #### toString
-    // 
+    // #### [toString](#to-string)
+    //
     toString = O.toString =
         Object.prototype.toString,
     
-    // #### hasOwn
-    // 
+    // #### [hasOwn](#has-own)
+    //
     hasOwn = O.hasOwn =
         Object.prototype.hasOwnProperty,
     
-    // #### trim
+    // #### [trim](#trim)
     //
     trim = O.trim =
         String.prototype.trim ?
@@ -50,13 +67,13 @@ var global = this,
                         .replace( /\s+$/, '' );
             },
     
-    // #### slice
+    // #### [slice](#slice)
     //
     slice = O.slice =
         Array.prototype.slice;
 
 
-// #### noConflict
+// #### [noConflict](#no-conflict)
 //
 O.noConflict = ( function () {
     var autochthon = global.O;
@@ -64,25 +81,25 @@ O.noConflict = ( function () {
         global.O = autochthon;
         return this;
     };
-})();
+}() );
 
-// #### noop
-// 
+// #### [noop](#noop)
+//
 // General-purpose empty function.
 function noop () {}
 O.noop = noop;
 
-// #### getThis
-// 
-// Like `noop`, except suited for substitution on methods designed to be
-// chainable.
+// #### [getThis](#get-this)
+//
+// Like [`noop`](#noop), except suited for substitution on methods that would
+// normally return their context object.
 function getThis () { return this; }
 O.getThis = getThis;
 
 // Calls the specified native function if it exists and returns its result; if
-// no such function exists on `obj` as registered in `__native.fn`, returns
-// our unique `NIL` (as opposed to `null` or `undefined`, which may be a valid
-// result from the native function itself).
+// no such function exists on `obj` as registered in `__native.fn`, the unique
+// [`NIL`](#nil) is returned (as opposed to `null` or `undefined`, either of
+// which may be a valid result from the native function itself).
 function __native ( item, obj /* , ... */ ) {
     var n = __native.fn[ item ];
     return n && obj[ item ] === n ?
@@ -90,12 +107,13 @@ function __native ( item, obj /* , ... */ ) {
         NIL;
 }
 __native.fn = {
-    forEach: Array.prototype.forEach
+    forEach: Array.prototype.forEach,
+    indexOf: Array.prototype.indexOf
 };
 
-// #### type
-// 
-// A safe alternative to `typeof` that checks against
+// #### [type](#type)
+//
+// An established browser-safe alternative to `typeof` that checks against
 // `Object.prototype.toString()`.
 function type ( obj ) {
     return obj == null ?
@@ -109,28 +127,28 @@ each( 'Array Boolean Date Function Number Object RegExp String'.split(' '),
     });
 O.type = type;
 
-// #### isBoolean
+// #### [isBoolean](#is-boolean)
 function isBoolean ( obj ) { return type( obj ) === 'boolean'; }
 O.isBoolean = isBoolean;
 
-// #### isString
+// #### [isString](#is-string)
 function isString ( obj ) { return type( obj ) === 'string'; }
 O.isString = isString;
 
-// #### isNumber
+// #### [isNumber](#is-number)
 function isNumber ( n ) { return !isNaN( parseFloat( n ) ) && isFinite( n ); }
 O.isNumber = isNumber;
 
-// #### isArray
+// #### [isArray](#is-array)
 function isArray ( obj ) { return type( obj ) === 'array'; }
 O.isArray = isArray;
 
-// #### isFunction
+// #### [isFunction](#is-function)
 function isFunction ( obj ) { return type( obj ) === 'function'; }
 O.isFunction = isFunction;
 
-// #### isPlainObject
-// 
+// #### [isPlainObject](#is-plain-object)
+//
 // Near-straight port of jQuery `isPlainObject`.
 function isPlainObject ( obj ) {
     var key;
@@ -146,8 +164,8 @@ function isPlainObject ( obj ) {
 }
 O.isPlainObject = isPlainObject;
 
-// #### isEmpty
-// 
+// #### [isEmpty](#is-empty)
+//
 // Returns a boolean indicating whether the object or array at `obj` contains
 // any members. For an `Object` type, if `andPrototype` is included and truthy,
 // `obj` must be empty throughout its prototype chain as well.
@@ -161,16 +179,19 @@ function isEmpty ( obj, andPrototype ) {
 }
 O.isEmpty = isEmpty;
 
-// #### isEqual
-// 
-// Performs deep equality test.
+// #### [isEqual](#is-equal)
+//
+// Performs a deep equality test.
 function isEqual ( subject, object ) {
-    return subject === object || isEmpty( diff( subject, object || {} ) );
+    return subject === object ||
+        isEmpty( edit(
+            'deep all absolute immutable delta', subject, object || {}
+        ));
 }
 O.isEqual = isEqual;
 
-// #### each
-// 
+// #### [each](#each)
+//
 // Functional iterator with jQuery-style callback signature of
 // `key, value, object`.
 function each ( obj, fn ) {
@@ -189,8 +210,8 @@ function each ( obj, fn ) {
 }
 O.each = each;
 
-// #### forEach
-// 
+// #### [forEach](#for-each)
+//
 // Functional iterator with ES5-style callback signature of
 // `value, key, object`.
 function forEach ( obj, fn, context ) {
@@ -214,48 +235,49 @@ function forEach ( obj, fn, context ) {
 }
 O.forEach = forEach;
 
-// #### edit
-// 
+// #### [edit](#edit)
+//
 // Performs a differential operation across multiple objects.
-// 
+//
 // By default, `edit` returns the first object-typed argument as `subject`, to
 // which each subsequent `source` argument is copied in order. Optionally the
 // first argument may be either a Boolean `deep`, or a whitespace-delimited
 // `flags` String containing any of the following keywords:
-// 
+//
 // * `deep` : If a `source` property is an object or array, a structured clone
 //      is created on `subject`.
-// 
+//
 // * `own` : Excludes `source` properties filtered by `Object.hasOwnProperty`.
-// 
+//
 // * `all` : Includes `source` properties with values of `NIL` or `undefined`.
-// 
+//
 // * `delta` : Returns the **delta**, a structured object that reflects the
 //      changes made to the properties of `subject`. If multiple object
 //      arguments are provided, an array of deltas is returned. (Applying the
 //      deltas in reverse order in an `edit('deep')` on `subject` would revert
 //      the contents of `subject` to their original state.)
-// 
+//
 // * `immutable` : Leaves `subject` unchanged. Useful, for example, in
 //      combination with flags `delta` and `absolute` for non-destructively
 //      computing a differential between `source` and `subject`.
-// 
+//
 // * `absolute` : By default an edit operation is *relative*, in that the
 //      properties of `subject` affected by the operation are limited to those
 //      also present within each `source`. By including the `absolute` flag,
 //      properties in `subject` that are *not* also present within each
 //      `source` will be deleted from `subject`, and will also affect any
 //      returned delta accordingly.
-// 
+//
 // Contains techniques and influences from the deep-cloning procedure of
 // `jQuery.extend`, with which `edit` also retains a compatible interface.
-// 
-// *See also:* **clone**, **delta**, **diff**, **assign**
+//
+// > See also: [`clone`](#clone), [`delta`](#delta), [`diff`](#diff),
+// [`assign`](#assign)
 function edit () {
     var i, l, t, flags, flagsString, subject, subjectIsArray, deltas, delta,
         key, value, valueIsArray, source, target, clone, result;
 
-    i = 0, l = arguments.length;
+    i = 0; l = arguments.length;
     t = type( arguments[0] );
 
     if ( t === 'boolean' ) {
@@ -318,9 +340,8 @@ function edit () {
                 }
                 flags.immutable || ( subject[ key ] = clone );
             }
-            else if (
-                subject[ key ] !== value &&
-                ( value !== undefined || flags.all )
+            else if ( ( value !== undefined || flags.all ) &&
+                ( !hasOwn.call( subject, key ) || subject[ key ] !== value )
             ) {
                 if ( delta ) {
                     delta[ key ] = hasOwn.call( subject, key ) ?
@@ -346,35 +367,44 @@ function edit () {
 }
 O.edit = O.extend = edit;
 
-// #### clone
-// 
-// Specialization of `edit`.
+// #### [clone](#clone)
+//
+// Specialization of [`edit`](#edit).
 function clone () {
     return edit.apply( O, [ 'deep all', isArray( arguments[0] ) ? [] : {} ]
         .concat( slice.call( arguments ) ) );
 }
 O.clone = clone;
 
-// #### delta
-// 
-// Specialization of `edit`.
+// #### [delta](#delta)
+//
+// Specialization of [`edit`](#edit) that applies changes defined in `source`
+// to `subject`, and returns the **anti-delta**: a structured map containing
+// the properties of `subject` displaced by the operation. Previously
+// nonexistent properties are recorded as [`NIL`](#nil) in the anti-delta.
+// The prior condition of `subject` can be restored in a single transaction
+// by immediately providing this anti-delta object as the `source` argument in
+// a subsequent `edit` operation upon `subject`.
 function delta () {
     return edit.apply( O, [ 'deep delta' ]
         .concat( slice.call( arguments ) ) );
 }
 O.delta = delta;
 
-// #### diff
-// 
-// Specialization of `edit`.
+// #### [diff](#diff)
+//
+// Specialization of [`edit`](#edit) that returns the delta between the
+// provided `subject` and `source`. Operates similarly to [`delta`] except no
+// changes are made to `subject`, and `source` is evaluated absolutely rather
+// than applied relatively.
 function diff () {
     return edit.apply( O, [ 'deep delta immutable absolute' ]
         .concat( slice.call( arguments ) ) );
 }
 O.diff = diff;
 
-// #### assign
-// 
+// #### [assign](#assign)
+//
 // Facilitates one or more assignments of a value to one or more keys of an
 // object.
 function assign ( target, map, value ) {
@@ -382,15 +412,15 @@ function assign ( target, map, value ) {
 
     if ( typeof target === 'string' ) {
         valuesMirrorKeys = arguments.length === 1;
-        value = map, map = target, target = {};
+        value = map; map = target; target = {};
     } else {
         valuesMirrorKeys = typeof map === 'string' && arguments.length === 2;
         if ( map === undefined ) {
-            map = target, target = {};
+            map = target; target = {};
         }
     }
     if ( typeof map === 'string' ) {
-        key = map, ( map = {} )[ key ] = value;
+        key = map; ( map = {} )[ key ] = value;
     }
 
     for ( key in map ) if ( hasOwn.call( map, key ) ) {
@@ -412,8 +442,8 @@ function assign ( target, map, value ) {
 }
 O.assign = assign;
 
-// #### flatten
-// 
+// #### [flatten](#flatten)
+//
 // Extracts elements of nested arrays into a single flat array.
 function flatten ( array ) {
     isArray( array ) || ( array = [ array ] );
@@ -433,8 +463,37 @@ function flatten ( array ) {
 }
 O.flatten = flatten;
 
-// #### keys
-// 
+// #### [indexOf](#index-of)
+//
+// Emulates (IE<9) or calls native `Array.prototype.indexOf`.
+function indexOf ( array, target, startIndex ) {
+    var n, i, l;
+    if ( array == null ) return -1;
+    if ( ( n = __native( 'indexOf', array, target ) ) !== NIL ) return n;
+    for ( i = startIndex || 0, l = array.length; i < l; i++ ) {
+        if ( i in array && array[i] === target ) return i;
+    }
+    return -1;
+}
+O.indexOf = indexOf;
+
+// #### [unique](#unique)
+//
+// Returns a copy of `array` with any duplicate elements removed.
+function unique ( array ) {
+    var result, i, l, item;
+    if ( !array ) return [];
+    result = [];
+    for ( i = 0, l = array.length; i < l; i++ ) {
+        item = array[i];
+        ~indexOf( result, item ) || result.push( item );
+    }
+    return result;
+}
+O.unique = O.uniq = unique;
+
+// #### [keys](#keys)
+//
 // Returns an array containing the keys of a hashmap.
 function keys ( obj ) {
     var key, result = [];
@@ -444,10 +503,10 @@ function keys ( obj ) {
     for ( key in obj ) { hasOwn.call( obj, key ) && result.push( key ); }
     return result;
 }
-O.keys = keys = isFunction( Object.keys ) ? Object.keys : keys;
+O.keys = isFunction( Object.keys ) ? Object.keys : keys;
 
-// #### invert
-// 
+// #### [invert](#invert)
+//
 // Returns a hashmap that is the key-value inversion of the supplied string
 // array.
 function invert ( obj ) {
@@ -461,8 +520,8 @@ function invert ( obj ) {
 }
 O.invert = invert;
 
-// #### alias
-// 
+// #### [alias](#alias)
+//
 // Copies the values of members of an object to one or more different keys on
 // that same object.
 function alias ( object, map ) {
@@ -477,8 +536,8 @@ function alias ( object, map ) {
 }
 O.alias = alias;
 
-// #### thunk
-// 
+// #### [thunk](#thunk)
+//
 // Creates and returns a lazy evaluator, a function that returns the enclosed
 // argument.
 function thunk ( obj ) {
@@ -486,11 +545,11 @@ function thunk ( obj ) {
 }
 O.thunk = thunk;
 
-// #### lookup
-// 
+// #### [lookup](#lookup)
+//
 // Retrieves the value at the location indicated by the provided `path` string
 // inside a nested object `obj`. For example:
-// 
+//
 //      var x = { a: { b: 42 } };
 //      lookup( x, 'a' );        // { "b": 42 }
 //      lookup( x, 'a.b' );      // 42
@@ -508,8 +567,8 @@ function lookup ( obj, path, separator ) {
 }
 O.lookup = lookup;
 
-// #### create
-// 
+// #### [create](#create)
+//
 // Reference to or partial shim for `Object.create`.
 function create ( prototype ) {
     var object, constructor = function () {};
@@ -519,13 +578,13 @@ function create ( prototype ) {
     object.constructor = prototype.constructor;
     return object;
 }
-O.create = isFunction( Object.create ) ? ( create = Object.create ) : create;
+O.create = isFunction( Object.create ) ? Object.create : create;
 
-// #### inherit
-// 
+// #### [inherit](#inherit)
+//
 // Facilitates prototypal inheritance between a `child` constructor and a
 // `parent` constructor.
-// 
+//
 // * `child` and `parent` are constructor functions, such that
 //       `new child instanceof parent === true`
 // * `child` also inherits static members that are direct properties of
@@ -544,7 +603,7 @@ function inherit (
         ( edit( child, parent ).prototype = create( parent.prototype ) )
             .constructor = child;
     } else {
-        statics = properties, properties = parent;
+        statics = properties; properties = parent;
     }
     properties && edit( child.prototype, properties );
     statics && edit( child, statics );
@@ -552,18 +611,18 @@ function inherit (
 }
 O.inherit = inherit;
 
-// #### privilege
-// 
+// #### [privilege](#privilege)
+//
 // Generates partially applied functions for use as methods on an `object`.
-// 
+//
 // Functions sourced from `methodStore` accept as arguments the set of
 // variables to be closed over, and return the enclosed function that will
 // become the `object`’s method.
-// 
+//
 // The `map` argument maps a space-delimited set of method names to an array
 // of free variables. These variables are passed as arguments to each of the
 // named methods as found within `methodStore`.
-// 
+//
 // This approach promotes reuse of a method’s logic by decoupling the function
 // from the native scope of its free variables. A subsequent call to
 // `privilege`, then, can be used on behalf of a distinct (though likely
@@ -580,8 +639,8 @@ function privilege ( object, methodStore, map ) {
 }
 O.privilege = privilege;
 
-// #### getPrototypeOf
-// 
+// #### [getPrototypeOf](#get-prototype-of)
+//
 // Returns an object’s prototype. In environments without native support, this
 // may only work if the object’s constructor and its prototype are properly
 // associated, e.g., as facilitated by the `create` function.
@@ -589,23 +648,23 @@ function getPrototypeOf ( obj ) {
     return obj.__proto__ || obj.constructor.prototype;
 }
 O.getPrototypeOf = isFunction( Object.getPrototypeOf ) ?
-    ( getPrototypeOf = Object.getPrototypeOf ) : getPrototypeOf;
+    Object.getPrototypeOf : getPrototypeOf;
 
-// #### valueFunction
-// 
+// #### [valueFunction](#value-function)
+//
 // Cyclically references a function’s output as its own `valueOf` property.
 function valueFunction ( fn ) { return fn.valueOf = fn; }
 O.valueFunction = valueFunction;
 
-// #### stringFunction
-// 
+// #### [stringFunction](#string-function)
+//
 // Cyclically references a function’s output as its own `toString` property.
 function stringFunction ( fn ) { return fn.toString = fn; }
 O.stringFunction = stringFunction;
 
 
-// 
+//
 O.env.server && ( module.exports = O );
 O.env.client && ( global['O'] = O );
 
-})();
+}() );

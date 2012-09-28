@@ -1,6 +1,6 @@
 ### [Expressions](#concepts--expressions)
 
-A **state expression** captures the semantic content of a `State`. The exported `state()` function returns a `StateExpression` when provided with a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
+A **state expression** captures the semantic content of a `State`. Calling the exported `state()` function returns a `StateExpression` when provided with a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
 
 The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `states`, and `transitions`. The object map supplied to the `state()` call can be structured accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
 

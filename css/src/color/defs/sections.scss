@@ -1,0 +1,21 @@
+@function -hsla- ( $color, $h, $s, $l, $a ) {
+  @return adjust-color(
+    $color,
+    $hue: $h,
+    $saturation: $s,
+    $lightness: $l,
+    $alpha: $a
+  );
+}
+
+$docs-color        : hsl( 192, 100%, 50% );
+$api-color         : hsl( 160, 100%, 50% );
+$source-color      : hsl(  96, 100%, 50% );
+$tests-color       : hsl(  75, 100%, 50% );
+$github-color      : hsl(  58, 100%, 50% );
+
+$docs-color-bg     : -hsla-( $docs-color,   0, -60%,  0%, 0.4 );
+$api-color-bg      : -hsla-( $api-color,    0, -54%,  0%, 0.4 );
+$source-color-bg   : -hsla-( $source-color, 0, -48%,  0%, 0.4 );
+$tests-color-bg    : -hsla-( $tests-color,  0, -30%, -6%, 0.4 );
+$github-color-bg   : -hsla-( $github-color, 0, -40%, -6%, 0.4 );

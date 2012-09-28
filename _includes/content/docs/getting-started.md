@@ -16,7 +16,7 @@ state( owner, [attributes], expression )
 state( owner, [attributes], expression )
 {% endhighlight %}
 
-Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the contents of `expression` (and any keywords included in the optional [`attributes`](#concepts--attributes) string), and then return the newly stateful object’s [**initial state**](#concepts--attributes--destination).
+Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the contents of `expression` (and any keywords included in the optional [`attributes`](#concepts--attributes) string). The newly stateful object’s [**initial state**](#concepts--attributes--destination) is returned.
 
 ##### Expressing a state’s content
 
@@ -28,7 +28,7 @@ state( [attributes], expression )
 state( [attributes], expression )
 {% endhighlight %}
 
-Given a single `expression` object (and optional `attributes`, `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within `expression` to define the constituent [**substates**](#concepts--inheritance--superstates-and-substates) of an expressed state.
+Given a single `expression` object (and optional `attributes`), `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call to define constituent [**substates**](#concepts--inheritance--superstates-and-substates).
 
 
 #### [Step 1 — Building a state expression](#getting-started--building-a-state-expression)

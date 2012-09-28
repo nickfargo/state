@@ -1,0 +1,7 @@
+@function hr-shade( $steps, $color, $y:+1 ) {
+  $out: "";
+  @each $i in $steps {
+    $out: if( $out == "", #{$out}, #{$out+", "} )#{0} #{$y*$i}px #{2*$i}px #{$color}
+  }
+  @return $out;
+}

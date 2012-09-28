@@ -23,9 +23,9 @@ When state is applied to an object, **State** identifies any methods already pre
 
 #### [Method context](#concepts--methods--context)
 
-When a method call is delegated to a state method, that state method is invoked not in the context of its owner, but rather of the state in which it is declared, or, if the method is inherited from a protostate, in the context of the local state that inherits from that protostate. This does mean that, within a state method, the owner is not referenced by `this` as it normally would be; however, it is still always accessible by calling `this.owner()`.
+When a method call is delegated to a state method, that state method is invoked not in the context of its owner, but rather of the `State` in which it is declared, or, if the method is inherited from a protostate, in the context of the owner’s state which inherits from that protostate. Using the state as the method’s context does mean that, within a state method, while the owner is not referenced by `this` as it normally would be, it is still always accessible by calling `this.owner()`.
 
-The lexical information afforded by binding state methods to their associated state allows state method code to take advantage of polymorphic idioms, such as calling up to a superstate’s implementation of a method, as facilitated by the `apply` and `call` methods of `State`.
+This lexical binding of state methods to their associated `State` allows the code to take advantage of polymorphic idioms, such as calling up to a superstate’s implementation of a method, as facilitated by the `apply` and `call` methods of `State`.
 
 {% highlight javascript %}
 {% include examples/docs/methods--context.js %}
@@ -35,11 +35,13 @@ The lexical information afforded by binding state methods to their associated st
 {% include examples/docs/methods--context.coffee %}
 {% endhighlight %}
 
-Worth noting here is the significant difference distinguishing these methods from their eponymous `Function.prototype` counterparts. In `State`, the first argument accepted by `apply` and `call` is a string that names a state method, rather than a context object (since, again, the resulting invocation’s context is automatically bound to that method’s associated `State`).
+Worth noting here in regard to these `apply` and `call` methods is the significant difference distinguishing them from their more familiar `Function.prototype` counterparts: whereas for a function, the first argument accepted by `apply` and `call` is a context object, for the `State::apply` and `State::call` methods, the first argument is a string that names a method on that state to be invoked. Supplying a context object is unnecessary because, again, methods held on a `State` are automatically bound to that `State`.
 
 > [apply](/api/#state--methods--apply)
+> [call](/api/#state--methods--call)
 > [method](/api/#state--methods--method)
 > [`State::apply`](/source/#state--prototype--apply)
+> [`State::call`](/source/#state--prototype--call)
 > [`State.privileged.method`](/source/#state--privileged--method)
 
 #### [Handling calls to currently nonexistent methods](#concepts--methods--nonexistent)
@@ -63,7 +65,7 @@ A specific `noSuchMethod:<methodName>` event is emitted as well, whose listeners
 
 #### [Example](#concepts--methods--example)
 
-This example of a simple `Document` type demonstrates state method inheritance and polymorphism. Note the points of interest that are numbered in the trailing comments and explained below:
+This example of a simple `Document` type demonstrates some of the patterns of state method inheritance. Note the points of interest numbered in the trailing comments and their explanations below:
 
 {% highlight javascript %}
 {% include examples/docs/methods--example.js %}

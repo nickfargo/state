@@ -359,7 +359,7 @@ See also: [**superstate**](#state--superstate)
 this.protostate()
 {% endhighlight %}
 
-Returns a `State` that is `this` state’s **protostate**: the state analogous to `this` within the state tree of the nearest prototype of `this.owner()`.
+Returns a `State` that is `this` state’s **protostate**: the state analogous to `this` within the state tree of the nearest prototype of `this.owner()` in which such a state exists.
 
 Returns `undefined` if no protostate exists anywhere in the owner’s prototype chain.
 

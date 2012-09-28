@@ -1,0 +1,42 @@
+&, p {
+  background-color: $bg-color;
+  color: $fg-color;
+}
+strong {
+  color: $strong-color;
+}
+a {
+  &, strong, code {
+    color: $link-color;
+  }
+  &:hover {
+    color: $link-hover-color;
+  }
+}
+
+h1,h2,h3,h4,h5 {
+  color: $h-color;
+  &, code, a code {
+    font-weight: bold;
+  }
+}
+h6 { color: $fg-color; }
+
+h1,h2,h3,h4,h5,h6 {
+  > a {
+    color: $h-link-color;
+    &:hover {
+      color: $h-link-hover-color;
+    }
+  }
+}
+
+hr {
+  border-top-color: $hr-shadow-color;
+  border-bottom-color: $hr-highlight-color;
+  box-shadow: hr-shade( ( 16, 8, 4, 1 ), $bg-shadow-color, -1 ),
+              hr-shade( ( 10, 4, 1 ), $bg-highlight-color );
+}
+
+pre {
+}
