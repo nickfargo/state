@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/default-manual.css">
     <link rel="stylesheet" href="/css/pygments.css">
+    {% if page.section == 'tests' %}
+    <link rel="stylesheet" media="screen" href="qunit.css" />
+    {% endif %}
+
     <meta name="viewport" content="width=device-width">
     <meta name="description" content="">
     <meta name="author" content="{{ site.meta.author.full_name }}">
@@ -70,6 +74,10 @@
       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
       <script src="/js/scroll.js"></script>
       <script src="/js/ui.js"></script>
+
+      {% if page.section == 'tests' %}
+      {% include content/tests/scripts.html %}
+      {% endif %}
     </section>
   </body>
 </html>
