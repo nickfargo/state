@@ -24,6 +24,7 @@
     * [Delegator methods](#concepts--methods--delegators)
     * [Method context](#concepts--methods--context)
     * [Nonexistent methods](#concepts--methods--nonexistent)
+    * [Example](#concepts--methods--example)
   * [Transitions](#concepts--transitions)
     * [Transition expressions](#concepts--transitions--expressions)
     * [The transition lifecycle](#concepts--transitions--lifecycle)

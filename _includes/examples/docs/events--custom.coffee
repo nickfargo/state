@@ -1,10 +1,12 @@
 class Kid
   state @::
-    Happy: state()
-    Sad: state()
+    Happy: state
+    Sad: state
+
     events:
       gotIceCream: -> @be 'Happy'
       spilledIceCream: -> @be 'Sad'
+
 
 junior = new Kid
 

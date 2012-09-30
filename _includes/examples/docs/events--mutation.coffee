@@ -2,7 +2,7 @@ flavors = [
   'vanilla'
   'chocolate'
   'strawberry'
-  'Americone Dream'
+  'AmeriCone Dream'
 ]
 
 class Kid
@@ -19,6 +19,7 @@ class Kid
       @owner.whine "I hate #{ delta.favorite }, " +
                    "I want #{ mutation.favorite }!"
 
+
 jr = new Kid
 
 # We could have added listeners this way also:
@@ -27,4 +28,4 @@ jr.state().on 'mutate', ( mutation, delta ) -> # ...
 jr.waver()  # log <<< "I hate chocolate, I want strawberry!"
 jr.waver()  # log <<< "I hate strawberry, I want chocolate!"
 jr.waver()  # No whining! On a whim, junior stood pat this time.
-jr.waver()  # log <<< "I hate chocolate, I want Americone Dream!"
+jr.waver()  # log <<< "I hate chocolate, I want AmeriCone Dream!"

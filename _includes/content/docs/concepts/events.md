@@ -94,7 +94,7 @@ Listeners receive four objects as arguments: the contents of the `mutation` expe
 
 #### [Custom event types](#concepts--events--custom)
 
-Through exposure of the `emit` method, state instances allow any type of event to be broadcast and consumed.
+A state’s `emit` method allows any type of event to be broadcast and consumed.
 
 {% highlight javascript %}
 {% include examples/docs/events--custom.js %}
