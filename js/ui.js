@@ -213,30 +213,64 @@ $( function () {
 // document, such that its `top` and `height` properties are updated to
 // highlight the sections of the document presently visible in the window.
 ( function () {
-  var i, l;
-  var documentHeight;
-  var cachedLocationData = {};
+  var TOC_ANCHOR_PADDING = 3;
 
-  var $viewportRect;
-  var $window = $( window );
-  var $document = $( document );
-  var $topbar = $('.topbar');
-  var $fg = $('.toc .fg');
-  var $a = $('.toc li a');
+  var $topbar, $toc, $fg, $a, $viewportRect;
+  var documentHeight
+
+  // A recyclable object used as the output of the `locate` function.
+  var cachedLocationData;
 
   // An array of the hash fragments href’d by each `li a` in the ToC.
-  var frags = [];
-  for ( i = 0, l = $a.length; i < l; i++ ) {
-    frags[i] = $a[i].getAttribute('href');
-  }
+  var frags;
 
-  // For quick index lookups, invert `frags`: key:value -> value:key
-  var indices = O.invert( frags );
+  // A key-value inversion of `frags` for quick index lookups.
+  var indices;
 
   // A map that keys each indexed hash fragment to the `top` number property
-  // of the corresponding heading element. Care must be taken to update this
-  // map on each reflow (e.g. when toggling language preferences).
-  var positions = {};
+  // of the corresponding heading element in the document body. Care must be
+  // taken to update this map on each reflow (e.g. when toggling language
+  // preferences).
+  var positions;
+
+  var $window = $( window );
+  var $document = $( document );
+
+
+  $( init );
+
+  // #### init
+  //
+  // Listens for the $document ready event.
+  function init () {
+    var i, l;
+
+    $toc = $('.toc');
+    if ( $toc.length === 0 ) return;
+
+    $topbar = $('.topbar');
+    $fg = $( '.fg', $toc );
+    $a = $( 'li a', $toc );
+
+    cachedLocationData = {};
+    frags = [];
+    for ( i = 0, l = $a.length; i < l; i++ ) {
+      frags[i] = $a[i].getAttribute('href');
+    }
+    indices = O.invert( frags );
+    positions = {};
+
+    $window
+      .on( 'scroll', refresh )
+      .on( 'resize', reflow )
+    ;
+
+    $viewportRect = $('<div class="viewport">').appendTo('.toc .bg');
+
+    reflow();
+
+    $viewportRect.show();
+  }
 
   // #### headingIdAbovePosition
   //
@@ -268,7 +302,7 @@ $( function () {
       out = cachedLocationData;
     }
 
-    var windowHeight       = $window.height();
+    var windowHeight       = window.innerHeight || $window.height();
     var topbarHeight       = $topbar.height();
     var viewportTop        = $window.scrollTop() + topbarHeight;
     var viewportHeight     = windowHeight - topbarHeight;
@@ -304,14 +338,22 @@ $( function () {
   //
   // Maps the location data provided by `locate` to the viewport rect element.
   function applyToViewportRect ( data ) {
+
+    // Locate the ToC anchor elements that should cover the top and bottom of
+    // the viewport rect.
     var $topAnchor      = $( 'a[href=' + data.topId    + ']', $fg );
     var $bottomAnchor   = $( 'a[href=' + data.bottomId + ']', $fg );
 
-    var top     = $topAnchor.position().top +
-                    data.topFraction * $topAnchor.height();
-    var bottom  = $bottomAnchor.position().top +
-                    data.bottomFraction * $bottomAnchor.height();
+    // Determine the precise vertical dimensions of the viewport rect, based
+    // on the fraction of the corresponding document sections that are visible.
+    var top     = $topAnchor.position().top - TOC_ANCHOR_PADDING +
+                    data.topFraction *
+                      ( $topAnchor.height() + 2 * TOC_ANCHOR_PADDING );
+    var bottom  = $bottomAnchor.position().top - TOC_ANCHOR_PADDING +
+                    data.bottomFraction *
+                      ( $bottomAnchor.height() + 2 * TOC_ANCHOR_PADDING );
 
+    // Apply the dimensions.
     $viewportRect.css( 'top', top );
     $viewportRect.height( bottom - top );
   }
@@ -338,15 +380,6 @@ $( function () {
 
     refresh();
   }
-
-  // Create the viewport rect, bind relevant events, and initialize.
-  $( function () {
-    $viewportRect = $('<div class="viewport">').appendTo('.toc .bg');
-    $window.on( 'scroll', refresh ).on( 'resize', reflow );
-    reflow();
-    $viewportRect.show();
-  });
-
 }() );
 
 }( jQuery ) );
