@@ -1,9 +1,20 @@
 @font-face {
-    font-family: 'Octicons Regular';
-    src: url('/font/octicons-regular-webfont.eot?v=2#iefix') format('embedded-opentype'), url('/font/octicons-regular-webfont.woff?v=2') format('woff'), url('/font/octicons-regular-webfont.ttf?v=2') format('truetype'), url('/font/octicons-regular-webfont.svg?v=2#newFontRegular') format('svg');
-    unicode-range: U+f208-f20b, U+f25a-f25c, U+f273, U+f278, U+f27f, U+f281;
-    font-weight: normal;
-    font-style: normal;
+  font-family: 'Octicons Regular';
+
+  src: url("/font/octicons-regular-webfont.eot")
+       format("embedded-opentype"),
+
+       url("/font/octicons-regular-webfont.woff")
+       format("woff"),
+
+       url("/font/octicons-regular-webfont.ttf")
+       format("truetype"),
+
+       url("/font/octicons-regular-webfont.svg")
+       format("svg");
+
+  font-weight: normal;
+  font-style: normal;
 }
 
 body,
@@ -450,6 +461,25 @@ blockquote ol {
                       0 0 24px hsla(58, 100%, 50%, 1),
                       0 0 12px hsla(58, 100%, 50%, 1),
                 inset 0 0  3px hsla(58, 100%, 50%, 1);
+  }
+
+  .topbar ul li a[href*="://github.com/"] {
+    width: 40px;
+  }
+  .topbar ul li a[href*="://github.com/"] span {
+    position: relative;
+    font-family: 'Octicons Regular';
+  }
+  .topbar ul li a[href*="://github.com/"] span.invertocat {
+    left: 8px;
+    top: -3px;
+    font-size: 24px;
+  }
+  .topbar ul li a[href*="://github.com/"] span.external-link {
+    top: -22px;
+    left: 2px;
+    font-size: 10px;
+    opacity: 0.5;
   }
 
 .content {
