@@ -8,7 +8,9 @@ A defining feature of **State** is the ability for an object to exhibit a variet
 
 #### [Delegator methods](#concepts--methods--delegators)
 
-When state is applied to an object, **State** identifies any methods already present on the object for which there exists at least one override somewhere within the state expression. These methods will be relocated to the root state, and replaced on the object with a special **delegator** method. The delegator’s job is to redirect any subsequent calls it receives to the object’s current state, from which **State** will then locate and invoke the proper stateful implementation of the method. Should no active states contain an override for the invoked method, the delegation will default to the object’s original implementation of the method if one exists, or result in a `noSuchMethod` [**event**](#concepts--events) otherwise.
+When state is applied to an object by calling [`state()`](#getting-started--the-state-function), **State** first identifies any methods already present on the object for which there exists at least one override somewhere within the provided state expression. These methods will be relocated to the new [root state](#concepts--inheritance--the-root-state), and replaced on the object with a special **delegator** method.
+
+The delegator’s job is to take any subsequent calls it receives and redirect them to the object’s current state, from which **State** will then locate and invoke the proper stateful implementation of the method. Should no active states contain an override for the invoked method, the delegation will default to the object’s original implementation of the method if one exists, or result in a [`noSuchMethod`](#concepts--methods--nonexistent) [**event**](#concepts--events) otherwise.
 
 {% highlight javascript %}
 {% include examples/docs/methods--delegators.js %}

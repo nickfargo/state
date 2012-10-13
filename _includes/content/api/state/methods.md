@@ -969,9 +969,9 @@ this.guard( guardType )
 
 * `guardType` : string
 
-Returns a guard entity for `this` state.
+Returns an object containing the guard predicates and/or expressions for the specified `guardType` held on `this` state.
 
-A **guard** is a map of values or functions that will be evaluated as either a boolean or predicate, respectively, to provide a determination of whether the owner’s currency will be admitted into or released from the state to which the guard is applied.
+A **guard** is a map of functions or values that will be evaluated as either a predicate or boolean expression, respectively, to provide a determination of whether the owner’s currency will be admitted into or released from the state to which the guard is applied.
 
 Valid `guardType`s include `admit` and `release`.
 

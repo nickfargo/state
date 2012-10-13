@@ -3,6 +3,79 @@
 var $page = $('html, body');
 
 
+// ### Auto-scrolling
+//
+$( function () {
+  var history = window.history;
+  var $container = $('html, body');
+
+  var topbarHeight = $('.topbar').height();
+  var maxScrollMargin = 16;
+
+  function lerp ( n0, n1, a ) { return n0 + ( n1 - n0 ) * a; }
+
+  $.easing.accel = function ( a ) {
+    return Math.pow( a, 2 );
+  };
+
+  $.easing.brake = function ( a ) {
+    return 1 - Math.pow( 1 - a, 6 );
+  };
+
+  function scroll ( event ) {
+    var $target, href, frag, $a, $h, margin, offset, method,
+        targetTop, startPoint, endPoint;
+
+    event.preventDefault();
+
+    $target = $( event.target );
+    href = $target.attr('href') ||
+           $target.parent('a').attr('href') ||
+           window.location.hash;
+    frag = href.replace( /^\#(.*)/, "$1" );
+    if ( !frag ) return;
+    $h = $( href.replace( /\./g, '\\.' ) );
+    if ( !$h.length ) {
+      $a = $( "a[name=" + frag.replace( /\./g, '\\.' ) + "]" );
+      $h = $a.parent().next();
+    }
+    if ( !$h.length ) return;
+    
+    margin = parseInt( $h.css('margin-top').replace( /(\d+)px/, "$1" ) );
+    offset = topbarHeight + Math.min( margin, maxScrollMargin );
+    targetTop = $h.offset().top;
+    startPoint = $('html').scrollTop() || $('body').scrollTop();
+    endPoint = targetTop - offset;
+
+    function depart () {
+      $('html, body')
+        .stop()
+        .animate( { scrollTop: lerp( startPoint, endPoint, 0.5 ) },
+          300, 'accel', arrive
+        );
+    }
+    function arrive () {
+      $('html, body')
+        .stop()
+        .animate( { scrollTop: endPoint },
+          900, 'brake'
+        );
+    }
+
+    if ( history ) {
+      method = href === location.hash ? 'replaceState' : 'pushState';
+      history[ method ]( null, null, href );
+    }
+    depart();
+  }
+
+  $( document ).on( 'ready', scroll );
+  $( window ).on( 'hashchange', scroll );
+  $('.toc, .markdown-body, #source .text')
+    .on( 'click', 'a[href^="#"]', scroll );
+});
+
+
 // ### Anchored headings
 //
 // Any heading elements containing a hash-linked anchor element are given an
@@ -21,43 +94,45 @@ $( function () {
 
 // ### Local tables of contents
 //
-// Fills any `local-toc`-classed element with a list of the subheadings
+// Fills any empty `.local-toc` element with a list of the subheadings
 // relative to the heading that immediately precedes it.
 $( function () {
   var rxHLevel = /^h/i;
-  $('div.local-toc').each( function () {
-    var rxReplace;
-    var $this = $(this);
-    var data = $this.data();
-    if ( data.pattern ) {
-      rxReplace = new RegExp( data.pattern, data.flags );
-    }
+  $('div.local-toc')
+    .filter( function () { return !$(this).children().length; } )
+    .each( function () {
+      var rxReplace;
+      var $this = $(this);
+      var data = $this.data();
+      if ( data.pattern ) {
+        rxReplace = new RegExp( data.pattern, data.flags );
+      }
 
-    // Establish the set of local subheadings
-    var sel = 'h1, h2, h3, h4, h5';
-    var $prev = $this.prevUntil( sel );
-    $prev.length || ( $prev = $this );
-    var $h = $prev.last().prev( sel );
-    var level = +$h.prop('tagName').replace( rxHLevel, '' );
-    var sublevel = level + 1;
-    var $sh;
-    while ( sublevel < 7 ) {
-      $sh = $this.nextUntil( 'h' + level, 'h' + sublevel );
-      if ( $sh.length ) break;
-      sublevel += 1;
-    }
+      // Establish the set of local subheadings
+      var sel = 'h1, h2, h3, h4, h5';
+      var $prev = $this.prevUntil( sel );
+      $prev.length || ( $prev = $this );
+      var $h = $prev.last().prev( sel );
+      var level = +$h.prop('tagName').replace( rxHLevel, '' );
+      var sublevel = level + 1;
+      var $sh;
+      while ( sublevel < 7 ) {
+        $sh = $this.nextUntil( 'h' + level, 'h' + sublevel );
+        if ( $sh.length ) break;
+        sublevel += 1;
+      }
 
-    // Render unordered list
-    var $ul = $('<ul>');
-    $sh.each( function ( i ) {
-      var $ha = $( 'a', this );
-      var html = $ha.html();
-      var $a = $('<a>').attr( 'href', $ha.attr('href') );
-      $a.html( rxReplace ? html.replace( rxReplace, data.replace ) : html );
-      $('<li>').append( $a ).appendTo( $ul );
+      // Render unordered list
+      var $ul = $('<ul>');
+      $sh.each( function ( i ) {
+        var $ha = $( 'a', this );
+        var html = $ha.html();
+        var $a = $('<a>').attr( 'href', $ha.attr('href') );
+        $a.html( rxReplace ? html.replace( rxReplace, data.replace ) : html );
+        $('<li>').append( $a ).appendTo( $ul );
+      });
+      $ul.appendTo( $this );
     });
-    $ul.appendTo( $this );
-  });
 });
 
 
@@ -69,12 +144,65 @@ $( function () {
 });
 
 
+// ### Polyglot
+//
+// Assume contiguous `.highlight` code blocks to be linguistically analagous,
+// and group their contents into a single common `div.highlight` container.
+//
+// Besides making for a less cluttered DOM, this step helps simplify the task
+// of keeping the viewport’s apparent scroll position anchored to a visible
+// element when a language preference is changed.
+$( function () {
+
+  // Select `.highlight` blocks that are contiguous sets and contain code in
+  // the languages of interest (i.e.: JS, CS).
+  var $blocks =
+    $('.highlight')
+      .has('code.javascript, code.coffeescript')
+      .filter( function () {
+        var $this = $(this);
+        return $this.next().hasClass('highlight') ||
+               $this.prev().hasClass('highlight');
+      });
+
+  // Select the first blocks of each contiguous set.
+  var $initial = $blocks.filter( function ( index ) {
+    var $prev = $(this).prev();
+    return !$prev.length || !$blocks.eq( index - 1 ).is( $prev );
+  });
+
+  // Move the `pre` from succeeding `.highlight` blocks in the contiguous
+  // set to the first block in the set, and then mark the common container
+  // with the `polyglot` class.
+  $initial
+    .each( function () {
+      var $this = $(this);
+      var $next = $this;
+      while ( true ) {
+        $next = $next.next('.highlight')
+        if ( !( $next.length && $next.is( $blocks ) ) ) break;
+        $( 'pre', $next ).appendTo( $this );
+      }
+    })
+    .addClass('polyglot');
+    
+  // Remove the blocks that are now empty.
+  $blocks.not( $initial ).remove();
+});
+
+
 // ### Language preferences
 //
 // Identifies JavaScript/CoffeeScript code block pairs, and provides UI for
 // toggling display of one or the other.
-( function () {
-  var $pre = $('.highlight pre');
+$( function () {
+  var $window = $(window);
+  var $topbar = $('.topbar');
+  var $polyglot = $('.polyglot');
+  var $polyglotPre = $('.polyglot pre');
+  var $ul = $('.controls ul.languages');
+
+  var languagesSupported = [ 'javascript', 'coffeescript' ];
   var language = {
     selected     : window.localStorage && localStorage.getItem('language')
                      || 'javascript',
@@ -83,21 +211,29 @@ $( function () {
   };
   var javascript = language.javascript;
   var coffeescript = language.coffeescript;
-  var $ul = $('.controls ul.languages');
+
 
   function $pageScrollTop () {
     return $('html').scrollTop() || $('body').scrollTop();
   }
 
-  function $headingInView () {
+  function $topElementInView () {
     var $els = $('.markdown-body').children(
-      'h1, h2, h3, h4, h5, .highlight pre code.javascript'
+      'h1, h2, h3, h4, h5, p, .highlight'
     );
-    var scrollTop = 108 + $pageScrollTop();
-    var i, l;
+    var windowHeight   = window.innerHeight || $window.height();
+    var topbarHeight   = $topbar.height();
+    var viewportHeight = windowHeight - topbarHeight;
+    var pageScrollTop  = $pageScrollTop();
+    var viewportTop    = pageScrollTop + topbarHeight;
+    var viewportBottom = viewportTop + viewportHeight;
+    var i, l, elementTop;
 
     for ( i = 0, l = $els.length; i < l; i++ ) {
-      if ( $els.eq(i).offset().top > scrollTop ) return $els.eq(i);
+      elementTop = $els.eq(i).offset().top;
+      if ( elementTop > viewportTop ) {
+        return $els.eq( elementTop > viewportBottom ? i - 1 : i );
+      }
     }
   }
 
@@ -107,53 +243,69 @@ $( function () {
     return $li.append( $a );
   }
 
-  function makeClickListener ( active, hidden ) {
+  function makeListenerFor ( activeLanguage ) {
+    var initialized = false;
+
     return function ( event ) {
-      var $h, localOffset;
+      var hiddenLanguage, $el, localOffset;
 
       event.preventDefault();
+
+      hiddenLanguage = language.selected;
+      if ( initialized && activeLanguage === hiddenLanguage ) return;
+
+      initialized = true;
+
       $page.stop();
 
-      var $h = $headingInView();
-      if ( $h && $h.length ) {
-        localOffset = $h.offset().top - $pageScrollTop();
+      // Determine the topmost element currently visible in the viewport.
+      var $el = $topElementInView();
+
+      // Record where the top element is currently rendered relative to the
+      // top of the browser window.
+      if ( $el && $el.length ) {
+        localOffset = $el.offset().top - $pageScrollTop();
       }
 
-      language[ active ].$elements.show();
-      language[ hidden ].$elements.hide();
+      // Show or hide the affected code blocks.
+      initialized &&
+      language[ hiddenLanguage ].$elements.hide();
+      language[ activeLanguage ].$elements.show();
 
-      if ( $h && $h.length ) {
-        $page.scrollTop( $h.offset().top - localOffset );
+      // Restore the page’s scroll position to keep the viewport anchored to
+      // the location of its topmost element.
+      if ( $el && $el.length ) {
+        $page.scrollTop( $el.offset().top - localOffset );
       }
       
-      language[ active ].$control.addClass('active');
-      language[ hidden ].$control.removeClass('active');
+      // Update the UI button states.
+      initialized &&
+      language[ hiddenLanguage ].$control.removeClass('active');
+      language[ activeLanguage ].$control.addClass('active');
 
-      window.localStorage.setItem( 'language', active );
+      // Persist the preference.
+      language.selected = activeLanguage;
+      if ( window.localStorage ) {
+        localStorage.setItem( 'language', activeLanguage );
+      }
 
-      // Simulate a resize event, for benefit of ToC viewport
-      $(window).trigger('resize');
+      // Simulate a resize event, for benefit of the ToC viewport rect.
+      $window.resize();
     };
   }
 
-  // Establish sets of paired JS/CS `pre` blocks
-  javascript.$elements =
-    $pre.has('code.javascript').filter( function () {
-      return $(this).parent().next().has('pre > code.coffeescript').length;
-    });
-  coffeescript.$elements =
-    $pre.has('code.coffeescript');
+  // Establish sets of paired JS/CS `pre` blocks.
+  javascript.$elements   = $polyglotPre.has('code.javascript');
+  coffeescript.$elements = $polyglotPre.has('code.coffeescript');
 
-  // Display all unpaired `pre` blocks
-  $pre.not( javascript.$elements ).not( coffeescript.$elements ).show();
+  // Display all unpaired `pre` blocks.
+  $('.highlight pre').not( $polyglotPre ).show();
 
-  // Get language preference controls ...
+  // Get language preference controls, or add them if not already present.
   if ( $ul.length ) {
-    javascript.$control = $( 'li.javascript', $ul );
+    javascript.$control   = $( 'li.javascript', $ul );
     coffeescript.$control = $( 'li.coffeescript', $ul );
-  }
-  // ...or add them if not already present
-  else {
+  } else {
     javascript.$control   = $item('javascript');
     coffeescript.$control = $item('coffeescript');
     $('<ul>')
@@ -162,15 +314,13 @@ $( function () {
       .appendTo('.controls');
   }
 
-  javascript.$control.click(
-    makeClickListener( 'javascript', 'coffeescript' )
-  );
-  coffeescript.$control.click(
-    makeClickListener( 'coffeescript', 'javascript' )
-  );
+  // Create event listeners and delegate them to the language controls.
+  javascript.$control.click( makeListenerFor('javascript') );
+  coffeescript.$control.click( makeListenerFor('coffeescript') );
 
+  // Simulate a click event to initialize the UI and code blocks.
   language[ language.selected ].$control.click();
-}() );
+});
 
 
 // ### Lightsticks
@@ -200,8 +350,8 @@ $( function () {
     $el = $li.has( p );
     data = { $el: $el };
     $( '.content ' + p + ', .topbar ul li ' + p + ', footer ' + p )
-      .on( 'mouseenter', data, addIndicatedClass )
-      .on( 'mouseleave', data, removeIndicatedClass )
+      .on( 'mouseenter touchstart', data, addIndicatedClass )
+      .on( 'mouseleave touchend touchcancel', data, removeIndicatedClass )
     ;
   }
 }() );
@@ -381,5 +531,21 @@ $( function () {
     refresh();
   }
 }() );
+
+
+// ### Fix CoffeeScript syntax highlighting for strings
+//
+// The pygments module used by gh-pages appears to render CoffeeScript strings
+// with a generic span class of `s` rather than `s1` or `s2` according to
+// whether the string is enclosed with single- or double-quotes. This inspects
+// the text node of all such elements and replaces `s` with the proper class.
+$( function () {
+  function search ( rx ) {
+    return function () { return ~$(this).text().search( rx ); }
+  }
+  var $strings = $('code.coffeescript span.s');
+  $strings.filter( search( /^'.*'$/ ) ).addClass('s1').removeClass('s');
+  $strings.filter( search( /^".*"$/ ) ).addClass('s2').removeClass('s');
+});
 
 }( jQuery ) );

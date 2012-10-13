@@ -1,8 +1,8 @@
 class Mover
   state @::
-  
-    # Programmatically set up the root to log the transitional
-    # events of all states
+
+    # Use the root state’s `construct` event to programmatically
+    # set up all of the states to log their transitional events.
     construct: ->
       events = ['depart', 'exit', 'enter', 'arrive']
       for s in [this].concat @substates true
@@ -17,20 +17,12 @@ class Mover
       Running:
         Sprinting: state
 
-    transitions:
-      Announcing: source: '*', target: '*'
-        action: ->
-          name = @superstate().name() or "the root"
-          @end "action of transition is at {name}"
-        end: ( message ) -> console.log message
-
 
 m = new Mover
 
 m.state '-> Alert'
 # log <<< "depart Idle"
 # log <<< "exit Idle"
-# log <<< "action of transition is at Stationary"
 # log <<< "enter Alert"
 # log <<< "arrive Alert"
 
@@ -38,7 +30,6 @@ m.state '-> Sprinting'
 # log <<< "depart Alert"
 # log <<< "exit Alert"
 # log <<< "exit Stationary"
-# log <<< "action of transition is at the root"
 # log <<< "enter Moving"
 # log <<< "enter Running"
 # log <<< "enter Sprinting"

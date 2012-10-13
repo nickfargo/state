@@ -6,6 +6,7 @@
   * [Transitioning between states](#getting-started--transitioning-between-states)
 * [Overview](#overview)
 * [Concepts](#concepts)
+  * [States](#concepts--states)
   * [Expressions](#concepts--expressions)
     * [Structured state expressions](#concepts--expressions--structured)
     * [Shorthand](#concepts--expressions--shorthand)

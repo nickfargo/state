@@ -11,7 +11,7 @@ var longformExpression = state({
                 enter: function () { this.owner().wearTux(); }
             }
         },
-        Informal: {
+        Casual: {
             methods: {
                 greet: function () { return "Hi!"; }
             },
@@ -21,3 +21,4 @@ var longformExpression = state({
         }
     }
 });
+// >>> StateExpression

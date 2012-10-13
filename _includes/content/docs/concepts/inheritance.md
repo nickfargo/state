@@ -1,6 +1,8 @@
 ### [Inheritance](#concepts--inheritance)
 
-The basis of the `State` object model is a classic rooted tree structure. Any state may serve as a **superstate** of one or more **substates**, each of which expresses further specificity of their common owner’s behavior and condition.
+The basis of the `State` object model is a classic rooted tree structure. Any state may serve as a **superstate** of one or more **substates**, each of which expresses further specificity of their common owner object’s behavior and condition.
+
+An owner object’s state tree is further heritable by any prototypal inheritors of that object, which view their prototype’s states as **protostates**, from which their own states may inherit.
 
 <div class="local-toc"></div>
 

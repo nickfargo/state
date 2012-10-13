@@ -8,10 +8,10 @@ class Kid
       spilledIceCream: -> @be 'Sad'
 
 
-junior = new Kid
+jr = new Kid
 
-junior.state().emit 'gotIceCream'
-junior.state()                         # >>> State 'Happy'
+jr.state().emit 'gotIceCream'
+jr.state()                         # >>> State 'Happy'
 
-junior.state().emit 'spilledIceCream'
-junior.state()                         # >>> State 'Sad'
+jr.state().emit 'spilledIceCream'
+jr.state()                         # >>> State 'Sad'

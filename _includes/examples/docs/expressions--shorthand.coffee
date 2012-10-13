@@ -3,6 +3,7 @@ shorthandExpression = state
   Formal:
     enter: -> do @owner().wearTux
     greet: -> "How do you do?"
-  Informal:
+  Casual:
     enter: -> do @owner().wearJeans
     greet: -> "Hi!"
+# >>> StateExpression

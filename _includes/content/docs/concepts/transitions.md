@@ -35,9 +35,9 @@ The traversal sequence decomposes into an **ascending phase**, an **action phase
 
 1. During the ascending phase, the object emits a `depart` event on the `source`, and an `exit` event on any state that will be rendered inactive as a consequence of the transition.
 
-2. The transition then reaches the domain root and moves into the action phase, whereupon it executes any `action` defined in its associated transition expression.
+2. The transition then reaches the domain root and moves into the action phase, whereupon it executes any `action` function defined in its associated transition expression. If an `action` does exist, then the transition remains in the action phase until its `end` method is called.
 
-3. Once the action has ended, the transition then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state.
+3. Once the transition has `end`ed, it then proceeds with the descending phase, emitting `enter` events on any state that is rendered newly active, and concluding with an `arrival` event on its `target` state.
 
 {% highlight javascript %}
 {% include examples/docs/transitions--lifecycle.js %}

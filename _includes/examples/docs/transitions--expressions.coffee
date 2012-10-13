@@ -4,7 +4,7 @@ log = ( message, callback ) -> # ...
 class Foo
   state @::, 'abstract'
     Bar: state 'default initial'
-    Baz: state
+    Baz:
       transitions:
         Zig: action: ->
           log "BLEEP", => @end()

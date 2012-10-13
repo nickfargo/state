@@ -1,10 +1,11 @@
 function Mover () {}
 state( Mover.prototype, {
     
-    // Set up the root to log the transitional events of all states
+    // Programmatically set up the root to log the transitional
+    // events of all states
     construct: function () {
         var events, substates, i, j;
-        events = 'depart exit enter arrive'.split(' ');
+        events = ['depart', 'exit', 'enter', 'arrive'];
         substates = [this].concat( this.substates( true ) );
         for ( i in substates ) for ( j in events ) {
             ( function ( s, e ) {
@@ -16,7 +17,7 @@ state( Mover.prototype, {
     },
 
     Stationary: {
-        Idle: state( 'initial' ),
+        Idle: state('initial'),
         Alert: state
     },
     Moving: {
@@ -30,14 +31,14 @@ state( Mover.prototype, {
         Announcing: {
             source: '*', target: '*',
             action: function () {
-                var name = this.superstate().name() ||
-                    "the root state";
+                var name = this.superstate().name() || "the root";
                 this.end( "action of transition is at " + name );
             },
             end: function ( message ) { console.log( message ); }
         }
     }
 });
+
 
 var m = new Mover;
 

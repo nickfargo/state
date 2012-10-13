@@ -19,6 +19,7 @@
     * [arrive](#state--events--arrive)
     * [mutate](#state--events--mutate)
     * [noSuchMethod](#state--events--no-such-method)
+    * [noSuchMethod:name](#state--events--no-such-method-name)
   * [Methods](#state--methods)
     * [name](#state--methods--name)
     * [express](#state--methods--express)

@@ -5,8 +5,9 @@ var shorthandExpression = state({
         enter: function () { this.owner().wearTux(); },
         greet: function () { return "How do you do?"; }
     },
-    Informal: {
+    Casual: {
         enter: function () { this.owner().wearJeans(); },
         greet: function () { return "Hi!"; }
     }
 });
+// >>> StateExpression

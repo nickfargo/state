@@ -1,8 +1,8 @@
 ### [Expressions](#concepts--expressions)
 
-A **state expression** captures the semantic content of a `State`. Calling the exported `state()` function returns a `StateExpression` when provided with a plain object map, optionally preceded by a string of whitespace-delimited attributes to be applied to the expressed state.
+A **state expression** is an object that represents the real or intended semantic content for a `State` instance. A formal `StateExpression` is created by calling the [`state()`](#getting-started--the-state-function) function with no `owner` argument, providing it only a plain object map for its `expression` argument, optionally preceded by a string of whitespace-delimited `attributes` to be included with the returned `StateExpression`.
 
-The contents of a state expression decompose into six **categories**: `data`, `methods`, `events`, `guards`, `states`, and `transitions`. The object map supplied to the `state()` call can be structured accordingly, or alternatively it may be pared down to a more convenient shorthand, either of which will be interpreted into a formal `StateExpression`.
+Internally, the contents of a state expression are shaped according to a set of **categories**: `data`, `methods`, `events`, `guards`, `states`, and `transitions`, along with an encoded set of `attributes`. The object map supplied to the `state()` call can be structured according to these categories, or it may be pared down to a more convenient shorthand, which, by making certain type inferences on the object’s members, the `state()` call will interpret into a formal `StateExpression`.
 
 > [express](/api/#state--methods--express)
 > [`state()`](/source/#module)
@@ -12,7 +12,7 @@ The contents of a state expression decompose into six **categories**: `data`, `m
 
 #### [Structured state expressions](#concepts--expressions--structured)
 
-Building upon the introductory example, we could write a state expression that consists of states, methods, and events, looking something like this:
+Building upon the introductory example, we could write a state expression that consists of explicitly categorized states, methods, and events, etc., looking something like this:
 
 {% highlight javascript %}
 {% include examples/docs/expressions--structured.js %}
@@ -24,7 +24,7 @@ Building upon the introductory example, we could write a state expression that c
 
 #### [Shorthand](#concepts--expressions--shorthand)
 
-Explicit categorization is unambiguous, but it can be verbose, so `state()` also accepts a more concise expression format, which is interpreted into a `StateExpression` identical to that of the example above:
+Explicit categorization is unambiguous, but it can be verbose, so `state()` also accepts a more concise expression format, which is interpreted into a `StateExpression` that is materially identical to the result of the example above:
 
 {% highlight javascript %}
 {% include examples/docs/expressions--shorthand.js %}
@@ -34,9 +34,19 @@ Explicit categorization is unambiguous, but it can be verbose, so `state()` also
 {% include examples/docs/expressions--shorthand.coffee %}
 {% endhighlight %}
 
+Interpreting the input supplied in this example, the `state()` invocation:
+
+* recognized the absence of any items whose keys are category names, and instead inferred that object literals `Formal` and `Casual` describe *states*.
+
+* identified `enter` as a built-in *event type* and thus treated the associated function values as listeners for `enter` events that will be emitted by the containing state.
+
+* inferred that functions keyed `greet`, which is not a built-in event type, were to be treated as a *method* of the containing state.
+
+Explicit categorization can also be mixed freely with shorthand in the same expression input, so as to resolve ambiguities in certain edge cases (for example, to create a state named `data`, or a method named `enter`).
+
 #### [Interpreting expression input](#concepts--expressions--interpreting-expression-input)
 
-Expression input provided to `state()` is interpreted according to the following rules:
+Expression input provided to `state()` is interpreted according to the following type inference rules:
 
 1. If an entry’s value is a typed `StateExpression` or `TransitionExpression`, interpret it as-is, using the entry’s key as its name, or, if the entry’s value is the exported `state` module itself, interpret it as an empty state whose name is the entry’s key.
 

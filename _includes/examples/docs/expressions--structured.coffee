@@ -7,8 +7,9 @@ longformExpression = state
         greet: -> "How do you do?"
       events:
         enter: -> do @owner().wearTux
-    Informal:
+    Casual:
       methods:
         greet: -> "Hi!"
       events:
         enter: -> do @owner().wearJeans
+# >>> StateExpression

@@ -2,13 +2,13 @@
 
 The points listed here summarize the discussions that follow in the [**Concepts**](#concepts) section.
 
-* **States** — Formally, a **state** is an instance of `State` that encapsulates all or part of an **owner** object’s condition at a given moment. The owner may adopt different behaviors at various times by transitioning its **currency** from one of its states to another.
+* [**States**](#concepts--states) — A **state** acts on behalf of an **owner** object to describe the owner’s behavior at a given moment. The owner is able to express and alter its various behaviors by occupying and transitioning between its states.
 
-* [**Expressions**](#concepts--expressions) — A **state expression** describes the contents of a `State`. States may be [expressed concisely](#concepts--expressions--shorthand) with an object literal, which, along with an optional set of attribute keywords, can be passed into the `state()` function. There the provided input [is interpreted](#concepts--expressions--interpreting-expression-input) into a formal `StateExpression`, which can then be used to create a `State` instance.
+* [**Expressions**](#concepts--expressions) — A **state expression** describes the contents of a state. States may be [expressed concisely](#concepts--expressions--shorthand) with an object literal, which, along with an optional set of attribute keywords, can be passed into the `state()` function. There the provided input [is interpreted](#concepts--expressions--interpreting-expression-input) into a formal `StateExpression`, which can then be used to create a `State` instance.
 
 * [**Inheritance**](#concepts--inheritance) — States are arranged hierarchically in a rooted tree structure: the owner object is given exactly one [**root state**](#concepts--inheritance--the-root-state), within which may be nested zero or more **substates**, which may themselves contain further substates, and so on, [thereby expressing specificity](#concepts--inheritance--superstates-and-substates) of the owner’s behavior. A state inherits from its **superstate**, with which it shares the same owner, [and also inherits from any **protostate**](#concepts--inheritance--protostates), defined as the equivalently positioned state within a prototype of the owner object. Protostates have a higher inheriting precedence than superstates.
 
-* [**Selectors**](#concepts--selectors) — A stateful owner `object`’s accessor method at `object.state()` can be called without arguments to retrieve the object’s current state, or, if provided a **selector** string, to query for a specific `State` of the object, or a specific set of states.
+* [**Selectors**](#concepts--selectors) — A stateful owner `object`’s accessor method at `object.state()` can be called without arguments to retrieve the object’s **current state**, or, if provided a **selector** string, to query for a specific `State` of the object, or a specific set of states.
 
 * [**Attributes**](#concepts--attributes) — A state expression may include a set of **attribute** keywords (e.g.: `mutable`, `initial`, `conclusive`, `abstract`, etc.), which will enable features or impose constraints for the `State` that the expression is to represent.
 

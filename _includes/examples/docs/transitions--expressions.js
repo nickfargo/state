@@ -3,15 +3,15 @@ function log ( message, callback ) { /* ... */ }
 
 function Foo () {}
 state( Foo.prototype, 'abstract', {
-    Bar: state( 'default initial' ),
-    Baz: state({
+    Bar: state('default initial'),
+    Baz: {
         transitions: {
             Zig: { action: function () {
                 var transition = this;
                 log( "BLEEP", function () { transition.end(); } );
             } }
         }
-    }),
+    },
 
     transitions: {
         Zig: { origin: 'Bar', target: 'Baz', action: function () {

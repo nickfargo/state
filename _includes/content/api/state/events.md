@@ -141,6 +141,8 @@ When a state’s contents are altered, it emits a `mutate` event containing the 
 
 Listeners receive the contents of the `mutation` experienced by the state, the `delta` containing the contents displaced by the mutation, and a full expression of the state’s contents both `before` and `after` the mutation.
 
+> [`State.privileged.mutate` (method)](/source/#state--privileged--mutate)
+
 
 #### [noSuchMethod](#state--events--no-such-method)
 
@@ -158,3 +160,24 @@ function ( methodName, args ) {}
 When a method is called on an object for which no implementation exists given its current state, a `noSuchMethod` event is emitted.
 
 Listeners receive the `methodName` of the method that was called, and an `args` array of the arguments that were passed to the call.
+
+> [`State::apply`](/source/#state--prototype--apply)
+
+
+#### [noSuchMethod:name](#state--events--no-such-method-name)
+
+{% highlight javascript %}
+function ( arg0, arg1, ... ) {}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+( args... ) ->
+{% endhighlight %}
+
+* `argN` : `var`
+
+A generic [`noSuchMethod`](#state--events--no-such-method) event is immediately followed by the emission of a specific `noSuchMethod:name` event, where `name` specifies the method that was called.
+
+Listeners receive the arguments as they were passed to the call.
+
+> [`State::apply`](/source/#state--prototype--apply)
