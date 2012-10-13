@@ -29,6 +29,8 @@ state( Mover.prototype, {
 });
 
 
+var m = new Mover;
+
 m.state('-> Alert');
 // log <<< "depart Idle"
 // log <<< "exit Idle"
