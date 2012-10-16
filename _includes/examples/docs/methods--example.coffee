@@ -5,13 +5,13 @@ class Document
   constructor: ( location, text ) ->
     @location = -> location
     @read = -> text
-    @edit = ( newText ) -> # [1]
+    @edit = ( newText ) ->                                  # [1]
       text = newText
       this
 
   state @::, 'abstract'
-    freeze: -> # [3]
-      result = @call 'save' # [4]
+    freeze: ->                                              # [3]
+      result = @call 'save'                                 # [4]
       @change 'Frozen'
       result
 
@@ -19,12 +19,12 @@ class Document
       save: ->
         owner = @owner()
         args = [ owner.location(), owner.read() ]
-        @change 'Saved', args # [5]
+        @change 'Saved', args                               # [5]
         owner
     
     Saved: state 'initial'
       edit: ->
-        result = @superstate().apply 'edit', arguments # [2]
+        result = @superstate().apply 'edit', arguments      # [2]
         @change 'Dirty'
         result
 

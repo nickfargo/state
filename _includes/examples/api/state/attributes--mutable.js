@@ -8,7 +8,7 @@ Mover.prototype.state().mutate({
     Stationary: state
 });
 
-Mover.prototype.state('Stationary');  // >>> undefined [1]
+Mover.prototype.state('Stationary');  // >>> undefined            [1]
 
 var mover = new Mover;
 state( mover, 'mutable' );
@@ -19,8 +19,8 @@ mover.state().mutate({
 
 mover.state('-> Stationary');
 mover.state();                        // >>> State 'Stationary'
-mover.state().isMutable();            // >>> true [2], [3]
+mover.state().isMutable();            // >>> true            [2], [3]
 
 mover.state('-> Moving');
 mover.state();                        // >>> State 'Moving'
-mover.state().isMutable();            // >>> true [3]
+mover.state().isMutable();            // >>> true                 [3]

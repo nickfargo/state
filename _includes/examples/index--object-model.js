@@ -1,7 +1,11 @@
 function Person () {}
 state( Person.prototype, {
     Formal: {
-        greet: function () { return "How do you do?"; }
+        greet: function () { return "How do you do?"; },
+        
+        Highbrow: {
+            greet: function () { return "Enchanté."; }
+        }
     },
     Casual: {
         greet: function () { return "Hi!"; }
@@ -9,8 +13,12 @@ state( Person.prototype, {
 });
 
 var person = new Person;
+var friend = new Person;
+
 person.hasOwnProperty('state');   // >>> false
 
-person.state('-> Formal');
-person.state();                   // >>> State 'Formal'
-person.greet();                   // >>> "How do you do?"
+person.state('-> Highbrow');
+friend.state('-> Casual');
+
+person.greet();                   // >>> "Enchanté."
+friend.greet();                   // >>> "Hi!"

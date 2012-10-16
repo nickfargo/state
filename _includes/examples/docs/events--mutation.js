@@ -6,7 +6,7 @@ var flavors = [
 ];
 
 function Kid () {}
-state( Kid.prototype, {
+state( Kid.prototype, 'mutable', {
     data: {
         favorite: 'chocolate'
     },

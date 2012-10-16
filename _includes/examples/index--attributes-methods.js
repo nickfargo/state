@@ -35,14 +35,14 @@ var cooper   = new Sophisticate('Bert');
 var draper   = new Sophisticate('Don');
 var pryce    = new Sophisticate('Lane');
 
-draper.state();             // >>> State 'Formal'
-draper.greet( new Person ); // >>> "How do you do?"
+draper.state();               // >>> State 'Formal'
+draper.greet( new Person );   // >>> "How do you do?"
 
 draper.state('-> Cordial');
-draper.greet( new Person ); // >>> "How do you do?"
-draper.greet( cooper );     // >>> "Hello Bert. How do you do?"
+draper.greet( new Person );   // >>> "How do you do?"
+draper.greet( cooper );       // >>> "Hello Bert. How do you do?"
 
 draper.state('-> Casual');
-draper.greet( new Person ); // >>> "Hi!"
-draper.greet( sterling );   // >>> "Hi Roger."
-draper.greet( pryce );      // >>> "How’s it hanging?"
+draper.greet( new Person );   // >>> "Hi!"
+draper.greet( sterling );     // >>> "Hi Roger."
+draper.greet( pryce );        // >>> "How’s it hanging?"

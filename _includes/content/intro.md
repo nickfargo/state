@@ -20,7 +20,7 @@
 {% endhighlight %}
 
 
-States are configurable with simple [attribute keywords](/docs/#concepts--attributes), and can express behavior with [method overrides](/docs/#concepts--methods) for which the context is [lexically bound to the state](/docs/#concepts--methods--context) in which the method is defined.
+States are configurable with simple [attribute keywords](/docs/#concepts--attributes), and can express behavior with [method overrides](/docs/#concepts--methods) whose context is [lexically bound to the state](/docs/#concepts--methods--context) in which the method is defined.
 
 {% highlight javascript %}
 {% include examples/index--attributes-methods.js %}

@@ -4,7 +4,7 @@
 
 #### [Step 0 — The `state` function](#getting-started--the-state-function)
 
-The **State** module is exported as a function called `state`, which can be used for either of two purposes:
+The **State** module is exported as a function named `state`, which can be used for either of two purposes:
 
 ##### Implementing state into an object
 
@@ -16,7 +16,7 @@ state( owner, [attributes], expression )
 state( owner, [attributes], expression )
 {% endhighlight %}
 
-Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the contents of `expression` (and any keywords included in the optional [`attributes`](#concepts--attributes) string). The newly stateful object’s [**initial state**](#concepts--attributes--destination) is returned.
+Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the contents of the `expression` object (and any keywords included in the optional [`attributes`](#concepts--attributes) string). The newly stateful `owner`’s [**initial state**](#concepts--attributes--destination) is returned.
 
 ##### Expressing a state’s content
 

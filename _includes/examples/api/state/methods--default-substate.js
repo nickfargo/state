@@ -9,9 +9,9 @@ state( mover, 'abstract', {
     })
 });
 
-mover.state('').defaultSubstate();        // >>> State 'Moving' [1]
-mover.state('Moving').defaultSubstate();  // >>> State 'Walking' [2]
+mover.state('').defaultSubstate();        // >>> State 'Moving'   [1]
+mover.state('Moving').defaultSubstate();  // >>> State 'Walking'  [2]
 
-mover.state();      // >>> State 'Sprinting'
+mover.state();                            // >>> State 'Sprinting'
 mover.state('->');
-mover.state();      // >>> State 'Walking' [3]
+mover.state();                            // >>> State 'Walking'  [3]

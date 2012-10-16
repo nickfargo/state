@@ -8,14 +8,14 @@ function Document ( location, text ) {
     this.read = function () {
         return text;
     };
-    this.edit = function ( newText ) { // [1]
+    this.edit = function ( newText ) {                      // [1]
         text = newText;
         return this;
     };
 }
 state( Document.prototype, 'abstract', {
-    freeze: function () { // [3]
-        var result = this.call( 'save' ); // [4]
+    freeze: function () {                                   // [3]
+        var result = this.call( 'save' );                   // [4]
         this.change('Frozen');
         return result;
     },
@@ -24,14 +24,14 @@ state( Document.prototype, 'abstract', {
         save: function () {
             var owner = this.owner(),
                 args = [ owner.location(), owner.read() ];
-            this.change( 'Saved', args ); // [5]
+            this.change( 'Saved', args );                   // [5]
             return owner;
         }
     },
     Saved: state( 'initial', {
         edit: function () {
             var ss = this.superstate(),
-                result = ss.apply( 'edit', arguments ); // [2]
+                result = ss.apply( 'edit', arguments );     // [2]
             this.change('Dirty');
             return result;
         },

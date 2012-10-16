@@ -6,7 +6,7 @@ flavors = [
 ]
 
 class Kid
-  state @::
+  state @::, 'mutable'
     data:
       favorite: 'chocolate'
 

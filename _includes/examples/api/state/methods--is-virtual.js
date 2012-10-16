@@ -7,8 +7,8 @@ state( Mover.prototype, {
 var mover = new Mover;
 
 mover.state();              // >>> State 'Stationary'
-mover.state().isVirtual();  // >>> true [1]
+mover.state().isVirtual();  // >>> true                           [1]
 
 mover.state('->');
 mover.state();              // >>> State ''
-mover.state().isVirtual();  // >>> false [2]
+mover.state().isVirtual();  // >>> false                          [2]
