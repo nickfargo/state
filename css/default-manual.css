@@ -19,6 +19,7 @@
 
 body {
   background-color: #f1f1f1;
+  background-image: url(/img/dust_f1c.png);
 }
 body,
 p {
@@ -675,6 +676,8 @@ blockquote ol {
   bottom: 36px;
   width: 280px;
   padding-top: 20px;
+  background-color: #f1f1f1;
+  background-image: url(/img/dust_f1c.png);
   border-bottom: 1px solid #eee;
 }
   .toc .bg,
@@ -746,6 +749,7 @@ blockquote ol {
   bottom: 0;
   width: 280px;
   height: 36px;
+  background-color: #f1f1f1;
 }
 .controls.overlaid {
   box-shadow: -20px -10px 20px #f1f1f1;
