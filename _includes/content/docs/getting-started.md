@@ -16,7 +16,7 @@ state( owner, [attributes], expression )
 state( owner, [attributes], expression )
 {% endhighlight %}
 
-Given two object-typed arguments, `state` will augment the `owner` object with its own working state implementation based on the contents of the `expression` object (and any keywords included in the optional [`attributes`](#concepts--attributes) string). The newly stateful `owner`’s [**initial state**](#concepts--attributes--destination) is returned.
+Given two object-typed arguments `owner` and `expression`, calling `state` will augment `owner` with its own working state implementation based on the contents of `expression` (and any keywords included in the optional [`attributes`](#concepts--attributes) string). The newly stateful `owner`’s [**initial state**](#concepts--attributes--destination) is returned.
 
 ##### Expressing a state’s content
 
@@ -28,7 +28,7 @@ state( [attributes], expression )
 state( [attributes], expression )
 {% endhighlight %}
 
-Given a single `expression` object (and optional `attributes`), `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call to define constituent [**substates**](#concepts--inheritance--superstates-and-substates).
+Given a single `expression` object (and optional `attributes`), calling `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call to define constituent [**substates**](#concepts--inheritance--superstates-and-substates).
 
 
 #### [Step 1 — Building a state expression](#getting-started--building-a-state-expression)
@@ -112,7 +112,7 @@ person.state('-> Casual');
 person.state();                   // State 'Casual'
 person.greet();                   // >>> "Hi!"
 
-person.state('->');               // [1]
+person.state('->');                                           // [1]
 person.state();                   // State ''
 person.greet();                   // >>> "Hello."
 {% endhighlight %}
@@ -122,7 +122,7 @@ person.state '-> Casual'
 person.state()                  # >>> State 'Casual'
 person.greet()                  # >>> "Hi!"
 
-person.state '->'               # [1]
+person.state '->'                                             # [1]
 person.state()                  # >>> State ''
 person.greet()                  # >>> "Hello."
 {% endhighlight %}

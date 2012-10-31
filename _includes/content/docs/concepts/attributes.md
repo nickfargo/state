@@ -10,6 +10,8 @@ State expressions may include a space-delimited set of **attributes**, provided 
 {% include examples/docs/attributes.coffee %}
 {% endhighlight %}
 
+An expression’s attributes modify any `State` instance constructed from the expression, so as to enable certain features or impose useful constraints on the state.
+
 > [Attributes](/api/#state--attributes)
 > [`state/attributes`](/source/#state--attributes.js)
 > [`State.privileged.attributes`](/source/#state--privileged--attributes)

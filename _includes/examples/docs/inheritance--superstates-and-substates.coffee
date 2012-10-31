@@ -6,17 +6,17 @@ class Person
 
     state this,
       Formal:
-        greet: ( other ) -> "How do you do?"
+        greet: ( person ) -> "How do you do?"
       
       Informal:
-        greet: ( acquaintance ) -> "Hi!"
+        greet: ( person ) -> "Hi!"
     
         Familiar:
-          hug: ( friend ) -> @owner().give friend, 'O'
-          greet: ( friend ) -> @owner().hug friend
+          hug: ( person ) -> @owner().give person, 'O'
+          greet: ( person ) -> @owner().hug person
     
           Intimate:
-            kiss: ( spouse ) -> @owner().give spouse, 'X'
-            greet: ( spouse ) ->
-              @superstate().call 'greet', spouse
-              @owner().kiss spouse
+            kiss: ( person ) -> @owner().give person, 'X'
+            greet: ( person ) ->
+              @superstate().call 'greet', person
+              @owner().kiss person

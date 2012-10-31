@@ -14,7 +14,7 @@ If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new
 
 If no `owner` is provided, `state()` creates and returns a formal `StateExpression` based on the contents of `expression` and `attributes`.
 
-Calling `state` with no arguments returns an empty `StateExpression`. Similarly, within an `expression`, a reference to `state` (rather than an invocation) indicates the expression of an empty state.
+Calling `state` with no arguments returns an empty `StateExpression`. Similarly, within an `expression`, a reference to `state` (rather than an invocation) implies the expression of an empty state as well.
 
 {% highlight javascript %}
 {% include examples/api/module.js %}

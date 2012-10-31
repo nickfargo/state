@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-[States](/api/#state) have a rich [object model](/docs/#concepts--inheritance) which allows them to be [nested and heritable](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of the object to which they belong.
+[States](/api/#state) have an [inheritance model](/docs/#concepts--inheritance) that allows them to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of the object to which they belong.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
@@ -20,7 +20,7 @@
 {% endhighlight %}
 
 
-States are configurable with simple [attribute keywords](/docs/#concepts--attributes), and can express behavior with [method overrides](/docs/#concepts--methods) whose context is [lexically bound to the state](/docs/#concepts--methods--context) in which the method is defined.
+States are configurable with simple [attribute keywords](/docs/#concepts--attributes), and they express behavior on behalf of their owner object with [method overrides](/docs/#concepts--methods) that are [lexically bound to the state](/docs/#concepts--methods--context) in which the method is defined.
 
 {% highlight javascript %}
 {% include examples/index--attributes-methods.js %}
@@ -31,7 +31,7 @@ States are configurable with simple [attribute keywords](/docs/#concepts--attrib
 {% endhighlight %}
 
 
-States [emit events](/docs/#concepts--events), which are used to relate the [progress of a transition](/docs/#concepts--events--transitional), and to signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state) instance. They can also be used for any [custom event type](/docs/#concepts--events--custom).
+[Events](/docs/#concepts--events) relate the [progress of a transition](/docs/#concepts--events--transitional), and signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state) instance. They can also be emitted for any [custom event type](/docs/#concepts--events--custom).
 
 {% highlight javascript %}
 {% include examples/index--events.js %}

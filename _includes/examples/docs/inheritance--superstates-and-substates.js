@@ -9,28 +9,28 @@ function Person () {
     
     state( this, {
         Formal: {
-            greet: function ( other ) { return "How do you do?"; }
+            greet: function ( person ) { return "How do you do?"; }
         },
         Informal: {
-            greet: function ( acquaintance ) { return "Hi!"; },
+            greet: function ( person ) { return "Hi!"; },
 
             Familiar: {
-                hug: function ( friend ) {
-                    this.owner().give( friend, 'O' );
+                hug: function ( person ) {
+                    this.owner().give( person, 'O' );
                 },
 
-                greet: function ( friend ) {
-                    this.owner().hug( friend );
+                greet: function ( person ) {
+                    this.owner().hug( person );
                 },
 
                 Intimate: {
-                    kiss: function ( spouse ) {
-                        this.owner().give( spouse, 'X' );
+                    kiss: function ( person ) {
+                        this.owner().give( person, 'X' );
                     },
 
-                    greet: function ( spouse ) {
-                        this.superstate().call( 'greet', spouse );
-                        this.owner().kiss( spouse );
+                    greet: function ( person ) {
+                        this.superstate().call( 'greet', person );
+                        this.owner().kiss( person );
                     }
                 }
             }

@@ -16,9 +16,11 @@ Returns the string name of `this` state.
 {% include examples/api/state/methods--name.coffee %}
 {% endhighlight %}
 
+> See also:
+> [**path**](#state--methods--path)
+
 > [`State` constructor](/source/#state--constructor)
 
-See also: [**path**](#state--path)
 
 
 #### [express](#state--methods--express)
@@ -55,7 +57,7 @@ Transactionally mutates `this` state by adding, updating, or removing items as i
 
 Returns `this`.
 
-If the transaction causes a mutation, `this` emits a [`mutate` event](/docs/#concepts--events--mutation).
+If the transaction causes a mutation, `this` emits a [`mutate` event](#state--events--mutate).
 
 {% highlight javascript %}
 {% include examples/api/state/methods--mutate.js %}
@@ -65,7 +67,9 @@ If the transaction causes a mutation, `this` emits a [`mutate` event](/docs/#con
 {% include examples/api/state/methods--mutate.coffee %}
 {% endhighlight %}
 
+> [Mutation events](/docs/#concepts--events--mutation)
 > [`State.privileged.mutate`](/source/#state--privileged--mutate)
+> [`State::mutate`](/source/#state--prototype--mutate)
 
 
 #### [realize](#state--methods--realize)
@@ -474,19 +478,25 @@ this.$( selector )
 
 * `selector` : string
 
-Convenience method that mimics the behavior of the owner’s accessor method. If the first argument is a transition arrow selector string, the call is aliased to `change`. If passed a plain selector string, the call is aliased to `query`.
+Convenience method that mimics the behavior of the owner’s accessor method. If the first argument is a transition arrow selector string, the call is aliased to [`change`](#state--methods--change). If passed a plain selector string, the call is aliased to [`query`](#state--methods--query).
 
 {% highlight javascript %}
 this.$('-> Awake')
 {% endhighlight %}
+{% highlight coffeescript %}
+@$ '-> Awake'
+{% endhighlight %}
 
-Aliases to [`change`](#state--change), instigating a transition to the `Awake` state.
+Aliases to [`change`](#state--methods--change), instigating a transition to the `Awake` state.
 
 {% highlight javascript %}
 this.$('Awake')
 {% endhighlight %}
+{% highlight coffeescript %}
+@$ 'Awake'
+{% endhighlight %}
 
-Aliases to [`query`](#state--query), returning the `State` named `'Awake'`.
+Aliases to [`query`](#state--methods--query), returning the `State` named `'Awake'`.
 
 
 * * *

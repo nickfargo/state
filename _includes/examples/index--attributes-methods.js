@@ -41,6 +41,7 @@ draper.greet( new Person );   // >>> "How do you do?"
 draper.state('-> Cordial');
 draper.greet( new Person );   // >>> "How do you do?"
 draper.greet( cooper );       // >>> "Hello Bert. How do you do?"
+draper.greet( sterling );     // >>> "Hello Roger. How do you do?"
 
 draper.state('-> Casual');
 draper.greet( new Person );   // >>> "Hi!"

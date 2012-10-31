@@ -17,8 +17,6 @@ State attributes are added to a state expression by preceding the `expression` a
 
 By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed. Applying the `mutable` attribute lifts the restriction of immutability, exposing instance methods such as [`mutate`](#state--methods--mutate), [`addMethod`](#state--methods--add-method), [`addSubstate`](#state--methods--add-substate), etc., which can be used to alter the contents of the state.
 
-The `mutable` attribute is inherited from both superstates and protostates, unless any also bear the [`immutable`](#state--attributes--immutable) attribute.
-
 {% highlight javascript %}
 {% include examples/api/state/attributes--mutable.js %}
 {% endhighlight %}
@@ -28,6 +26,8 @@ The `mutable` attribute is inherited from both superstates and protostates, unle
 {% endhighlight %}
 
 {% include captions/api/state/attributes--mutable.md %}
+
+The `mutable` attribute is inherited from both superstates and protostates, unless any also bear the [`immutable`](#state--attributes--immutable) attribute.
 
 > See also: 
 > [`isMutable`](#state--methods--is-mutable),
@@ -41,8 +41,6 @@ The `mutable` attribute is inherited from both superstates and protostates, unle
 
 Declaring a state `finite` guarantees its hierarchical structure by hiding its `addSubstate` and `removeSubstate` methods after the state has been constructed.
 
-The `finite` attribute is inherited from both superstates and protostates, and is imposed with higher precedence than [`mutable`](#state--attributes--mutable).
-
 {% highlight javascript %}
 {% include examples/api/state/attributes--finite.js %}
 {% endhighlight %}
@@ -52,6 +50,8 @@ The `finite` attribute is inherited from both superstates and protostates, and i
 {% endhighlight %}
 
 {% include captions/api/state/attributes--finite.md %}
+
+The `finite` attribute is inherited from both superstates and protostates, and is imposed with higher precedence than [`mutable`](#state--attributes--mutable).
 
 > See also:
 > [`isFinite`](#state--methods--is-finite)
@@ -63,10 +63,6 @@ The `finite` attribute is inherited from both superstates and protostates, and i
 
 Adding `immutable` makes a state **strongly immutable**, whereupon immutability is permanent and absolute: `immutable` contradicts and overrules `mutable`, and implies `finite`, irrespective of whether any of the attributes are literal or inherited.
 
-The `immutable` attribute is inherited from both superstates and protostates, and has top precedence over [`mutable`](#state--attributes--mutable) and [`finite`](#state--attributes--finite).
-
-An inheriting owner object may still extend the state implementation of its prototype with states that are new or extend protostates, but any of these that inherit from an `immutable` state will also bear the `immutable` attribute themselves.
-
 {% highlight javascript %}
 {% include examples/api/state/attributes--immutable.js %}
 {% endhighlight %}
@@ -76,6 +72,10 @@ An inheriting owner object may still extend the state implementation of its prot
 {% endhighlight %}
 
 {% include captions/api/state/attributes--immutable.md %}
+
+The `immutable` attribute is inherited from both superstates and protostates, and has top precedence over [`mutable`](#state--attributes--mutable) and [`finite`](#state--attributes--finite).
+
+An inheriting owner object may still extend the state implementation of its prototype with states that are new or extend protostates, but any of these that inherit from an `immutable` state will also bear the `immutable` attribute themselves.
 
 > See also:
 > [`isImmutable`](#state--methods--is-immutable)

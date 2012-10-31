@@ -81,11 +81,9 @@ h1, h1 code, h1 a code,
 h2, h2 code, h2 a code,
 h3, h3 code, h3 a code,
 h4, h4 code, h4 a code,
-h5, h5 code, h5 a code {
-  font-weight: bold;
-}
+h5, h5 code, h5 a code,
 h6, h6 code, h6 a code {
-  font-weight: 500;
+  font-weight: bold;
 }
 
 p {
@@ -676,6 +674,8 @@ blockquote ol {
   bottom: 36px;
   width: 280px;
   padding-top: 20px;
+  padding-left: 1000px;
+  margin-left: -1000px;
   background-color: #f1f1f1;
   background-image: url(/img/dust_f1c.png);
   border-bottom: 1px solid #eee;

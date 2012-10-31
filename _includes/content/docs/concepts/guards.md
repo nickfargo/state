@@ -6,7 +6,7 @@ States and transitions can be outfitted with **guards** that dictate whether and
 
 #### [State guards](#concepts--guards--state-guards)
 
-For a transition to be allowed to proceed, it must first have satisfied any guards imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object’s currency to the intended *target* at which it will arrive, and likewise the *target* must also agree to `admit` the object’s currency from the departed origin.
+For a transition to be allowed to proceed, it must first have satisfied any guards imposed by the states that would be its endpoints: the *origin* state from which it will depart must agree to `release` the object’s currency to the intended *target* state at which it will arrive, and likewise the target must also agree to `admit` the object’s currency from the departed origin.
 
 {% highlight javascript %}
 {% include examples/docs/guards--state-guards.js %}

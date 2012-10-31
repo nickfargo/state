@@ -2,8 +2,6 @@
 
 A defining feature of **State** is the ability for an object to exhibit a variety of behaviors. A state expresses a particular behavior by defining **overrides** for any of its object’s methods.
 
-> [Methods](/api/#state--methods--section--methods)
-
 <div class="local-toc"></div>
 
 #### [Delegator methods](#concepts--methods--delegators)
@@ -25,9 +23,9 @@ The delegator’s job is to take any subsequent calls it receives and redirect t
 
 #### [Method context](#concepts--methods--context)
 
-When a method call is delegated to a state method, that state method is invoked not in the context of its owner, but rather of the `State` in which it is declared, or, if the method is inherited from a protostate, in the context of the owner’s state which inherits from that protostate. Using the state as the method’s context does mean that, within a state method, while the owner is not referenced by `this` as it normally would be, it is still always accessible by calling `this.owner()`.
+When a call to an owner’s method is delegated to a state method, that state method is invoked not in the context of the owner, but rather of the `State` in which it is declared, or, if the method is inherited from a protostate, in the context of the owner’s state which inherits from that protostate. Using the state as the method’s context does mean that, within a state method, while the owner is not referenced by `this` as it normally would be, it is still always accessible by calling `this.owner()`.
 
-This lexical binding of state methods to their associated `State` allows the code to take advantage of polymorphic idioms, such as calling up to a superstate’s implementation of a method, as facilitated by the `apply` and `call` methods of `State`.
+This policy of binding state methods to their associated `State` affords them the important advantage of being able to express certain lexical idioms, such as calling up to a superstate’s implementation of a method, as facilitated by the `apply` and `call` methods of `State`.
 
 {% highlight javascript %}
 {% include examples/docs/methods--context.js %}
@@ -37,22 +35,23 @@ This lexical binding of state methods to their associated `State` allows the cod
 {% include examples/docs/methods--context.coffee %}
 {% endhighlight %}
 
-Worth noting here in regard to these `apply` and `call` methods is the significant difference distinguishing them from their more familiar `Function.prototype` counterparts: whereas for a function, the first argument accepted by `apply` and `call` is a context object, for the `State::apply` and `State::call` methods, the first argument is a string that names a method on that state to be invoked. Supplying a context object is unnecessary because, again, methods held on a `State` are automatically bound to that `State`.
+Worth noting here is the significant difference distinguishing these `apply` and `call` methods from their familiar `Function.prototype` counterparts: whereas for a function, the first argument accepted by `apply` and `call` is a context object, for the `State::apply` and `State::call` methods, the first argument is a string that names a method on that state to be invoked. (Supplying a context object is unnecessary as a consequence of state methods being automatically bound to their `State`.)
 
 > [apply](/api/#state--methods--apply)
 > [call](/api/#state--methods--call)
 > [method](/api/#state--methods--method)
+
 > [`State::apply`](/source/#state--prototype--apply)
 > [`State::call`](/source/#state--prototype--call)
 > [`State.privileged.method`](/source/#state--privileged--method)
 
 #### [Handling calls to currently nonexistent methods](#concepts--methods--nonexistent)
 
-In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the invocation will fail and return `undefined`.
+In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the invocation will act as a no-op, returning `undefined`.
 
-**State** allows such a contingency to be trapped by emitting a generic `noSuchMethod` [**event**](#concepts--events). Listeners take as arguments the sought `methodName` and an `Array` of the arguments provided to the failed invocation.
+**State** allows such a contingency to be trapped by emitting a generic [`noSuchMethod`](/api/state--events--no-such-method) [**event**](#concepts--events). Listeners take as arguments the name of the sought method, followed by an `Array` of the arguments provided to the failed invocation.
 
-A specific `noSuchMethod:<methodName>` event is emitted as well, whose listeners take just the arguments as provided to the failed invocation.
+Also emitted is a specific [`noSuchMethod:name`](/api/state--events--no-such-method-name) event, which includes the `name` of the sought method. Listeners of this event take the individual arguments as they were provided to the failed invocation.
 
 {% highlight javascript %}
 {% include examples/docs/methods--nonexistent.js %}
@@ -62,6 +61,8 @@ A specific `noSuchMethod:<methodName>` event is emitted as well, whose listeners
 {% include examples/docs/methods--nonexistent.coffee %}
 {% endhighlight %}
 
+> [noSuchMethod](/api/state--events--no-such-method)
+> [noSuchMethod:name](/api/state--events--no-such-method-name)
 > [apply](/api/#state--methods--apply)
 > [`State::apply`](/source/#state--prototype--apply)
 

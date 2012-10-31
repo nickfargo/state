@@ -20,7 +20,7 @@ The points listed here summarize the discussions that follow in the [**Concepts*
 
 * [**Events**](#concepts--events) — Listeners for specific **event** types can be bound to a state, which will be called in the context of the bound state as it is affected [by a progressing transition](#concepts--events--transitional), as the state itself [experiences changes to its content](#concepts--events--mutation), or upon the state’s [construction or destruction](#concepts--events--existential). **State** also allows for [custom typed events](#concepts--events--custom), which can be emitted from a particular state and propagated to listeners bound to the state itself as well as its protostates and superstates.
 
-* [**Guards**](#concepts--guards) may be applied [to a state](#concepts--state-guards) to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Likewise guards may also be included [in transition expressions](#concepts--transition-guards), where they are used to select a particular transition to execute. Guards are evaluated as predicates if supplied as functions, or as boolean values otherwise.
+* [**Guards**](#concepts--guards) may be applied [to a state](#concepts--state-guards) to govern its viability as a transition target, dependent on the outgoing state and any other conditions that may be defined. Likewise guards may also be included [in transition expressions](#concepts--transition-guards), where they are used to select a particular transition to execute. Guards are evaluated as predicates if supplied as functions, or as static boolean values otherwise.
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#overview">Overview</a>

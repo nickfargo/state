@@ -146,8 +146,8 @@ $( function () {
 
 // ### Polyglot
 //
-// Assume contiguous `.highlight` code blocks to be linguistically analagous,
-// and group their contents into a single common `div.highlight` container.
+// Assumes contiguous `.highlight` code blocks to be linguistically analagous,
+// and groups their contents into a single common `div.highlight` container.
 //
 // Besides making for a less cluttered DOM, this step helps simplify the task
 // of keeping the viewport’s apparent scroll position anchored to a visible
@@ -368,7 +368,7 @@ $( function () {
   var $topbar, $toc, $fg, $a, $viewportRect;
   var documentHeight
 
-  // A recyclable object used as the output of the `locate` function.
+  // A reusable object that holds the output of the `locate` function.
   var cachedLocationData;
 
   // An array of the hash fragments href’d by each `li a` in the ToC.
@@ -491,17 +491,47 @@ $( function () {
 
     // Locate the ToC anchor elements that should cover the top and bottom of
     // the viewport rect.
-    var $topAnchor      = $( 'a[href=' + data.topId    + ']', $fg );
-    var $bottomAnchor   = $( 'a[href=' + data.bottomId + ']', $fg );
+    var l                   = $a.length;
+
+    var $topAnchor          = $a.filter( 'a[href=' + data.topId    + ']' );
+    var $bottomAnchor       = $a.filter( 'a[href=' + data.bottomId + ']' );
+
+    var topIndex            = $a.index( $topAnchor );
+    var bottomIndex         = $a.index( $bottomAnchor );
+
+    var $preTop             = topIndex    > 0      && $a.eq( topIndex - 1 );
+    var $postTop            = topIndex    < l - 1  && $a.eq( topIndex + 1 );
+    var $preBottom          = bottomIndex > 0      && $a.eq( bottomIndex - 1 );
+    var $postBottom         = bottomIndex < l - 1  && $a.eq( bottomIndex + 1 );
+
+    var topAnchorTop        = $topAnchor.position().top;
+    var topAnchorHeight     = $topAnchor.height();
+    var bottomAnchorTop     = $bottomAnchor.position().top;
+    var bottomAnchorHeight  = $bottomAnchor.height();
+
+    var topPaddingTop = $preTop ?
+      0.5 * ( topAnchorTop - ( $preTop.position().top + $preTop.height() ) ) :
+      TOC_ANCHOR_PADDING;
+    var topPaddingBottom = $postTop ?
+      0.5 * ( $postTop.position().top - ( topAnchorTop + topAnchorHeight ) ) :
+      TOC_ANCHOR_PADDING;
+    var bottomPaddingTop = $preBottom ?
+      0.5 * ( bottomAnchorTop -
+        ( $preBottom.position().top + $preBottom.height() ) ) :
+      TOC_ANCHOR_PADDING;
+    var bottomPaddingBottom = $postBottom ?
+      0.5 * ( $postBottom.position().top -
+        ( bottomAnchorTop + bottomAnchorHeight ) ) :
+      TOC_ANCHOR_PADDING;
 
     // Determine the precise vertical dimensions of the viewport rect, based
     // on the fraction of the corresponding document sections that are visible.
-    var top     = $topAnchor.position().top - TOC_ANCHOR_PADDING +
-                    data.topFraction *
-                      ( $topAnchor.height() + 2 * TOC_ANCHOR_PADDING );
-    var bottom  = $bottomAnchor.position().top - TOC_ANCHOR_PADDING +
-                    data.bottomFraction *
-                      ( $bottomAnchor.height() + 2 * TOC_ANCHOR_PADDING );
+    var top     = topAnchorTop - topPaddingTop +
+                    data.topFraction * ( topAnchorHeight + topPaddingTop +
+                      topPaddingBottom );
+    var bottom  = bottomAnchorTop - bottomPaddingTop +
+                    data.bottomFraction * ( bottomAnchorHeight +
+                      bottomPaddingTop + bottomPaddingBottom );
 
     // Apply the dimensions.
     $viewportRect.css( 'top', top );
