@@ -955,7 +955,7 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   width: 640px;
   height: 640px;
   margin: -120px auto -160px;
-  background: url(/img/dodecagem-glow-1280px.png) no-repeat;
+  background-image: url(/img/dodecagem-glow-640px.png);
   background-size: contain;
 }
 #index p {
@@ -963,11 +963,11 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   line-height: 27px;
 }
 #index pre {
-  padding: 0.5em 0em 1.75em 1.75em;
+  padding: 0.5em 0em 3em 30px;
   background: transparent;
   border: none;
-  font-size: 15px;
-  line-height: 21px;
+  font-size: 13px;
+  line-height: 19px;
 }
 
 
@@ -1012,4 +1012,15 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   background: transparent;
   border: none;
   border-radius: 0;
+}
+
+
+
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (     -o-min-device-pixel-ratio: 2/1) { 
+  #index .logo {
+    background-image: url(/img/dodecagem-glow-1280px.png);
+  }
 }
