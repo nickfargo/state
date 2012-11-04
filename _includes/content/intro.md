@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-[States](/api/#state) have an [inheritance model](/docs/#concepts--inheritance) that allows them to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of the object to which they belong.
+[States](/api/#state) have an [inheritance model](/docs/#concepts--inheritance) that allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by their owner’s prototypes](/docs/#concepts--inheritance--protostates).
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
@@ -20,14 +20,25 @@
 {% endhighlight %}
 
 
-States are configurable with simple [attribute keywords](/docs/#concepts--attributes), and they express behavior on behalf of their owner object with [method overrides](/docs/#concepts--methods) that are [lexically bound to the state](/docs/#concepts--methods--context) in which the method is defined.
+[Attributes](/docs/#concepts--attributes) can constrain and empower states in useful ways.
 
 {% highlight javascript %}
-{% include examples/index--attributes-methods.js %}
+{% include examples/index--attributes.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/index--attributes-methods.coffee %}
+{% include examples/index--attributes.coffee %}
+{% endhighlight %}
+
+
+[Method overrides](/docs/#concepts--methods) express behavior on behalf of a state’s owner object. State methods are [lexically bound to the state](/docs/#concepts--methods--context) in which they are defined.
+
+{% highlight javascript %}
+{% include examples/index--methods.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--methods.coffee %}
 {% endhighlight %}
 
 
@@ -42,7 +53,7 @@ States are configurable with simple [attribute keywords](/docs/#concepts--attrib
 {% endhighlight %}
 
 
-Instances of [`State`](/api/#state) are [immutable by default](/docs/#concepts--attributes--mutability), but may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing predefined behaviors to be altered later.
+Instances of [`State`](/api/#state) are [immutable by default](/docs/#concepts--attributes--mutability), but may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
 
 {% highlight javascript %}
 {% include examples/index--mutability.js %}
