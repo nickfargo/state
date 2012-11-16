@@ -13,7 +13,7 @@ State methods serve as [delegation targets](/docs/#concepts--methods--delegators
 
 However, the arrangement of `State`s into hierarchies adds a wrinkle, because a state method needs to hold some contextual reference not just to the owner object on whose behalf the method is invoked, but also to the `State` to which the method belongs.
 
-### [The naïve approach](#the-naïve-approach)
+### [The naïve approach](#the-naive-approach)
 
 Least-surprise might suggest that, since state methods are meant to act as stand-ins for methods of the owner, the framework ought to apply them in the context of the owner.
 
