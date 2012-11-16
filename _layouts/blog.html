@@ -1,0 +1,39 @@
+---
+layout: default
+section: blog
+---
+<div id="blog-index">
+  <div class="markdown-body">
+    <div class="preview first">
+      {% assign post = site.posts.first %}
+      <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+      <div class="date">{{ post.date | date_to_string }}</div>
+      {% if post.lede %}
+        <div class="lede">{{ post.lede | markdownify }}</div>
+      {% endif %}
+    </div>
+
+    {% for post in site.posts limit:10 %}
+    {% if forloop.index > 1 %}
+    <div class="preview secondary">
+      <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+      <div class="date">{{ post.date | date_to_string }}</div>
+      {% if post.lede %}
+        <div class="lede">{{ post.lede | markdownify }}</div>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    {% for post in site.posts limit:40 %}
+    {% if forloop.index > 10 %}
+    <div class="preview tertiary">
+      <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+      <div class="date">{{ post.date | date_to_string }}</div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    {{ content }}
+  </div>
+</div>

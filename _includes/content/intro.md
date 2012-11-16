@@ -1,4 +1,4 @@
-**State** is a framework for implementing [prototypal](/docs/#concepts--inheritance--protostates) and [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) state–driven [behavior](/docs/#concepts--methods) into any JavaScript object.
+**State.js** is a framework that outfits any JavaScript object with a specific [behavior model](/docs/#concepts--methods), powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates) graph of [states](/docs/#concepts--states).
 
 {% highlight javascript %}
 {% include examples/index--intro.js %}
@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-[States](/api/#state) have an [inheritance model](/docs/#concepts--inheritance) that allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by their owner’s prototypes](/docs/#concepts--inheritance--protostates).
+The [inheritance model](/docs/#concepts--inheritance) for [`State` instances](/api/#state) allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of their **owner** object.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
@@ -20,7 +20,7 @@
 {% endhighlight %}
 
 
-[Attributes](/docs/#concepts--attributes) can constrain and empower states in useful ways.
+[Attributes](/docs/#concepts--attributes) concisely empower or constrain a state in certain respects, such as [mutability](/docs/#concepts--attributes--mutability), [abstraction](/docs/#concepts--attributes--abstraction), and [destination](/docs/#concepts--attributes--destination).
 
 {% highlight javascript %}
 {% include examples/index--attributes.js %}
@@ -42,7 +42,7 @@
 {% endhighlight %}
 
 
-[Events](/docs/#concepts--events) relate the [progress of a transition](/docs/#concepts--events--transitional), and signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state) instance. They can also be emitted for any [custom event type](/docs/#concepts--events--custom).
+[Events](/docs/#concepts--events) relate the [progress of a transition](/docs/#concepts--events--transitional), and signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state). They can also be emitted for any [custom event type](/docs/#concepts--events--custom).
 
 {% highlight javascript %}
 {% include examples/index--events.js %}
@@ -53,7 +53,7 @@
 {% endhighlight %}
 
 
-Instances of [`State`](/api/#state) are [immutable by default](/docs/#concepts--attributes--mutability), but may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
+[`State`](/api/#state) instances are [immutable by default](/docs/#concepts--attributes--mutability), but may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
 
 {% highlight javascript %}
 {% include examples/index--mutability.js %}
@@ -77,6 +77,8 @@ Instances of [`State`](/api/#state) are [immutable by default](/docs/#concepts--
 
 * * *
 
+
+### [Articles](/blog/)
 
 ### [Documentation](/docs/)
 

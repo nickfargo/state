@@ -33,6 +33,10 @@
           <div class="container">
             <a class="brand" href="/">state<span class="tail">js</span></a>
             <ul class="nav">
+              <li{% if page.section == 'blog' %} class="active"{% endif %}>
+                <a href="/blog/">blog</a>
+                <div class="lightstick"></div>
+              </li>
               <li{% if page.section == 'docs' %} class="active"{% endif %}>
                 <a href="/docs/">docs</a>
                 <div class="lightstick"></div>

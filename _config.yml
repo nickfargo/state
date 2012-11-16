@@ -12,8 +12,8 @@ meta:
 tag_dir: tag
 pygments: true
 markdown: rdiscount
-permalink: pretty
-exclude: art/*
+permalink: /blog/:title
+exclude: art/*, diagrams/*
 
 packages:
   state:

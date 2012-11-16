@@ -37,14 +37,14 @@ p {
 }
 
 h1 {
-  margin: 1.5em 0 0.5em;
+  margin: 1em 0 0.5em;
   font-size: 40px;
-  line-height: 48px;
+  line-height: 44px;
 }
 h2 {
   margin: 0.5em 0;
   font-size: 30px;
-  line-height: 44px;
+  line-height: 40px;
 }
 h3 {
   font-size: 24px;
@@ -77,13 +77,22 @@ h6 {
   line-height: 1.75em;
 }
 
-h1, h1 code, h1 a code,
-h2, h2 code, h2 a code,
-h3, h3 code, h3 a code,
-h4, h4 code, h4 a code,
-h5, h5 code, h5 a code,
-h6, h6 code, h6 a code {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: bold;
+}
+
+h1 a, h1 code, h1 a code,
+h2 a, h2 code, h2 a code,
+h3 a, h3 code, h3 a code,
+h4 a, h4 code, h4 a code,
+h5 a, h5 code, h5 a code,
+h6 a, h6 code, h6 a code {
+  font-weight: inherit;
 }
 
 p {
@@ -325,6 +334,9 @@ blockquote ol {
     color: #fff;
   }
 
+  .topbar ul li a[href^="/blog"] {
+    border-color: hsl(216, 30%, 42%);
+  }
   .topbar ul li a[href^="/docs"] {
     border-color: hsl(192, 30%, 42%);
   }
@@ -387,6 +399,27 @@ blockquote ol {
                       0 0 24px hsla(  0, 100%, 50%, 1),
                       0 0 12px hsla(  0, 100%, 50%, 1),
                 inset 0 0  3px hsla(  0, 100%, 50%, 1);
+  }
+  .topbar ul li a[href^="/blog"] + .lightstick {
+    background:                hsla(216,  46%, 48%, 0.6);
+    box-shadow:       0 0 24px hsla(216, 100%, 50%, 0),
+                      0 0 12px hsla(216, 100%, 50%, 0),
+                inset 0 0  3px hsla(216, 100%, 50%, 0);
+  }
+  .topbar ul li.indicated a[href^="/blog"] + .lightstick {
+    background:                hsla(208, 100%, 80%, 0.97);
+    box-shadow:       0 0 32px hsla(216, 100%, 63%, 0.7),
+                      0 0 16px hsla(208, 100%, 55%, 0.9),
+                inset 0 0  3px hsla(216,  72%, 45%, 0.8);
+  }
+  .topbar ul li.active a[href^="/blog"] + .lightstick {
+    background:                hsla(224, 100%, 97%, 0.98);
+    box-shadow:       0 0 48px hsla(224, 100%, 80%, 1),
+                      0 0 36px hsla(216, 100%, 70%, 1),
+                      0 0 24px hsla(208, 100%, 60%, 1),
+                      0 0 12px hsla(200, 100%, 50%, 1),
+                inset 0 0  2px hsla(224, 100%, 50%, 0.5),
+                inset 0 0  5px hsla(200, 100%, 50%, 0.5);
   }
   .topbar ul li a[href^="/docs"] + .lightstick {
     background:                hsla(192,  60%, 40%, 0.6);
@@ -540,6 +573,7 @@ blockquote ol {
     color: hsl(210, 58%, 32%);
   }
 
+  .content a[href^="/blog"],
   .content a[href^="/docs"],
   .content a[href^="/api"],
   .content a[href^="/source"],
@@ -549,6 +583,7 @@ blockquote ol {
     margin: -0.05em -0.2em;
     border-radius: 0.25em;
   }
+  .content blockquote a[href^="/blog"],
   .content blockquote a[href^="/docs"],
   .content blockquote a[href^="/api"],
   .content blockquote a[href^="/source"],
@@ -562,6 +597,24 @@ blockquote ol {
     box-shadow: 0 0 3px rgba(0,0,0,0.1), 0 1px 5px rgba(0,0,0,0.07);
     font-weight: 500;
     line-height: 1.67;
+  }
+
+  .content a[href^="/blog"] {
+    color:             hsl(216, 30%, 42%);
+    background-color: hsla(216, 30%, 42%, 0.01);
+  }
+  .content a[href^="/blog"]:hover {
+    color:             hsl(216, 58%, 32%);
+    background-color: hsla(216, 58%, 32%, 0.06);
+  }
+  .content blockquote a[href^="/blog"] {
+    border-bottom-color: hsla(216, 30%, 42%, 0.35);
+    background-image: -webkit-linear-gradient(top, hsl(216, 10%, 95%), hsl(216, 20%, 90%));
+    background-image:    -moz-linear-gradient(top, hsl(216, 10%, 95%), hsl(216, 20%, 90%));
+    background-image:     -ms-linear-gradient(top, hsl(216, 10%, 95%), hsl(216, 20%, 90%));
+    background-image:      -o-linear-gradient(top, hsl(216, 10%, 95%), hsl(216, 20%, 90%));
+    background-image:         linear-gradient(top, hsl(216, 10%, 95%), hsl(216, 20%, 90%));
+    text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(216, 13%, 57%, 0.3);
   }
 
   .content a[href^="/docs"] {
@@ -654,6 +707,7 @@ blockquote ol {
     text-shadow: 0 1px 0px hsla(0, 100%, 100%, 0.75), 0 -1px 2px hsla(58, 13%, 57%, 0.3);
   }
 
+  .content a[href^="/blog"] code,
   .content a[href^="/docs"] code,
   .content a[href^="/api"] code,
   .content a[href^="/source"] code,
@@ -719,7 +773,6 @@ blockquote ol {
     margin: 0 0 0.5em;
   }
   .toc .fg ul li a {
-    padding: 0 0.25em;
     color: #00438A;
   }
   .toc .fg ul li a:hover {
@@ -947,7 +1000,7 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 
 
 
-#index {
+#index .markdown-body {
   left: 160px;
   width: 640px;
 }
@@ -968,6 +1021,48 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   border: none;
   font-size: 13px;
   line-height: 19px;
+}
+
+
+#blog-index .markdown-body {
+  left: 160px;
+  width: 640px;
+}
+#blog-index .preview {
+  padding: 20px 0;
+}
+#blog-index .preview.first {
+  
+}
+#blog-index h2,
+#blog-index h3 {
+  font-weight: 500;
+}
+#blog-index .date {
+  font-size: 12px;
+}
+
+#blog-post {
+}
+#blog-post .toc {
+  top: 120px;
+}
+#blog-post h1 {
+  font-weight: 300;
+}
+#blog-post h2 {
+  margin-top: 40px;
+  font-weight: normal;
+}
+#blog-post pre {
+  padding-left: 30px;
+  padding-right: 0;
+  background: transparent;
+  border: none;
+}
+#blog-post .lede p {
+  font-size: 125%;
+  line-height: 1.33;
 }
 
 

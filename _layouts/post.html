@@ -1,19 +1,28 @@
 ---
 layout: default
+section: blog
 ---
-<div id="post" class="markdown-body">
-  <div class="row">
-    <div class="span4">
-      
+<div id="blog-post">
+  <div class="toc">
+    <div class="bg"></div>
+    <div class="fg"></div>
+  </div>
+
+  <div class="controls overlaid"></div>
+
+  <div class="markdown-body">
+    <h1 id="title">{{ page.title }}</h1>
+    <div class="tags">
+      {% for tag in page.tags %}
+      <span class="tag">{{ tag }}</span>
+      {% endfor %}
     </div>
-    <div class="span12">
-      <h1>{{ page.title }}</h1>
-      <div class="tags">
-        {% for tag in page.tags %}
-        <span class="tag">{{ tag }}</span>
-        {% endfor %}
-      </div>
-      {{ content }}
+    <div class="lede">
+      {{ page.lede | markdownify }}
     </div>
+
+    <hr/>
+
+    {{ content }}
   </div>
 </div>

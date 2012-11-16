@@ -12,6 +12,7 @@ state( Person.prototype, {
     }
 });
 
+
 var person = new Person;
 var friend = new Person;
 

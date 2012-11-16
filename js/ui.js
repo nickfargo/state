@@ -92,6 +92,79 @@ $( function () {
 });
 
 
+// ### ToC autogen
+//
+// If a `.toc` element exists but contains no markup for a table of contents,
+// then generate one whose structure is based on the sequential ordering of
+// heading elements within `.markdown-body`. Like a parser, this function
+// takes as input a stream of heading elements, and outputs a tree of `ul`s
+// and `li`s with matching text and anchors.
+$( function () {
+  var i, l, stack, html, level, nextLevel;
+  var $el, $lookahead, $ul, $a;
+  var rx = /^h/i;
+
+  var $fg = $('.toc .fg');
+  if ( $fg.children().length ) return;
+
+  var $h = $('.markdown-body').children('h1, h2, h3, h4, h5');
+  l = $h.length;
+  if ( !l ) return;
+  
+  stack = [];
+
+  // Starting the loop with `i = -1` does a preliminary lookahead to initialize
+  // the `$ul`, `level` and `nextLevel` variables.
+  i = -1;
+
+  while ( i < l ) {
+
+    // Advance the cursor. On the first iteration `$el` will be `undefined`.
+    $el = $lookahead;
+    $lookahead = $h.eq( i += 1 );
+
+    // Create an `li` that maps to the heading element. This is skipped on the
+    // first lookahead-only iteration.
+    if ( $el ) {
+      $el.html()
+      $a = $('<a>')
+        .attr( 'href', "#" + ( $el.attr('id') || '' ) )
+        .html( $( 'a', $el ).html() || $el.text() );
+      $('<li>').append( $a ).appendTo( stack[ stack.length - 1 ] );
+    }
+
+    // Extract the nesting levels based on the heading elements’ numbering.
+    level = nextLevel || 0;
+    nextLevel = $lookahead.length ?
+      +$lookahead.prop('tagName').replace( rx, '' ) : 0;
+
+    // Use the first element’s level as a baseline.
+    level || ( level = nextLevel - 1 );
+
+    // If the heading level increases, then open a new nested `ul`.
+    while ( nextLevel > level ) {
+
+      // Push a new `ul` that is nested inside the previous `ul`.
+      ( $ul = $('<ul>') ).appendTo( stack[ stack.length - 1 ] );
+      stack.push( $ul );
+      level += 1;
+    }
+
+    // Alternatively if the heading level decreases, then close the
+    // prevailing `ul`.
+    while ( nextLevel < level ) {
+
+      // Close the prevailing `ul`s. If the root `ul` at the head of the stack
+      // is reached prematurely, wrap it in another `ul`.
+      $ul = stack.pop() || $('<ul>').append( $ul );
+      level -= 1;
+    }
+  }
+
+  $fg.append( $ul );
+});
+
+
 // ### Local tables of contents
 //
 // Fills any empty `.local-toc` element with a list of the subheadings
@@ -339,6 +412,7 @@ $( function () {
 
   $li = $('.topbar ul li');
   patterns = [
+    'a[href^="/blog"]',
     'a[href^="/docs"]',
     'a[href^="/api"]',
     'a[href^="/source"]',
@@ -399,7 +473,10 @@ $( function () {
     if ( $toc.length === 0 ) return;
 
     $topbar = $('.topbar');
+    
     $fg = $( '.fg', $toc );
+    if ( $fg.children().length === 0 ) return;
+
     $a = $( 'li a', $toc );
 
     cachedLocationData = {};

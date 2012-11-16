@@ -1,6 +1,6 @@
 ### [Inheritance](#concepts--inheritance)
 
-The `State` object model is a classic rooted tree structure. Any state may serve as a **superstate** of one or more **substates**, each of which expresses further specificity of their common owner object’s behavior and condition.
+The [`State`](/api/#state) object model is a classic rooted tree structure. Any state may serve as a **superstate** of one or more **substates**, each of which expresses further specificity of their common owner object’s behavior and condition.
 
 An owner object’s state tree is further heritable by any prototypal inheritors of that object, which view their prototype’s states as **protostates**, from which their own states, as **epistates**, may inherit.
 
@@ -41,7 +41,7 @@ Substates help to express ever greater specificity of their owner’s behavior a
 
 #### [Protostates: inheriting states across prototypes](#concepts--inheritance--protostates)
 
-All of the examples given to this point have created stateful objects by applying the `state()` function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
+All of the examples given to this point have created stateful objects by applying the [`state()`](#getting-started--the-state-function) function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--1.js %}

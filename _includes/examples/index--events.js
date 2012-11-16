@@ -4,15 +4,23 @@ state( Mover.prototype, {
     // Use the root state’s `construct` event to programmatically
     // set up all of the states to log their transitional events.
     construct: function () {
-        var states, events, s, e;
-        states = [this].concat( this.substates( true ) );
+        var states, events, s, e, i, ls, j, le;
+
+        function bindEventToState ( e, s ) {
+            s.on( e, function () {
+                console.log( e + " " + this.name() );
+            });
+        }
+
+        states = [ this ].concat( this.substates( true ) );
         events = ['depart', 'exit', 'enter', 'arrive'];
-        for ( s in states ) for ( e in events ) {
-            ( function ( s, e ) {
-                s.on( e, function () {
-                    console.log( e + " " + this.name() );
-                });
-            }( s, e ) );
+
+        for ( i = 0, ls = states.length; i < ls; i++ ) {
+            s = states[i];
+            for ( j = 0, le = events.length; j < le; j++ ) {
+                e = events[j];
+                bindEventToState( e, s );
+            }
         }
     },
 

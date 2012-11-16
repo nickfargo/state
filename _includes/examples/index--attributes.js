@@ -9,7 +9,7 @@ state( Person.prototype, 'abstract', {
 });
 
 
-person = new Person;
+var person = new Person;
 
 person.greet();                   // >>> "How do you do?"
 

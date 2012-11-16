@@ -1,6 +1,6 @@
 ---
 layout: index
-title: state.js
+title: State.js
 ---
 
 {% include content/intro.md %}

@@ -4,7 +4,7 @@
 
 #### [Step 0 — The `state` function](#getting-started--the-state-function)
 
-The **State** module is exported as a function named `state`, which can be used for either of two purposes:
+The **State** module is exported as a function named [`state`](/api/#module), which can be used for either of two purposes:
 
 ##### Implementing state into an object
 
