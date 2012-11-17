@@ -39,12 +39,12 @@
 				return result;
 			},
 			Saved: state( 'initial', {
-				edit: function ( newText ) {
+				edit: state.method( function ( newText ) {
 					var result;
-					result = this.superstate().call( 'edit', newText );
+					result = superstate.call( 'edit', newText );
 					this.change('Dirty');
 					return result;
-				},
+				}),
 				save: owner,
 				enter: function () {},
 				exit: function () {},
@@ -55,12 +55,12 @@
 				})
 			}),
 			Dirty: {
-				save: function () {
+				save: state.method( function () {
 					var result;
 					result = this.superstate().call('save');
 					this.change('Saved');
 					return result;
-				}
+				})
 			}
 		});
 

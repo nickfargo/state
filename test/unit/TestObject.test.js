@@ -158,11 +158,11 @@ function TestObject ( initialState ) {
 						methodTwo: function () {
 							return 'Finished.Terminated.methodTwo';
 						},
-						methodThree: function ( uno, dos ) {
+						methodThree: state.method( function ( uno, dos ) {
 							var result = 'Finished.Terminated.methodThree';
-							result += ' : ' + this.superstate().method('methodThree')( uno, dos );
+							result += ' : ' + superstate.method('methodThree')( uno, dos );
 							return result;
-						}
+						})
 					},
 					guards: {
 						release: {

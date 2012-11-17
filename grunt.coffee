@@ -19,7 +19,7 @@ fs.copy = ( source, target, callback ) ->
 
 module.exports = ( grunt ) ->
   lib = 'lib/'
-  pub = '../state--gh-pages/'
+  pub = '../gh-pages/state/_site/'
   min = '-min'
   ext = '.js'
 
@@ -30,6 +30,7 @@ module.exports = ( grunt ) ->
       js:
         src: list lib, ext, """
           __pre
+          state-method
 
           state/__pre
           state/constructor
