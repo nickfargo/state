@@ -107,7 +107,7 @@ State methods depend on more lexical information than a bound `this` by itself c
 
 * The arguments array must not be invaded; far too much confusion would arise from introducing inconsistencies across method signatures and calling patterns.
 
-* Neither can `.protostate()` simply be sworn off and its use discouraged, as it is in many cases every bit as useful an idiom as `.superstate()`.
+* Neither can protostates simply be sworn off and their use discouraged, as they are in many cases every bit as useful a relation as superstates.
 
 None of these adequately builds state methods with the support they require. What’s needed is a way to automatically generate a new function, using the provided function as a base, that closes over the method’s static environment.
 
