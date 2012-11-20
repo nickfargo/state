@@ -194,6 +194,3 @@ target.state('').mutate source.state('').express()
 {% endhighlight %}
 
 The call to `express` from the root state outputs a deep clone of the entire tree as a `StateExpression`, which can be fed right into [`state()`](/api/#module) or `mutate()`. Methods produced by `state.method` will be regenerated in their new environment as necessary. Lost are the dynamic prototypal relationship and the memory savings that follow, but so too is some of the complexity that would have entailed.
-
-> [mutate](/api/#state--methods--mutate)
-
