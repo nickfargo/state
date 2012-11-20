@@ -19,7 +19,7 @@ fs.copy = ( source, target, callback ) ->
 
 module.exports = ( grunt ) ->
   lib = 'lib/'
-  pub = '../gh-pages/state/_site/'
+  pub = '../gh-pages/state/'
   min = '-min'
   ext = '.js'
 
@@ -87,7 +87,7 @@ module.exports = ( grunt ) ->
     qunit:
       files: 'test/**/*.html'
 
-  # Copy published source and related bits to --gh-pages directory
+  # Copy published source and related bits to gh-pages
   grunt.registerTask 'publish', '', ->
     files = list '', ext, """
       state
@@ -101,34 +101,49 @@ module.exports = ( grunt ) ->
       for source in files
         target = pub + source.replace /.*\/(.*)$/, "$1"
         fs.exists target, do ( source, target ) -> ( exists ) ->
-          copy = ( err ) -> fs.copy source, target, increment
+          console.log "publish: #{source} > #{target}"
+          copy = ( err ) ->
+            console.error "publish:", err if err
+            fs.copy source, target, increment
           if exists then fs.unlink target, copy else do copy
       continuation = ->
 
+  # Generate annotated source HTML and copy to includes dir of gh-pages
   grunt.registerTask 'docco', '', ->
+    targetDir = pub + '_includes/content/source'
+
     docco = ->
-      exec 'docco state.js', mkdir
+      exec 'docco state.js -t build/source.jst', mkdir
 
     mkdir = ( err ) ->
-      fs.mkdir pub + 'source', move
+      fs.exists targetDir, ( exists ) ->
+        if exists then do move else fs.mkdir targetDir, move
 
     move = ( err ) ->
-      map =
-        "docs/state.html" : pub + "source/index.html"
-        "docs/docco.css"  : pub + "source/docco.css"
-      n = 0
-      incr = ( err ) -> if err then --n else continuation err if ++n is 2
-      fs.rename k, v, incr for k,v of map
-      continuation = rmdir
+      console.error "docco:move", err if err
+      source = "docs/state.html"
+      target = targetDir + "/index.html"
+
+      fs.exists target, ( exists ) ->
+        if exists then fs.unlink target, rename else do rename
+      
+      rename = -> fs.rename source, target, unlink
+
+    unlink = ( err ) ->
+      console.error "docco:unlink", err if err
+      fs.unlink 'docs/docco.css', rmdir
 
     rmdir = ( err ) ->
+      console.error "docco:rmdir", err if err
       fs.rmdir 'docs'
 
     do docco
 
+
   grunt.registerTask 'cleanup', '', ->
-    logError = ( err ) -> console.log err if err
+    logError = ( err ) -> console.error "cleanup", err if err
     fs.unlink 'grunt.js', logError
+    process.nextTick -> console.log "\n"
 
   grunt.registerTask 'default',
     "server #{tasks} cleanup watch"
