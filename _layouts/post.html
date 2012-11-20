@@ -12,6 +12,10 @@ section: blog
 
   <div class="markdown-body">
     <h1 id="title">{{ page.title }}</h1>
+
+    <div class="date">
+      {{ page.date | date: "%B %d, %Y" }}
+    </div>
     <div class="tags">
       {% for tag in page.tags %}
       <span class="tag">{{ tag }}</span>

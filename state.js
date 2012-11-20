@@ -1,16 +1,16 @@
 // Copyright (C) 2011-2012 Nick Fargo, Z Vector Inc.
-// 
-// [`LICENSE`](http://github.com/nickfargo/state/blob/master/LICENSE) MIT.
-// 
-// **State** is a framework for implementing state-driven behavior directly
-// into any JavaScript object.
-// 
-// [statejs.org](/)
-// [docs](/docs/)
-// [api](/api/)
-// [tests](/tests/)
 //
-// <a class="icon-invertocat" href="http://github.com/nickfargo/state"></a>
+// [`LICENSE`](https://github.com/nickfargo/state/blob/master/LICENSE) MIT.
+//
+// **State** implements state-driven behavior directly into any JavaScript
+// object.
+//
+// > [statejs.org](/)
+// > [blog](/blog/)
+// > [docs](/docs/)
+// > [api](/api/)
+// > [tests](/tests/)
+// > <a class="icon-invertocat" href="http://github.com/nickfargo/state"></a>
 
 ;( function ( undefined ) {
 
@@ -19,7 +19,7 @@
 var global = this,
 
     meta = {
-        VERSION: '0.0.6',
+        VERSION: '0.0.7',
 
         noConflict: ( function () {
             var original = global.state;
@@ -34,7 +34,7 @@ var global = this,
         }
     },
 
-    // The lone dependency of **State** is [Omicron](http://omicronjs.org),
+    // The lone dependency of **State** is [Omicron](http://github.com/nickfargo/omicron),
     // a library that assists with tasks such as object manipulation,
     // differential operations, and facilitation of prototypal inheritance.
     O = typeof require !== 'undefined' ? require('omicron') : global.O;
@@ -61,9 +61,12 @@ var rxTransitionArrow       = /^\s*([\-|=]>)\s*(.*)/,
 // [`STATE_ATTRIBUTE_MODIFIERS`](#module--constants--state-attribute-modifiers),
 // which are encoded into the provided `expression`.
 // 
-// *See also:*
-// [`State`](#state), [`STATE_ATTRIBUTES`](#module--constants--state-attributes),
-// [`StateExpression`](#state-expression), [`StateController`](#state-controller)
+// > See also:
+// > [`State`](#state), [`STATE_ATTRIBUTES`](#module--constants--state-attributes),
+// > [`StateExpression`](#state-expression), [`StateController`](#state-controller)
+//
+// > [The `state` function](/docs/#getting-started--the-state-function)
+// > [`state()`](/api/#module)
 function state (
                       /*Object*/ owner,      // optional
                       /*String*/ attributes, // optional
@@ -299,6 +302,98 @@ O.env.client && ( global['state'] = state );
 // References or creates a unique object visible only within the lexical scope
 // of this module.
 var __MODULE__ = O.env.server ? module : { exports: state };
+
+// ### [state.method](#module--method)
+//
+// Returns a `factory` to be called internally, which will flatten the scope
+// of the provided `fn`, reclose it both over any provided `bindings` and over
+// a static set of `lexicals` based on `autostate`, which is provided to
+// `factory` as the `State` instance that will contain the **lexical state
+// method** that `factory` produces.
+//
+// > [`state.method`](/api/#module--method)
+//
+// > [Lexical binding in state methods](/blog/lexical-binding-in-state-methods/)
+state.method = ( function () {
+    var lexicals = [ 'state', 'autostate', 'protostate' ];
+
+    var rx = /^(function\b\s*(?:[$_A-Za-z])?\s*\((?:.*?)\)\s*\{)([\s\S]*)/;
+    var s = "return $1\n" +
+            "  var superstate, owner;\n" +
+            "  if ( this instanceof state.State ) {\n" +
+            "    superstate = this.superstate();\n" +
+            "    owner = this.owner();\n" +
+            "  }\n" +
+            "$2;";
+
+    function method ( bindings, fn ) {
+
+        function factory ( autostate ) {
+            // Invocation from outside the module is forbidden, as this could
+            // expose `bindings`, which must remain private.
+            if ( this !== __MODULE__ ) throw ReferenceError;
+
+            // With proper `bindings` and `fn` arguments, forward the
+            // invocation to `createMethod`.
+            if ( typeof bindings === 'object' && typeof fn === 'function' ) {
+                return createMethod( factory, autostate, bindings, fn );
+            }
+
+            // If passed `bindings` only, return a partially applied function
+            // that accepts `fn` later.
+            else if ( typeof bindings === 'object' && fn === undefined ) {
+                return function ( fn ) {
+                    return createMethod( factory, autostate, bindings, fn );
+                };
+            }
+
+            // If passed only `fn` as the first argument, assume no `bindings`.
+            else if ( typeof bindings === 'function' && fn === undefined ) {
+                return createMethod( factory, autostate, null, bindings );
+            }
+        }
+        factory.isLexicalStateMethodFactory = true;
+
+        return factory;
+    }
+
+    function createMethod ( factory, autostate, bindings, fn ) {
+        var identifiers, values, i, l, params, args, body, result;
+
+        // Gather all the identifiers that the transformed `fn` will be closed
+        // over and arrange them into an array of named `params`.
+        identifiers = bindings instanceof Object && O.keys( bindings ) || [];
+        i = 0; l = identifiers.length; values = new Array(l);
+        for ( ; i < l; i++ ) values[i] = bindings[ identifiers[i] ];
+        params = identifiers.concat( lexicals );
+
+        // Gather all the values that will be mapped to the `params`.
+        args = [ state, autostate, autostate.protostate() ];
+        values.length && ( args = values.concat( args ) );
+
+        // Write the body of the function that wraps `fn`, and inject `fn` with
+        // references to the superstate and owner of the context `State`.
+        body = Function.prototype.toString.call( fn ).replace( rx, s );
+
+        // Generate the wrapper function and immediately apply it with all of
+        // the closed binding values.
+        result = Function.apply( null, params.concat( body ) )
+                         .apply( null, args );
+
+        // Save the `factory` from which the method was created, so that the
+        // method can be cloned or exported, e.g., with
+        // [`express()`](/api/#state--methods--express), to a separate
+        // `State`, where the method will need to be re-transformed with
+        // bindings to the new state’s lexical environment.
+        result.factory = factory;
+
+        result.isLexicalStateMethod = true;
+
+        return result;
+    }
+
+    return method;
+}() );
 
 // ## [State](#state)
 // 
@@ -787,10 +882,23 @@ State.privileged.express = ( function () {
         var out = null, key, value;
         for ( key in obj ) {
             value = obj[ key ];
-            ( out || ( out = {} ) )[ key ] =
-                value && typeof value === 'object' ?
-                    O.clone( obj[ key ] ) :
-                    value;
+            out || ( out = {} );
+            out[ key ] = value && typeof value === 'object' ?
+                O.clone( obj[ key ] ) :
+                value;
+        }
+        return out;
+    }
+
+    function cloneMethods ( methods ) {
+        if ( methods === undefined ) return;
+        var out = null, name, method;
+        for ( name in methods ) {
+            method = methods[ name ];
+            out || ( out = {} );
+            out[ name ] = method.isLexicalStateMethod ?
+                method.factory :
+                method;
         }
         return out;
     }
@@ -799,12 +907,13 @@ State.privileged.express = ( function () {
         if ( events === undefined ) return;
         var out = null, type, emitter;
         for ( type in events ) if ( emitter = events[ type ] ) {
-            ( out || ( out = {} ) )[ type ] = O.clone( emitter.items );
+            out || ( out = {} );
+            out[ type ] = O.clone( emitter.items );
         }
         return out;
     }
 
-    function recurse ( substates, typed ) {
+    function cloneSubstates ( substates, typed ) {
         if ( substates === undefined ) return;
         var out = null;
         O.forEach( substates, function ( substate, name ) {
@@ -827,10 +936,10 @@ State.privileged.express = ( function () {
             O.edit( expression, {
                 attributes:  attributes,
                 data:        clone( data ),
-                methods:     clone( methods ),
+                methods:     cloneMethods( methods ),
                 events:      cloneEvents( events ),
                 guards:      clone( guards ),
-                states:      recurse( substates, typed ),
+                states:      cloneSubstates( substates, typed ),
                 transitions: clone( transitions )
             });
 
@@ -1849,12 +1958,21 @@ O.assign( State.privileged, {
         }
 
         //
-        return function ( /*String*/ methodName, /*Function*/ fn ) {
+        return function (
+              /*String*/ methodName,
+            /*Function*/ fn,
+             /*Boolean*/ raw  // optional
+        ) {
             var controller = this.controller(),
                 controllerName = controller.name(),
                 root = controller.root(),
                 owner = controller.owner(),
                 ownerMethod;
+
+            // If `fn` holds a lexical state method then extract the method.
+            if ( !raw && fn.isLexicalStateMethodFactory ) {
+                fn = fn.call( __MODULE__, this );
+            }
 
             // If there is not already a method called `methodName` in the
             // state hierarchy, then the owner and controller need to be set up
@@ -1866,7 +1984,11 @@ O.assign( State.privileged, {
                     ownerMethod = owner[ methodName ];
                     ( ownerMethod === undefined || ownerMethod.isDelegator ) &&
                         ( ownerMethod = rootNoop );
-                    root.addMethod( methodName, ownerMethod );
+
+                    // The owner method must be added to the root state in its
+                    // “raw” form, i.e., not lexically transformed by
+                    // `state.method`.
+                    root.addMethod( methodName, ownerMethod, true );
                 }
 
                 // A delegator function is instated on the owner, which will
@@ -2411,7 +2533,9 @@ return State;
 
 // ## [StateExpression](#state-expression)
 // 
-// A **state expression** formalizes a definition of a state’s contents.
+// A **state expression** is a data structure that formalizes a definition of
+// a state’s contents.
+//
 // States are declared by calling the module’s exported [`state()`](#module)
 // function and passing it an object map containing the definition. This
 // input may be expressed in a shorthand format, which the
@@ -3353,6 +3477,8 @@ var Transition = ( function () {
         }
 
         var self = this,
+            name = expression && expression.name || '',
+
             methods = {},
             events = {},
             guards = {},
@@ -3361,7 +3487,7 @@ var Transition = ( function () {
             // after the transition has been `start`ed. This function, if
             // provided, is responsible for calling `end()` on the transition
             // at some point in the future.
-            action = expression.action,
+            action = expression && expression.action || null,
 
             attachment = source,
             controller, aborted;
@@ -3380,6 +3506,11 @@ var Transition = ( function () {
         });
 
         O.assign( this, {
+            // #### [name](#transition--constructor--name)
+            name: function () {
+                return name;
+            },
+
             // #### [superstate](#transition--constructor--superstate)
             // 
             // A [`Transition`](#transition) instance uses `superstate` to
@@ -3387,13 +3518,19 @@ var Transition = ( function () {
             // that defines its domain.
             //
             // > [superstate](/api/#transition--methods--superstate)
-            superstate: function () { return attachment; },
+            superstate: function () {
+                return attachment;
+            },
 
             // #### [attachTo](#transition--constructor--attach-to)
-            attachTo: function ( state ) { return attachment = state; },
+            attachTo: function ( superstate ) {
+                return attachment = superstate;
+            },
 
             // #### [controller](#transition--constructor--controller)
-            controller: function () { return controller; },
+            controller: function () {
+                return controller;
+            },
 
             // #### [origin](#transition--constructor--origin)
             // 
@@ -3412,7 +3549,9 @@ var Transition = ( function () {
             // [`Transition`](#transition) that immediately preceded `this`.
             //
             // > [source](/api/#transition--methods--source)
-            source: function () { return source; },
+            source: function () {
+                return source;
+            },
 
             // #### [target](#transition--constructor--target)
             // 
@@ -3424,18 +3563,24 @@ var Transition = ( function () {
             // `this` as its `source`.
             //
             // > [target](/api/#transition--methods--target)
-            target: function () { return target; },
+            target: function () {
+                return target;
+            },
 
             // #### [setCallback](#transition--constructor--set-callback)
             // 
             // Allows the callback function to be set or changed prior to the
             // transition’s completion.
-            setCallback: function ( fn ) { return callback = fn; },
+            setCallback: function ( fn ) {
+                return callback = fn;
+            },
 
             // #### [wasAborted](#transition--constructor--was-aborted)
             //
             // > [wasAborted](/api/#transition--methods--was-aborted)
-            wasAborted: function () { return aborted; },
+            wasAborted: function () {
+                return aborted;
+            },
 
             // #### [start](#transition--constructor--start)
             // 

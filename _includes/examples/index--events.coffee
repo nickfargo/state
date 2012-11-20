@@ -1,5 +1,12 @@
 class Mover
   state @::
+    Stationary:
+      Idle: state 'initial'
+      Alert: state
+    Moving:
+      Walking: state
+      Running:
+        Sprinting: state
 
     # Use the root state’s `construct` event to programmatically
     # set up all of the states to log their transitional events.
@@ -8,14 +15,6 @@ class Mover
       for s in [this].concat @substates true
         for e in events
           do ( s, e ) -> s.on e, -> console.log "#{e} #{@name()}"
-
-    Stationary:
-      Idle: state 'initial'
-      Alert: state
-    Moving:
-      Walking: state
-      Running:
-        Sprinting: state
 
 
 m = new Mover

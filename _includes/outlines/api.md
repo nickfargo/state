@@ -1,4 +1,5 @@
 * [state()](#module)
+  * [state.method](#module--method)
 * [State](#state)
   * [Attributes](#state--attributes)
     * [mutable](#state--attributes--mutable)

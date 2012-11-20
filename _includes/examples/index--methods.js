@@ -10,22 +10,22 @@ function Sophisticate ( name ) {
 state( Sophisticate.prototype, 'abstract', {
     Formal: state( 'default initial', {
         Cordial: {
-            greet: function ( person ) {
-                var greeting = this.superstate().call('greet');
+            greet: state.method( function ( person ) {
+                var greeting = superstate.call('greet');
                 var name = person && person.name;
                 return name ?
                     "Hello " + name + ". " + greeting :
                     greeting;
-            }
+            })
         }
     }),
     Casual: {
-        greet: function ( person ) {
+        greet: state.method( function ( person ) {
             var name = person && person.name;
             if ( name === 'Lane' ) return "How’s it hanging?";
             if ( name ) return "Hi " + name + ".";
-            return "Hi!";
-        }
+            return protostate.call('greet');
+        })
     }
 });
 

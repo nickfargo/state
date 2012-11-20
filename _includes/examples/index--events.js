@@ -1,6 +1,17 @@
 function Mover () {}
 state( Mover.prototype, {
 
+    Stationary: {
+        Idle: state('initial'),
+        Alert: state
+    },
+    Moving: {
+        Walking: state,
+        Running: {
+            Sprinting: state
+        }
+    },
+
     // Use the root state’s `construct` event to programmatically
     // set up all of the states to log their transitional events.
     construct: function () {
@@ -21,17 +32,6 @@ state( Mover.prototype, {
                 e = events[j];
                 bindEventToState( e, s );
             }
-        }
-    },
-
-    Stationary: {
-        Idle: state('initial'),
-        Alert: state
-    },
-    Moving: {
-        Walking: state,
-        Running: {
-            Sprinting: state
         }
     }
 });

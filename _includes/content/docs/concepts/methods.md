@@ -1,10 +1,10 @@
 ### [Methods](#concepts--methods)
 
-A defining feature of **State** is the ability for an object to exhibit a variety of behaviors. A state expresses a particular behavior by defining **overrides** for any of its object’s methods.
+A defining feature of **State** is the ability for an object to exhibit a variety of behaviors. A state expresses a particular behavior with **state methods** that override any of its owner object’s methods.
 
 <div class="local-toc"></div>
 
-#### [Delegator methods](#concepts--methods--delegators)
+#### [Delegators](#concepts--methods--delegators)
 
 When state is applied to an object by calling [`state()`](#getting-started--the-state-function), **State** first identifies any methods already present on the object for which there exists at least one override somewhere within the provided state expression. These methods will be relocated to the new [root state](#concepts--inheritance--the-root-state), and replaced on the object with a special **delegator** method.
 
@@ -44,6 +44,32 @@ Worth noting here is the significant difference distinguishing these `apply` and
 > [`State::apply`](/source/#state--prototype--apply)
 > [`State::call`](/source/#state--prototype--call)
 > [`State.privileged.method`](/source/#state--privileged--method)
+
+#### [Optional lexical bindings](#concepts--methods--lexical-bindings)
+
+Wrapping a method’s declaration in a call to [`state.method`](/api/#module--method) embeds additional contextual variables into a method, which are particularly useful when a method needs to inherit behavior from a protostate.
+
+{% highlight javascript %}
+{% include examples/docs/methods--lexical-bindings.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/docs/methods--lexical-bindings.coffee %}
+{% endhighlight %}
+
+Methods transformed in this way gain four state–lexical variable bindings that can be referenced directly from within the function body:
+
+* `autostate` : the precise `State` in which the method is defined.
+* `protostate` : the protostate of `autostate`.
+* `superstate` : the superstate of `this`.
+* `owner` : the owner of `this`.
+
+Worth noting is the distinction and relationship between `autostate` and `this`: if a method is inherited from a protostate, then `autostate` will reference that protostate of `this`; or if the method is not inherited, then `autostate` and `this` are identical.
+
+> [state.method](/api/#module--method)
+> [`state.method`](/source/#module--method)
+
+> [Lexical bindings in state methods](/blog/#lexical-bindings-in-state-methods)
 
 #### [Handling calls to currently nonexistent methods](#concepts--methods--nonexistent)
 

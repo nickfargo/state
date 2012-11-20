@@ -12,6 +12,7 @@ class Class extends Superclass
     A:
       m: state.method -> protostate.call('m') + owner.baz
 
-q = Superclass::
-p = Class::
 o = new Class
+o.m()             # >>> "FOO"
+o.state '-> A'    
+o.m()             # >>> "FOOBARBAZ"
