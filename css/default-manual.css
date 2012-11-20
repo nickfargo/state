@@ -203,6 +203,7 @@ pre code {
 li {
   line-height: 23px;
   margin: 0.25em 0;
+  color: #666;
 }
 blockquote {
   line-height: inherit;
@@ -213,7 +214,7 @@ blockquote p {
   font-size: inherit;
   line-height: inherit;
   font-weight: normal;
-  color: #808080;
+  color: #666;
   margin: 0.5em 0;
 }
 blockquote ol {
