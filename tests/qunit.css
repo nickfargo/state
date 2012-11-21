@@ -55,7 +55,8 @@
 }
 
 #qunit-banner {
-	height: 5px;
+	height: 7px;
+	margin-top: 30px;
 }
 
 #qunit-testrunner-toolbar {

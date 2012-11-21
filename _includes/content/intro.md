@@ -1,4 +1,4 @@
-**State.js** outfits any JavaScript object with a specific [behavior model](/docs/#concepts--methods), powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates) graph of [states](/docs/#concepts--states).
+**State.js** outfits JavaScript objects with a specific behavior model, powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates) graph of [states](/docs/#concepts--states).
 
 {% highlight javascript %}
 {% include examples/index--intro.js %}
@@ -31,7 +31,7 @@ The [inheritance model](/docs/#concepts--inheritance) for [`State` instances](/a
 {% endhighlight %}
 
 
-[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods are [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they are defined, and may optionally be outfitted with [additional variables](/docs/#concepts--methods--lexical-bindings) that describe its [complete state–lexical environment](/blog/lexical-binding-in-state-methods).
+[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods are [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they are defined, and may optionally be injected with additional [special variables](/docs/#concepts--methods--lexical-bindings) that describe its [complete state–lexical environment](/blog/lexical-binding-in-state-methods).
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}

@@ -100,7 +100,7 @@ $( function () {
 // takes as input a stream of heading elements, and outputs a tree of `ul`s
 // and `li`s with matching text and anchors.
 $( function () {
-  var i, l, stack, html, level, nextLevel;
+  var i, l, stack, level, nextLevel;
   var $el, $lookahead, $ul, $a;
   var rx = /^h/i;
 
@@ -126,7 +126,6 @@ $( function () {
     // Create an `li` that maps to the heading element. This is skipped on the
     // first lookahead-only iteration.
     if ( $el ) {
-      $el.html()
       $a = $('<a>')
         .attr( 'href', "#" + ( $el.attr('id') || '' ) )
         .html( $( 'a', $el ).html() || $el.text() );
