@@ -10,7 +10,6 @@ Arbitrary **data** can be attached to each state, and inherited accordingly thro
 {% include examples/docs/data.coffee %}
 {% endhighlight %}
 
-> [Data](/api/#state--methods--section--data)
 > [data](/api/#state--methods--data)
 > [`State.privileged.data`](/source/#state--privileged--data)
 

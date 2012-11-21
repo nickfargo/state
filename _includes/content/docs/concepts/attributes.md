@@ -37,7 +37,7 @@ Each of the mutability attributes is implicitly inherited from any of the state�
 > [concrete](/api/#state--attributes--concrete)
 > [default](/api/#state--attributes--default)
 
-**State** does not confine currency to “leaf” states. All states, including substate-bearing interior states, are **concrete** by default, and thus may be targeted by a transition. Nevertheless, sometimes it may still be appropriate to author **abstract** states whose purpose is limited to serving as a common ancestor from which concrete descendant states will inherit. The abstraction attributes `abstract`, `concrete`, and `default` allow an implementor to control these restrictions.
+**State** does not confine currency to “leaf” states. All states, including substate-bearing interior states, are **concrete** by default, and thus may be targeted by a transition. Nevertheless, sometimes it may still be appropriate to author **abstract** states whose purpose is limited to serving as a common ancestor from which concrete descendant states will inherit. The abstraction attributes `abstract`, `concrete`, and `default` control these restrictions.
 
 Transitions that target an `abstract` state are redirected to its `default` substate. If no substate is marked `default`, the transition is redirected to the abstract state’s first substate. If the redirection target is itself `abstract`, the redirection recurses until a concrete descendant is found.
 
