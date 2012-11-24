@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-The [inheritance model](/docs/#concepts--inheritance) for [`State` instances](/api/#state) allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of their **owner** object.
+[`State` instances](/api/#state) have a distinct [object model](/docs/#concepts--inheritance) which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of their **owner** object.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
@@ -20,7 +20,7 @@ The [inheritance model](/docs/#concepts--inheritance) for [`State` instances](/a
 {% endhighlight %}
 
 
-[Attributes](/docs/#concepts--attributes) concisely empower or constrain a state in certain respects, such as [mutability](/docs/#concepts--attributes--mutability), [abstraction](/docs/#concepts--attributes--abstraction), and [destination](/docs/#concepts--attributes--destination).
+[Attributes](/docs/#concepts--attributes) concisely empower or constrain certain aspects of a [`State`](/api/#state), such as [mutability](/docs/#concepts--attributes--mutability), [abstraction](/docs/#concepts--attributes--abstraction), and [destination](/docs/#concepts--attributes--destination).
 
 {% highlight javascript %}
 {% include examples/index--attributes.js %}
