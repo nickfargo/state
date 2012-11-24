@@ -126,7 +126,7 @@ Calling `state.method` creates and returns a factory, a higher-order function wh
 
 If no `fn` is provided, then a function partially applied with `bindings` is returned, which will later accept a `fn` and return the lexical state method factory.
 
-The factory can only be called internally, and this occurs either during the construction of a `State` instance, as this is precisely when the lexical environment of interest is created, or as methods are added to a mutable `State`.
+The factory can only be called internally, and this occurs either during the construction of a `State` instance, as this is precisely when the lexical environment of interest is created, or as methods are added to an existing mutable `State`.
 
 #### [`state.method` in action](#state-method-in-action)
 

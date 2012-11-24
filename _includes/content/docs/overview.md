@@ -14,7 +14,7 @@ The points listed here summarize the discussions that follow in the [**Concepts*
 
 * [**Data**](#concepts--data) — Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates.
 
-* [**Methods**](#concepts--methods) — Behavior is modeled by defining state **methods** that override the object’s methods. Consumers of the object simply call its methods as usual, and need not be aware of the object’s current state, or even that a concept of state exists at all. State methods [are invoked in the context of the state](#concepts--methods--context) in which the method is defined, allowing for polymorphic features like invoking the overridden methods of a superstate.
+* [**Methods**](#concepts--methods) — Behavior is modeled by defining state **methods** that override the object’s methods. Consumers of the object simply call its methods as usual, and need not be aware of the object’s current state, or even that a concept of state exists at all. State methods [are invoked in the context of the state](#concepts--methods--context) in which the method is defined, and may also be transformed to include further [bindings to its state–lexical environment](#concepts--methods--lexical-bindings).
 
 * [**Transitions**](#concepts--transitions) — When an object is directed to change from one state to another, it does so by temporarily entering into a **transition** state. A state expression may include [**transition expressions**](#concepts--transitions--expressions) that describe, given a specific pairing of origin and target states, a synchronous or asynchronous **action** to be performed over the duration of the transition.
 
