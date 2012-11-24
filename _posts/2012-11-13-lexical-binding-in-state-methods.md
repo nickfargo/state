@@ -122,9 +122,11 @@ It’s important to note that a rewritten function necessarily abandons the scop
 * [`bindings`] : object
 * [`fn`] : function
 
-This creates and returns a lexical state method **factory**, a higher-order function which can only be called internally during the construction of a `State` instance, as this is precisely when the lexical environment of interest is created. Once this is called, it produces a lexical state method that is the transformation of the provided `fn`. This method is closed over any provided `bindings`, and includes additional bindings for the special variables `autostate`, `protostate`, `superstate`, and `owner`.
+Calling `state.method` creates and returns a factory, a higher-order function which produces a lexical state method that is the transformation of the provided `fn`. This method is closed over any provided `bindings`, and includes additional bindings for the special variables `autostate`, `protostate`, `superstate`, and `owner`.
 
-If no `fn` is provided, then a function partially applied with `bindings` is returned, which will later accept a `fn` and return the lexical state method.
+If no `fn` is provided, then a function partially applied with `bindings` is returned, which will later accept a `fn` and return the lexical state method factory.
+
+The factory can only be called internally, and this occurs either during the construction of a `State` instance, as this is precisely when the lexical environment of interest is created, or as methods are added to a mutable `State`.
 
 #### [`state.method` in action](#state-method-in-action)
 
@@ -137,6 +139,7 @@ The `state.method` function is generally used within the `expression` object of 
 {% highlight coffeescript %}
 {% include examples/blog/2012-11-13/6.coffee %}
 {% endhighlight %}
+
 
 ### [Revisiting the “three²-body problem”](#revisiting-the-three-squared-body-problem)
 
