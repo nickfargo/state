@@ -45,19 +45,19 @@ var p = ( function () {
                     var stuff;
                     var ok = true;
 
-                    stuff = autostate.apply( 'lexical', arguments );
+                    stuff = autostate.call( 'lexical', param );
                     ok && ( ok =
                         stuff.question === q &&
                         stuff.answer === a &&
                         stuff.param === param
                     );
 
-                    stuff = protostate.apply( 'inherited', arguments );
+                    stuff = protostate.call('inherited');
                     ok && ( ok =
                         stuff.autostate === protostate &&
                         stuff.protostate === undefined &&
                         stuff.superstate === superstate.protostate() &&
-                        stuff.owner === Object.getPrototypeOf( owner )
+                        stuff.owner.isPrototypeOf( owner )
                     );
 
                     return ok;

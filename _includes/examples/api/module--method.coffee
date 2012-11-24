@@ -23,18 +23,18 @@ class Class
         ( param ) ->
           ok = yes
 
-          stuff = autostate.apply 'lexical', arguments
+          stuff = autostate.call 'lexical', param
           ok and =
             stuff.question is q and
             stuff.answer is a and
             stuff.param is param
 
-          stuff = protostate.apply 'inherited', arguments
+          stuff = protostate.call 'inherited'
           ok and =
             stuff.autostate is protostate and
             stuff.protostate is undefined and
             stuff.superstate is superstate.protostate() and
-            stuff.owner is Object.getPrototypeOf owner
+            stuff.owner.isPrototypeOf owner
 
 o = new Class
 o.state '-> A'
