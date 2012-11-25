@@ -761,7 +761,7 @@ blockquote ol {
     list-style-type: none;
   }
   .toc .fg ul li {
-    line-height: 1.33
+    line-height: 1.414213562373;
   }
   .toc .fg > ul ul {
     font-size: 95%;
@@ -770,15 +770,18 @@ blockquote ol {
   .toc .fg > ul ul a {
     font-size: 90%;
   }
+  .toc .fg > ul ul ul ul a {
+    font-size: 12px;
+  }
   .toc .fg > ul > ul ul {
     font-size: 90%;
-    margin: 0 0 0.5em 1em;
   }
   .toc .fg > ul > li {
     margin: 0 0 0.5em;
   }
   .toc .fg ul li a {
     color: #00438A;
+    line-height: 1.414213562373;
   }
   .toc .fg ul li a:hover {
     color: #002245;
@@ -1015,6 +1018,7 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   margin: -120px auto -160px;
   background-image: url(/img/dodecagem-glow-640px.png);
   background-size: contain;
+  background-repeat: no-repeat;
 }
 #index p {
   font-size: 20px;
@@ -1134,5 +1138,130 @@ only screen and (   min--moz-device-pixel-ratio: 2),
 only screen and (     -o-min-device-pixel-ratio: 2/1) { 
   #index .logo {
     background-image: url(/img/dodecagem-glow-1280px.png);
+  }
+}
+
+@media (max-width: 500px) {
+  body, p {
+    font-size: 12px;
+    line-height: 16px;
+  }
+  h1 { font-size: 24px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 18px; }
+  h4 { font-size: 16px; }
+  h5 { font-size: 14px; }
+  h6 { font-size: 12px; }
+  h1, h2, h3, h4, h5, h6 { line-height: 1.25em; }
+  p,
+  li {
+    font-size: 12px;
+    line-height: 18px;
+  }
+  pre {
+    font-size: 10px;
+    line-height: 14px;
+    background: transparent;
+    border: none;
+    padding: 0.75em 0 0.75em 0.5em;
+    margin-right: -6px;
+  }
+  .container {
+    width: 100%;
+  }
+  .topbar {
+    height: 51px;
+  }
+  .topbar .fill {
+    height: 44px;
+  }
+  .topbar .fill .bg {
+    height: 44px;
+  }
+  .topbar a.brand {
+    max-height: 30px;
+    font-size: 30px;
+    padding: 12px 9px 9px;
+  }
+  .topbar ul.nav {
+    margin: 0;
+  }
+  .topbar ul li a {
+    max-height: 9px;
+    min-width: 22px;
+    padding: 27px 6px 15px;
+    font-size: 9px;
+    line-height: 16px;
+    text-align: center;
+  }
+  .topbar ul li a[href*="://github.com/"] {
+    width: auto;
+  }
+  .topbar ul li a[href*="://github.com/"] span.invertocat {
+    left: 0px;
+    top: -2px;
+    font-size: 16px;
+  }
+  .topbar ul li a[href*="://github.com/"] span.external-link {
+    display: none;
+  }
+  .toc {
+    display: none;
+  }
+  .controls,
+  .controls.overlaid {
+    z-index: 1;
+    width: 100%;
+    background-color: hsla(0, 0%, 95%, 0.8);
+    box-shadow: 0px -5px 10px hsla(0, 0%, 25%, 0.1);
+  }
+  .content {
+    padding-top: 56px;
+  }
+  .content .markdown-body {
+    left: 0;
+    width: inherit;
+    margin: 10px;
+  }
+  .content a.download {
+    font-size: 15px;
+  }
+  .content a.download[href^="/omicron"] {
+    font-size: 12px;
+  }
+  footer {
+    width: 100%;
+    font-size: 8px;
+    padding-bottom: 36px;
+    margin-top: 60px;
+  }
+  footer ul {
+    padding: 0;
+  }
+  footer p,
+  footer ul li {
+    font-size: inherit;
+    padding: 4px;
+  }
+
+  #index .markdown-body {
+    left: 0;
+    width: auto;
+  }
+  #index .logo {
+    width: 320px;
+    height: 320px;
+    margin: -80px auto -80px;
+  }
+  #index p {
+    font-size: 13px;
+    line-height: 18px;
+  }
+  #index pre {
+    padding: 0.5em 0em 3em 6px;
+    background: transparent;
+    border: none;
+    font-size: 10px;
+    line-height: 14px;
   }
 }

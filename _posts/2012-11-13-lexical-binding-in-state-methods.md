@@ -88,11 +88,13 @@ The result of this pattern will be the user unexpectedly seeing `m` called multi
 {% include examples/blog/2012-11-13/5.coffee %}
 {% endhighlight %}
 
-### [`this`: super-lexical, proto-dynamic](#this-super-lexical-proto-dynamic)
+### [`this` — super-lexical, proto-dynamic](#this-super-lexical-proto-dynamic)
 
-The lingering problem is again a question of lexical versus dynamic bindings. While the method’s context is lexically bound along the superstate axis, because state methods may also be inherited from protostates, its context is, and must be, dynamic along the protostate axis. Expressed as an invariant, when a state method is called on behalf of `o`, it must assert that `this.owner() === o` — its `this` must always reference a `State` in the state tree of `o` — regardless of whether the method is defined in a `State` of `o`, or of `p`, `q` or any other prototype of `o`.
+The lingering problem is again a question of lexical versus dynamic bindings. While a state method’s context is **lexically bound along the superstate axis**, because methods may also be inherited from protostates, its context is, and must be, **dynamically bound along the protostate axis**.
 
-Consequently, a state method has no way to determine from its `this` context alone which of the calling owner’s prototypes the method belongs to. It also follows, then, that it is impossible to have precise lexical knowledge about the value of the expression `this.protostate()`.
+> This relationship can be expressed as an invariant: given object `o` with prototypes `p`, `q`, etc., whenever a state method is called on behalf of `o`, it must assert that `this.owner() === o`. That is, its `this` will always reference a `State` in the state tree of `o` — regardless of whether the method is defined in a `State` of `o`, or is inherited from a `State` of `p`, `q`, or any other prototype of `o`.
+
+The consequence of this invariance is that a state method has no way to determine from its `this` context alone which of the calling owner’s prototypes the method belongs to. It also follows, then, that it is impossible to have precise lexical knowledge about the value of the expression `this.protostate()`.
 
 An acceptable solution, therefore, will have to involve a combination of relevant lexical and dynamic bindings.
 
@@ -117,16 +119,18 @@ Version **0.0.7** of **State.js** adds a module-level function called [`state.me
 
 It’s important to note that a rewritten function necessarily abandons the scope chain of its original, so to reproduce the scoping environment, authors may include a `bindings` object containing any variable bindings they want preserved for use within the generated method.
 
+#### [The method factory](#the-method-factory)
+
 `state.method( bindings, fn )` : function
 
 * [`bindings`] : object
 * [`fn`] : function
 
-Calling `state.method` creates and returns a **factory**, a higher-order function which produces a lexical state method that is the transformation of `fn` appropriated to the `State` in which the method is defined. The method is closed over any provided `bindings`, and includes additional bindings for the special variables `autostate`, `protostate`, `superstate`, and `owner`.
+Calling `state.method` creates and returns a **factory**, a higher-order function which produces a lexical state method that is the transformation of `fn` appropriated to the `State` in which the method is defined. The generated method is closed over any provided `bindings`, and includes additional bindings for the special variables `autostate`, `protostate`, `superstate`, and `owner`.
 
 If no `fn` is provided, then a function partially applied with `bindings` is returned, which will later accept a `fn` and return the lexical state method factory as described above.
 
-The factory can only be called internally. This occurs either during the construction of a `State` instance when the lexical environment is first created, or as methods are added to an existing mutable `State`.
+The factory may be passed around at will, but it can only be called internally by **State.js**. This occurs either during the construction of a `State` instance when the lexical environment is first created, or as methods are added to an existing mutable `State`.
 
 #### [`state.method` in action](#state-method-in-action)
 
@@ -178,7 +182,7 @@ Similarly, the desired lexical `State` references of `autostate` and `protostate
 
 For some, the extra layer of complexity that arises from a two-dimensional inheritance space may be enough to suggest or reinforce the virtues of adhering to patterns of composition rather than inheritance.
 
-Practicing composition with stateful objects requires that any such object be able to cleanly export its state tree, so that it can be “mixed-in” to another object. Here the [`StateExpression`](/source/#state-expression) data structure and the [`express`](/api/#state--methods--express) method assert their utility.
+Exercising composition with stateful objects requires that any such object be able to cleanly export its state tree, so that it can be “mixed-in” to another object. Here the [`StateExpression`](/source/#state-expression) data structure and the [`express`](/api/#state--methods--express) method assert their utility.
 
 {% highlight javascript %}
 state( target, source.state('').express() );
@@ -196,4 +200,4 @@ target.state('').mutate( source.state('').express() );
 target.state('').mutate source.state('').express()
 {% endhighlight %}
 
-The call to `express` from the root state outputs a deep clone of the entire tree as a `StateExpression`, which can be fed right into [`state()`](/api/#module) or `mutate()`. Methods produced by `state.method` will be regenerated in their new environment as necessary. Lost are the dynamic prototypal relationship and the memory savings that follow, but so too is some of the complexity that would have entailed.
+The call to `express` from the root state outputs a deep clone of the entire tree as a `StateExpression`, which can be fed right into [`state()`](/api/#module) or `mutate()`. Methods produced by `state.method` will be regenerated in their new environment as necessary. Lost are the dynamic prototypal relationship and the memory savings that follow, but, depending on your point view, so too may be some of the complexity and rigidity that such a model might have entailed.
