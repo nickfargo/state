@@ -254,7 +254,9 @@ var STATE_ATTRIBUTES = {
 //
 };
 
-// #### [State attribute modifiers](#module--constants--state-attribute-modifiers)
+// #### [Name sets](#module--constants--name-sets)
+
+// ##### [State attribute modifiers](#module--constants--name-sets--state-attribute-modifiers)
 // 
 // The subset of attributes that are valid or reserved keywords for the
 // `attributes` argument in a call to the exported [`state`](#module)
@@ -268,27 +270,27 @@ var STATE_ATTRIBUTE_MODIFIERS = [
         'concurrent'
     ].join(' ');
 
-// #### [State expression categories](#module--constants--state-expression-categories)
+// ##### [State expression categories](#module--constants--name-sets--state-expression-categories)
 var STATE_EXPRESSION_CATEGORIES =
         'data methods events guards states transitions';
 
-// #### [State event types](#module--constants--state-event-types)
+// ##### [State event types](#module--constants--name-sets--state-event-types)
 var STATE_EVENT_TYPES =
         'construct depart exit enter arrive destroy mutate noSuchMethod';
 
-// #### [Guard actions](#module--constants--guard-actions)
+// ##### [Guard actions](#module--constants--name-sets--guard-actions)
 var GUARD_ACTIONS =
         'admit release';
 
-// #### [Transition properties](#module--constants--transition-properties)
+// ##### [Transition properties](#module--constants--name-sets--transition-properties)
 var TRANSITION_PROPERTIES =
         'origin source target action conjugate';
 
-// #### [Transition expression categories](#module--constants--transition-expression-categories)
+// ##### [Transition expression categories](#module--constants--name-sets--transition-expression-categories)
 var TRANSITION_EXPRESSION_CATEGORIES =
         'methods events guards';
 
-// #### [Transition event types](#module--constants--transition-event-types)
+// ##### [Transition event types](#module--constants--name-sets--transition-event-types)
 var TRANSITION_EVENT_TYPES =
         'construct destroy enter exit start end abort';
 
@@ -315,12 +317,12 @@ var __MODULE__ = O.env.server ? module : { exports: state };
 //
 // > [Lexical binding in state methods](/blog/lexical-binding-in-state-methods/)
 state.method = ( function () {
-    var lexicals = [ 'state', 'autostate', 'protostate' ];
+    var lexicals = [ '__State__', 'autostate', 'protostate' ];
 
-    var rx = /^(function\b\s*(?:[$_A-Za-z])?\s*\((?:.*?)\)\s*\{)([\s\S]*)/;
+    var rx = /^(function\b\s*(?:[$_A-Za-z][$\w]*)?\s*\((?:[\s\S]*?)\)\s*\{)([\s\S]*)/;
     var s = "return $1\n" +
             "  var superstate, owner;\n" +
-            "  if ( this instanceof state.State ) {\n" +
+            "  if ( this instanceof __State__ ) {\n" +
             "    superstate = this.superstate();\n" +
             "    owner = this.owner();\n" +
             "  }\n" +
@@ -368,7 +370,7 @@ state.method = ( function () {
         params = identifiers.concat( lexicals );
 
         // Gather all the values that will be mapped to the `params`.
-        args = [ state, autostate, autostate.protostate() ];
+        args = [ State, autostate, autostate.protostate() ];
         values.length && ( args = values.concat( args ) );
 
         // Write the body of the function that wraps `fn`, and inject `fn` with

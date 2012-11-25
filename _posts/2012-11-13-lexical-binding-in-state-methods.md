@@ -88,32 +88,32 @@ The result of this pattern will be the user unexpectedly seeing `m` called multi
 {% include examples/blog/2012-11-13/5.coffee %}
 {% endhighlight %}
 
-### [Super-lexical, proto-dynamic](#super-lexical-proto-dynamic)
+### [`this`: super-lexical, proto-dynamic](#this-super-lexical-proto-dynamic)
 
-The lingering problem is again a question of lexical versus dynamic bindings. The method’s context is lexically bound along the superstate axis, but because state methods may also be inherited from protostates, the method’s context is, and must be, dynamic along the protostate axis — i.e., when called on behalf of `o`, a state method’s `this` will always reference a `State` in the state tree of `o`. Accordingly, the method has no way to know which of the calling owner’s prototypes it belongs to, and so it is impossible to determine the precise meaning of `this.protostate()`.
+The lingering problem is again a question of lexical versus dynamic bindings. While the method’s context is lexically bound along the superstate axis, because state methods may also be inherited from protostates, its context is, and must be, dynamic along the protostate axis. Expressed as an invariant, when a state method is called on behalf of `o`, it must assert that `this.owner() === o` — its `this` must always reference a `State` in the state tree of `o` — regardless of whether the method is defined in a `State` of `o`, or of `p`, `q` or any other prototype of `o`.
 
-In fact, this time there’s even less information available: whereas superstates are containers of substates, the concept of protostates is strictly an artifact of the owner object’s prototype chain. Just as a prototype has no knowledge of the objects that inherit from it, so too is a protostate unaware of the existence of its inheriting epistates.
+Consequently, a state method has no way to determine from its `this` context alone which of the calling owner’s prototypes the method belongs to. It also follows, then, that it is impossible to have precise lexical knowledge about the value of the expression `this.protostate()`.
 
-Simply binding `this` to the protostate from which it is inherited is therefore not an option, as this would clobber the semantic value of `this.owner()`, which must remain dynamic along the protostate axis, just as the context of a normal object method is dynamic over its prototype chain.
-
-An acceptable solution, therefore, will have to involve a combination of the necessary lexical and dynamic bindings.
+An acceptable solution, therefore, will have to involve a combination of relevant lexical and dynamic bindings.
 
 
 ## [Method transformation](#method-transformation)
 
-State methods depend on more lexical information than a bound `this` by itself can provide. To deal with this confined space, a number of alternatives might be easily proposed, and even more easily dismissed:
+State methods depend on more lexical information than a bound `this` by itself can provide. To deal with this confined space, a number of alternatives might be easily proposed, but just as easily dismissed:
 
 * A special context object could hold property references to the necessary dynamic and lexical references; however, a new object would have to be created for each invocation, which has the potential to become prohibitively expensive.
+
+* Lexically binding `this` to the precise `State` in which the method is defined would give precise meaning to `this.protostate()`; but this would violate the invariance of `this.owner()` referring to the calling object.
 
 * The arguments array must not be invaded; far too much confusion would arise from introducing inconsistencies across method signatures and calling patterns.
 
 * Neither can protostates simply be sworn off and their use discouraged, as they are in many cases every bit as useful a relation as superstates.
 
-None of these adequately builds state methods with the support they require. What’s needed is a way to automatically generate a new function, using the provided function as a base, that closes over the method’s static environment.
+None of these address the issue of adequately equipping state methods with the lexical support they require. What’s needed is a way to automatically generate a new function, using the provided function as a base, that closes over the method’s static environment.
 
 ### [Lexical state methods](#lexical-state-methods)
 
-Version 0.0.7 of **State.js** adds a module-level function called [`state.method`](/api/#module--method), which facilitates the creation of **lexical state methods** by transforming a provided function into one that includes relevant lexical bindings to the `State` objects that define the method’s environment.
+Version **0.0.7** of **State.js** adds a module-level function called [`state.method`](/api/#module--method), which facilitates the creation of **lexical state methods** by transforming a provided function into one that includes relevant lexical bindings to the `State` objects that define the method’s environment.
 
 It’s important to note that a rewritten function necessarily abandons the scope chain of its original, so to reproduce the scoping environment, authors may include a `bindings` object containing any variable bindings they want preserved for use within the generated method.
 
@@ -122,11 +122,11 @@ It’s important to note that a rewritten function necessarily abandons the scop
 * [`bindings`] : object
 * [`fn`] : function
 
-Calling `state.method` creates and returns a factory, a higher-order function which produces a lexical state method that is the transformation of the provided `fn`. This method is closed over any provided `bindings`, and includes additional bindings for the special variables `autostate`, `protostate`, `superstate`, and `owner`.
+Calling `state.method` creates and returns a **factory**, a higher-order function which produces a lexical state method that is the transformation of `fn` appropriated to the `State` in which the method is defined. The method is closed over any provided `bindings`, and includes additional bindings for the special variables `autostate`, `protostate`, `superstate`, and `owner`.
 
-If no `fn` is provided, then a function partially applied with `bindings` is returned, which will later accept a `fn` and return the lexical state method factory.
+If no `fn` is provided, then a function partially applied with `bindings` is returned, which will later accept a `fn` and return the lexical state method factory as described above.
 
-The factory can only be called internally, and this occurs either during the construction of a `State` instance, as this is precisely when the lexical environment of interest is created, or as methods are added to an existing mutable `State`.
+The factory can only be called internally. This occurs either during the construction of a `State` instance when the lexical environment is first created, or as methods are added to an existing mutable `State`.
 
 #### [`state.method` in action](#state-method-in-action)
 

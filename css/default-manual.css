@@ -1105,9 +1105,11 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
   font-size: 90%;
 }
 #source .text h4 {
-  font-size: 18px
+  font-size: 18px;
 }
-#source .text h5,
+#source .text h5 {
+  font-size: 16px;
+}
 #source .text h6 {
 }
 
