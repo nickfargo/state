@@ -1231,7 +1231,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   }
   footer {
     width: 100%;
-    font-size: 8px;
+    font-size: 7px;
     padding-bottom: 36px;
     margin-top: 60px;
   }
@@ -1263,5 +1263,28 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     border: none;
     font-size: 10px;
     line-height: 14px;
+  }
+
+  #blog-index .markdown-body {
+    left: 0;
+    width: auto;
+  }
+  #blog-index .date {
+    font-size: 9px;
+  }
+
+  #blog-post {
+  }
+  #blog-post .toc {
+    top: 120px;
+  }
+  #blog-post h2 {
+    margin-top: 40px;
+  }
+  #blog-post pre {
+    padding-left: 6px;
+  }
+  #blog-post .date {
+    font-size: 10px;
   }
 }
