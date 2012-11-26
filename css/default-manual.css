@@ -17,6 +17,9 @@
   font-style: normal;
 }
 
+html {
+  overflow-x: hidden;
+}
 body {
   background-color: #f1f1f1;
   background-image: url(/img/dust_f1c.png);
@@ -1009,8 +1012,9 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 
 
 #index .markdown-body {
-  left: 160px;
+  left: 0;
   width: 640px;
+  margin: 0 auto;
 }
 #index .logo {
   width: 640px;
@@ -1146,14 +1150,14 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     display: none;
   }
   .content {
-    max-width: 620px;
+    max-width: 680px;
     margin: 0 auto;
   }
   .content .markdown-body {
     left: 0;
     width: inherit;
-    max-width: 620px;
-    margin: 20px;
+    max-width: 640px;
+    margin: 0 20px;
   }
   .container {
     width: 100%;
@@ -1165,6 +1169,12 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     width: 100%;
     background-color: hsla(0, 0%, 95%, 0.8);
     box-shadow: 0px -5px 10px hsla(0, 0%, 25%, 0.1);
+  }
+
+  #index .markdown-body {
+    left: 0;
+    width: auto;
+    margin: 0 20px;
   }
 
   #blog-index .markdown-body {
@@ -1233,10 +1243,6 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     padding: 4px;
   }
 
-  #index .markdown-body {
-    left: 0;
-    width: auto;
-  }
   #index .logo {
     width: 440px;
     height: 440px;
@@ -1333,8 +1339,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   }
 
   #index .markdown-body {
-    left: 0;
-    width: auto;
+    margin: 0 10px;
   }
   #index .logo {
     width: 320px;
