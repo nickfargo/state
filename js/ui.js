@@ -216,6 +216,29 @@ $( function () {
 });
 
 
+// ### Chrome toggling on touch devices
+//
+$( function () {
+  var $document = $(document);
+  var $chrome = $('.topbar, .controls');
+  var togglePending = null;
+  
+  $document.on( 'touchstart', function ( event ) {
+    if ( event.target.href ) return;
+    togglePending = true;
+  });
+  $document.on( 'touchmove', function ( event ) {
+    togglePending && ( togglePending = false );
+  });
+  $document.on( 'touchend', function ( event ) {
+    if ( togglePending ) {
+      $chrome.toggleClass('touch-hidden');
+      togglePending = null;
+    }
+  });
+});
+
+
 // ### Polyglot
 //
 // Assumes contiguous `.highlight` code blocks to be linguistically analagous,
@@ -322,6 +345,7 @@ $( function () {
       var hiddenLanguage, $el, localOffset;
 
       event.preventDefault();
+      event.stopPropagation();
 
       hiddenLanguage = language.selected;
       if ( initialized && activeLanguage === hiddenLanguage ) return;
@@ -387,8 +411,8 @@ $( function () {
   }
 
   // Create event listeners and delegate them to the language controls.
-  javascript.$control.click( makeListenerFor('javascript') );
-  coffeescript.$control.click( makeListenerFor('coffeescript') );
+  javascript.$control.on( 'click', makeListenerFor('javascript') );
+  coffeescript.$control.on( 'click', makeListenerFor('coffeescript') );
 
   // Simulate a click event to initialize the UI and code blocks.
   language[ language.selected ].$control.click();
@@ -488,7 +512,7 @@ $( function () {
 
     $window
       .on( 'scroll', refresh )
-      .on( 'resize', reflow )
+      .on( 'resize orientationchange', reflow )
     ;
 
     $viewportRect = $('<div class="viewport">').appendTo('.toc .bg');

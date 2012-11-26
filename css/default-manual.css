@@ -23,6 +23,7 @@ html {
 body {
   background-color: #f1f1f1;
   background-image: url(/img/dust_f1c.png);
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 body,
 p {
@@ -226,9 +227,15 @@ blockquote ol {
 
 .topbar {
   position: fixed;
+  top: 0;
+  -webkit-transition: top 0.4s ease-out;
   height: 108px;
   box-shadow:       0 0 20px rgba(16, 32, 48, 0.5),
               inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+.topbar.touch-hidden {
+  top: -102px;
+  -webkit-transition: top 0.2s ease-in;
 }
   .topbar .fill {
     height: 101px;
@@ -814,10 +821,15 @@ blockquote ol {
   width: 280px;
   height: 36px;
   background-color: #f1f1f1;
+  -webkit-transition: opacity 0.15s ease-out;
 }
 .controls.overlaid {
   box-shadow: -20px -10px 20px #f1f1f1;
   border-top: 1px solid #eee;
+}
+.controls.touch-hidden {
+  opacity: 0;
+  -webkit-transition: opacity 0.4s ease-out;
 }
   .controls ul {
     margin: 0;
@@ -1085,7 +1097,7 @@ li[class^="icon-"].icon-large:before, li[class*=" icon-"].icon-large:before {
 }
 #blog-post .lede p {
   font-size: 125%;
-  line-height: 1.33;
+  line-height: 1.44;
 }
 
 
@@ -1192,39 +1204,42 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   .topbar {
     height: 79px;
   }
-  .topbar .fill {
-    height: 72px;
+  .topbar.touch-hidden {
+    top: -73px;
   }
-  .topbar .fill .bg {
-    height: 72px;
-  }
-  .topbar a.brand {
-    max-height: 40px;
-    font-size: 40px;
-    padding: 27px 12px 12px;
-  }
-  .topbar ul.nav {
-    margin: 0;
-  }
-  .topbar ul li a {
-    max-height: 16px;
-    min-width: 30px;
-    padding: 48px 9px 15px;
-    font-size: 16px;
-    line-height: 16px;
-    text-align: center;
-  }
-  .topbar ul li a[href*="://github.com/"] {
-    width: auto;
-  }
-  .topbar ul li a[href*="://github.com/"] span.invertocat {
-    left: 0px;
-    top: -3px;
-    font-size: 24px;
-  }
-  .topbar ul li a[href*="://github.com/"] span.external-link {
-    display: none;
-  }
+    .topbar .fill {
+      height: 72px;
+    }
+    .topbar .fill .bg {
+      height: 72px;
+    }
+    .topbar a.brand {
+      max-height: 40px;
+      font-size: 40px;
+      padding: 27px 12px 12px;
+    }
+    .topbar ul.nav {
+      margin: 0;
+    }
+    .topbar ul li a {
+      max-height: 16px;
+      min-width: 30px;
+      padding: 48px 9px 15px;
+      font-size: 16px;
+      line-height: 16px;
+      text-align: center;
+    }
+    .topbar ul li a[href*="://github.com/"] {
+      width: auto;
+    }
+    .topbar ul li a[href*="://github.com/"] span.invertocat {
+      left: 0px;
+      top: -3px;
+      font-size: 24px;
+    }
+    .topbar ul li a[href*="://github.com/"] span.external-link {
+      display: none;
+    }
   .content {
     padding-top: 88px;
   }
@@ -1234,14 +1249,14 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     padding-bottom: 36px;
     margin-top: 60px;
   }
-  footer ul {
-    padding: 0;
-  }
-  footer p,
-  footer ul li {
-    font-size: inherit;
-    padding: 4px;
-  }
+    footer ul {
+      padding: 0;
+    }
+    footer p,
+    footer ul li {
+      font-size: inherit;
+      padding: 4px;
+    }
 
   #index .logo {
     width: 440px;
@@ -1289,51 +1304,53 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   .topbar {
     height: 51px;
   }
-  .topbar .fill {
-    height: 44px;
+  .topbar.touch-hidden {
+    top: -45px;
   }
-  .topbar .fill .bg {
-    height: 44px;
-  }
-  .topbar a.brand {
-    max-height: 30px;
-    font-size: 30px;
-    padding: 12px 9px 9px;
-  }
-  .topbar ul.nav {
-    margin: 0;
-  }
-  .topbar ul li a {
-    max-height: 9px;
-    min-width: 22px;
-    padding: 27px 6px 15px;
-    font-size: 9px;
-    line-height: 16px;
-    text-align: center;
-  }
-  .topbar ul li a[href*="://github.com/"] {
-    width: auto;
-  }
-  .topbar ul li a[href*="://github.com/"] span.invertocat {
-    left: 0px;
-    top: -2px;
-    font-size: 16px;
-  }
-  .topbar ul li a[href*="://github.com/"] span.external-link {
-    display: none;
-  }
+    .topbar .fill {
+      height: 44px;
+    }
+    .topbar .fill .bg {
+      height: 44px;
+    }
+    .topbar a.brand {
+      max-height: 30px;
+      font-size: 30px;
+      padding: 12px 9px 9px;
+    }
+    .topbar ul.nav {
+      margin: 0;
+    }
+    .topbar ul li a {
+      max-height: 14px;
+      min-width: 28px;
+      padding: 22px 9px 15px;
+      font-size: 14px;
+      line-height: 20px;
+    }
+    .topbar ul li a[href*="://github.com/"] {
+      width: auto;
+    }
+    .topbar ul li a[href*="://github.com/"] span.invertocat {
+      left: 0px;
+      top: -2px;
+      font-size: 16px;
+    }
+    .topbar ul li a[href*="://github.com/"] span.external-link {
+      display: none;
+    }
   .content {
     padding-top: 56px;
   }
-  .content .markdown-body {
-    margin: 10px;
-  }
-  .content a.download {
-    font-size: 15px;
-  }
-  .content a.download[href^="/omicron"] {
-    font-size: 12px;
-  }
+    .content .markdown-body {
+      margin: 10px;
+    }
+    .content a.download {
+      font-size: 15px;
+    }
+    .content a.download[href^="/omicron"] {
+      font-size: 12px;
+    }
   footer {
     font-size: 8px;
   }
@@ -1342,9 +1359,9 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     margin: 0 10px;
   }
   #index .logo {
-    width: 320px;
-    height: 320px;
-    margin: -80px auto;
+    width: 300px;
+    height: 300px;
+    margin: -60px auto;
   }
   #index p {
     font-size: 13px;
@@ -1359,6 +1376,20 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   }
 
   #blog-post pre {
-    padding-left: 0px;
+    padding-left: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .topbar ul li a {
+    max-height: 9px;
+    min-width: 22px;
+    padding: 27px 6px 15px;
+    font-size: 9px;
+    line-height: 16px;
+    text-align: center;
+  }
+  #index pre {
+    padding-left: 6px;
   }
 }
