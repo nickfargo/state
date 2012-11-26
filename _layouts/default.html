@@ -26,6 +26,26 @@
     <link rel="apple-touch-icon" href="/img/dodecagem-glow-180px.png" />
 
     <noscript><style> .highlight pre { display: block; } </style></noscript>
+
+    <script>
+      ( function () {
+        var location, rxAnchorTag;
+        if ( navigator.standalone ) {
+          location = document.location;
+          rxAnchorTag = /^html|a$/i;
+          document.addEventListener( 'click', function ( event ) {
+            var el = event.target, href;
+            while ( !rxAnchorTag.test( el.nodeName ) ) el = el.parentNode;
+            href = el.href;
+            if ( typeof href !== 'string' ) return;
+            if ( !~href.indexOf('http') || ~href.indexOf( location.host ) ) {
+              event.preventDefault();
+              location.href = href;
+            }
+          });
+        }
+      }() );
+    </script>
   </head>
   <body>
     <div class="topbar">
