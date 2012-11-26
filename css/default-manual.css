@@ -1142,10 +1142,108 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 }
 
 @media (max-width: 960px) {
-  
+  .container {
+    width: 100%;
+  }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 800px) {
+  .topbar {
+    height: 79px;
+  }
+  .topbar .fill {
+    height: 72px;
+  }
+  .topbar .fill .bg {
+    height: 72px;
+  }
+  .topbar a.brand {
+    max-height: 40px;
+    font-size: 40px;
+    padding: 27px 12px 12px;
+  }
+  .topbar ul.nav {
+    margin: 0;
+  }
+  .topbar ul li a {
+    max-height: 16px;
+    min-width: 30px;
+    padding: 48px 9px 15px;
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+  }
+  .topbar ul li a[href*="://github.com/"] {
+    width: auto;
+  }
+  .topbar ul li a[href*="://github.com/"] span.invertocat {
+    left: 0px;
+    top: -3px;
+    font-size: 24px;
+  }
+  .topbar ul li a[href*="://github.com/"] span.external-link {
+    display: none;
+  }
+  .toc {
+    display: none;
+  }
+  .content {
+    padding-top: 88px;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .content .markdown-body {
+    left: 0;
+    width: inherit;
+    max-width: 620px;
+    margin: 20px;
+  }
+  .controls,
+  .controls.overlaid {
+    z-index: 1;
+    left: 0;
+    width: 100%;
+    background-color: hsla(0, 0%, 95%, 0.8);
+    box-shadow: 0px -5px 10px hsla(0, 0%, 25%, 0.1);
+  }
+  footer {
+    width: 100%;
+    font-size: 11px;
+    padding-bottom: 36px;
+    margin-top: 60px;
+  }
+  footer ul {
+    padding: 0;
+  }
+  footer p,
+  footer ul li {
+    font-size: inherit;
+    padding: 4px;
+  }
+
+  #index .markdown-body {
+    left: 0;
+    width: auto;
+  }
+  #index .logo {
+    width: 440px;
+    height: 440px;
+    margin: -120px auto;
+  }
+  #index p {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  #index pre {
+    padding: 0.5em 0em 3em 6px;
+    background: transparent;
+    border: none;
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
   body, p {
     font-size: 12px;
     line-height: 16px;
@@ -1169,9 +1267,6 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     border: none;
     padding: 0.75em 0 0.75em 0.5em;
     margin-right: -6px;
-  }
-  .container {
-    width: 100%;
   }
   .topbar {
     height: 51px;
@@ -1209,22 +1304,10 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   .topbar ul li a[href*="://github.com/"] span.external-link {
     display: none;
   }
-  .toc {
-    display: none;
-  }
-  .controls,
-  .controls.overlaid {
-    z-index: 1;
-    width: 100%;
-    background-color: hsla(0, 0%, 95%, 0.8);
-    box-shadow: 0px -5px 10px hsla(0, 0%, 25%, 0.1);
-  }
   .content {
     padding-top: 56px;
   }
   .content .markdown-body {
-    left: 0;
-    width: inherit;
     margin: 10px;
   }
   .content a.download {
@@ -1234,18 +1317,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     font-size: 12px;
   }
   footer {
-    width: 100%;
     font-size: 8px;
-    padding-bottom: 36px;
-    margin-top: 60px;
-  }
-  footer ul {
-    padding: 0;
-  }
-  footer p,
-  footer ul li {
-    font-size: inherit;
-    padding: 4px;
   }
 
   #index .markdown-body {
