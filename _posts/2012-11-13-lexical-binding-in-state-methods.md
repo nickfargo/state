@@ -9,15 +9,23 @@ lede: Binding a [state method](/docs/#concepts--methods)’s context to its cont
 
 ## [Serving two masters](#serving-two-masters)
 
-States can hold methods, which can serve as [delegation targets](/docs/#concepts--methods--delegators) for the methods of a stateful owner object. Just as normal methods use `this` to reference the object they serve, state methods also require a reference to a context.
+One type of content a [`State`](/api/#state) can hold is [methods](/docs/#concepts--methods). Methods of a `State` serve as [delegation targets](/docs/#concepts--methods--delegators) for the methods of the **owner** object to which the `State` belongs.
 
-However, a wrinkle is added by the arrangement of `State`s into hierarchies and across prototypes. A state method must serve both its containing `State` as well as the owner, and so it needs to hold multiple contextual references — something that cannot be facilitated directly by `this` alone.
+Normal methods have `this` to reference the object they serve, and likewise state methods also require a reference to a context. As `State`s themselves exist to serve an owner, it may stand to reason that state methods should be applied in the context of that owner.
+
+However, a wrinkle is added by the arrangement of `State`s [into hierarchies](/docs/#concepts--inheritance--superstates-and-substates) and [across prototypes](/docs/#concepts--inheritance--protostates). These relationships allow a state method to be inherited from any of several related `State`s, and this requires that a method be able to serve, at once:
+
+* its containing `State`
+* the owner being served by the `State`
+* if the method is prototypally inherited, the projection of the containing `State` onto an analog within the owner’s state tree.
+
+State methods must therefore have the capacity to reference multiple contexts — something that cannot be facilitated directly by `this` alone.
 
 ### [The naïve approach](#the-naive-approach)
 
-Least-surprise might suggest that, since state methods are meant to act as stand-ins for methods of the owner, they ought to be applied accordingly, in the context of the owner.
+Least-surprise may at first glance suggest that, since state methods are meant to act as stand-ins for methods of the owner, they ought to be applied accordingly, in the context of the owner.
 
-Doing so maintains referential equivalence of `this`, irresepective of whether a method was defined on the owner object as usual, or as a member of one of the owner’s states. The method’s containing `State` might then be extracted by calling `this.state()` — after all, for a method to become a delegation target in the first place, we may expect the owner to be occupying that method’s `State` as its current state.
+Doing so maintains referential equivalence of `this`, irresepective of whether a method was defined on the owner object as usual, or as a member of one of the owner’s states. The method’s containing `State` might then be extracted by calling `this.state()` — after all, for a method to become a delegation target in the first place, we may expect the owner to be occupying that method’s `State` as its **current state**.
 
 {% highlight javascript %}
 {% include examples/blog/2012-11-13/1.js %}
@@ -27,7 +35,7 @@ Doing so maintains referential equivalence of `this`, irresepective of whether a
 {% include examples/blog/2012-11-13/1.coffee %}
 {% endhighlight %}
 
-But this approach falls apart when it comes time for a substate to inherit the method from a superstate. While the superstate that contains the method is **active**, it is the substate that is **current**, and which will therefore be returned by `this.state()`:
+But this approach falls apart when it comes time for a substate to inherit the method from a superstate. While the superstate that contains the method is **active**, it is the substate that is current, and which will therefore be returned by `this.state()`:
 
 {% highlight javascript %}
 {% include examples/blog/2012-11-13/2.js %}
@@ -37,7 +45,7 @@ But this approach falls apart when it comes time for a substate to inherit the m
 {% include examples/blog/2012-11-13/2.coffee %}
 {% endhighlight %}
 
-So with context bound to the owner, a state method has no regular means of reliably identifying the `State` to which it belongs. The `this.state()` idiom, along with the subsequent [`superstate()`](/api/state--methods--superstate) call, are effectively dynamic references, possibly changing with each transition, and so the state method body simply cannot ascertain the semantic value of either one.
+So with context bound to the owner, a state method has no idiomatic way to reliably identify the `State` to which it belongs. The expression `this.state()`, along with the subsequent [`.superstate()`](/api/state--methods--superstate) call, are effectively dynamic references, possibly changing with each transition, and so the state method body simply cannot ascertain the semantic value of either one.
 
 ### [Lexical state context](#lexical-state-context)
 
