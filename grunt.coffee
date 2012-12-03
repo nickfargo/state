@@ -61,6 +61,35 @@ module.exports = ( grunt ) ->
           """
         dest: 'state' + ext
 
+      tests:
+        src: list 'test/unit/', '.test.js', """
+          TestObject
+          
+          state-expression
+
+          state/core
+          state/virtualization
+          state/expression
+          state/mutation
+          state/attributes
+          state/model
+          state/query
+          state/data
+          state/methods
+          state/guards
+
+          state-controller
+          state-event
+          state-method
+
+          TextDocument
+          """
+        dest: 'test/tests' + ext
+
+      publish_tests:
+        src: '<config:concat.tests.dest>'
+        dest: pub + 'tests/tests' + ext
+
     min:
       js:
         src: '<config:concat.js.dest>'
@@ -87,6 +116,7 @@ module.exports = ( grunt ) ->
     qunit:
       files: 'test/**/*.html'
 
+
   # Copy published source and related bits to gh-pages
   grunt.registerTask 'publish', '', ->
     files = list '', ext, """
@@ -95,7 +125,7 @@ module.exports = ( grunt ) ->
       ./node_modules/omicron/omicron
     """
 
-    do ->
+    copyFiles = ->
       n = files.length
       increment = ( err ) -> continuation err unless --n
       for source in files
@@ -107,6 +137,9 @@ module.exports = ( grunt ) ->
             fs.copy source, target, increment
           if exists then fs.unlink target, copy else do copy
       continuation = ->
+
+    do copyFiles
+
 
   # Generate annotated source HTML and copy to includes dir of gh-pages
   grunt.registerTask 'docco', '', ->
@@ -144,6 +177,7 @@ module.exports = ( grunt ) ->
     logError = ( err ) -> console.error "cleanup", err if err
     fs.unlink 'grunt.js', logError
     process.nextTick -> console.log "\n"
+
 
   grunt.registerTask 'default',
     "server #{tasks} cleanup watch"
