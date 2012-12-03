@@ -5,3 +5,4 @@ node_modules/*
 *-min.js
 .DS_Store
 _site/*
+test/tests.js
