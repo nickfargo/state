@@ -106,7 +106,10 @@ module.exports = ( grunt ) ->
       globals: O.assign( 'module exports require O state', true )
 
     watch:
-      files: '<config:concat.js.src>'
+      files: [
+        '<config:concat.js.src>'
+        '<config:concat.tests.src>'
+      ]
       tasks: tasks
 
     server:
