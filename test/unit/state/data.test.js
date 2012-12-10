@@ -77,3 +77,20 @@ test( "Data", function () {
 
     expect( 7 );
 });
+
+test( "has", function () {
+
+});
+
+test( "get", function () {
+
+});
+
+test( "let", function () {
+
+});
+
+test( "set", function () {
+
+});
+
