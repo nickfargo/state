@@ -326,6 +326,53 @@ test( "substates", function () {
 
 ( function () {
 
+    function Class () {}
+    state( Class.prototype, {
+        A: state( 'abstract', {
+            AA: state('default'),
+            AB: state,
+            AC: state
+        })
+    });
+
+    test( "favor", function () {
+        return;
+
+        var o = new Class;
+        state( o, {
+            AB: state // ambiguate A.AB
+        });
+
+        var A = o.state('A')
+            // Remove this once virtualization is automated.
+            .virtualize( o.state('') );
+
+        A.favor('AB');
+        o.state('-> A');
+        ok( o.state().is('A.AB'),
+            "Overrides default attribute on substate"
+        );
+        ok( !o.state().is('AB'),
+            "Must evaluate provided state path in context"
+        );
+
+        A.favor( null );
+        o.state('-> A');
+        ok( o.state().is('A.AA'),
+            "No-arg call must revert to attribute-based default"
+        );
+    });
+
+    test( "appoint", function () {
+        return;
+        
+        var o = new Class;
+        // o.state('A')
+    });
+}() );
+
+( function () {
+
     function Foo () {}
     state( Foo.prototype, {
         Buzzy: {},
