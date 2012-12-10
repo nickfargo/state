@@ -1,13 +1,13 @@
 {
     "name"          : "state",
-    "version"       : "0.0.7",
+    "version"       : "0.0.8",
     "description"   : "Objects that behave",
     "homepage"      : "http://statejs.org/",
     "keywords"      : [ "state", "transition", "behavior", "behaviour", "fsm", "machine", "state machine", "state transition system" ],
     "author"        : "Nick Fargo <nick@zvector.com>",
     "contributors"  : [],
     "dependencies"  : {
-        "omicron"   : ">=0.1.8"
+        "omicron"   : ">=0.1.9"
     },
     "repository"    : {
         "type"      : "git",
