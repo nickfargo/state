@@ -71,7 +71,7 @@ $( function () {
 
   $( document ).on( 'ready', scroll );
   $( window ).on( 'hashchange', scroll );
-  $('.toc, .markdown-body, #source .text')
+  $('.toc, .content .body, #source .text')
     .on( 'click', 'a[href^="#"]', scroll );
 });
 
@@ -96,18 +96,18 @@ $( function () {
 //
 // If a `.toc` element exists but contains no markup for a table of contents,
 // then generate one whose structure is based on the sequential ordering of
-// heading elements within `.markdown-body`. Like a parser, this function
+// heading elements within `.content .body`. Like a parser, this function
 // takes as input a stream of heading elements, and outputs a tree of `ul`s
 // and `li`s with matching text and anchors.
 $( function () {
   var i, l, stack, level, nextLevel;
-  var $el, $lookahead, $ul, $a;
+  var $el, $lookahead, $ul, $li, $a;
   var rx = /^h/i;
 
   var $fg = $('.toc .fg');
   if ( $fg.children().length ) return;
 
-  var $h = $('.markdown-body').children('h1, h2, h3, h4, h5');
+  var $h = $('.content .body').children('h1, h2, h3, h4, h5');
   l = $h.length;
   if ( !l ) return;
   
@@ -129,7 +129,9 @@ $( function () {
       $a = $('<a>')
         .attr( 'href', "#" + ( $el.attr('id') || '' ) )
         .html( $( 'a', $el ).html() || $el.text() );
-      $('<li>').append( $a ).appendTo( stack[ stack.length - 1 ] );
+      $li = $('<li>')
+      $li.append( $a )
+      $li.appendTo( stack[ stack.length - 1 ] );
     }
 
     // Extract the nesting levels based on the heading elements’ numbering.
@@ -143,8 +145,9 @@ $( function () {
     // If the heading level increases, then open a new nested `ul`.
     while ( nextLevel > level ) {
 
-      // Push a new `ul` that is nested inside the previous `ul`.
-      ( $ul = $('<ul>') ).appendTo( stack[ stack.length - 1 ] );
+      // Push a new `ul` that is nested inside the trailing `li`.
+      ( $ul = $('<ul>') ).appendTo( $li );
+      ( $li = $('<li>') ).appendTo( $ul );
       stack.push( $ul );
       level += 1;
     }
@@ -153,9 +156,9 @@ $( function () {
     // prevailing `ul`.
     while ( nextLevel < level ) {
 
-      // Close the prevailing `ul`s. If the root `ul` at the head of the stack
-      // is reached prematurely, wrap it in another `ul`.
-      $ul = stack.pop() || $('<ul>').append( $ul );
+      // If the root `ul` at the head of the stack is reached prematurely,
+      // wrap it in another `ul`.
+      $ul = stack.pop() || $('<ul>').append( $('<li>').append( $ul ) );
       level -= 1;
     }
   }
@@ -216,26 +219,178 @@ $( function () {
 });
 
 
-// ### Chrome toggling on touch devices
+// ### Chrome-element toggling on touch devices
 //
 $( function () {
-  var $document = $(document);
-  var $chrome = $('.topbar, .controls');
-  var togglePending = null;
-  
-  $document.on( 'touchstart', function ( event ) {
-    if ( event.target.href ) return;
-    togglePending = true;
-  });
-  $document.on( 'touchmove', function ( event ) {
-    togglePending && ( togglePending = false );
-  });
-  $document.on( 'touchend', function ( event ) {
-    if ( togglePending ) {
-      $chrome.toggleClass('touch-hidden');
-      togglePending = null;
+  var chrome;
+
+  // Delegate touch events. Upon a complete stationary touch, invoke `toggle`
+  // on the stateful `chrome` object.
+  ( function () {
+    var touchPending;
+
+    $('body > .container').on({
+      touchstart: function ( event ) {
+        if ( event.target.href ) return;
+        touchPending = true;
+      },
+      touchmove: function ( event ) {
+        if ( !touchPending ) return;
+        touchPending = false;
+      },
+      touchend: function ( event ) {
+        if ( !touchPending ) return;
+        event.preventDefault();
+        touchPending = false;
+        chrome.toggle();
+      }
+    });
+
+    // Touches on the ToC should not propagate to the container.
+    $('body > .container > .toc')
+      .on( 'touchstart touchmove touchend', function ( event ) {
+        event.stopPropagation();
+      });
+  }() );
+
+  chrome = ( function () {
+    var $body = $('body');
+
+    function action () {
+      var self = this;
+      function end () { self.end(); }
+      this.data({ handle: setTimeout( end, this.data().delay ) });
     }
-  });
+
+    function abort () { clearTimeout( this.data().handle ); }
+
+    var chrome = {};
+    state( chrome, 'abstract', {
+      data: { delay: 400 },
+
+      Visible: state( 'default', {
+        enter: function () {
+          $body.removeClass('chrome-revealing')
+               .addClass('chrome-visible');
+        },
+        toggle: function () { this.go('Hidden'); }
+      }),
+      
+      Hidden: {
+        enter: function () {
+          $body.removeClass('chrome-hiding')
+               .addClass('chrome-hidden');
+        },
+        toggle: function () { this.go('Visible'); }
+      },
+      
+      transitions: {
+        Revealing: {
+          target: 'Visible', action: action, abort: abort,
+          enter: function () {
+            $body.removeClass('chrome-hidden chrome-hiding')
+                 .addClass('chrome-revealing');
+          },
+          toggle: function () { this.go('Hidden'); }
+        },
+        Hiding: {
+          target: 'Hidden', action: action, abort: abort,
+          enter: function () {
+            $body.removeClass('chrome-visible chrome-revealing')
+                 .addClass('chrome-hiding');
+          },
+          toggle: function () { this.go('Visible'); }
+        }
+      }
+    });
+
+    return chrome;
+  }() );
+});
+
+// ### Navigation buttons
+//
+$( function () {
+  if ( !navigator.standalone ) return;
+
+  var $ul = $('<ul class="navigation">');
+
+  0&&
+  ( function () {
+    var $li = $('<li class="back">');
+    $('<a href="#">')
+      .on( 'click', function ( event ) {
+        event.preventDefault();
+        window.history.back();
+      })
+      .appendTo( $li );
+    $li.appendTo( $ul );
+  }() );
+
+  0&&
+  ( function () {
+    var $li = $('<li class="forward">');
+    $('<a href="#">')
+      .on( 'click', function ( event ) {
+        event.preventDefault();
+        window.history.forward();
+      })
+      .appendTo( $li );
+    $li.appendTo( $ul );
+  }() );
+
+  ( function () {
+    var $li = $('<li class="reload">');
+    $('<a href="#">')
+      .on( 'click', function ( event ) {
+        event.preventDefault();
+        window.location.reload( true );
+      })
+      .appendTo( $li );
+    $li.appendTo( $ul );
+  }() );
+
+  $ul.appendTo('.controls');
+})
+
+
+// ### Switches
+//
+$( function () {
+  var $ul = $('<ul class="switches">');
+
+  ( function () {
+    var $toc = $('.toc');
+    if ( !$toc.length ) return;
+
+    ( function ( $li ) {
+      var handle;
+
+      function hide () { $toc.addClass('hidden'); }
+
+      $('<a href="#">')
+        .on( 'click', function ( event ) {
+          event.preventDefault();
+
+          if ( $toc.hasClass('toggled-hidden') ) {
+            $toc.removeClass('hidden');
+          } else {
+            handle && clearTimeout( handle );
+            handle = setTimeout( hide, 400 );
+          }
+          $toc.toggleClass('toggled-hidden');
+          
+          event.stopPropagation();
+        })
+        .appendTo( $li );
+
+      return $li;
+
+    }( $('<li class="toggle-toc active">') ) )
+      .appendTo( $ul );
+  }() );
+
+  $ul.appendTo('.controls');
 });
 
 
@@ -283,6 +438,9 @@ $( function () {
     
   // Remove the blocks that are now empty.
   $blocks.not( $initial ).remove();
+
+  // Display all unpaired `pre` blocks.
+  $('.highlight pre').not('.polyglot pre').show();
 });
 
 
@@ -297,15 +455,16 @@ $( function () {
   var $polyglotPre = $('.polyglot pre');
   var $ul = $('.controls ul.languages');
 
-  var languagesSupported = [ 'javascript', 'coffeescript' ];
+  var languages = [ 'javascript', 'coffeescript' ];
+  var cardinality = languages.length;
+  var i, name;
+
   var language = {
     selected     : window.localStorage && localStorage.getItem('language')
-                     || 'javascript',
+                     || languages[0],
     javascript   : { $elements: null, $control: null },
     coffeescript : { $elements: null, $control: null }
   };
-  var javascript = language.javascript;
-  var coffeescript = language.coffeescript;
 
 
   function $pageScrollTop () {
@@ -313,7 +472,7 @@ $( function () {
   }
 
   function $topElementInView () {
-    var $els = $('.markdown-body').children(
+    var $els = $('.content .body').children(
       'h1, h2, h3, h4, h5, p, .highlight'
     );
     var windowHeight   = window.innerHeight || $window.height();
@@ -333,9 +492,8 @@ $( function () {
   }
 
   function $item ( className ) {
-    var $li = $('<li>').addClass( className );
-    var $a  = $('<a>').attr( 'href', "#" );
-    return $li.append( $a );
+    return $('<li class="' + className + ' inactive">')
+      .append( $('<a href="#">') );
   }
 
   function makeListenerFor ( activeLanguage ) {
@@ -365,8 +523,11 @@ $( function () {
 
       // Show or hide the affected code blocks.
       initialized &&
-      language[ hiddenLanguage ].$elements.hide();
-      language[ activeLanguage ].$elements.show();
+      language[ hiddenLanguage ].$elements
+        .hide();
+      
+      language[ activeLanguage ].$elements
+        .show();
 
       // Restore the page’s scroll position to keep the viewport anchored to
       // the location of its topmost element.
@@ -376,8 +537,13 @@ $( function () {
       
       // Update the UI button states.
       initialized &&
-      language[ hiddenLanguage ].$control.removeClass('active');
-      language[ activeLanguage ].$control.addClass('active');
+      language[ hiddenLanguage ].$control
+        .addClass('inactive')
+        .removeClass('active');
+
+      language[ activeLanguage ].$control
+        .addClass('active')
+        .removeClass('inactive');
 
       // Persist the preference.
       language.selected = activeLanguage;
@@ -390,31 +556,35 @@ $( function () {
     };
   }
 
-  // Establish sets of paired JS/CS `pre` blocks.
-  javascript.$elements   = $polyglotPre.has('code.javascript');
-  coffeescript.$elements = $polyglotPre.has('code.coffeescript');
+  // Define each language’s set of polyglottal `pre` elements.
+  for ( i = 0; i < cardinality; i++ ) {
+    name = languages[i];
+    language[ name ].$elements = $polyglotPre.has( 'code.' + name );
+  }
 
-  // Display all unpaired `pre` blocks.
-  $('.highlight pre').not( $polyglotPre ).show();
-
-  // Get language preference controls, or add them if not already present.
+  // Get references to the language-preference controls. If they are not
+  // already present, then add them.
   if ( $ul.length ) {
-    javascript.$control   = $( 'li.javascript', $ul );
-    coffeescript.$control = $( 'li.coffeescript', $ul );
+    for ( i = 0; i < cardinality; i++ ) {
+      name = languages[i];
+      language[ name ].$control = $( 'li.' + name, $ul );
+    }
   } else {
-    javascript.$control   = $item('javascript');
-    coffeescript.$control = $item('coffeescript');
-    $('<ul>')
-      .addClass('languages')
-      .append( javascript.$control, coffeescript.$control )
-      .appendTo('.controls');
+    $ul = $('<ul class="languages">');
+    for ( i = 0; i < cardinality; i++ ) {
+      name = languages[i];
+      $ul.append( language[ name ].$control = $item( name ) );
+    }
+    $ul.appendTo('.controls');
   }
 
   // Create event listeners and delegate them to the language controls.
-  javascript.$control.on( 'click', makeListenerFor('javascript') );
-  coffeescript.$control.on( 'click', makeListenerFor('coffeescript') );
+  for ( i = 0; i < cardinality; i++ ) {
+    name = languages[i];
+    language[ name ].$control.on( 'click', makeListenerFor( name ) );
+  }
 
-  // Simulate a click event to initialize the UI and code blocks.
+  // Simulate a `click` event to initialize the UI and code blocks.
   language[ language.selected ].$control.click();
 });
 

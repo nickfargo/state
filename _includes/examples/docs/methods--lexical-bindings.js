@@ -25,5 +25,5 @@ state( p, {
 var o = Object.create( p );
 o.m();              // >>> "FOO"
 
-o.state('-> A');
+o.state('-> AA');
 o.m();              // >>> "FOOBARBAZ"

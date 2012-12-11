@@ -14,5 +14,5 @@ class Class extends Superclass
 
 o = new Class
 o.m()             # >>> "FOO"
-o.state '-> A'    
+o.state '-> AA'    
 o.m()             # >>> "FOOBARBAZ"

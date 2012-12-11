@@ -16,8 +16,9 @@
       normal: ( param ) ->
         { param, closed }
       
-      alsoBound: state.method({ closed }) ( param ) ->
-        { param, closed, autostate, protostate, this:this }
+      alsoBound: state.method({ closed }) \
+        ( param ) ->
+          { param, closed, autostate, protostate, this:this }
 
   { closed, Class, o }
 

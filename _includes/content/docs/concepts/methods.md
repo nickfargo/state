@@ -64,7 +64,7 @@ Methods transformed in this way gain four state–lexical variable bindings that
 * `superstate` : the superstate of `this`.
 * `owner` : the owner of `this`.
 
-Worth noting is the distinction and relationship between `autostate` and `this`: if a method is inherited from a protostate, then `autostate` will reference that protostate of `this`; or if the method is not inherited, then `autostate` and `this` are identical.
+Worth noting here is the distinction and relationship between `autostate` and `this`: if a method is inherited from a protostate, then `autostate` will reference that protostate of `this`; if the method is not inherited, then `autostate` and `this` are identical.
 
 > [state.method](/api/#module--method)
 > [`state.method`](/source/#module--method)
@@ -75,9 +75,9 @@ Worth noting is the distinction and relationship between `autostate` and `this`:
 
 In the case of an attempt to `call` or `apply` a state method that does not exist within that state and cannot be inherited from any protostate or superstate, the invocation will act as a no-op, returning `undefined`.
 
-**State** allows such a contingency to be trapped by emitting a generic [`noSuchMethod`](/api/state--events--no-such-method) [**event**](#concepts--events). Listeners take as arguments the name of the sought method, followed by an `Array` of the arguments provided to the failed invocation.
+**State** allows such a contingency to be trapped by emitting a generic [`noSuchMethod`](/api/#state--events--no-such-method) [**event**](#concepts--events). Listeners take as arguments the name of the sought method, followed by an `Array` of the arguments provided to the failed invocation.
 
-Also emitted is a specific [`noSuchMethod:name`](/api/state--events--no-such-method-name) event, which includes the `name` of the sought method. Listeners of this event take the individual arguments as they were provided to the failed invocation.
+Also emitted is a specific [`noSuchMethod:name`](/api/#state--events--no-such-method-name) event, which includes the `name` of the sought method. Listeners of this event take the individual arguments as they were provided to the failed invocation.
 
 {% highlight javascript %}
 {% include examples/docs/methods--nonexistent.js %}
@@ -87,8 +87,8 @@ Also emitted is a specific [`noSuchMethod:name`](/api/state--events--no-such-met
 {% include examples/docs/methods--nonexistent.coffee %}
 {% endhighlight %}
 
-> [noSuchMethod](/api/state--events--no-such-method)
-> [noSuchMethod:name](/api/state--events--no-such-method-name)
+> [noSuchMethod](/api/#state--events--no-such-method)
+> [noSuchMethod:name](/api/#state--events--no-such-method-name)
 > [apply](/api/#state--methods--apply)
 > [`State::apply`](/source/#state--prototype--apply)
 

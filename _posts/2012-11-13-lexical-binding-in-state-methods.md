@@ -16,8 +16,8 @@ Normal methods have `this` to reference the object they serve, and likewise stat
 However, a wrinkle is added by the arrangement of `State`s [into hierarchies](/docs/#concepts--inheritance--superstates-and-substates) and [across prototypes](/docs/#concepts--inheritance--protostates). These relationships allow a state method to be inherited from any of several related `State`s, and this requires that a method be able to serve, at once:
 
 * its containing `State`
-* the owner being served by the `State`
-* if the method is prototypally inherited, the projection of the containing `State` onto an analog within the owner’s state tree.
+* the owner object that issued the delegation to invoke the method
+* if the method is prototypally inherited, the **epistate** (a `State` within the owner’s state tree) that inherits from the protostate (the related `State` in the state tree of the owner’s prototype) which contains the method.
 
 State methods must therefore have the capacity to reference multiple contexts — something that cannot be facilitated directly by `this` alone.
 
@@ -35,7 +35,7 @@ Doing so maintains referential equivalence of `this`, irresepective of whether a
 {% include examples/blog/2012-11-13/1.coffee %}
 {% endhighlight %}
 
-But this approach falls apart when it comes time for a substate to inherit the method from a superstate. While the superstate that contains the method is **active**, it is the substate that is current, and which will therefore be returned by `this.state()`:
+But this approach falls apart once the method is inherited by a substate. In that case, the expression `this.state()` would no longer reference the state in which the method was defined, and in fact would soon lead to trouble:
 
 {% highlight javascript %}
 {% include examples/blog/2012-11-13/2.js %}
@@ -45,13 +45,13 @@ But this approach falls apart when it comes time for a substate to inherit the m
 {% include examples/blog/2012-11-13/2.coffee %}
 {% endhighlight %}
 
-So with context bound to the owner, a state method has no idiomatic way to reliably identify the `State` to which it belongs. The expression `this.state()`, along with the subsequent [`.superstate()`](/api/state--methods--superstate) call, are effectively dynamic references, possibly changing with each transition, and so the state method body simply cannot ascertain the semantic value of either one.
+Binding context to the owner therefore leaves a state method with no idiomatic way to reliably identify the `State` to which it belongs. The expression `this.state()`, along with the subsequent [`.superstate()`](/api/state--methods--superstate) call, are effectively dynamic references, which may change with each transition, and so the state method body simply cannot ascertain the semantic value of either one.
 
 ### [Lexical state context](#lexical-state-context)
 
 What a state method requires is a lexical binding to the `State` in which it is defined — a reference that never changes, regardless of which descendant state may be inheriting the method.
 
-So, instead of having the framework apply state methods in the context of the owner, we have it bind the context to the `State` that contains the method. The direct reference to the owner object is lost, but the owner is still easily retrieved with a call to [`this.owner()`](/api/#state--methods--owner), which of course returns the same owner no matter which of the owner’s `State`s `this` references.
+Instead of having the framework apply state methods in the context of the owner, then, we have it bind the context to the `State` that contains the method. The direct reference to the owner object is lost, but the owner is still easily retrieved with a call to [`this.owner()`](/api/#state--methods--owner), which of course returns the same owner no matter which of the owner’s `State`s `this` references.
 
 {% highlight javascript %}
 {% include examples/blog/2012-11-13/3.js %}
@@ -61,12 +61,12 @@ So, instead of having the framework apply state methods in the context of the ow
 {% include examples/blog/2012-11-13/3.coffee %}
 {% endhighlight %}
 
-This is the approach employed by **State.js**. Referential equivalence, and some convenience — `this` versus the clunkier `this.owner()` — is traded for insight into a whole other dimension of context. A concession to be sure, but on balance a good bargain: in every case, the new idioms `this`, `this.owner()`, and `this.superstate()` always mean what we expect them to.
+This is the approach employed by **State.js**. Referential equivalence, and some convenience — `this` versus the clunkier `this.owner()` — is traded away in exchange for insight into another dimension of context. A concession, certainly, but on balance a good bargain: in every case, the idioms `this`, `this.owner()`, and `this.superstate()` always mean what we expect them to.
 
 
 ## [The next dimension](#the-next-dimension)
 
-The lexical binding approach, if syntactically a bit short of ideal, works plenty well so far as it goes — state methods can access their containing `State`, or a superstate, or any other node on their owner’s state tree.
+The lexical binding approach, if a bit suboptimal syntactically, does work plenty well so far as it goes — state methods can access their containing `State`, or a superstate, or any other node on their owner’s state tree.
 
 However, we must still expand the context space one dimension further, along the axis of [the protostate–epistate relation](/docs/#concepts--inheritance--protostates) that follows the prototype chain of the owner object.
 
@@ -107,7 +107,7 @@ The consequence of this invariance is that a state method has no way to determin
 An acceptable solution, therefore, will have to involve a combination of relevant lexical and dynamic bindings.
 
 
-## [Method transformation](#method-transformation)
+## [The interior decorator](#the-interior-decorator)
 
 State methods depend on more lexical information than a bound `this` by itself can provide. To deal with this confined space, a number of alternatives might be easily proposed, but just as easily dismissed:
 
@@ -123,22 +123,30 @@ None of these address the issue of adequately equipping state methods with the l
 
 ### [Lexical state methods](#lexical-state-methods)
 
-Version **0.0.7** of **State.js** adds a module-level function called [`state.method`](/api/#module--method), which facilitates the creation of **lexical state methods** by transforming a provided function into one that includes relevant lexical bindings to the `State` objects that define the method’s environment.
+Version **0.0.7** of **State.js** adds a module-level function called [`state.method`](/api/#module--method), which can be used as a **decorator** to transform a provided function argument into a **lexical state method** that includes specific bindings to the `State`s that define the method’s environment:
 
-It’s important to note that a rewritten function necessarily abandons the scope chain of its original, so to reproduce the scoping environment, authors may include a `bindings` object containing any variable bindings they want preserved for use within the generated method.
+* `autostate` — the precise `State` in which the method is defined
+* `protostate` — the protostate of `autostate`
 
-#### [The method factory](#the-method-factory)
+In addition, the function provided to `state.method` is rewritten, its body injected with bindings that must be dynamic to the `State` context in which the method will be invoked:
+
+* `superstate` — a reference to `this.superstate()`
+* `owner` — a reference to `this.owner()`
+
+Rewriting a function necessarily abandons the scope chain of its original, so, if parts of the function’s lexical environment must be preserved, authors may also provide `state.method` with a `bindings` object argument that specifies any variable bindings to be included within the new flattened scope of the generated method.
+
+#### [Inside the factory](#inside-the-factory)
 
 `state.method( bindings, fn )` : function
 
 * [`bindings`] : object
 * [`fn`] : function
 
-Calling `state.method` creates and returns a **factory**, a higher-order function which produces a lexical state method that is the transformation of `fn` appropriated to the `State` in which the method is defined. The generated method is closed over any provided `bindings`, and includes additional bindings for the special variables `autostate`, `protostate`, `superstate`, and `owner`.
+A call to `state.method` returns a **factory**, a higher-order function which will produce the desired lexical state method, which in turn will be the decorated transformation of `fn`, appropriated to the `State` in which the method is defined. The generated method is closed over any provided `bindings`, along with the built-in bindings to `autostate`, `protostate`, `superstate`, and `owner`.
 
 If no `fn` is provided, then a function partially applied with `bindings` is returned, which will later accept a `fn` and return the lexical state method factory as described above.
 
-The factory may be passed around at will, but it can only be called internally by **State.js**. This occurs either during the construction of a `State` instance when the lexical environment is first created, or as methods are added to an existing mutable `State`.
+The factory that `state.method` produces may be passed around at will, but it can only be called internally by **State.js** to produce a lexical state method. This occurs either during the construction of a `State` instance when the lexical environment is first created, or as methods are added to an existing mutable `State`.
 
 #### [`state.method` in action](#state-method-in-action)
 
@@ -177,7 +185,7 @@ With this syntax, we finally get the `protostate` and results we expect.
 
 ### [Under the hood](#under-the-hood)
 
-Internally, the provided function is wrapped inside an outer function that takes the keys of the binding object as parameters. This wrapper function is then called with the corresponding binding values as arguments, which will return the enclosed function with those free variables bound, just as they were in the original function, except in a new flattened scope just one level deep.
+Internally, the function provided to `state.method` is decorated by wrapping it inside an outer function that takes the keys of the binding object as parameters. This wrapper function is then called with the corresponding binding values as arguments, which will return the enclosed function with those free variables bound, just as they were in the original function, except in a new flattened scope just one level deep.
 
 Similarly, the desired lexical `State` references of `autostate` and `protostate` are embedded into the method’s closure, and variables for dynamic references of `superstate` for `this.superstate()` and `owner` for `this.owner()` are embedded at the top of the method body itself.
 
@@ -186,11 +194,13 @@ Similarly, the desired lexical `State` references of `autostate` and `protostate
 
 ## [Epilogue](#epilogue)
 
-### [And then there was composition](#and-then-there-was-composition)
+### [A note for the composers](#a-note-for-the-composers)
 
-For some, the extra layer of complexity that arises from a two-dimensional inheritance space may be enough to suggest or reinforce the virtues of adhering to patterns of composition rather than inheritance.
+The extra layer of complexity that arises from a two-dimensional inheritance space might suggest to some the virtues of adhering to patterns of composition, rather than inheritance.
 
-Exercising composition with stateful objects requires that any such object be able to cleanly export its state tree, so that it can be “mixed-in” to another object. Here the [`StateExpression`](/source/#state-expression) data structure and the [`express`](/api/#state--methods--express) method assert their utility.
+Exercising composition with **State.js** is straightforward: any stateful object can [`express`](/api/#state--methods--express) itself, cleanly exporting a transferable copy of its state tree as a [`StateExpression`](/source/#state-expression), or as an equivalent plain object. Either of these can then be “mixed-in” to another object with the [`state()`](/api/#module) function as usual.
+
+Given a `target` object to be made stateful, and an already stateful `source`:
 
 {% highlight javascript %}
 state( target, source.state('').express() );
@@ -199,7 +209,7 @@ state( target, source.state('').express() );
 state target, source.state('').express()
 {% endhighlight %}
 
-An existing [mutable state](/docs/#concepts--attributes--mutability) can also be targeted, by calling its [`mutate`](/api/#state--methods--mutate) method:
+An existing [mutable state](/docs/#concepts--attributes--mutability) of an already stateful `target` object can similarly be affected by calling its [`mutate`](/api/#state--methods--mutate) method:
 
 {% highlight javascript %}
 target.state('').mutate( source.state('').express() );
@@ -208,4 +218,6 @@ target.state('').mutate( source.state('').express() );
 target.state('').mutate source.state('').express()
 {% endhighlight %}
 
-The call to `express` from the root state outputs a deep clone of the entire tree as a `StateExpression`, which can be fed right into [`state()`](/api/#module) or `mutate()`. Methods produced by `state.method` will be regenerated in their new environment as necessary. Lost are the dynamic prototypal relationship and the memory savings that follow, but, depending on your point view, so too may be some of the complexity and rigidity that such a model might have entailed.
+Calling `express` from the root state outputs a plain-object deep clone of the entire tree, and this can be fed right into the `expression` argument of a call to [`state()`](/api/#module) or `mutate()`. Importantly, any lexical state methods that are brought over will be automatically recreated with the appropriate bindings for their new environment.
+
+With this mix-in approach, the dynamic prototypal relationship and the memory savings that follow are lost, but, depending on your point view, so too may be some of the complexity and rigidity that a deeper inheritance model might otherwise have entailed.

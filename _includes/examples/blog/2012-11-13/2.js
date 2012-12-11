@@ -8,4 +8,5 @@ state( o, {
 });
 
 o.state('-> AA');
-o.m();              // >>> RangeError: Maximum call stack size exceeded
+o.m();
+// >>> RangeError: Maximum call stack size exceeded

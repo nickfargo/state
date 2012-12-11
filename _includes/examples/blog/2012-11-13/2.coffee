@@ -4,4 +4,5 @@ state o,
     AA: state
 
 o.state '-> AA'
-o.m()             # >>> RangeError: Maximum call stack size exceeded
+o.m()
+# >>> RangeError: Maximum call stack size exceeded

@@ -8,6 +8,10 @@ meta:
     full_name: Nick Fargo
     short_name: nickfargo
     email: nick.fargo@gmail.com
+    github: nickfargo
+    twitter: nickfargo
+  license: MIT
+  license_url: http://github.com/nickfargo/state/blob/master/LICENSE 
 
 tag_dir: tag
 pygments: true

@@ -3,11 +3,6 @@ layout: default
 section: api
 ---
 <div class="toc">
-  <style>
-    .toc {
-      font-size: 18px;
-    }
-  </style>
   <div class="bg"></div>
   <div class="fg">
     {% capture toc %}{% include outlines/api.md %}{% endcapture %}
@@ -15,8 +10,6 @@ section: api
   </div>
 </div>
 
-<div class="controls overlaid"></div>
-
-<div id="api" class="markdown-body">
+<div class="body markdown">
   {{ content }}
 </div>

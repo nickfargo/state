@@ -19,7 +19,7 @@
 var global = this,
 
     meta = {
-        VERSION: '0.0.7',
+        VERSION: '0.0.8',
 
         noConflict: ( function () {
             var original = global.state;
@@ -741,7 +741,7 @@ function realize ( superstate, attributes, expression ) {
             methods, events, guards, substates, transitions, history ],
         'superstate' : [ superstate ],
         'attributes' : [ attributes ],
-        'data' : [ attributes | MUTABLE, data ],
+        'data has get let set' : [ attributes | MUTABLE, data ],
         'method methodNames addMethod removeMethod' : [ methods ],
         'event addEvent removeEvent emit' : [ events ],
         'guard addGuard removeGuard' : [ guards ],
@@ -808,6 +808,7 @@ function realize ( superstate, attributes, expression ) {
 
     // (Exposed for debugging.)
     O.env.debug && O.assign( this, {
+        '<attr>': StateExpression.decodeAttributes( attributes ),
         __private__: this.peek( __MODULE__ )
     });
 
@@ -870,7 +871,57 @@ State.privileged.realize = function ( attributes ) {
     };
 };
 
-State.prototype.realize = O.getThis;
+O.assign( State.prototype, {
+
+    // #### [virtualize](#state--prototype--virtualize)
+    // 
+    // Creates, if necessary, a virtual state within the state hierarchy of
+    // `inheritor` to represent `this` protostate, along with as many virtual
+    // superstates as are necessary to reach a real [`State`](#state) in the
+    // hierarchy of `inheritor`.
+    //
+    // Returns the state on `inheritor`’s state tree for which `this` is a
+    // protostate. This will be the newly created virtual state, unless
+    // virtualization was unnecessary, in which case it will be the already
+    // existent real **epistate** of `this`.
+    //
+    // > [Protostates](/docs/#concepts--inheritance--protostates)
+    virtualize: function ( inheritor ) {
+        var derivation, i, s, real, name;
+        
+        // Verify that `inheritor`’s owner does indeed inherit from the owner
+        // of `this`.
+        if ( !( inheritor instanceof State && this.owner().isPrototypeOf(
+            inheritor.owner() ) ) ) return null;
+
+        // Get the [derivation](/api/#state--methods--derivation) list for
+        // `this`.
+        derivation = this.derivation( true );
+        if ( !derivation.length ) return null;
+
+        // Traverse the real states of the inheriting state tree to their
+        // furthest depth.
+        i = 0; s = inheritor.root();
+        while ( ( name = derivation[ i++ ] ) &&
+                ( real = s.substate( name, false ) ) ) {
+            s = real;
+        }
+
+        // If `derivation` extends beyond the inheriting state tree’s real
+        // states, then add virtual states to it until the whole superstate
+        // chain is represented.
+        while ( name ) {
+            s = new State( s, name, {
+                attributes: STATE_ATTRIBUTES.VIRTUAL
+            });
+            name = derivation[ i++ ];
+        }
+
+        return s;
+    },
+
+    realize: O.getThis
+});
 
 // ### [`state/expression.js`](#state--expression.js)
 
@@ -1331,12 +1382,12 @@ O.assign( State.prototype, {
         return state === this || state.isSuperstateOf( this );
     },
 
-    // #### [has](#state--prototype--has)
+    // #### [hasSubstate](#state--prototype--has-substate)
     // 
     // Determines whether `this` is or is a superstate of `state`.
     //
-    // > [has](/api/#state--methods--has)
-    has: function ( /*State | String */ state ) {
+    // > [hasSubstate](/api/#state--methods--has-substate)
+    hasSubstate: function ( /*State | String */ state ) {
         state instanceof State || ( state = this.query( state ) );
         return this === state || this.isSuperstateOf( state );
     },
@@ -1469,6 +1520,50 @@ O.assign( State.prototype, {
         }
 
         return first;
+    },
+
+    // #### [favor](#state--substates--favor)
+    //
+    // An abstract state may `favor` a particular substate by overriding the
+    // attribute-based implementation of `defaultSubstate`.
+    //
+    // > [favor](/api/#state--methods--favor)
+    favor: function ( substate ) {
+        var path;
+        if ( this.isConcrete() ) return;
+        
+        // Calling with no arguments clears any overriding favoritism,
+        // reverting back to the attribute-based method on the prototype.
+        if ( substate == null && O.hasOwn.call( this, 'defaultSubstate' ) ) {
+            delete this.defaultSubstate;
+            return this.defaultSubstate();
+        }
+
+        this.isVirtual() && this.realize();
+
+        substate instanceof State || ( substate = this.query( substate ) );
+        if ( !( substate && this.isSuperstateOf( substate ) ) ) return null;
+        
+        path = substate.path();
+        this.defaultSubstate = function () {
+            return this.query( path );
+        };
+
+        return substate;
+    },
+
+    // #### [appoint](#state--substates--appoint)
+    //
+    // An abstract state may `appoint` a substate, which first `favor`s the
+    // substate and then, iff the abstract state is active, transitions into
+    // the favored substate.
+    //
+    // > [appoint](/api/#state--methods--appoint)
+    appoint: function ( substate ) {
+        var favored = this.favor( substate );
+        if ( !favored ) return;
+        if ( this.isActive() ) return this.change( favored );
+        return favored;
     },
 
     // #### [initialSubstate](#state--substates--initial-substate)
@@ -1799,10 +1894,7 @@ O.assign( State.privileged, {
     //
     // > [Data](/docs/#concepts--data)
     // > [data](/api/#state--methods--data)
-    data: function (
-        /*Number*/ attributes,
-        /*Object*/ data
-    ) {
+    data: function ( attributes, data ) {
         return function ( /*Boolean*/ viaSuper, /*Boolean*/ viaProto ) {
             var edit, delta, state, superstate, protostate;
 
@@ -1835,10 +1927,99 @@ O.assign( State.privileged, {
                 );
             }
         };
+    },
+
+    // #### [has](#state--privileged--has)
+    // 
+    has: function ( attributes, data ) {
+        return function ( key, viaSuper, viaProto ) {
+            var protostate, superstate;
+
+            viaSuper === undefined && ( viaSuper = true );
+            viaProto === undefined && ( viaProto = true );
+            
+            return (
+                data && O.has( data, key )
+                    ||
+                viaProto && ( protostate = this.protostate() ) &&
+                        protostate.has( key, false, true )
+                    ||
+                viaSuper && ( superstate = this.superstate() ) &&
+                        superstate.has( key, true, viaProto )
+            );            
+        };
+    },
+
+    // #### [get](#state--privileged--get)
+    // 
+    get: function ( attributes, data ) {
+        return function ( key, viaSuper, viaProto ) {
+            var protostate, superstate;
+            
+            viaSuper === undefined && ( viaSuper = true );
+            viaProto === undefined && ( viaProto = true );
+
+            return (
+                data && O.lookup( data, key )
+                    ||
+                viaProto && ( protostate = this.protostate() ) &&
+                        protostate.get( key, false, true )
+                    ||
+                viaSuper && ( superstate = this.superstate() ) &&
+                        superstate.get( key, true, viaProto )
+            );
+        };
+    },
+
+    // #### [let](#state--privileged--let)
+    // 
+    'let': function ( attributes, data ) {
+        return function ( key, value ) {
+            var displaced, edit, delta;
+
+            if ( !( attributes & MUTABLE ) ) {
+                // warn: attempted `let` on non-mutable state
+                return;
+            }
+
+            if ( attributes & VIRTUAL ) {
+                return this.realize()['let']( key, value );
+            }
+
+            displaced = O.lookup( data, key );
+            if ( displaced !== value ) {
+                O.assign( data, key, value );
+                O.assign( edit = {}, key, value );
+                O.assign( delta = {}, key, displaced );
+                this.emit( 'mutate', [ edit, delta ], false );
+            }
+
+            return value;
+        };
+    },
+
+    // #### [set](#state--privileged--set)
+    // 
+    set: function ( attributes, data ) {
+        return function ( key, value ) {
+            for ( var s = this; s; s = s.superstate() ) {
+                if ( s.isMutable() && s.has( key, false, false ) ) {
+                    return s['let']( key, value );
+                }
+            }
+        };
     }
 });
 
 State.prototype.data = State.privileged.data( undefined, null );
+
+O.assign( State.prototype, {
+    data: State.privileged.data( undefined, null ),
+    has: State.privileged.has( undefined, null ),
+    get: State.privileged.get( undefined, null ),
+    'let': O.noop,
+    set: State.privileged.set( undefined, null )
+});
 
 // ### [`state/methods.js`](#state--methods.js)
 
@@ -2839,7 +3020,7 @@ var StateController = ( function () {
             }
         }
         if ( current.controller() !== this ) {
-            current = virtualize.call( this, current );
+            current = current.virtualize( root );
         }
 
         // (Exposed for debugging.)
@@ -2906,37 +3087,6 @@ var StateController = ( function () {
         return accessor;
     }
 
-    // #### [virtualize](#state-controller--private--virtualize)
-    // 
-    // Creates a transient virtual state within the local state hierarchy to
-    // represent `protostate`, along with as many virtual superstates as are
-    // necessary to reach a real [`State`](#state) in the local hierarchy.
-    function virtualize ( protostate ) {
-        var derivation, state, next, name;
-        function iterate () {
-            next = state.substate( ( name = derivation.shift() ), false );
-            return next;
-        }
-        if ( protostate instanceof State &&
-            protostate.owner().isPrototypeOf( this.owner() ) &&
-            ( derivation = protostate.derivation( true ) ).length
-        ) {
-            state = this.root();
-            iterate();
-            while ( next ) {
-                state = next;
-                iterate();
-            }
-            while ( name ) {
-                state = new State( state, name, {
-                    attributes: STATE_ATTRIBUTES.VIRTUAL
-                });
-                name = derivation.shift();
-            }
-            return state;
-        }
-    }
-
     // #### [evaluateGuard](#state-controller--private--evaluate-guard)
     // 
     // Returns the `Boolean` result of the guard function at `guardName`
@@ -2999,11 +3149,10 @@ var StateController = ( function () {
                 /*State | String*/ target,
                         /*Object*/ options // optional
             ) {
-                var owner, transition, targetOwner, source, origin, domain,
-                    state, record, transitionExpression,
+                var root, owner, transition, targetOwner, source, origin,
+                    domain, state, record, transitionExpression,
                     self = this;
 
-                owner = this.owner();
                 transition = this.transition();
 
                 // The `origin` is defined as the controller’s most recently
@@ -3013,9 +3162,12 @@ var StateController = ( function () {
                 // Departures are not allowed from a state that is `final`.
                 if ( origin.isFinal() ) return null;
 
+                root = this.root();
+                owner = this.owner();
+
                 // Ensure that `target` is a valid [`State`](#state).
                 target instanceof State ||
-                    ( target = target ? origin.query( target ) : this.root() );
+                    ( target = target ? origin.query( target ) : root );
                 if ( !target ||
                         ( targetOwner = target.owner() ) !== owner &&
                         !targetOwner.isPrototypeOf( owner )
@@ -3054,7 +3206,7 @@ var StateController = ( function () {
                 // of `owner`, then it must be represented within `owner` as a
                 // transient virtual state that inherits from the protostate.
                 target && target.controller() !== this &&
-                    ( target = virtualize.call( this, target ) );
+                    ( target = target.virtualize( root ) );
 
                 // The `source` variable will reference the previously current
                 // state (or abortive transition).

@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-[`State` instances](/api/#state) have a distinct [object model](/docs/#concepts--inheritance) which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from states held by prototypes](/docs/#concepts--inheritance--protostates) of their **owner** object.
+[`State` instances](/api/#state) define behavior for an **owner** object, and have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates) of their owner.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
@@ -31,7 +31,7 @@
 {% endhighlight %}
 
 
-[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods are [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they are defined, and may optionally be injected with additional [special variables](/docs/#concepts--methods--lexical-bindings) that describe its [complete state–lexical environment](/blog/lexical-binding-in-state-methods).
+[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods are [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they are defined, and may optionally be decorated with [additional variables](/docs/#concepts--methods--lexical-bindings) that describe the method’s complete [state–lexical environment](/blog/lexical-binding-in-state-methods).
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}

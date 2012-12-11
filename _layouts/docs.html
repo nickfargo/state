@@ -2,18 +2,14 @@
 layout: default
 section: docs
 ---
-<div id="docs">
-  <div class="toc">
-    <div class="bg"></div>
-    <div class="fg">
-      {% capture toc %}{% include outlines/docs.md %}{% endcapture %}
-      {{ toc | markdownify }}
-    </div>
+<div class="toc">
+  <div class="bg"></div>
+  <div class="fg">
+    {% capture toc %}{% include outlines/docs.md %}{% endcapture %}
+    {{ toc | markdownify }}
   </div>
+</div>
 
-  <div class="controls overlaid"></div>
-
-  <div class="markdown-body">
-    {{ content }}
-  </div>
+<div class="body markdown">
+  {{ content }}
 </div>

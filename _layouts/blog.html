@@ -2,8 +2,8 @@
 layout: default
 section: blog
 ---
-<div id="blog-index">
-  <div class="markdown-body">
+<div class="index">
+  <div class="body">
     <div class="preview first">
       {% assign post = site.posts.first %}
       <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
@@ -33,7 +33,9 @@ section: blog
     </div>
     {% endif %}
     {% endfor %}
-
+  </div>
+  
+  <div class="body markdown">
     {{ content }}
   </div>
 </div>

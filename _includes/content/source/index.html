@@ -19,7 +19,7 @@ object.</p>
 <span class="kd">var</span> <span class="nx">global</span> <span class="o">=</span> <span class="k">this</span><span class="p">,</span>
 
     <span class="nx">meta</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="nx">VERSION</span><span class="o">:</span> <span class="s1">&#39;0.0.7&#39;</span><span class="p">,</span>
+        <span class="nx">VERSION</span><span class="o">:</span> <span class="s1">&#39;0.0.8&#39;</span><span class="p">,</span>
 
         <span class="nx">noConflict</span><span class="o">:</span> <span class="p">(</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
             <span class="kd">var</span> <span class="nx">original</span> <span class="o">=</span> <span class="nx">global</span><span class="p">.</span><span class="nx">state</span><span class="p">;</span>
@@ -526,7 +526,7 @@ of its corresponding method factory at
             <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">guards</span><span class="p">,</span> <span class="nx">substates</span><span class="p">,</span> <span class="nx">transitions</span><span class="p">,</span> <span class="nx">history</span> <span class="p">],</span>
         <span class="s1">&#39;superstate&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">superstate</span> <span class="p">],</span>
         <span class="s1">&#39;attributes&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">attributes</span> <span class="p">],</span>
-        <span class="s1">&#39;data&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">attributes</span> <span class="o">|</span> <span class="nx">MUTABLE</span><span class="p">,</span> <span class="nx">data</span> <span class="p">],</span>
+        <span class="s1">&#39;data has get let set&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">attributes</span> <span class="o">|</span> <span class="nx">MUTABLE</span><span class="p">,</span> <span class="nx">data</span> <span class="p">],</span>
         <span class="s1">&#39;method methodNames addMethod removeMethod&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">methods</span> <span class="p">],</span>
         <span class="s1">&#39;event addEvent removeEvent emit&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">events</span> <span class="p">],</span>
         <span class="s1">&#39;guard addGuard removeGuard&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">guards</span> <span class="p">],</span>
@@ -575,6 +575,7 @@ be used, and must be removed.</p></div>         <div class="code span11"><div cl
         <span class="k">this</span><span class="p">.</span><span class="nx">mutate</span> <span class="o">=</span> <span class="nx">privileged</span><span class="p">.</span><span class="nx">mutate</span><span class="p">(</span> <span class="nx">StateExpression</span><span class="p">,</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span>
             <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">guards</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">transitions</span> <span class="p">);</span>
     <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>(Exposed for debugging.)</p></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">O</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">debug</span> <span class="o">&amp;&amp;</span> <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="k">this</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;&lt;attr&gt;&#39;</span><span class="o">:</span> <span class="nx">StateExpression</span><span class="p">.</span><span class="nx">decodeAttributes</span><span class="p">(</span> <span class="nx">attributes</span> <span class="p">),</span>
         <span class="nx">__private__</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">peek</span><span class="p">(</span> <span class="nx">__MODULE__</span> <span class="p">)</span>
     <span class="p">});</span>
 
@@ -633,7 +634,45 @@ substates.</p>
     <span class="p">};</span>
 <span class="p">};</span>
 
-<span class="nx">State</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">realize</span> <span class="o">=</span> <span class="nx">O</span><span class="p">.</span><span class="nx">getThis</span><span class="p">;</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h3><a href="#state--expression.js"><code>state/expression.js</code></a></h3></div>         <div class="code span11"><div class="highlight"><pre></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--express">express</a></h4>
+<span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">State</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="p">{</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--prototype--virtualize">virtualize</a></h4>
+
+<p>Creates, if necessary, a virtual state within the state hierarchy of
+<code>inheritor</code> to represent <code>this</code> protostate, along with as many virtual
+superstates as are necessary to reach a real <a href="#state"><code>State</code></a> in the
+hierarchy of <code>inheritor</code>.</p>
+
+<p>Returns the state on <code>inheritor</code>’s state tree for which <code>this</code> is a
+protostate. This will be the newly created virtual state, unless
+virtualization was unnecessary, in which case it will be the already
+existent real <strong>epistate</strong> of <code>this</code>.</p>
+
+<blockquote>
+  <p><a href="/docs/#concepts--inheritance--protostates">Protostates</a></p>
+</blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">virtualize</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">inheritor</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">derivation</span><span class="p">,</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">real</span><span class="p">,</span> <span class="nx">name</span><span class="p">;</span>
+        </pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Verify that <code>inheritor</code>’s owner does indeed inherit from the owner
+of <code>this</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span> <span class="nx">inheritor</span> <span class="k">instanceof</span> <span class="nx">State</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">owner</span><span class="p">().</span><span class="nx">isPrototypeOf</span><span class="p">(</span>
+            <span class="nx">inheritor</span><span class="p">.</span><span class="nx">owner</span><span class="p">()</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="k">return</span> <span class="kc">null</span><span class="p">;</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Get the <a href="/api/#state--methods--derivation">derivation</a> list for
+<code>this</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="nx">derivation</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">derivation</span><span class="p">(</span> <span class="kc">true</span> <span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nx">derivation</span><span class="p">.</span><span class="nx">length</span> <span class="p">)</span> <span class="k">return</span> <span class="kc">null</span><span class="p">;</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Traverse the real states of the inheriting state tree to their
+furthest depth.</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">s</span> <span class="o">=</span> <span class="nx">inheritor</span><span class="p">.</span><span class="nx">root</span><span class="p">();</span>
+        <span class="k">while</span> <span class="p">(</span> <span class="p">(</span> <span class="nx">name</span> <span class="o">=</span> <span class="nx">derivation</span><span class="p">[</span> <span class="nx">i</span><span class="o">++</span> <span class="p">]</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
+                <span class="p">(</span> <span class="nx">real</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">substate</span><span class="p">(</span> <span class="nx">name</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="nx">s</span> <span class="o">=</span> <span class="nx">real</span><span class="p">;</span>
+        <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>If <code>derivation</code> extends beyond the inheriting state tree’s real
+states, then add virtual states to it until the whole superstate
+chain is represented.</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="k">while</span> <span class="p">(</span> <span class="nx">name</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="nx">s</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">State</span><span class="p">(</span> <span class="nx">s</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="p">{</span>
+                <span class="nx">attributes</span><span class="o">:</span> <span class="nx">STATE_ATTRIBUTES</span><span class="p">.</span><span class="nx">VIRTUAL</span>
+            <span class="p">});</span>
+            <span class="nx">name</span> <span class="o">=</span> <span class="nx">derivation</span><span class="p">[</span> <span class="nx">i</span><span class="o">++</span> <span class="p">];</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nx">s</span><span class="p">;</span>
+    <span class="p">},</span>
+
+    <span class="nx">realize</span><span class="o">:</span> <span class="nx">O</span><span class="p">.</span><span class="nx">getThis</span>
+<span class="p">});</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h3><a href="#state--expression.js"><code>state/expression.js</code></a></h3></div>         <div class="code span11"><div class="highlight"><pre></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--express">express</a></h4>
 
 <p>Returns an expression of the state of <code>this</code> state — a snapshot of the
 state’s current contents.</p></div>         <div class="code span11"><div class="highlight"><pre><span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">express</span> <span class="o">=</span> <span class="p">(</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
@@ -1025,13 +1064,13 @@ itself an ancestor of <code>other</code>, or vice versa, that ancestor is return
 </blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">isIn</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="cm">/*State | String*/</span> <span class="nx">state</span> <span class="p">)</span> <span class="p">{</span>
         <span class="nx">state</span> <span class="k">instanceof</span> <span class="nx">State</span> <span class="o">||</span> <span class="p">(</span> <span class="nx">state</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span> <span class="nx">state</span> <span class="p">)</span> <span class="p">);</span>
         <span class="k">return</span> <span class="nx">state</span> <span class="o">===</span> <span class="k">this</span> <span class="o">||</span> <span class="nx">state</span><span class="p">.</span><span class="nx">isSuperstateOf</span><span class="p">(</span> <span class="k">this</span> <span class="p">);</span>
-    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--prototype--has">has</a></h4>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--prototype--has-substate">hasSubstate</a></h4>
 
 <p>Determines whether <code>this</code> is or is a superstate of <code>state</code>.</p>
 
 <blockquote>
-  <p><a href="/api/#state--methods--has">has</a></p>
-</blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">has</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="cm">/*State | String */</span> <span class="nx">state</span> <span class="p">)</span> <span class="p">{</span>
+  <p><a href="/api/#state--methods--has-substate">hasSubstate</a></p>
+</blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">hasSubstate</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="cm">/*State | String */</span> <span class="nx">state</span> <span class="p">)</span> <span class="p">{</span>
         <span class="nx">state</span> <span class="k">instanceof</span> <span class="nx">State</span> <span class="o">||</span> <span class="p">(</span> <span class="nx">state</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span> <span class="nx">state</span> <span class="p">)</span> <span class="p">);</span>
         <span class="k">return</span> <span class="k">this</span> <span class="o">===</span> <span class="nx">state</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">isSuperstateOf</span><span class="p">(</span> <span class="nx">state</span> <span class="p">);</span>
     <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--prototype--is-superstate-of">isSuperstateOf</a></h4>
@@ -1150,6 +1189,46 @@ substates are marked <code>default</code>.</p>
         <span class="p">}</span>
 
         <span class="k">return</span> <span class="nx">first</span><span class="p">;</span>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--substates--favor">favor</a></h4>
+
+<p>An abstract state may <code>favor</code> a particular substate by overriding the
+attribute-based implementation of <code>defaultSubstate</code>.</p>
+
+<blockquote>
+  <p><a href="/api/#state--methods--favor">favor</a></p>
+</blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">favor</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">substate</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">path</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">isConcrete</span><span class="p">()</span> <span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        </pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Calling with no arguments clears any overriding favoritism,
+reverting back to the attribute-based method on the prototype.</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="k">if</span> <span class="p">(</span> <span class="nx">substate</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">O</span><span class="p">.</span><span class="nx">hasOwn</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span> <span class="k">this</span><span class="p">,</span> <span class="s1">&#39;defaultSubstate&#39;</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="k">delete</span> <span class="k">this</span><span class="p">.</span><span class="nx">defaultSubstate</span><span class="p">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">defaultSubstate</span><span class="p">();</span>
+        <span class="p">}</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">isVirtual</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">realize</span><span class="p">();</span>
+
+        <span class="nx">substate</span> <span class="k">instanceof</span> <span class="nx">State</span> <span class="o">||</span> <span class="p">(</span> <span class="nx">substate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span> <span class="nx">substate</span> <span class="p">)</span> <span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span> <span class="nx">substate</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">isSuperstateOf</span><span class="p">(</span> <span class="nx">substate</span> <span class="p">)</span> <span class="p">)</span> <span class="p">)</span> <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+        
+        <span class="nx">path</span> <span class="o">=</span> <span class="nx">substate</span><span class="p">.</span><span class="nx">path</span><span class="p">();</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">defaultSubstate</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span> <span class="nx">path</span> <span class="p">);</span>
+        <span class="p">};</span>
+
+        <span class="k">return</span> <span class="nx">substate</span><span class="p">;</span>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--substates--appoint">appoint</a></h4>
+
+<p>An abstract state may <code>appoint</code> a substate, which first <code>favor</code>s the
+substate and then, iff the abstract state is active, transitions into
+the favored substate.</p>
+
+<blockquote>
+  <p><a href="/api/#state--methods--appoint">appoint</a></p>
+</blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">appoint</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">substate</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">favored</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">favor</span><span class="p">(</span> <span class="nx">substate</span> <span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nx">favored</span> <span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">isActive</span><span class="p">()</span> <span class="p">)</span> <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">change</span><span class="p">(</span> <span class="nx">favored</span> <span class="p">);</span>
+        <span class="k">return</span> <span class="nx">favored</span><span class="p">;</span>
     <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--substates--initial-substate">initialSubstate</a></h4>
 
 <p>Performs a “depth-within-breadth-first” recursive search to locate the
@@ -1405,10 +1484,7 @@ state.</p>
 <blockquote>
   <p><a href="/docs/#concepts--data">Data</a>
   <a href="/api/#state--methods--data">data</a></p>
-</blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">data</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span>
-        <span class="cm">/*Number*/</span> <span class="nx">attributes</span><span class="p">,</span>
-        <span class="cm">/*Object*/</span> <span class="nx">data</span>
-    <span class="p">)</span> <span class="p">{</span>
+</blockquote></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">data</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="cm">/*Boolean*/</span> <span class="nx">viaSuper</span><span class="p">,</span> <span class="cm">/*Boolean*/</span> <span class="nx">viaProto</span> <span class="p">)</span> <span class="p">{</span>
             <span class="kd">var</span> <span class="nx">edit</span><span class="p">,</span> <span class="nx">delta</span><span class="p">,</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">superstate</span><span class="p">,</span> <span class="nx">protostate</span><span class="p">;</span>
 
@@ -1441,10 +1517,81 @@ state.</p>
                 <span class="p">);</span>
             <span class="p">}</span>
         <span class="p">};</span>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--has">has</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">has</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">viaSuper</span><span class="p">,</span> <span class="nx">viaProto</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">protostate</span><span class="p">,</span> <span class="nx">superstate</span><span class="p">;</span>
+
+            <span class="nx">viaSuper</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">viaSuper</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">);</span>
+            <span class="nx">viaProto</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">viaProto</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">);</span>
+            
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="nx">data</span> <span class="o">&amp;&amp;</span> <span class="nx">O</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span> <span class="p">)</span>
+                    <span class="o">||</span>
+                <span class="nx">viaProto</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">protostate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">protostate</span><span class="p">()</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
+                        <span class="nx">protostate</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span> <span class="p">)</span>
+                    <span class="o">||</span>
+                <span class="nx">viaSuper</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">superstate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">superstate</span><span class="p">()</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
+                        <span class="nx">superstate</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">viaProto</span> <span class="p">)</span>
+            <span class="p">);</span>            
+        <span class="p">};</span>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--get">get</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">get</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">viaSuper</span><span class="p">,</span> <span class="nx">viaProto</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">protostate</span><span class="p">,</span> <span class="nx">superstate</span><span class="p">;</span>
+            
+            <span class="nx">viaSuper</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">viaSuper</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">);</span>
+            <span class="nx">viaProto</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">viaProto</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">);</span>
+
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="nx">data</span> <span class="o">&amp;&amp;</span> <span class="nx">O</span><span class="p">.</span><span class="nx">lookup</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span> <span class="p">)</span>
+                    <span class="o">||</span>
+                <span class="nx">viaProto</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">protostate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">protostate</span><span class="p">()</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
+                        <span class="nx">protostate</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">true</span> <span class="p">)</span>
+                    <span class="o">||</span>
+                <span class="nx">viaSuper</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">superstate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">superstate</span><span class="p">()</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
+                        <span class="nx">superstate</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">viaProto</span> <span class="p">)</span>
+            <span class="p">);</span>
+        <span class="p">};</span>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--let">let</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="s1">&#39;let&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">displaced</span><span class="p">,</span> <span class="nx">edit</span><span class="p">,</span> <span class="nx">delta</span><span class="p">;</span>
+
+            <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>warn: attempted <code>let</code> on non-mutable state</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="k">return</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="p">(</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">realize</span><span class="p">()[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span>
+            <span class="p">}</span>
+
+            <span class="nx">displaced</span> <span class="o">=</span> <span class="nx">O</span><span class="p">.</span><span class="nx">lookup</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span> <span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="nx">displaced</span> <span class="o">!==</span> <span class="nx">value</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span>
+                <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">edit</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span>
+                <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">delta</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">displaced</span> <span class="p">);</span>
+                <span class="k">this</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span> <span class="s1">&#39;mutate&#39;</span><span class="p">,</span> <span class="p">[</span> <span class="nx">edit</span><span class="p">,</span> <span class="nx">delta</span> <span class="p">],</span> <span class="kc">false</span> <span class="p">);</span>
+            <span class="p">}</span>
+
+            <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
+        <span class="p">};</span>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--set">set</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">set</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span> <span class="nx">s</span><span class="p">;</span> <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span><span class="p">()</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span> <span class="nx">s</span><span class="p">.</span><span class="nx">isMutable</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="nx">s</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+                    <span class="k">return</span> <span class="nx">s</span><span class="p">[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">};</span>
     <span class="p">}</span>
 <span class="p">});</span>
 
-<span class="nx">State</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">);</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h3><a href="#state--methods.js"><code>state/methods.js</code></a></h3></div>         <div class="code span11"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">rootNoop</span> <span class="p">()</span> <span class="p">{}</span>
+<span class="nx">State</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">);</span>
+
+<span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">State</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">data</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">),</span>
+    <span class="nx">has</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">),</span>
+    <span class="nx">get</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">),</span>
+    <span class="s1">&#39;let&#39;</span><span class="o">:</span> <span class="nx">O</span><span class="p">.</span><span class="nx">noop</span><span class="p">,</span>
+    <span class="nx">set</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">)</span>
+<span class="p">});</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h3><a href="#state--methods.js"><code>state/methods.js</code></a></h3></div>         <div class="code span11"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">rootNoop</span> <span class="p">()</span> <span class="p">{}</span>
 
 <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">,</span> <span class="p">{</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--method">method</a></h4>
 
@@ -2277,7 +2424,7 @@ current state to that.</p></div>         <div class="code span11"><div class="hi
             <span class="p">}</span>
         <span class="p">}</span>
         <span class="k">if</span> <span class="p">(</span> <span class="nx">current</span><span class="p">.</span><span class="nx">controller</span><span class="p">()</span> <span class="o">!==</span> <span class="k">this</span> <span class="p">)</span> <span class="p">{</span>
-            <span class="nx">current</span> <span class="o">=</span> <span class="nx">virtualize</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span> <span class="k">this</span><span class="p">,</span> <span class="nx">current</span> <span class="p">);</span>
+            <span class="nx">current</span> <span class="o">=</span> <span class="nx">current</span><span class="p">.</span><span class="nx">virtualize</span><span class="p">(</span> <span class="nx">root</span> <span class="p">);</span>
         <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>(Exposed for debugging.)</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="nx">O</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">debug</span> <span class="o">&amp;&amp;</span> <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">__private__</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{</span>
             <span class="nx">root</span><span class="o">:</span> <span class="nx">root</span><span class="p">,</span>
             <span class="nx">owner</span><span class="o">:</span> <span class="nx">owner</span><span class="p">,</span>
@@ -2331,34 +2478,6 @@ then forwarded.</p></div>         <div class="code span11"><div class="highlight
         <span class="p">}</span>
 
         <span class="k">return</span> <span class="nx">accessor</span><span class="p">;</span>
-    <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state-controller--private--virtualize">virtualize</a></h4>
-
-<p>Creates a transient virtual state within the local state hierarchy to
-represent <code>protostate</code>, along with as many virtual superstates as are
-necessary to reach a real <a href="#state"><code>State</code></a> in the local hierarchy.</p></div>         <div class="code span11"><div class="highlight"><pre>    <span class="kd">function</span> <span class="nx">virtualize</span> <span class="p">(</span> <span class="nx">protostate</span> <span class="p">)</span> <span class="p">{</span>
-        <span class="kd">var</span> <span class="nx">derivation</span><span class="p">,</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">name</span><span class="p">;</span>
-        <span class="kd">function</span> <span class="nx">iterate</span> <span class="p">()</span> <span class="p">{</span>
-            <span class="nx">next</span> <span class="o">=</span> <span class="nx">state</span><span class="p">.</span><span class="nx">substate</span><span class="p">(</span> <span class="p">(</span> <span class="nx">name</span> <span class="o">=</span> <span class="nx">derivation</span><span class="p">.</span><span class="nx">shift</span><span class="p">()</span> <span class="p">),</span> <span class="kc">false</span> <span class="p">);</span>
-            <span class="k">return</span> <span class="nx">next</span><span class="p">;</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="p">(</span> <span class="nx">protostate</span> <span class="k">instanceof</span> <span class="nx">State</span> <span class="o">&amp;&amp;</span>
-            <span class="nx">protostate</span><span class="p">.</span><span class="nx">owner</span><span class="p">().</span><span class="nx">isPrototypeOf</span><span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">owner</span><span class="p">()</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
-            <span class="p">(</span> <span class="nx">derivation</span> <span class="o">=</span> <span class="nx">protostate</span><span class="p">.</span><span class="nx">derivation</span><span class="p">(</span> <span class="kc">true</span> <span class="p">)</span> <span class="p">).</span><span class="nx">length</span>
-        <span class="p">)</span> <span class="p">{</span>
-            <span class="nx">state</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span><span class="p">();</span>
-            <span class="nx">iterate</span><span class="p">();</span>
-            <span class="k">while</span> <span class="p">(</span> <span class="nx">next</span> <span class="p">)</span> <span class="p">{</span>
-                <span class="nx">state</span> <span class="o">=</span> <span class="nx">next</span><span class="p">;</span>
-                <span class="nx">iterate</span><span class="p">();</span>
-            <span class="p">}</span>
-            <span class="k">while</span> <span class="p">(</span> <span class="nx">name</span> <span class="p">)</span> <span class="p">{</span>
-                <span class="nx">state</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">State</span><span class="p">(</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="p">{</span>
-                    <span class="nx">attributes</span><span class="o">:</span> <span class="nx">STATE_ATTRIBUTES</span><span class="p">.</span><span class="nx">VIRTUAL</span>
-                <span class="p">});</span>
-                <span class="nx">name</span> <span class="o">=</span> <span class="nx">derivation</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
-            <span class="p">}</span>
-            <span class="k">return</span> <span class="nx">state</span><span class="p">;</span>
-        <span class="p">}</span>
     <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state-controller--private--evaluate-guard">evaluateGuard</a></h4>
 
 <p>Returns the <code>Boolean</code> result of the guard function at <code>guardName</code>
@@ -2414,14 +2533,16 @@ attempt is blocked by a guard.</p></li>
                 <span class="cm">/*State | String*/</span> <span class="nx">target</span><span class="p">,</span>
                         <span class="cm">/*Object*/</span> <span class="nx">options</span> <span class="c1">// optional</span>
             <span class="p">)</span> <span class="p">{</span>
-                <span class="kd">var</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">transition</span><span class="p">,</span> <span class="nx">targetOwner</span><span class="p">,</span> <span class="nx">source</span><span class="p">,</span> <span class="nx">origin</span><span class="p">,</span> <span class="nx">domain</span><span class="p">,</span>
-                    <span class="nx">state</span><span class="p">,</span> <span class="nx">record</span><span class="p">,</span> <span class="nx">transitionExpression</span><span class="p">,</span>
+                <span class="kd">var</span> <span class="nx">root</span><span class="p">,</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">transition</span><span class="p">,</span> <span class="nx">targetOwner</span><span class="p">,</span> <span class="nx">source</span><span class="p">,</span> <span class="nx">origin</span><span class="p">,</span>
+                    <span class="nx">domain</span><span class="p">,</span> <span class="nx">state</span><span class="p">,</span> <span class="nx">record</span><span class="p">,</span> <span class="nx">transitionExpression</span><span class="p">,</span>
                     <span class="nx">self</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
 
-                <span class="nx">owner</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">owner</span><span class="p">();</span>
                 <span class="nx">transition</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">transition</span><span class="p">();</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>The <code>origin</code> is defined as the controller’s most recently
-current state that is not a <code>Transition</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="nx">origin</span> <span class="o">=</span> <span class="nx">transition</span> <span class="o">?</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">origin</span><span class="p">()</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">current</span><span class="p">();</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Departures are not allowed from a state that is <code>final</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="k">if</span> <span class="p">(</span> <span class="nx">origin</span><span class="p">.</span><span class="nx">isFinal</span><span class="p">()</span> <span class="p">)</span> <span class="k">return</span> <span class="kc">null</span><span class="p">;</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Ensure that <code>target</code> is a valid <a href="#state"><code>State</code></a>.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="nx">target</span> <span class="k">instanceof</span> <span class="nx">State</span> <span class="o">||</span>
-                    <span class="p">(</span> <span class="nx">target</span> <span class="o">=</span> <span class="nx">target</span> <span class="o">?</span> <span class="nx">origin</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span> <span class="nx">target</span> <span class="p">)</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span><span class="p">()</span> <span class="p">);</span>
+current state that is not a <code>Transition</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="nx">origin</span> <span class="o">=</span> <span class="nx">transition</span> <span class="o">?</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">origin</span><span class="p">()</span> <span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">current</span><span class="p">();</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Departures are not allowed from a state that is <code>final</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="k">if</span> <span class="p">(</span> <span class="nx">origin</span><span class="p">.</span><span class="nx">isFinal</span><span class="p">()</span> <span class="p">)</span> <span class="k">return</span> <span class="kc">null</span><span class="p">;</span>
+
+                <span class="nx">root</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">root</span><span class="p">();</span>
+                <span class="nx">owner</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">owner</span><span class="p">();</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Ensure that <code>target</code> is a valid <a href="#state"><code>State</code></a>.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="nx">target</span> <span class="k">instanceof</span> <span class="nx">State</span> <span class="o">||</span>
+                    <span class="p">(</span> <span class="nx">target</span> <span class="o">=</span> <span class="nx">target</span> <span class="o">?</span> <span class="nx">origin</span><span class="p">.</span><span class="nx">query</span><span class="p">(</span> <span class="nx">target</span> <span class="p">)</span> <span class="o">:</span> <span class="nx">root</span> <span class="p">);</span>
                 <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nx">target</span> <span class="o">||</span>
                         <span class="p">(</span> <span class="nx">targetOwner</span> <span class="o">=</span> <span class="nx">target</span><span class="p">.</span><span class="nx">owner</span><span class="p">()</span> <span class="p">)</span> <span class="o">!==</span> <span class="nx">owner</span> <span class="o">&amp;&amp;</span>
                         <span class="o">!</span><span class="nx">targetOwner</span><span class="p">.</span><span class="nx">isPrototypeOf</span><span class="p">(</span> <span class="nx">owner</span> <span class="p">)</span>
@@ -2448,7 +2569,7 @@ substate.</p></div>         <div class="code span11"><div class="highlight"><pre
                 <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>If <code>target</code> is a protostate, i.e. a state from a prototype
 of <code>owner</code>, then it must be represented within <code>owner</code> as a
 transient virtual state that inherits from the protostate.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="nx">target</span> <span class="o">&amp;&amp;</span> <span class="nx">target</span><span class="p">.</span><span class="nx">controller</span><span class="p">()</span> <span class="o">!==</span> <span class="k">this</span> <span class="o">&amp;&amp;</span>
-                    <span class="p">(</span> <span class="nx">target</span> <span class="o">=</span> <span class="nx">virtualize</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span> <span class="k">this</span><span class="p">,</span> <span class="nx">target</span> <span class="p">)</span> <span class="p">);</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>The <code>source</code> variable will reference the previously current
+                    <span class="p">(</span> <span class="nx">target</span> <span class="o">=</span> <span class="nx">target</span><span class="p">.</span><span class="nx">virtualize</span><span class="p">(</span> <span class="nx">root</span> <span class="p">)</span> <span class="p">);</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>The <code>source</code> variable will reference the previously current
 state (or abortive transition).</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="nx">source</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">current</span><span class="p">();</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>The upcoming transition will start from its <code>source</code> and
 proceed within the <code>domain</code> of the least common ancestor
 between that state and the specified target.</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="nx">domain</span> <span class="o">=</span> <span class="nx">source</span><span class="p">.</span><span class="nx">common</span><span class="p">(</span> <span class="nx">target</span> <span class="p">);</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Conclusivity is enforced by checking each state that will be

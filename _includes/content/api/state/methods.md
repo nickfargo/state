@@ -313,10 +313,10 @@ Returns a boolean indicating whether `this` state is or is a substate of the pro
 > [`State::isIn`](/source/#state--prototype--is-in)
 
 
-#### [has](#state--methods--has)
+#### [hasSubstate](#state--methods--has-substate)
 
 {% highlight javascript %}
-this.has( other )
+this.hasSubstate( other )
 {% endhighlight %}
 
 * `other` : ( `State` | string )
@@ -324,14 +324,14 @@ this.has( other )
 Returns a boolean indicating whether `this` state is or is a superstate of the provided `other` state.
 
 {% highlight javascript %}
-{% include examples/api/state/methods--has.js %}
+{% include examples/api/state/methods--has-substate.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/api/state/methods--has.coffee %}
+{% include examples/api/state/methods--has-substate.coffee %}
 {% endhighlight %}
 
-> [`State::has`](/source/#state--prototype--has)
+> [`State::hasSubstate`](/source/#state--prototype--has-substate)
 
 
 #### [isSuperstateOf](#state--methods--is-superstate-of)
@@ -720,7 +720,7 @@ Once a state marked `final` is entered, no further outbound transitions within i
 
 * * *
 
-The [`data`](#state--methods--data) method below allows states to hold arbitrary **data**.
+The methods below allow states to store and manipulate arbitrary **data**.
 
 > [Data](/docs/#concepts--data)
 > [`state/data.js`](/source/#state--data.js)
@@ -743,14 +743,71 @@ this.data( edit )
 
 * `edit` : object
 
-Adds, updates, and/or removes data on `this` state, and returns `this`.
+Adds, updates, and/or removes `data` properties on `this` state, and returns `this`.
 
 For any keys in `edit` whose values are set to the `O.NIL` directive, the matching properties are deleted from `this` state’s data.
 
 If the operation results in a change to `this` state’s data, a `mutate` event is emitted.
 
-
 > [`State.privileged.data`](/source/#state--privileged--data)
+
+
+#### [has](#state--methods--has)
+
+{% highlight javascript %}
+this.has( key, viaSuper, viaProto )
+{% endhighlight %}
+
+* `key` : string
+* [`viaSuper = true`] : boolean
+* [`viaProto = true`] : boolean
+
+Predicate that determines whether a `data` property with the given `key` exists on `this` state, or is inherited from a protostate or superstate. Supports `long.key` lookups for deeply nested properties.
+
+> [`State.privileged.has`](/source/#state--privileged--has)
+
+
+#### [get](#state--methods--get)
+
+{% highlight javascript %}
+this.get( key, viaSuper, viaProto )
+{% endhighlight %}
+
+* `key` : string
+* [`viaSuper = true`] : boolean
+* [`viaProto = true`] : boolean
+
+Retrieves the value of the `data` property with the given `key` on `this` state, or one inherited from the nearest protostate, or the nearest superstate. Supports `long.key` lookups for deeply nested properties.
+
+> [`State.privileged.get`](/source/#state--privileged--get)
+
+
+#### [let](#state--methods--let)
+
+{% highlight javascript %}
+this.let( key, value )
+{% endhighlight %}
+
+* `key` : string
+* `value` : var
+
+Creates a new property or updates an existing one on `this` state. Succeeds only if `this` state is `mutable`. Supports `long.key` assignments to deeply nested properties.
+
+> [`State.privileged.let`](/source/#state--privileged--let)
+
+
+#### [set](#state--methods--set)
+
+{% highlight javascript %}
+this.set( key, value )
+{% endhighlight %}
+
+* `key` : string
+* `value` : var
+
+Updates the value of an existing `data` property. If the property is inherited from a `mutable` superstate, then the property is updated in place, equivalent to calling `let` on that superstate. Properties inherited from protostates are not affected. Supports `long.key` assignments to deeply nested properties.
+
+> [`State.privileged.set`](/source/#state--privileged--set)
 
 
 * * *

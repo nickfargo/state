@@ -1,6 +1,6 @@
 ### [Data](#concepts--data)
 
-Arbitrary **data** can be attached to each state, and inherited accordingly through protostates and superstates. Data may be declared within an expression, and both read and written using the `data` method:
+Arbitrary **data** can be attached to a state, and inherited accordingly through protostates and superstates. Data properties are declared within a state expression under the `data` category. Properties can be read using the [`get`](/api/#state--methods--get) method. For `mutable` states, properties can be written using [`let`](/api/#state--methods--let) and [`set`](/api/#state--methods--set). Data can also be manipulated transactionally with the [`data`](/api/#state--methods--data) method.
 
 {% highlight javascript %}
 {% include examples/docs/data.js %}
@@ -11,6 +11,11 @@ Arbitrary **data** can be attached to each state, and inherited accordingly thro
 {% endhighlight %}
 
 > [data](/api/#state--methods--data)
+> [has](/api/#state--methods--has)
+> [get](/api/#state--methods--get)
+> [let](/api/#state--methods--let)
+> [set](/api/#state--methods--set)
+
 > [`State.privileged.data`](/source/#state--privileged--data)
 
 <div class="backcrumb">
