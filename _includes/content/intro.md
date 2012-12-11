@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-[`State` instances](/api/#state) define behavior for an **owner** object, and have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates) of their owner.
+[`State` instances](/api/#state) define behavior for an **owner** object. They have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates) of their owner.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
