@@ -719,7 +719,7 @@ State.prototype.peek = O.noop;
 // 
 // > See also:
 // > [`State constructor`](#state--constructor),
-// > [`StateController virtualize`](#state-controller--private--virtualize),
+// > [`State::virtualize`](#state--prototype--virtualize),
 // > [`State.privileged.realize`](#state--privileged--realize)
 function realize ( superstate, attributes, expression ) {
     var owner, addMethod, key, method,

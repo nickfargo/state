@@ -34,9 +34,8 @@ class Document
 
     transitions:
       Writing:
-        origin: 'Dirty'
-        target: 'Saved'
+        origin: 'Dirty', target: 'Saved'
         action: ( location, text ) ->
           fs.writeFile location, text, ( err ) =>
-            return @abort( err ).change 'Dirty' if err
+            return @abort( err ).change('Dirty') and this if err
             do @end

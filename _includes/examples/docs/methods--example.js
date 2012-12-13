@@ -15,7 +15,7 @@ function Document ( location, text ) {
 }
 state( Document.prototype, 'abstract', {
     freeze: function () {                                   // [3]
-        var result = this.call( 'save' );                   // [4]
+        var result = this.call('save');                     // [4]
         this.change('Frozen');
         return result;
     },
@@ -44,16 +44,14 @@ state( Document.prototype, 'abstract', {
 
     transitions: {
         Writing: {
-            origin: 'Dirty',
-            target: 'Saved',
+            origin: 'Dirty', target: 'Saved',
             action: function ( location, text ) {
                 var transition = this;
                 
                 function cb ( err ) {
                     if ( err ) {
-                        return transition
-                            .abort( err )
-                            .change('Dirty');
+                        return transition.abort( err )
+                                         .change('Dirty');
                     }
                     transition.end();
                 }

@@ -8,7 +8,7 @@ state( person, {
     Casual: {
         greet: function () { return "Hi!"; }
     }
-};
+});
 
 
 person.hasOwnProperty('state');   // >>> true
