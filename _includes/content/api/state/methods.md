@@ -777,7 +777,7 @@ this.get( key, viaSuper, viaProto )
 * [`viaSuper = true`] : boolean
 * [`viaProto = true`] : boolean
 
-Retrieves the value of the `data` property with the given `key` on `this` state, or one inherited from the nearest protostate, or the nearest superstate. Supports `long.key` lookups for deeply nested properties.
+Returns the value of the `data` property with the given `key` on `this` state, or one inherited from the nearest protostate, or the nearest superstate. Supports `long.key` lookups for deeply nested properties. Returns `undefined` if `key` cannot be resolved.
 
 > [`State.privileged.get`](/source/#state--privileged--get)
 
@@ -791,7 +791,7 @@ this.let( key, value )
 * `key` : string
 * `value` : var
 
-Creates a new property or updates an existing one on `this` state. Succeeds only if `this` state is `mutable`. Supports `long.key` assignments to deeply nested properties.
+Creates a new data property or updates an existing data property on `this` state, and returns the assigned `value`. Succeeds only if `this` state is `mutable`. Supports `long.key` assignments to deeply nested properties.
 
 > [`State.privileged.let`](/source/#state--privileged--let)
 
@@ -805,9 +805,22 @@ this.set( key, value )
 * `key` : string
 * `value` : var
 
-Updates the value of an existing `data` property. If the property is inherited from a `mutable` superstate, then the property is updated in place, equivalent to calling `let` on that superstate. Properties inherited from protostates are not affected. Supports `long.key` assignments to deeply nested properties.
+Updates an existing `data` property and returns the assigned `value`. If the property is inherited from a `mutable` superstate, then the property is updated in place, equivalent to calling `let` on that superstate. If the data property does not yet exist in the superstate chain, it is created on `this`. Properties inherited from protostates are not affected. Supports `long.key` assignments to deeply nested properties.
 
-> [`State.privileged.set`](/source/#state--privileged--set)
+> [`State.prototype.set`](/source/#state--prototype--set)
+
+
+#### [delete](#state--methods--delete)
+
+{% highlight javascript %}
+this.delete( key )
+{% endhighlight %}
+
+* `key` : string
+
+Deletes an existing `data` property on `this` state. Returns boolean `true` if the deletion was successful or unnecessary, or `false` otherwise, in the same manner as the native `delete` operator. Supports `long.key` lookups for deeply nested properties.
+
+> [`State.prototype.delete`](/source/#state--prototype--delete)
 
 
 * * *

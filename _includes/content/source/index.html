@@ -34,7 +34,9 @@ object.</p>
         <span class="p">}</span>
     <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>The lone dependency of <strong>State</strong> is <a href="http://github.com/nickfargo/omicron">Omicron</a>,
 a library that assists with tasks such as object manipulation,
-differential operations, and facilitation of prototypal inheritance.</p></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">O</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">require</span> <span class="o">!==</span> <span class="s1">&#39;undefined&#39;</span> <span class="o">?</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;omicron&#39;</span><span class="p">)</span> <span class="o">:</span> <span class="nx">global</span><span class="p">.</span><span class="nx">O</span><span class="p">;</span>
+differential operations, and facilitation of prototypal inheritance.</p></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">O</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">require</span> <span class="o">!==</span> <span class="s1">&#39;undefined&#39;</span> <span class="o">?</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;omicron&#39;</span><span class="p">)</span> <span class="o">:</span> <span class="nx">global</span><span class="p">.</span><span class="nx">O</span><span class="p">,</span>
+
+    <span class="nx">NIL</span> <span class="o">=</span> <span class="nx">O</span><span class="p">.</span><span class="nx">NIL</span><span class="p">;</span>
 
 
 <span class="kd">var</span> <span class="nx">rxTransitionArrow</span>       <span class="o">=</span> <span class="sr">/^\s*([\-|=]&gt;)\s*(.*)/</span><span class="p">,</span>
@@ -522,20 +524,28 @@ if necessary.</p>
 methods are created on <code>this</code>, each of which is a partial application
 of its corresponding method factory at
 <a href="#state--privileged"><code>State.privileged</code></a>.</p></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">O</span><span class="p">.</span><span class="nx">privilege</span><span class="p">(</span> <span class="k">this</span><span class="p">,</span> <span class="nx">privileged</span><span class="p">,</span> <span class="p">{</span>
-        <span class="s1">&#39;peek express mutate&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">StateExpression</span><span class="p">,</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span>
-            <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">guards</span><span class="p">,</span> <span class="nx">substates</span><span class="p">,</span> <span class="nx">transitions</span><span class="p">,</span> <span class="nx">history</span> <span class="p">],</span>
-        <span class="s1">&#39;superstate&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">superstate</span> <span class="p">],</span>
-        <span class="s1">&#39;attributes&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">attributes</span> <span class="p">],</span>
-        <span class="s1">&#39;data has get let set&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">attributes</span> <span class="o">|</span> <span class="nx">MUTABLE</span><span class="p">,</span> <span class="nx">data</span> <span class="p">],</span>
-        <span class="s1">&#39;method methodNames addMethod removeMethod&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">methods</span> <span class="p">],</span>
-        <span class="s1">&#39;event addEvent removeEvent emit&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">events</span> <span class="p">],</span>
-        <span class="s1">&#39;guard addGuard removeGuard&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">guards</span> <span class="p">],</span>
-        <span class="s1">&#39;substate substates addSubstate removeSubstate&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="nx">attributes</span><span class="p">,</span>
-            <span class="nx">substates</span> <span class="p">],</span>
+        <span class="s1">&#39;peek express mutate&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">StateExpression</span><span class="p">,</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">guards</span><span class="p">,</span>
+                <span class="nx">substates</span><span class="p">,</span> <span class="nx">transitions</span><span class="p">,</span> <span class="nx">history</span> <span class="p">],</span>
+        <span class="s1">&#39;superstate&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">superstate</span> <span class="p">],</span>
+        <span class="s1">&#39;attributes&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">attributes</span> <span class="p">],</span>
+        <span class="s1">&#39;data has get let&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">attributes</span> <span class="o">|</span> <span class="nx">MUTABLE</span><span class="p">,</span> <span class="nx">data</span> <span class="p">],</span>
+        <span class="s1">&#39;method methodNames addMethod removeMethod&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">methods</span> <span class="p">],</span>
+        <span class="s1">&#39;event addEvent removeEvent emit&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">events</span> <span class="p">],</span>
+        <span class="s1">&#39;guard addGuard removeGuard&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">guards</span> <span class="p">],</span>
+        <span class="s1">&#39;substate substates addSubstate removeSubstate&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">substates</span> <span class="p">],</span>
         <span class="s1">&#39;transition transitions addTransition removeTransition&#39;</span> <span class="o">:</span>
             <span class="p">[</span> <span class="nx">transitions</span> <span class="p">],</span>
-        <span class="s1">&#39;destroy&#39;</span> <span class="o">:</span> <span class="p">[</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">s</span> <span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">superstate</span> <span class="o">=</span> <span class="nx">s</span><span class="p">;</span> <span class="p">},</span> <span class="nx">methods</span><span class="p">,</span>
-            <span class="nx">events</span><span class="p">,</span> <span class="nx">substates</span> <span class="p">]</span>
+        <span class="s1">&#39;destroy&#39;</span> <span class="o">:</span>
+            <span class="p">[</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">s</span> <span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">superstate</span> <span class="o">=</span> <span class="nx">s</span><span class="p">;</span> <span class="p">},</span> <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span>
+                <span class="nx">substates</span> <span class="p">]</span>
     <span class="p">});</span>
 
     <span class="nx">O</span><span class="p">.</span><span class="nx">alias</span><span class="p">(</span> <span class="k">this</span><span class="p">,</span> <span class="p">{</span>
@@ -561,7 +571,7 @@ root to define the object’s default behavior.</p></div>         <div class="co
     <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>If the state is <code>finite</code> or non-<code>mutable</code>, then the appropriate
 mutation methods used during construction/realization can no longer
 be used, and must be removed.</p></div>         <div class="code span11"><div class="highlight"><pre>    <span class="k">if</span> <span class="p">(</span> <span class="o">~</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span> <span class="p">)</span> <span class="p">{</span>
-        <span class="nx">O</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span> <span class="s1">&#39;mutate addMethod removeMethod addGuard removeGuard \</span>
+        <span class="nx">O</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span> <span class="s1">&#39;mutate let addMethod removeMethod addGuard removeGuard \</span>
 <span class="s1">            addTransition removeTransition&#39;</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="sr">/\s+/</span><span class="p">),</span>
             <span class="kd">function</span> <span class="p">(</span> <span class="nx">m</span> <span class="p">)</span> <span class="p">{</span>
                 <span class="k">delete</span> <span class="nx">self</span><span class="p">[</span> <span class="nx">m</span> <span class="p">];</span>
@@ -1523,8 +1533,8 @@ state.</p>
 
             <span class="nx">viaSuper</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">viaSuper</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">);</span>
             <span class="nx">viaProto</span> <span class="o">===</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">viaProto</span> <span class="o">=</span> <span class="kc">true</span> <span class="p">);</span>
-            
-            <span class="k">return</span> <span class="p">(</span>
+
+            <span class="k">return</span> <span class="o">!!</span><span class="p">(</span>
                 <span class="nx">data</span> <span class="o">&amp;&amp;</span> <span class="nx">O</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span> <span class="p">)</span>
                     <span class="o">||</span>
                 <span class="nx">viaProto</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">protostate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">protostate</span><span class="p">()</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
@@ -1532,7 +1542,7 @@ state.</p>
                     <span class="o">||</span>
                 <span class="nx">viaSuper</span> <span class="o">&amp;&amp;</span> <span class="p">(</span> <span class="nx">superstate</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">superstate</span><span class="p">()</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
                         <span class="nx">superstate</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">viaProto</span> <span class="p">)</span>
-            <span class="p">);</span>            
+            <span class="p">);</span>
         <span class="p">};</span>
     <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--get">get</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">get</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
         <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">viaSuper</span><span class="p">,</span> <span class="nx">viaProto</span> <span class="p">)</span> <span class="p">{</span>
@@ -1555,11 +1565,16 @@ state.</p>
         <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">)</span> <span class="p">{</span>
             <span class="kd">var</span> <span class="nx">displaced</span><span class="p">,</span> <span class="nx">edit</span><span class="p">,</span> <span class="nx">delta</span><span class="p">;</span>
 
-            <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>warn: attempted <code>let</code> on non-mutable state</p></div>         <div class="code span11"><div class="highlight"><pre>                <span class="k">return</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="p">(</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span><span class="p">;</span> <span class="c1">// should warn: attempted `let` on non-mutable state</span>
             <span class="p">}</span>
 
             <span class="k">if</span> <span class="p">(</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span> <span class="p">)</span> <span class="p">{</span>
                 <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">realize</span><span class="p">()[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span>
+            <span class="p">}</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>With no bound <code>data</code> (e.g. in a virtual state), an assignment
+fails and returns. An attempted deletion returns <code>NIL</code>,
+suggestive of the expression <code>delete data[key] === true</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>            <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">value</span> <span class="o">===</span> <span class="nx">NIL</span> <span class="o">?</span> <span class="nx">NIL</span> <span class="o">:</span> <span class="kc">undefined</span><span class="p">;</span>
             <span class="p">}</span>
 
             <span class="nx">displaced</span> <span class="o">=</span> <span class="nx">O</span><span class="p">.</span><span class="nx">lookup</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span> <span class="p">);</span>
@@ -1572,25 +1587,25 @@ state.</p>
 
             <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
         <span class="p">};</span>
-    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--set">set</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">set</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">data</span> <span class="p">)</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">)</span> <span class="p">{</span>
-            <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span> <span class="nx">s</span><span class="p">;</span> <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span><span class="p">()</span> <span class="p">)</span> <span class="p">{</span>
-                <span class="k">if</span> <span class="p">(</span> <span class="nx">s</span><span class="p">.</span><span class="nx">isMutable</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="nx">s</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
-                    <span class="k">return</span> <span class="nx">s</span><span class="p">[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">};</span>
     <span class="p">}</span>
 <span class="p">});</span>
-
-<span class="nx">State</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">data</span> <span class="o">=</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">);</span>
 
 <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">State</span><span class="p">.</span><span class="nx">prototype</span><span class="p">,</span> <span class="p">{</span>
     <span class="nx">data</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">data</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">),</span>
     <span class="nx">has</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">),</span>
     <span class="nx">get</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">),</span>
-    <span class="s1">&#39;let&#39;</span><span class="o">:</span> <span class="nx">O</span><span class="p">.</span><span class="nx">noop</span><span class="p">,</span>
-    <span class="nx">set</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">)</span>
+    <span class="s1">&#39;let&#39;</span><span class="o">:</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">null</span> <span class="p">),</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--prototype--set">set</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="nx">set</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">isMutable</span><span class="p">()</span> <span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+
+        <span class="k">this</span><span class="p">.</span><span class="nx">isVirtual</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">realize</span><span class="p">();</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>If no mutable property already exists along the superstate chain,
+then default to a <code>let</code>.</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="k">if</span> <span class="p">(</span> <span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span> <span class="p">)</span> <span class="k">return</span> <span class="k">this</span><span class="p">[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><p>Find the superstate that holds the inherited property and mutate it.</p></div>         <div class="code span11"><div class="highlight"><pre>        <span class="k">for</span> <span class="p">(</span> <span class="kd">var</span> <span class="nx">s</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span> <span class="nx">s</span><span class="p">;</span> <span class="nx">s</span> <span class="o">=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span><span class="p">()</span> <span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span> <span class="nx">s</span><span class="p">.</span><span class="nx">isMutable</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="nx">s</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="kc">false</span> <span class="p">)</span> <span class="p">)</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="nx">s</span><span class="p">[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">},</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--prototype--delete">delete</a></h4></div>         <div class="code span11"><div class="highlight"><pre>    <span class="s1">&#39;delete&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span> <span class="nx">key</span> <span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="k">this</span><span class="p">[</span><span class="s1">&#39;let&#39;</span><span class="p">](</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">NIL</span> <span class="p">)</span> <span class="o">===</span> <span class="nx">NIL</span><span class="p">;</span>
+    <span class="p">}</span>
 <span class="p">});</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h3><a href="#state--methods.js"><code>state/methods.js</code></a></h3></div>         <div class="code span11"><div class="highlight"><pre><span class="kd">function</span> <span class="nx">rootNoop</span> <span class="p">()</span> <span class="p">{}</span>
 
 <span class="nx">O</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span> <span class="nx">State</span><span class="p">.</span><span class="nx">privileged</span><span class="p">,</span> <span class="p">{</span></pre></div></div>     </div>          <div class="row">         <div class="text span5"><h4><a href="#state--privileged--method">method</a></h4>

@@ -6,12 +6,11 @@ var exported = ( function () {
     A: state( 'default', {
       normal: function () { return { closed: closed }; },
       
-      bound: state.method({ c: closed }, function() {
+      bound: state.method({ c: closed }, function () {
         return {
           c: c,
           autostate: autostate,
-          protostate: protostate,
-          'this': this
+          protostate: protostate
         };
       })
     })
@@ -30,15 +29,14 @@ var exported = ( function () {
             param: param,
             closed: closed,
             autostate: autostate,
-            protostate: protostate,
-            'this': this
+            protostate: protostate
           };
         });
     }
   });
 
   return { closed: closed, Class: Class, o: o };
-})();
+}() );
 
 var closed = exported.closed;
 var Class = exported.Class;

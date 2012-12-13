@@ -21,10 +21,10 @@ exclude: art/*, diagrams/*
 
 packages:
   state:
-    version: 0.0.7
-    size: 141kB
-    size_gz: 8.9kB
+    version: 0.0.8
+    size: 147kB
+    size_gz: 9.3kB
   omicron:
-    version: 0.1.8
-    size: 19kB
-    size_gz: 2.1kB
+    version: 0.1.9
+    size: 25kB
+    size_gz: 2.5kB

@@ -8,7 +8,7 @@
         bound: state.method
           c: closed
           ->
-            { c, autostate, protostate, this:this }
+            { c, autostate, protostate }
 
   o = new Class
   state o,
@@ -18,7 +18,7 @@
       
       alsoBound: state.method({ closed }) \
         ( param ) ->
-          { param, closed, autostate, protostate, this:this }
+          { param, closed, autostate, protostate }
 
   { closed, Class, o }
 

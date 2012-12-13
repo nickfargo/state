@@ -13,7 +13,7 @@ function Chief () {
 state( Chief.prototype, {
     data: {
         mission: 'innovate',
-        budget: 1e10
+        budget: 10000000000
     },
     Enraged: {
         data: {

@@ -31,7 +31,7 @@
 {% endhighlight %}
 
 
-[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods are [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they are defined, and may optionally be decorated with [additional variables](/docs/#concepts--methods--lexical-bindings) that describe the method’s complete [state–lexical environment](/blog/lexical-binding-in-state-methods).
+[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods are [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they are defined, and may optionally be decorated with [additional bindings](/docs/#concepts--methods--lexical-bindings) that describe the method’s complete [state–lexical environment](/blog/lexical-binding-in-state-methods).
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}

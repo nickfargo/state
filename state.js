@@ -37,7 +37,9 @@ var global = this,
     // The lone dependency of **State** is [Omicron](http://github.com/nickfargo/omicron),
     // a library that assists with tasks such as object manipulation,
     // differential operations, and facilitation of prototypal inheritance.
-    O = typeof require !== 'undefined' ? require('omicron') : global.O;
+    O = typeof require !== 'undefined' ? require('omicron') : global.O,
+
+    NIL = O.NIL;
 
 
 var rxTransitionArrow       = /^\s*([\-|=]>)\s*(.*)/,
@@ -737,20 +739,28 @@ function realize ( superstate, attributes, expression ) {
     // of its corresponding method factory at
     // [`State.privileged`](#state--privileged).
     O.privilege( this, privileged, {
-        'peek express mutate' : [ StateExpression, attributes, data,
-            methods, events, guards, substates, transitions, history ],
-        'superstate' : [ superstate ],
-        'attributes' : [ attributes ],
-        'data has get let set' : [ attributes | MUTABLE, data ],
-        'method methodNames addMethod removeMethod' : [ methods ],
-        'event addEvent removeEvent emit' : [ events ],
-        'guard addGuard removeGuard' : [ guards ],
-        'substate substates addSubstate removeSubstate' : [ attributes,
-            substates ],
+        'peek express mutate' :
+            [ StateExpression, attributes, data, methods, events, guards,
+                substates, transitions, history ],
+        'superstate' :
+            [ superstate ],
+        'attributes' :
+            [ attributes ],
+        'data has get let' :
+            [ attributes | MUTABLE, data ],
+        'method methodNames addMethod removeMethod' :
+            [ methods ],
+        'event addEvent removeEvent emit' :
+            [ events ],
+        'guard addGuard removeGuard' :
+            [ guards ],
+        'substate substates addSubstate removeSubstate' :
+            [ attributes, substates ],
         'transition transitions addTransition removeTransition' :
             [ transitions ],
-        'destroy' : [ function ( s ) { return superstate = s; }, methods,
-            events, substates ]
+        'destroy' :
+            [ function ( s ) { return superstate = s; }, methods, events,
+                substates ]
     });
 
     O.alias( this, {
@@ -785,7 +795,7 @@ function realize ( superstate, attributes, expression ) {
     // mutation methods used during construction/realization can no longer
     // be used, and must be removed.
     if ( ~attributes & MUTABLE ) {
-        O.forEach( 'mutate addMethod removeMethod addGuard removeGuard \
+        O.forEach( 'mutate let addMethod removeMethod addGuard removeGuard \
             addTransition removeTransition'.split(/\s+/),
             function ( m ) {
                 delete self[ m ];
@@ -1937,8 +1947,8 @@ O.assign( State.privileged, {
 
             viaSuper === undefined && ( viaSuper = true );
             viaProto === undefined && ( viaProto = true );
-            
-            return (
+
+            return !!(
                 data && O.has( data, key )
                     ||
                 viaProto && ( protostate = this.protostate() ) &&
@@ -1946,7 +1956,7 @@ O.assign( State.privileged, {
                     ||
                 viaSuper && ( superstate = this.superstate() ) &&
                         superstate.has( key, true, viaProto )
-            );            
+            );
         };
     },
 
@@ -1978,12 +1988,18 @@ O.assign( State.privileged, {
             var displaced, edit, delta;
 
             if ( !( attributes & MUTABLE ) ) {
-                // warn: attempted `let` on non-mutable state
-                return;
+                return; // should warn: attempted `let` on non-mutable state
             }
 
             if ( attributes & VIRTUAL ) {
                 return this.realize()['let']( key, value );
+            }
+
+            // With no bound `data` (e.g. in a virtual state), an assignment
+            // fails and returns. An attempted deletion returns `NIL`,
+            // suggestive of the expression `delete data[key] === true`.
+            if ( !data ) {
+                return value === NIL ? NIL : undefined;
             }
 
             displaced = O.lookup( data, key );
@@ -1996,29 +2012,39 @@ O.assign( State.privileged, {
 
             return value;
         };
-    },
-
-    // #### [set](#state--privileged--set)
-    // 
-    set: function ( attributes, data ) {
-        return function ( key, value ) {
-            for ( var s = this; s; s = s.superstate() ) {
-                if ( s.isMutable() && s.has( key, false, false ) ) {
-                    return s['let']( key, value );
-                }
-            }
-        };
     }
 });
-
-State.prototype.data = State.privileged.data( undefined, null );
 
 O.assign( State.prototype, {
     data: State.privileged.data( undefined, null ),
     has: State.privileged.has( undefined, null ),
     get: State.privileged.get( undefined, null ),
-    'let': O.noop,
-    set: State.privileged.set( undefined, null )
+    'let': State.privileged['let']( undefined, null ),
+
+    // #### [set](#state--prototype--set)
+    // 
+    set: function ( key, value ) {
+        if ( !this.isMutable() ) return;
+
+        this.isVirtual() && this.realize();
+
+        // If no mutable property already exists along the superstate chain,
+        // then default to a `let`.
+        if ( !this.has( key, true, false ) ) return this['let']( key, value );
+
+        // Find the superstate that holds the inherited property and mutate it.
+        for ( var s = this; s; s = s.superstate() ) {
+            if ( s.isMutable() && s.has( key, false, false ) ) {
+                return s['let']( key, value );
+            }
+        }
+    },
+
+    // #### [delete](#state--prototype--delete)
+    // 
+    'delete': function ( key ) {
+        return this['let']( key, NIL ) === NIL;
+    }
 });
 
 // ### [`state/methods.js`](#state--methods.js)

@@ -17,60 +17,62 @@
 
 ;( function ( undefined ) {
 
-var global = this,
+var global = this;
 
-    O = {
-        VERSION: '0.1.8',
-        env: {
-            server: typeof module !== 'undefined' &&
-                    typeof require !== 'undefined' &&
-                    !!module.exports,
-            client: typeof window !== 'undefined' && window === global,
-            debug:  false
-        }
-    },
-    
-    regexp = O.regexp = {
-        whitespace: /\s+/
-    },
+var O = {
+    VERSION: '0.1.9',
+    env: {
+        server: typeof module !== 'undefined' &&
+                typeof require !== 'undefined' &&
+                !!module.exports,
+        client: typeof window !== 'undefined' && window === global,
+        debug:  false
+    }
+};
 
-    // #### [NIL](#nil)
-    //
-    // Unique object reference. Used by [`edit`](#edit) and the related
-    // differential operation functions, where an object with a property whose
-    // value is set to `NIL` indicates the absence or deletion of the
-    // corresponding property on an associated operand.
-    NIL = O.NIL = ( function () { function NIL () {} return new NIL; }() ),
+var rxWhitespace = /\s+/;
 
-    // #### [toString](#to-string)
-    //
-    toString = O.toString =
-        Object.prototype.toString,
+var regexp = O.regexp = {
+    whitespace: rxWhitespace
+};
+
+// #### [NIL](#nil)
+//
+// Unique object reference. Used by [`edit`](#edit) and the related
+// differential operation functions, where an object with a property whose
+// value is set to `NIL` indicates the absence or deletion of the
+// corresponding property on an associated operand.
+var NIL = O.NIL = ( function () { function NIL () {} return new NIL; }() );
+
+// #### [toString](#to-string)
+//
+var toString = O.toString =
+    Object.prototype.toString;
     
-    // #### [hasOwn](#has-own)
-    //
-    hasOwn = O.hasOwn =
-        Object.prototype.hasOwnProperty,
+// #### [hasOwn](#has-own)
+//
+var hasOwn = O.hasOwn =
+    Object.prototype.hasOwnProperty;
     
-    // #### [trim](#trim)
-    //
-    trim = O.trim =
-        String.prototype.trim ?
-            function ( text ) {
-                return text == null ? '' : String.prototype.trim.call( text );
-            } :
-            function ( text ) {
-                return text == null ?
-                    '' :
-                    text.toString()
-                        .replace( /^\s+/, '' )
-                        .replace( /\s+$/, '' );
-            },
+// #### [trim](#trim)
+//
+var trim = O.trim =
+    String.prototype.trim ?
+        function ( text ) {
+            return text == null ? '' : String.prototype.trim.call( text );
+        } :
+        function ( text ) {
+            return text == null ?
+                '' :
+                text.toString()
+                    .replace( /^\s+/, '' )
+                    .replace( /\s+$/, '' );
+        };
     
-    // #### [slice](#slice)
-    //
-    slice = O.slice =
-        Array.prototype.slice;
+// #### [slice](#slice)
+//
+var slice = O.slice =
+    Array.prototype.slice;
 
 
 // #### [noConflict](#no-conflict)
@@ -128,11 +130,11 @@ each( 'Array Boolean Date Function Number Object RegExp String'.split(' '),
 O.type = type;
 
 // #### [isBoolean](#is-boolean)
-function isBoolean ( obj ) { return type( obj ) === 'boolean'; }
+function isBoolean ( obj ) { return typeof obj === 'boolean'; }
 O.isBoolean = isBoolean;
 
 // #### [isString](#is-string)
-function isString ( obj ) { return type( obj ) === 'string'; }
+function isString ( obj ) { return typeof obj === 'string'; }
 O.isString = isString;
 
 // #### [isNumber](#is-number)
@@ -144,7 +146,7 @@ function isArray ( obj ) { return type( obj ) === 'array'; }
 O.isArray = isArray;
 
 // #### [isFunction](#is-function)
-function isFunction ( obj ) { return type( obj ) === 'function'; }
+function isFunction ( obj ) { return typeof obj === 'function'; }
 O.isFunction = isFunction;
 
 // #### [isPlainObject](#is-plain-object)
@@ -407,15 +409,55 @@ O.diff = diff;
 //
 // Facilitates one or more assignments of a value to one or more keys of an
 // object.
-function assign ( target, map, value ) {
-    var valuesMirrorKeys, key, list, i, l;
+function assign ( target, map, value, separator ) {
+    var argLen, valuesMirrorKeys, key, list, i, l;
 
+    argLen = arguments.length;
     if ( typeof target === 'string' ) {
-        valuesMirrorKeys = arguments.length === 1;
+        valuesMirrorKeys = argLen === 1;
         value = map; map = target; target = {};
     } else {
-        valuesMirrorKeys = typeof map === 'string' && arguments.length === 2;
-        if ( map === undefined ) {
+        if ( typeof map === 'string' ) {
+            if ( argLen === 2 ) {
+                valuesMirrorKeys = true;
+            } else {
+                // `value` is present, and `map` is a key or "deep key";
+                // do `lookup`-style assignment
+                list = map.split( separator || '.' );
+                for ( i = 0, l = list.length; i < l; i++ ) {
+
+                    // To proceed `target` must be an `Object`.
+                    if ( !target || typeof target !== 'object' &&
+                        typeof target !== 'function' ) return;
+
+                    key = list[i];
+
+                    // If at the end of the deep-key, assign/delete and return.
+                    // For deletions, return `NIL` to indicate a `true` result
+                    // from the `delete` operator.
+                    if ( i === l - 1 ) {
+                        if ( value === NIL ) {
+                            return delete target[ key ] ? NIL : undefined;
+                        } else {
+                            return target[ key ] = value;
+                        }
+                    }
+
+                    // Advance `target` to the next level. If nothing is there
+                    // already, then: for an assignment, create a new object in
+                    // place and continue; for a deletion, return `NIL`
+                    // immediately to reflect what would have been a `true`
+                    // result from the `delete` operator.
+                    if ( hasOwn.call( target, key ) ) {
+                        target = target[ key ];
+                    } else {
+                        if ( value === NIL ) return NIL;
+                        target = target[ key ] = {};
+                    }
+                }
+            }
+        }
+        else if ( map === undefined ) {
             map = target; target = {};
         }
     }
@@ -424,7 +466,7 @@ function assign ( target, map, value ) {
     }
 
     for ( key in map ) if ( hasOwn.call( map, key ) ) {
-        list = key.split( regexp.whitespace );
+        list = key.split( rxWhitespace );
         if ( valuesMirrorKeys ) {
             for ( i = 0, l = list.length; i < l; i++ ) {
                 value = list[i];
@@ -440,6 +482,7 @@ function assign ( target, map, value ) {
 
     return target;
 }
+
 O.assign = assign;
 
 // #### [flatten](#flatten)
@@ -527,7 +570,7 @@ O.invert = invert;
 function alias ( object, map ) {
     var key, value, names, i, l;
     for ( key in map ) if ( key in object ) {
-        names = map[ key ].split( regexp.whitespace );
+        names = map[ key ].split( rxWhitespace );
         for ( i = 0, l = names.length; i < l; i++ ) {
             object[ names[i] ] = object[ key ];
         }
@@ -555,17 +598,62 @@ O.thunk = thunk;
 //      lookup( x, 'a.b' );      // 42
 //      lookup( x, 'a.b.c' );    // undefined
 //
-function lookup ( obj, path, separator ) {
-    var cursor = obj,
-        i = 0, l = ( path = path.split( separator || '.' ) ).length, name;
-    while ( i < l && cursor != null ) {
-        if ( hasOwn.call( cursor, name = path[ i++ ] ) ) {
-            cursor = cursor[ name ];
-        } else return undefined;
+function lookup ( obj, path, separator, ownProperty ) {
+    var i, l, name;
+
+    if ( obj == null || typeof path !== 'string' ) return;
+    if ( typeof separator === 'boolean' && arguments.length < 4 ) {
+        ownProperty = separator; separator = undefined;
     }
-    return cursor;
+    path = path.split( separator || '.' );
+    for ( i = 0, l = path.length; i < l && obj != null; i++ ) {
+        if ( typeof obj !== 'object' && typeof obj !== 'function' ) return;
+        name = path[i];
+        if ( ownProperty && !hasOwn.call( obj, name ) ) return;
+        obj = obj[ name ];
+    }
+    return obj;
 }
 O.lookup = lookup;
+
+// #### [has](#has)
+//
+// Returns a boolean that verifies the existence of a key, indicated by the
+// provided `path` string, within a nested object `obj`.
+//
+//      var x = { a: { b: 42 } };
+//      has( x, 'a' );        // true
+//      has( x, 'a.b' );      // true
+//      has( x, 'a.b.c' );    // false
+//
+// > See also: [lookup](#lookup)
+//
+function has ( obj, path, separator, ownProperty ) {
+    var i, l, name;
+
+    if ( obj == null || typeof path !== 'string' ) return false;
+    if ( typeof separator === 'boolean' && arguments.length < 4 ) {
+        ownProperty = separator; separator = undefined;
+    }
+
+    separator || ( separator = '.' );
+    if ( !~path.indexOf( separator ) ) {
+        return ownProperty ? hasOwn.call( obj, path ) : path in obj;
+    }
+
+    path = path.split( separator );
+    for ( i = 0, l = path.length; i < l && obj != null; i++ ) {
+        if ( typeof obj !== 'object' && typeof obj !== 'function' ) {
+            return false;
+        }
+        name = path[i];
+        if ( ownProperty && !hasOwn.call( obj, name ) ) return false;
+        if ( i === l - 1 ) return name in obj;
+        obj = obj[ name ];
+    }
+    return false;
+}
+O.has = has;
 
 // #### [create](#create)
 //
@@ -630,7 +718,7 @@ O.inherit = inherit;
 // distinct set of variables.
 function privilege ( object, methodStore, map ) {
     each( map, function ( names, args ) {
-        each( names.split( regexp.whitespace ), function ( i, methodName ) {
+        each( names.split( rxWhitespace ), function ( i, methodName ) {
             object[ methodName ] = methodStore[ methodName ]
                 .apply( undefined, args );
         });

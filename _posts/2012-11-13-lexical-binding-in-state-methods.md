@@ -4,7 +4,7 @@ title: Lexical binding in state methods
 date: "2012-11-13T19:10:34+08:00"
 tags: [methods, lexical binding]
 
-lede: Binding a [state method](/docs/#concepts--methods)’s context to its containing [`State`](/api/#state) provides invocations of that method with useful information about the state’s hierarchical position within the owner object’s [state tree](/docs/#concepts--inheritance). When the invoked method is inherited from a [**protostate**](/docs/#concepts--inheritance--protostates), however, `this` by itself lacks any expression of the protostate’s relation to the state from which the method is being invoked. To that end, we devise a means for reflecting a method’s complete state–lexical environment into the body of a method function.
+lede: When a [state method](/docs/#concepts--methods) is inherited from a [**protostate**](/docs/#concepts--inheritance--protostates), the inheriting [`State`](/api/#state) context from which the method is invoked — as referenced by `this` — offers no idiomatic expression of the precise `State` in which the method is defined. To gain this level of lexical awareness, **decorators** and **method transformation** are used to bind a state method to its complete state–lexical environment.
 ---
 
 ## [Serving two masters](#serving-two-masters)
@@ -17,7 +17,7 @@ However, a wrinkle is added by the arrangement of `State`s [into hierarchies](/d
 
 * its containing `State`
 * the owner object that issued the delegation to invoke the method
-* if the method is prototypally inherited, the **epistate** (a `State` within the owner’s state tree) that inherits from the protostate (the related `State` in the state tree of the owner’s prototype) which contains the method.
+* if the method is prototypally inherited, the **epistate** (a `State` within the owner’s state tree) that inherits from the **protostate** (the related `State` in the state tree of the owner’s prototype) which contains the method.
 
 State methods must therefore have the capacity to reference multiple contexts — something that cannot be facilitated directly by `this` alone.
 
@@ -66,11 +66,11 @@ This is the approach employed by **State.js**. Referential equivalence, and some
 
 ## [The next dimension](#the-next-dimension)
 
-The lexical binding approach, if a bit suboptimal syntactically, does work plenty well so far as it goes — state methods can access their containing `State`, or a superstate, or any other node on their owner’s state tree.
+The lexical binding approach, if a bit suboptimal syntactically, works well so far as it goes — state methods can access their containing `State`, or a superstate, or any other node on their owner’s state tree.
 
 However, we must still expand the context space one dimension further, along the axis of [the protostate–epistate relation](/docs/#concepts--inheritance--protostates) that follows the prototype chain of the owner object.
 
-### [A three²-body problem](#a-three-squared-body-problem)
+### [A three(²)-body problem](#a-three-squared-body-problem)
 
 Given the solution devised thus far, consider a set of prototypally related stateful objects, keeping an eye out for the impending danger posed by [`protostate()`](/api/#state--methods--protostate).
 
@@ -82,7 +82,7 @@ Given the solution devised thus far, consider a set of prototypally related stat
 {% include examples/blog/2012-11-13/4.coffee %}
 {% endhighlight %}
 
-Instance `o` inherits from its prototype `p`, which in turn inherits from `q`, while method `m` of `p.state('A')` makes a call up to its overridden counterpart at `q.state('A')`, its protostate.
+Here we have a three-long chain of objects: instance `o` inherits from its prototype `p`, which in turn inherits from `q` — in which is defined a three-long chain of `State`s: the root state, `A`, and `AA`. Along the way, method `m` of `p.state('A')` makes a call up to its overridden counterpart at `q.state('A')`, its protostate.
 
 The peril here is less conspicuous, but not unlike that encountered previously. When `this.protostate()` is called from `m` of `p.state('A')`, it returns `q.state('A')`, as expected. But when `o.state('A')` inherits and invokes that very same method `m`, the prevailing context is now one prototype level deeper, and the expression `this.protostate()` returns state `A` of `p`, rather than the expected `A` of `q`.
 
@@ -109,7 +109,7 @@ An acceptable solution, therefore, will have to involve a combination of relevan
 
 ## [The interior decorator](#the-interior-decorator)
 
-State methods depend on more lexical information than a bound `this` by itself can provide. To deal with this confined space, a number of alternatives might be easily proposed, but just as easily dismissed:
+As we’ve demonstrated, state methods may depend on more lexical information than a bound `this` by itself can provide. To deal with this confined space, a number of alternatives might be easily proposed, but just as easily dismissed:
 
 * A special context object could hold property references to the necessary dynamic and lexical references; however, a new object would have to be created for each invocation, which has the potential to become prohibitively expensive.
 
@@ -123,19 +123,19 @@ None of these address the issue of adequately equipping state methods with the l
 
 ### [Lexical state methods](#lexical-state-methods)
 
-Version **0.0.7** of **State.js** adds a module-level function called [`state.method`](/api/#module--method), which can be used as a **decorator** to transform a provided function argument into a **lexical state method** that includes specific bindings to the `State`s that define the method’s environment:
+Version **0.0.7** of **State.js** adds a module-level function called [`state.method`](/api/#module--method). This can be used as a **decorator** to transform a provided function argument into a **lexical state method**, which will be closed over the `State`s that define the method’s environment:
 
 * `autostate` — the precise `State` in which the method is defined
 * `protostate` — the protostate of `autostate`
 
-In addition, the function provided to `state.method` is rewritten, its body injected with bindings that must be dynamic to the `State` context in which the method will be invoked:
+In addition, the function provided to `state.method` is rewritten: its body is injected with dynamic bindings based on the `State` context in which the method is invoked:
 
 * `superstate` — a reference to `this.superstate()`
 * `owner` — a reference to `this.owner()`
 
-Rewriting a function necessarily abandons the scope chain of its original, so, if parts of the function’s lexical environment must be preserved, authors may also provide `state.method` with a `bindings` object argument that specifies any variable bindings to be included within the new flattened scope of the generated method.
+A rewritten function necessarily abandons the scope chain of its original, so, if parts of the function’s lexical environment must be preserved, authors may first provide `state.method` with a `bindings` object argument that specifies any variable bindings to be included within the new flattened scope of the generated method.
 
-#### [Inside the factory](#inside-the-factory)
+#### [The factory factory](#the-factory-factory)
 
 `state.method( bindings, fn )` : function
 
@@ -161,9 +161,9 @@ The `state.method` function is generally used within the `expression` object of 
 {% endhighlight %}
 
 
-### [Revisiting the “three²-body problem”](#revisiting-the-three-squared-body-problem)
+### [Revisiting the “three(²)-body problem”](#revisiting-the-three-squared-body-problem)
 
-Now that we have `state.method` we can rewrite the stateful prototypes example:
+With `state.method` now in hand, we can rewrite the stateful prototypes example:
 
 {% highlight javascript %}
 {% include examples/blog/2012-11-13/8.js %}
@@ -173,7 +173,7 @@ Now that we have `state.method` we can rewrite the stateful prototypes example:
 {% include examples/blog/2012-11-13/8.coffee %}
 {% endhighlight %}
 
-With this syntax, we finally get the `protostate` and results we expect.
+This syntax finally gives us the `protostate` and results we expect.
 
 {% highlight javascript %}
 {% include examples/blog/2012-11-13/9.js %}
@@ -196,9 +196,9 @@ Similarly, the desired lexical `State` references of `autostate` and `protostate
 
 ### [A note for the composers](#a-note-for-the-composers)
 
-The extra layer of complexity that arises from a two-dimensional inheritance space might suggest to some the virtues of adhering to patterns of composition, rather than inheritance.
+The extra layer of complexity that arises from a two-dimensional inheritance space might suggest to some the virtues of adhering to patterns of composition over inheritance.
 
-Exercising composition with **State.js** is straightforward: any stateful object can [`express`](/api/#state--methods--express) itself, cleanly exporting a transferable copy of its state tree as a [`StateExpression`](/source/#state-expression), or as an equivalent plain object. Either of these can then be “mixed-in” to another object with the [`state()`](/api/#module) function as usual.
+Exercising composition with **State.js** is straightforward: any `State` can [`express`](/api/#state--methods--express) itself, cleanly exporting a transferable copy of its state tree as a [`StateExpression`](/source/#state-expression), or as an equivalent plain object. Either of these can then be “mixed-in” to another object with the [`state()`](/api/#module) function as usual.
 
 Given a `target` object to be made stateful, and an already stateful `source`:
 
@@ -220,4 +220,4 @@ target.state('').mutate source.state('').express()
 
 Calling `express` from the root state outputs a plain-object deep clone of the entire tree, and this can be fed right into the `expression` argument of a call to [`state()`](/api/#module) or `mutate()`. Importantly, any lexical state methods that are brought over will be automatically recreated with the appropriate bindings for their new environment.
 
-With this mix-in approach, the dynamic prototypal relationship and the memory savings that follow are lost, but, depending on your point view, so too may be some of the complexity and rigidity that a deeper inheritance model might otherwise have entailed.
+The dynamic prototypal relationship and the memory savings that follow are lost with the mix-in approach, but, depending on your point view, so too may be some of the complexity and rigidity that a deeper inheritance model might otherwise have entailed.
