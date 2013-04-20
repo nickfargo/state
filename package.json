@@ -1,0 +1,43 @@
+{
+  "name"          : "state",
+  "version"       : "0.1.0",
+  "description"   : "Objects that behave",
+  "homepage"      : "http://statejs.org/",
+  "keywords" : [
+                    "state", "transition", "behavior", "behaviour", "fsm",
+                    "state machine"
+  ],
+  "author"        : "Nick Fargo",
+  "repository"    : {
+    "type"        : "git",
+    "url"         : "git://github.com/nickfargo/state.git"
+  },
+  "licenses" : [
+    {
+      "type"      : "MIT",
+      "url"       : "https://raw.github.com/nickfargo/state/master/LICENSE"
+    }
+  ],
+
+
+  "main"          : "state.js",
+  "directories" : {
+    "test"        : "test"
+  },
+  "scripts": {
+    "test"        : "echo \"Error: no test specified\" && exit 1"
+  },
+
+
+  "dependencies" : {
+    "omicron"     : ">=0.1.9"
+  },
+  "devDependencies" : {
+    "grunt"                  : "~0.4.1",
+    "grunt-contrib-concat"   : "~0.1.3",
+    "grunt-contrib-uglify"   : "~0.2.0",
+    "grunt-contrib-connect"  : "~0.2.0",
+    "grunt-contrib-watch"    : "~0.3.1",
+    "chai"                   : ">=1.5.0"
+  }
+}
