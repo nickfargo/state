@@ -192,7 +192,7 @@ Departures are not allowed from a state that is `final`.
 
         return null if origin.attributes & FINAL
 
-Ensure that `target` is a valid [`State`][].
+Ensure that `target` is a valid `State`.
 
         unless target instanceof State
           target = if target then origin.query target else root
