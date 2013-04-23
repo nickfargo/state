@@ -157,3 +157,14 @@ bit-field integer `number`.
       @decodeAttributes = decodeAttributes = ( number ) ->
         ( value for key, value of attributeFlags when number & key ).join ' '
 
+
+#### [untype](#state-expression--class-methods--untype)
+
+Returns the `StateExpression` provided by `expr` as a plain-`Object`.
+
+      @untype = untype = ( expr ) ->
+        result = {}
+        result[ key ] = value for own key, value of expr
+        s[ name ] = untype subexpr for name, subexpr of s = result.states
+        result
+
