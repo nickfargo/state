@@ -175,9 +175,7 @@ bound to the owner object.
 Builds out the state’s members based on the expression provided.
 
 > See also:
-> [Constructor][]
-
-> [initialize](/api/#state--methods--initialize)
+> `Constructor`
 
       initialize: ( expression ) ->
         { attributes } = this
@@ -200,8 +198,8 @@ of their functionality from protostates, but can also be converted at some
 later time to a real `State` if necessary.
 
 > See also:
-> [initialize][]
-> [virtualize][]
+> `initialize`
+> `virtualize`
 
       realize: ( expression ) ->
         return this unless @attributes & ( INCIPIENT | VIRTUAL )
@@ -267,8 +265,8 @@ add virtual states to it until the whole superstate chain is represented.
 Attempts to cleanly destroy this state and all of its substates. A `destroy`
 event is issued to each state after it has been destroyed.
 
-> [destroy](/api/#state--methods--destroy)
-> [destroy](/api/#state--events--destroy)
+> [destroy (method)](/api/#state--methods--destroy)
+> [destroy (event)](/api/#state--events--destroy)
 
       destroy: ->
         { owner, root, superstate, _ } = this
