@@ -156,12 +156,14 @@ bound to the owner object.
 
 > [Dispatchers](/docs/#concepts--methods--dispatchers)
 
-      createDispatcher = ( accessorName, methodName, original ) ->
-        dispatcher = -> @[ accessorName ]().apply methodName, arguments
-        dispatcher.isDispatcher = yes
-        dispatcher.toString = -> "[dispatcher]" if O.env.debug
-        dispatcher.original = original if original
-        dispatcher
+      createDispatcher = do ->
+        toString = -> "[dispatcher]"
+        ( accessorName, methodName, original ) ->
+          dispatcher = -> @[ accessorName ]().apply methodName, arguments
+          dispatcher.isDispatcher = yes
+          dispatcher.toString = toString if O.env.debug
+          dispatcher.original = original if original
+          dispatcher
 
 
 
