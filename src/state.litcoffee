@@ -27,6 +27,7 @@ Precompute certain useful attribute combinations.
 
       MUTABLE_OR_FINITE     = MUTABLE | FINITE
       ABSTRACT_OR_CONCRETE  = ABSTRACT | CONCRETE
+      INCIPIENT_OR_VIRTUAL  = INCIPIENT | VIRTUAL
       INCIPIENT_OR_MUTABLE  = INCIPIENT | MUTABLE
 
 A bit mask indicates the attributes that can be inherited via protostates.
@@ -202,7 +203,7 @@ later time to a real `State` if necessary.
 > `virtualize`
 
       realize: ( expression ) ->
-        return this unless @attributes & ( INCIPIENT | VIRTUAL )
+        return this unless @attributes & INCIPIENT_OR_VIRTUAL
 
         @_ or = new @Content
         @mutate expression
