@@ -946,7 +946,7 @@ Convenience method that either aliases to `change` if passed a function for the
 first argument, or aliases to `query` if passed a string — thereby mimicking
 the behavior of the object’s accessor method.
 
-> See also: [`createAccessor`][]
+> See also: `createAccessor`
 
       $: ( expr, args... ) ->
         if typeof expr is 'function'
@@ -1033,7 +1033,7 @@ inherited `via` superstates and protostates, unless directed otherwise.
 Assigns a `value` to a `key` within `this` state’s `data` storage. If no such
 key already exists, it is added.
 
-> See also: [`set`][]
+> See also: `set`
 
 > [let](/api/#state--methods--let)
 
@@ -1234,7 +1234,7 @@ inherited, a `noSuchMethod` event is emitted and the call returns `undefined`.
 
 #### [call](#state--prototype--call)
 
-Variadic [`apply`][].
+Variadic `apply`.
 
 > [call](/api/#state--methods--call)
 
@@ -1286,7 +1286,7 @@ identifier for the listener.
 #### [removeEvent](#state--prototype--remove-event)
 
 Unbinds the event listener with the specified `id` that was supplied by
-[`addEvent`][].
+`addEvent`.
 
 *Alias:* **off**
 
