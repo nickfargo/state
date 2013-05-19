@@ -73,7 +73,7 @@ Mix the project’s `meta` properties into the exported `state` function.
 Returns a `factory`, nominally for internal use, which will flatten the scope
 of the provided `fn`, reclose it both over any provided `bindings` and over a
 set of `lexicals` based on `autostate`, which is provided to `factory` as the
-`State` instance that will contain the **lexcial state methods** that `factory`
+`State` instance that will contain the **lexical state methods** that `factory`
 produces.
 
 Wrapping method functions with `state.method` inside a state expression is
