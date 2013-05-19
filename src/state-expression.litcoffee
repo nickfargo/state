@@ -9,8 +9,8 @@ shorthand format, in which case it is rewritten into an unambiguous long form
 that is used internally to create `State` instances.
 
     State::Expression = class StateExpression
-      { isNumber, isPlainObject, assign, edit, clone, invert } = O
 
+      { isNumber, isPlainObject, assign, edit, clone, invert } = O
       { NORMAL } = STATE_ATTRIBUTES
 
       attributeMap = do ->

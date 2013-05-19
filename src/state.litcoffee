@@ -20,6 +20,9 @@ and methods, so make them available as free variables.
       } =
           O.assign this, STATE_ATTRIBUTES
 
+For methods that query related states, the default behavior is to recurse
+through substates, superstates, and protostates.
+
       { VIA_NONE, VIA_SUB, VIA_SUPER, VIA_PROTO, VIA_ALL } =
           O.assign this, TRAVERSAL_FLAGS
 
@@ -39,9 +42,6 @@ A bit mask indicates the attributes that can be inherited via protostates.
         REFLECTIVE  |
         HISTORY     |  RETAINED    |  SHALLOW    |
         CONCURRENT
-
-For methods that query related states, the default behavior is to recurse
-through substates, superstates, and protostates.
 
 
 

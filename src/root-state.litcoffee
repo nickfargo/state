@@ -117,6 +117,10 @@ as evaluated `against` another `State`. Defaults to `true` if no guard exists.
         !!result
 
 
+
+### [Class methods](#root-state--class-methods)
+
+
 #### [getTransitionExpression](#root-state--private--get-transition-expression)
 
 Finds the appropriate transition expression for the given `target` and `origin`
@@ -184,7 +188,7 @@ The `options` parameter is an optional map that may include:
         transition = @_transition
 
 The `origin` is defined as the controller’s most recently current state that is
-not a [`Transition`][].
+not a `Transition`.
 
         origin = transition?.origin or current
 
