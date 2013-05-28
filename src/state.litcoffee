@@ -1092,27 +1092,65 @@ to a `let`.
 
 #### [method](#state--prototype--method)
 
-Retrieves the named method held on this state. If no method is found, move up
-this state’s protostate chain to find one. If no method is found there, move up
-the superstate chain and repeat the search.
+Retrieves the named method for this state. If an optional `out` object is
+provided, the appropriate `context` for the method is also delivered as a
+property of `out`; as usual, `context` is confined to the local state tree.
 
 > [method](/api/#state--methods--method)
 
       method: ( methodName, via = VIA_ALL, out ) ->
-        if ( method = @_?.methods?[ methodName ] ) and method isnt rootNoop
-          if out? then out.context = this; out.method = method
-          return method
+        realized = @attributes & VIRTUAL is 0
 
-        if viaProto = via & VIA_PROTO and
-            method = @protostate()?.method methodName, VIA_PROTO, out
-          out?.context = this
-          return method
+        loop # once
 
-        if via & VIA_SUPER and
-            method = @superstate?.method methodName, VIA_SUPER | viaProto, out
-          return method
+First seek the named method locally.
 
-        if out? then out.context = null; out.method = method
+          if realized
+            method = @_?.methods?[ methodName ]
+            if method is rootNoop then method = null
+            if method? then context = this
+            else [ method, context ] = @__dispatch_table__?[ methodName ]
+            break if method?
+
+If no method is held locally, start traversing, first up the protostate chain.
+
+          if ( viaProto = via & VIA_PROTO ) and
+          method = @protostate()?.method methodName, VIA_PROTO, out
+            context = this; inherited = yes; break
+
+If no method is found yet, continue traversing up the superstate chain.
+
+          if via & VIA_SUPER and
+          method = @superstate?.method methodName, VIA_SUPER | viaProto, out
+            inherited = yes; break
+
+The method cannot be found.
+
+          method = context = null
+          break # always
+
+If `method` is a function, it is not state-bound, so `context` is unnecessary.
+If instead `method` represents a state-bound function, then it will be boxed,
+so unbox it, and hang on to `context`.
+
+        if typeof method is 'function'
+          context = null
+        else if method?.type is 'state-bound-function'
+          method = method.fn
+
+Export `method` and `context` together if the `out` reference was provided.
+
+> Callers who know that `method` will be unbound need not provide an `out`.
+
+        if out?
+          out.method = method
+          out.context = context
+
+Iff `this` is a realized `State`, inherited lookup results can be memoized in
+the local dispatch table.
+
+        if realized and method? and out? and inherited
+          @__dispatch_table__?[ methodName ] = [ method, context ]
 
         method
 
@@ -1129,18 +1167,30 @@ Returns an `Array` of names of methods defined for this state.
 
 #### [addMethod](#state--prototype--add-method)
 
-Adds a method to this state, which will be callable directly from the owner,
-but with its context bound to the state.
+Adds a method to this state. The provided `fn` may be any of:
+
+  1.  A proper function, which will be called in the context of `@owner`;
+  2.  A boxing of a *bound* function as prepared by `state.bind`, which will
+      cause the boxed function to be called in the context of either `this`
+      `State` or the *epistate* inheriting the method;
+  3.  A boxing of a *fixed* function as prepared by `state.fix`, whose boxed
+      function will be closed over hard references to `this` as `autostate`,
+      and to the *protostate* of `this`, as `protostate`.
+
+> See also: `state.bind`, `state.fix`
 
 > [addMethod](/api/#state--methods--add-method)
 
-      addMethod: ( methodName, fn, raw ) ->
+      addMethod: ( methodName, fn ) ->
         return unless @attributes & INCIPIENT_OR_MUTABLE
 
-If `fn` holds a lexical state method, then extract the wrapped method, unless
-explicitly ordered to regard the function in its `raw` form.
+If `fn` boxes a *state-fixed* function, then partially apply that function to
+extract the actual method, closed over references to the locality of `this`.
 
-        fn = fn this if not raw and fn.isLexicalStateMethodFactory
+        if typeof fn is 'object' and fn.type is 'state-fixed-function'
+          fn = fn.fn this, @protostate()
+
+        throw TypeError unless typeof fn is 'function'
 
 If a method called `methodName` does not already exist in the state tree, then
 the owner and root state must be set up properly to accommodate calls to this
@@ -1152,11 +1202,7 @@ method.
             ownerMethod = owner[ methodName ]
             if ownerMethod is undefined or ownerMethod.isDispatcher
               ownerMethod = rootNoop
-
-The owner method must be added to the root state in its “raw” form, i.e., not
-lexically transformed by `state.method`.
-
-            root.addMethod methodName, ownerMethod, yes
+            root.addMethod methodName, ownerMethod
 
 A dispatcher function is instated on the owner, which will direct subsequent
 calls to `owner[ methodName ]` to the appropriate state’s implementation.
@@ -1203,26 +1249,39 @@ Determines whether `this` directly possesses a method named `methodName`.
 
 #### [apply](#state--prototype--apply)
 
-Finds a state method and applies it in the appropriate context. If the method
-was originally defined in the owner, the context will be the owner. Otherwise,
-the context will either be the state in which the method is defined, or if the
-implementation resides in a protostate, the corresponding state belonging to
-the inheriting owner. If the named method does not exist locally and cannot be
-inherited, a `noSuchMethod` event is emitted and the call returns `undefined`.
+Finds a state method and applies it in the appropriate context.
+
+If the named method does not exist locally and cannot be inherited, then
+`noSuchMethod` events are emitted, and the call returns `undefined`.
 
 > [apply](/api/#state--methods--apply)
 
       apply: ( methodName, args ) ->
-        out = method: undefined, context: undefined
-        unless method = @method methodName, null, out
-          @emit 'noSuchMethod', [ methodName, args ]
-          @emit 'noSuchMethod:' + methodName, args
-          return
-        { context } = out
-        { owner } = this
-        ownerMethod = owner[ methodName ]
-        context = owner if ownerMethod?.original and context is @root
-        method.apply context, args
+
+First try to resolve the method quickly from the local dispatch table.
+
+        [ method, context ] = ref if ref = @__dispatch_table__?[ methodName ]
+
+Resort to a proper lookup if the fast way turns up nothing.
+
+        unless method?
+          if method = @method methodName, VIA_ALL, out = {}
+            { context } = out
+
+Bail out gracefully if the method definitively cannot be resolved.
+
+          else
+            @emit 'noSuchMethod', [ methodName, args ]
+            @emit 'noSuchMethod:' + methodName, args
+            return
+
+If at this point a `context` is provided, this means that `method` is a
+state-bound function, and `context` will be the appropriately bound `State`. If
+no `context` exists, this means that `method` is a typical non-state-bound
+function, which is meant to be invoked in the usual fashion, just as if it were
+called directly as a method of `this` state’s `owner`.
+
+        method.apply context or @owner, args
 
 
 #### [call](#state--prototype--call)
