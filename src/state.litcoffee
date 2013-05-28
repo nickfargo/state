@@ -1128,7 +1128,7 @@ If no method is found yet, continue traversing up the superstate chain.
 
 The method cannot be found.
 
-          method = context = null
+          context = null
           break # always
 
 If `method` is a function, it is not state-bound, so `context` is unnecessary.
