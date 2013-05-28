@@ -68,7 +68,43 @@ Mix the project’s `meta` properties into the exported `state` function.
     O.assign state, meta
 
 
+
+### Utility functions
+
+
+#### [state.bind](#state-function--bind)
+
+Used inside a state expression, a function `fn` wrapped with `state.bind` will
+bind the context of `fn` either to any `State` created from that expression, or
+when invoked for an object that inherits from the `owner` of the bound `State`,
+to the corresponding **epistate** of that `State`.
+
+Thusly bound methods, event listeners, etc., whose context would have normally
+been the `owner`, still retain a reference thereto via `this.owner`.
+
+* `fn` : ( any… ) → any
+
+    state.bind = ( fn ) -> { type: 'state-bound-function', fn }
+
+
+#### [state.fix](#state-function--fix)
+
+Used inside a state expression, a combinator `fn` wrapped with `state.fix` will
+be partially applied with a reference to `autostate`, the precise `State` to
+which the combinator’s returned function will belong, and a reference to
+`protostate`, the immediate **protostate** of `autostate`.
+
+A method, event listener, etc. that is `fix`ed thusly has access to, and full
+lexical awareness of, the particular `State` environment in which it exists.
+
+* `fn` : ( autostate, protostate ) → ( any… ) → any
+
+    state.fix = ( fn ) -> { type: 'state-fixed-function', fn }
+
+
 #### [state.method](#state-function--method)
+
+> Deprecate me
 
 Returns a `factory`, nominally for internal use, which will flatten the scope
 of the provided `fn`, reclose it both over any provided `bindings` and over a
