@@ -337,7 +337,7 @@ is truthy, the expression is a formally typed `StateExpression`.
           if _ = @_ then expression = edit {}, {  # Why `edit`???
             @attributes
             data        : cloneCategory   _.data
-            methods     : cloneMethods    _.methods
+            methods     : cloneCategory   _.methods
             events      : cloneEvents     _.events
             guards      : cloneCategory   _.guards
             states      : cloneSubstates  _.substates, typed
@@ -352,15 +352,6 @@ is truthy, the expression is a formally typed `StateExpression`.
             out[ key ] = if value and typeof value is 'object'
             then clone value
             else value
-          out
-
-        cloneMethods = ( methods ) ->
-          return unless methods?
-          ( out = {}; break ) for name of methods
-          if out then for name, method of methods
-            out[ name ] = if method.isLexicalStateMethod
-            then method.factory
-            else method
           out
 
         cloneEvents = ( events ) ->
