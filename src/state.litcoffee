@@ -1099,7 +1099,7 @@ property of `out`; as usual, `context` is confined to the local state tree.
 > [method](/api/#state--methods--method)
 
       method: ( methodName, via = VIA_ALL, out ) ->
-        realized = @attributes & VIRTUAL is 0
+        realized = ~@attributes & VIRTUAL
 
         loop # once
 
@@ -1109,7 +1109,9 @@ First seek the named method locally.
             method = @_?.methods?[ methodName ]
             if method is rootNoop then method = null
             if method? then context = this
-            else [ method, context ] = @__dispatch_table__?[ methodName ]
+            else if record = @__dispatch_table__?[ methodName ]
+              [ method, context ] = record
+
             break if method?
 
 If no method is held locally, start traversing, first up the protostate chain.
@@ -1190,7 +1192,8 @@ extract the actual method, closed over references to the locality of `this`.
         if typeof fn is 'object' and fn.type is 'state-fixed-function'
           fn = fn.fn this, @protostate()
 
-        throw TypeError unless typeof fn is 'function'
+        throw TypeError unless typeof fn is 'function' or
+          fn?.type is 'state-bound-function'
 
 If a method called `methodName` does not already exist in the state tree, then
 the owner and root state must be set up properly to accommodate calls to this
@@ -1260,7 +1263,8 @@ If the named method does not exist locally and cannot be inherited, then
 
 First try to resolve the method quickly from the local dispatch table.
 
-        [ method, context ] = ref if ref = @__dispatch_table__?[ methodName ]
+        if record = @__dispatch_table__?[ methodName ]
+          [ method, context ] = record
 
 Resort to a proper lookup if the fast way turns up nothing.
 
