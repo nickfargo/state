@@ -206,6 +206,8 @@ later time to a real `State` if necessary.
         return this unless @attributes & INCIPIENT_OR_VIRTUAL
 
         @_ or = new @Content
+        @__dispatch_table__ = {}
+
         @mutate expression
 
 Realizing a root state requires that, for each of the owner’s own methods, if
