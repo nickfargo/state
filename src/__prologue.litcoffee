@@ -28,7 +28,8 @@ manipulation tasks, such as differential operations.
         -> global.state = original; this
 
       options:
-        memoizeProtostates: true
+        memoizeProtostates: yes
+        useDispatchTables: no
 
     rxTransitionArrow      = /^\s*([\-|=]>)\s*(.*)/
     transitionArrowMethods = '->': 'change', '=>': 'changeTo'

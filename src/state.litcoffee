@@ -4,6 +4,8 @@
 
     class State
 
+      { memoizeProtostates, useDispatchTables } = state.options
+
 Bit field constants will be used extensively throughout the class’s constructor
 and methods, so make them available as free variables.
 
@@ -1149,7 +1151,7 @@ If `method` is a function, it is not state-bound, so `context` is unnecessary.
 Iff `this` is a realized `State`, inherited lookup results can be memoized in
 the local dispatch table.
 
-          if realized and inherited
+          if realized and inherited and useDispatchTables
             table = @_?.__dispatch_table__ or = {}
             table[ methodName ] = [ method, context ]
 

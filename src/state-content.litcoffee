@@ -2,6 +2,8 @@
 
     State::Content = class StateContent
 
+      { useDispatchTables } = state.options
+
       constructor: ->
         @data         = null
         @methods      = null
@@ -10,4 +12,4 @@
         @substates    = null
         @transitions  = null
 
-        @__dispatch_table__ = null
+        @__dispatch_table__ = null if useDispatchTables
