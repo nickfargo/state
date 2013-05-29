@@ -21,10 +21,7 @@ acts in the second capacity, causing `owner` to become stateful.
 The `attributes` argument may include any of the words defined in
 `STATE_ATTRIBUTE_MODIFIERS`, which are encoded into the provided `expression`.
 
-> See also:
-> [`State`][],
-> [`STATE_ATTRIBUTES`][],
-> [`StateExpression`][]
+> See also: `STATE_ATTRIBUTES`
 
     state = ( owner, attributes, expression, options ) ->
       if arguments.length < 2
