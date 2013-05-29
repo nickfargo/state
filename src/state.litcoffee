@@ -1092,14 +1092,20 @@ to a `let`.
 
 #### [method](#state--prototype--method)
 
-Retrieves the named method for this state. If an optional `out` object is
-provided, the appropriate `context` for the method is also delivered as a
-property of `out`; as usual, `context` is confined to the local state tree.
+Retrieves the named method for this state. Providing an optional `out` object
+allows the appropriate `context` for a state-bound method to be delivered as a
+property of `out`; if included, `context` is confined to the local state tree.
 
 > [method](/api/#state--methods--method)
 
-      method: ( methodName, via = VIA_ALL, out ) ->
+      method: ( methodName, via = VIA_ALL, out, boxed ) ->
         realized = ~@attributes & VIRTUAL
+
+> During the pseudo-loop block, the `context` reference should be considered
+  provisional, because its potential value is in part a product of the manner
+  in which its accompanying `method` was retrieved. After `break`ing out of the
+  block, `method` can be type-checked and `context` may be kept or discarded as
+  appropriate.
 
         loop # once
 
@@ -1111,19 +1117,24 @@ First seek the named method locally.
             if method? then context = this
             else if record = @__dispatch_table__?[ methodName ]
               [ method, context ] = record
-
             break if method?
 
 If no method is held locally, start traversing, first up the protostate chain.
+If this succeeds, the provisional `context` *must be the epistate* inheriting
+the method (constrast with the `VIA_SUPER` case).
 
           if ( viaProto = via & VIA_PROTO ) and
-          method = @protostate()?.method methodName, VIA_PROTO, out
-            context = this; inherited = yes; break
+              method = @protostate()?.method methodName, VIA_PROTO, out, yes
+            context = this
+            inherited = yes; break
 
-If no method is found yet, continue traversing up the superstate chain.
+If no method is found yet, continue traversing up the superstate chain. If this
+succeeds, the provisional `context` *must be the superstate* from which the
+method is inherited.
 
-          if via & VIA_SUPER and
-          method = @superstate?.method methodName, VIA_SUPER | viaProto, out
+          if via & VIA_SUPER and method = @superstate?.method \
+              methodName, VIA_SUPER | viaProto, out, yes
+            { context } = out if out?
             inherited = yes; break
 
 The method cannot be found.
@@ -1131,14 +1142,23 @@ The method cannot be found.
           context = null
           break # always
 
-If `method` is a function, it is not state-bound, so `context` is unnecessary.
-If instead `method` represents a state-bound function, then it will be boxed,
-so unbox it, and hang on to `context`.
+        if method?
 
-        if typeof method is 'function'
-          context = null
-        else if method?.type is 'state-bound-function'
-          method = method.fn
+If `method` is a function, it is not state-bound, so `context` is unnecessary.
+
+          if typeof method is 'function'
+            context = null
+
+Iff `this` is a realized `State`, inherited lookup results can be memoized in
+the local dispatch table.
+
+          if realized and inherited
+            @__dispatch_table__?[ methodName ] = [ method, context ]
+
+Unbox a state-bound function unless directed otherwise.
+
+          if not boxed and method.type is 'state-bound-function'
+            method = method.fn
 
 Export `method` and `context` together if the `out` reference was provided.
 
@@ -1147,12 +1167,6 @@ Export `method` and `context` together if the `out` reference was provided.
         if out?
           out.method = method
           out.context = context
-
-Iff `this` is a realized `State`, inherited lookup results can be memoized in
-the local dispatch table.
-
-        if realized and method? and out? and inherited
-          @__dispatch_table__?[ methodName ] = [ method, context ]
 
         method
 
@@ -1201,7 +1215,7 @@ method.
 
         unless @method methodName, VIA_SUPER
           { root, owner } = this
-          unless this is root or root.method methodName, VIA_NONE
+          unless this is root or root._?.methods?[ methodName ]
             ownerMethod = owner[ methodName ]
             if ownerMethod is undefined or ownerMethod.isDispatcher
               ownerMethod = rootNoop
@@ -1265,6 +1279,7 @@ First try to resolve the method quickly from the local dispatch table.
 
         if record = @__dispatch_table__?[ methodName ]
           [ method, context ] = record
+          method = method.fn if method?.type is 'state-bound-function'
 
 Resort to a proper lookup if the fast way turns up nothing.
 
