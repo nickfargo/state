@@ -55,12 +55,6 @@ describe "Methods:", ->
       expect( o.z() ).to.be.undefined
       expect( o ).to.have.ownProperty 'state'
 
-    it "creates dispatchers for an inheritor upon first invocation of its accessor", ->
-      {o,f,m} = setup()
-      o.state()
-      expect( m ).to.not.equal o.m
-      expect( o.m ).to.have.property 'isDispatcher'
-
     it "swizzles owner methods to the root state if there exists a stateful implementation of the method", ->
       {o,f,m} = setup()
       o.state()
