@@ -204,10 +204,7 @@ later time to a real `State` if necessary.
 
       realize: ( expression ) ->
         return this unless @attributes & INCIPIENT_OR_VIRTUAL
-
         @_ or = new @Content
-        @__dispatch_table__ = {}
-
         @mutate expression
 
 Realizing a root state requires that, for each of the owner’s own methods, if
@@ -1115,7 +1112,7 @@ First seek the named method locally.
             method = @_?.methods?[ methodName ]
             if method is rootNoop then method = null
             if method? then context = this
-            else if record = @__dispatch_table__?[ methodName ]
+            else if record = @_?.__dispatch_table__?[ methodName ]
               [ method, context ] = record
             break if method?
 
@@ -1153,7 +1150,7 @@ Iff `this` is a realized `State`, inherited lookup results can be memoized in
 the local dispatch table.
 
           if realized and inherited
-            @__dispatch_table__?[ methodName ] = [ method, context ]
+            @_?.__dispatch_table__?[ methodName ] = [ method, context ]
 
 Unbox a state-bound function unless directed otherwise.
 
@@ -1277,7 +1274,7 @@ If the named method does not exist locally and cannot be inherited, then
 
 First try to resolve the method quickly from the local dispatch table.
 
-        if record = @__dispatch_table__?[ methodName ]
+        if record = @_?.__dispatch_table__?[ methodName ]
           [ method, context ] = record
           method = method.fn if method?.type is 'state-bound-function'
 

@@ -9,3 +9,5 @@
         @guards       = null
         @substates    = null
         @transitions  = null
+
+        @__dispatch_table__ = null
