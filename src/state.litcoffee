@@ -1150,7 +1150,8 @@ Iff `this` is a realized `State`, inherited lookup results can be memoized in
 the local dispatch table.
 
           if realized and inherited
-            @_?.__dispatch_table__?[ methodName ] = [ method, context ]
+            table = @_?.__dispatch_table__ or = {}
+            table[ methodName ] = [ method, context ]
 
 Unbox a state-bound function unless directed otherwise.
 
