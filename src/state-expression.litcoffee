@@ -87,14 +87,16 @@ as an empty state expression.
 
           else
             category =
-              if key of eventTypes or typeof value is 'string'
+              if eventTypes[ key ]? or typeof value is 'string'
                 'events'
-              else if key of guardActions
+              else if guardActions[ key ]?
                 'guards'
+              else if typeof value is 'function' or ( type = value?.type ) and
+                  ( type is 'state-bound-function' or
+                    type is 'state-fixed-function' )
+                'methods'
               else if value is NIL or isPlainObject value
                 'states'
-              else if typeof value is 'function'
-                'methods'
             if category
               item = result[ category ] or = {}
               item[ key ] = value

@@ -1,4 +1,4 @@
-{ env, State, RootState } = state = require '../state'
+{ env, bind, fix, State, RootState } = state = require '../state'
 { expect } = require 'chai'
 
 
@@ -55,12 +55,6 @@ describe "Methods:", ->
       expect( o.z() ).to.be.undefined
       expect( o ).to.have.ownProperty 'state'
 
-    it "creates dispatchers for an inheritor upon first invocation of its accessor", ->
-      {o,f,m} = setup()
-      o.state()
-      expect( m ).to.not.equal o.m
-      expect( o.m ).to.have.property 'isDispatcher'
-
     it "swizzles owner methods to the root state if there exists a stateful implementation of the method", ->
       {o,f,m} = setup()
       o.state()
@@ -71,6 +65,45 @@ describe "Methods:", ->
       {o,f,m} = setup()
       o.state()
       expect( f ).to.equal o.f
+
+
+  describe "Context: state-binding and state-fixing", ->
+
+    methods =
+      normal: -> this
+      bound: bind -> this
+      fixed: fix ( autostate, protostate ) -> -> this
+      both: fix ( autostate, protostate ) -> bind -> this
+
+    test = (o) ->
+      it "works for normal functions", ->
+        expect( o.normal() ).to.equal o
+      it "works for bound functions", ->
+        expect( o.bound() ).to.equal o.state 'A'
+      it "works for fixed functions", ->
+        expect( o.fixed() ).to.equal o
+      it "works for functions that are both bound and fixed", ->
+        expect( o.both() ).to.equal o.state 'A'
+
+    describe "from the autostate", ->
+      state o = {}, A: state 'initial', methods
+      test o
+
+    describe "from a substate", ->
+      state o = {}, A: state { methods, AA: state 'initial' }
+      test o, yes
+
+    describe "from an epistate", ->
+      test new class
+        state @::, A: state 'initial', methods
+
+    describe "from an episubstate", ->
+      test new class
+        state @::, A: state { methods, AA: state 'initial' }
+
+
+
+
 
 
   # This will fail; `unless this is root` in `State::addMethod` prevents
