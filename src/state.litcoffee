@@ -284,7 +284,7 @@ the state cannot be destroyed.
 
 Descendant states are destroyed bottom-up.
 
-        if substates then do substate.destroy for own substate of substates
+        do substate.destroy for own name, substate of substates
 
 The final event emitted is `destroy`.
 
