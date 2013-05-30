@@ -298,7 +298,7 @@ the corresponding dispatcher for each such method is destroyed, along with the
 owner’s accessor method.
 
         if this is root
-          if methods then for name, method of methods when owner[ name ]
+          for name, method of methods when owner[ name ]
             if method = method.original
             then owner[ name ] = method
             else delete owner[ name ]
