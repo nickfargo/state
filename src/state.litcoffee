@@ -298,23 +298,22 @@ the corresponding dispatcher for each such method is destroyed, along with the
 owner’s accessor method.
 
         if this is root
-          for name, method of methods when owner[ name ]
-            if method = method.original
-            then owner[ name ] = method
+          for name of methods when dispatcher = owner[ name ]
+            continue unless dispatcher.isDispatcher
+            if ownerMethod = dispatcher.original
+            then owner[ name ] = ownerMethod
             else delete owner[ name ]
           delete owner[ @accessorName ]
-
-A non-root state must remove itself from its superstate.
-
-        else
-          superstate.removeSubstate @name
-          @superstate = null
 
 A flag is set that can be observed later by anything retaining a reference to
 this state (e.g. a memoization) which would be withholding it from being
 garbage-collected.
 
         @attributes |= DESTROYED
+
+A non-root state must remove itself from its superstate.
+
+        superstate?.removeSubstate @name
 
         yes
 
@@ -1112,7 +1111,6 @@ First seek the named method locally.
 
           if realized
             method = @_?.methods?[ methodName ]
-            if method is rootNoop then method = null
             if method? then context = this
             else if record = @_?.__dispatch_table__?[ methodName ]
               [ method, context ] = record
@@ -1193,6 +1191,10 @@ Adds a method to this state. The provided `fn` may be any of:
       function will be closed over hard references to `this` as `autostate`,
       and to the *protostate* of `this`, as `protostate`.
 
+If a method called `methodName` does not already exist in the state tree, then
+the owner is provided a *dispatcher* to accommodate calls to the appropriate
+state’s implementation of this method.
+
 > See also: `state.bind`, `state.fix`
 
 > [addMethod](/api/#state--methods--add-method)
@@ -1209,23 +1211,29 @@ extract the actual method, closed over references to the locality of `this`.
         throw TypeError unless typeof fn is 'function' or
           fn?.type is 'state-bound-function'
 
-If a method called `methodName` does not already exist in the state tree, then
-the owner and root state must be set up properly to accommodate calls to this
-method.
+        { owner } = this
 
-        unless @method methodName, VIA_SUPER
-          { root, owner } = this
-          unless this is root or root._?.methods?[ methodName ]
-            ownerMethod = owner[ methodName ]
-            if ownerMethod is undefined or ownerMethod.isDispatcher
-              ownerMethod = rootNoop
-            root.addMethod methodName, ownerMethod
+Skip ahead if the owner is already set up with a dispatcher for this method.
 
-A dispatcher function is instated on the owner, which will direct subsequent
-calls to `owner[ methodName ]` to the appropriate state’s implementation.
+        unless ( ownerMethod = owner[ methodName ] )?.isDispatcher
+          { root } = this
+
+Create a new dispatcher method for `owner`. Its original method, if it has one,
+will be retained by the dispatcher, so that if the state tree is `destroy`ed
+later, the method can be reinstated on `owner`.
 
           owner[ methodName ] =
             createDispatcher root.accessorName, methodName, ownerMethod
+
+Unless we’re adding directly to `root`, copy `ownerMethod` to `root` — which
+will not have an implementation for this method. (If it did, then `ownerMethod`
+would already be a dispatcher.) From the root state it can still serve as
+`owner`’s default implementation, available to any of its `State`s that do not
+override that method.
+
+          if ownerMethod? and this isnt root
+            methods = root._?.methods or = {}
+            methods[ methodName ] = ownerMethod
 
         methods = @_?.methods or = {}
         methods[ methodName ] = fn
@@ -1251,7 +1259,7 @@ Determines whether `this` possesses or inherits a method named `methodName`.
 > [hasMethod](/api/#state--methods--has-method)
 
       hasMethod: ( methodName ) ->
-        ( method = @method methodName ) and method isnt rootNoop
+        method = @method methodName
 
 
 #### [hasOwnMethod](#state--prototype--has-own-method)
@@ -1555,8 +1563,10 @@ Removes the named substate from the local state, if possible.
       removeSubstate: ( name ) ->
         { attributes } = this
         return if attributes & VIRTUAL
-        return unless attributes & MUTABLE and
-          ( substates = @_?.substates ) and substate = substates[ name ]
+
+        substates = @_?.substates
+        return unless substate = substates?[ name ]
+        return unless attributes & MUTABLE or substate?.attributes & DESTROYED
 
 If a transition is underway involving `substate`, the removal must fail.
 

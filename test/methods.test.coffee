@@ -102,13 +102,6 @@ describe "Methods:", ->
         state @::, A: state { methods, AA: state 'initial' }
 
 
-
-
-
-
-  # This will fail; `unless this is root` in `State::addMethod` prevents
-  # expando `original`
-  0 and
   describe "Destroying an object’s entire state tree", ->
 
     it "must revert an object to its “nascent” condition; any methods previously subsumed into the root state must be returned to their original location on the object", ->

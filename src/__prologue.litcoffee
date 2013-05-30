@@ -34,12 +34,6 @@ manipulation tasks, such as differential operations.
     rxTransitionArrow      = /^\s*([\-|=]>)\s*(.*)/
     transitionArrowMethods = '->': 'change', '=>': 'changeTo'
 
-A unique no-op function is necessary for the special case of the root state’s
-capacity as a *dispatch backstop* when a method is called for which no other
-currently active states possess an implementation.
-
-    rootNoop = ->
-
 Creates a bit field map on a given `object` by associating each string in a
 list of `names` as a key to a single-bit integer value. Bit values are applied
 to keys in order, increasing from `1 << offset` onward.
