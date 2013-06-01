@@ -1354,9 +1354,14 @@ identifier for the listener.
 
       addEvent: ( eventType, fn, context ) ->
         do @realize if @attributes & VIRTUAL
+
         events = @_.events or = {}
         unless O.hasOwn.call events, eventType
           events[ eventType ] = new StateEventEmitter this
+
+        if fn.type is 'state-fixed-function'
+          fn = fn.fn this, @protostate()
+
         events[ eventType ].add fn, context
 
       on: @::addEvent
@@ -1379,14 +1384,17 @@ Unbinds the event listener with the specified `id` that was supplied by
 
 #### [emit](#state--prototype--emit)
 
-Invokes all listeners bound to the given event type.
+Invokes all listeners bound to the given event type. Callbacks inherited from
+superstates and protostates are also invoked, unless otherwise directed by the
+traversal flags of `via`.
 
-Arguments for the listeners can be passed as an array to the `args` parameter.
+Arguments to be supplied to callbacks can be passed as an array to `args`.
 
-Callbacks are invoked in the context of `this`, or as specified by `context`.
+Unless `context` is provided explicitly, a provisional `State` `context` is
+determined for event callbacks that are state-bound functions. This `context`
+will be either `this` or an *epistate* that inherits events from `this`.
 
-Callbacks bound to superstates and protostates are also invoked, unless
-otherwise directed by the `via` query flags.
+Normal, unbound callbacks are invoked in the conventional context of `@owner`.
 
 *Alias:* **trigger**
 
@@ -1400,11 +1408,11 @@ otherwise directed by the `via` query flags.
         if typeof context is 'number'
           via = context; context = undefined
 
-        if args then ( args = [ args ] unless O.isArray args ) else args = []
+        args = [args] if args? and not O.isArray args
 
-Event callbacks are applied in the context of their location along the
-superstate chain of `this`; i.e., events are inherited transparently via
-protostates.
+Provisional `context` is confined to the local state tree of `@owner` at the
+recursive origin; i.e., `State` context is inherited transparently via
+protostates, but is dynamic along the superstate chain.
 
         @_?.events?[ eventType ]?.emit args, context or this
         if via & VIA_PROTO
