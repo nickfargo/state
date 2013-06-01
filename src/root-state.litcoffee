@@ -209,6 +209,7 @@ Resolve `options` to an object if necessary.
 
         unless options then options = DEFAULT_OPTIONS
         else if O.isArray options then options = args: options
+        { args } = options
 
 A transition cannot target an abstract state directly, so `target` must be
 reassigned to the appropriate concrete substate.
@@ -262,7 +263,8 @@ applied, causing the callback to return immediately.
 Preparation for the transition begins by emitting a `depart` event on the
 `source` state.
 
-        source.emit 'depart', transition, VIA_PROTO
+        eventArgs = [ transition, args ]
+        source.emit 'depart', eventArgs, VIA_PROTO
         @_transition = transition = null if transition.aborted
 
 Enter into the transition state.
@@ -276,7 +278,7 @@ Walk up to the top of the domain, emitting `exit` events for each state along
 the way.
 
         s = source; while transition and s isnt domain
-          s.emit 'exit', transition, VIA_PROTO
+          s.emit 'exit', eventArgs, VIA_PROTO
           transition.superstate = s = s.superstate
           @_transition = transition = null if transition.aborted
 
@@ -294,7 +296,7 @@ events for each state along the way.
               s = s.superstate
           s = domain; while transition and substate = pathToState.pop()
             transition.superstate = substate
-            substate.emit 'enter', transition, VIA_PROTO
+            substate.emit 'enter', eventArgs, VIA_PROTO
             transition = null if transition.aborted
             s = substate
 
@@ -308,7 +310,7 @@ Terminate the transition with an `arrive` event on the targeted state.
 
           if transition
             @_current = target
-            target.emit 'arrive', transition, VIA_PROTO
+            target.emit 'arrive', eventArgs, VIA_PROTO
 
 Any virtual states that were previously active may now be discarded.
 
@@ -331,4 +333,4 @@ Now complete, the `Transition` instance can be discarded.
 At this point the transition is attached to the `domain` state and is ready to
 proceed.
 
-        return transition?.start.apply( transition, options.args ) or @_current
+        return transition?.start.apply( transition, args ) or @_current

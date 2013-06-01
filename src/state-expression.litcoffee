@@ -105,9 +105,8 @@ as an empty state expression.
 
 Event values are coerced into an array.
 
-        for own key, value of object = result.events
-          if typeof value is 'function' or typeof value is 'string'
-            object[ key ] = [ value ]
+        for own key, value of object = result.events when not O.isArray value
+          object[ key ] = [ value ]
 
 Guards are represented as an object keyed by selector, so non-object values are
 coerced into a single-element object with the value keyed to the wildcard

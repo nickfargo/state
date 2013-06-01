@@ -113,28 +113,38 @@ Removes all callbacks, and returns the number removed.
 
 #### [emit](#state-event-emitter--prototype--emit)
 
-Invokes all bound callbacks, with the provided array of `args`, and in the
-context of the bound or provided `state`.
+Invokes all bound callbacks with the provided array of `args`. Callbacks
+registered with an explicit context are invoked with that stored context.
+Callbacks that are state-bound functions are invoked in the context of the
+provided `autostate`, while unbound functions are invoked in the context of
+its `owner`.
 
-      emit: ( args, state = @state ) ->
+      emit: ( args, autostate = @state ) ->
+        throw TypeError unless owner = autostate?.owner
+        protostate = autostate.protostate()
+
         for own key, item of @items
-          type = O.type item
-          if type is 'function'
-            fn = item; context = state
-          else if type is 'array'
-            [ fn, context ] = item
-
-If `item` is a string or `State`, interpret this as an implied transition to be
-instigated from the client `State` after all the callbacks have been invoked.
-
-          else if type is 'string' or item instanceof State
-            target = item
-            continue
-
-          fn.apply context, args
           fn = context = null
 
-        state.change target if target
+Interpret a string or `State` as an order to transition to the implicated
+`State` after all the callbacks have been invoked.
+
+          if typeof item is 'string' or item instanceof State
+            eventualTarget = item
+            continue
+
+          if typeof item is 'function' then fn = item
+          else if O.isArray item then [ fn, context ] = item
+
+Unbox any state-bound functions.
+
+          else if item?.type is 'state-bound-function'
+            { fn } = item
+            context or = autostate
+
+          fn.apply context or owner, args
+
+        @state.change eventualTarget if eventualTarget
 
       @::trigger = @::emit
 
