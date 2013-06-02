@@ -1,7 +1,7 @@
 {
   "name"          : "state",
   "version"       : "0.1.0",
-  "description"   : "Objects that behave",
+  "description"   : "Subjective prototypal state",
   "homepage"      : "http://statejs.org/",
   "keywords" : [
                     "state", "transition", "behavior", "behaviour", "fsm",
