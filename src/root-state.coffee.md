@@ -30,8 +30,8 @@ A root state’s `name` is by definition the empty-string.
 Determine the initial state, and set the `current` state to that.
 
         current = if options.initialState?
-        then this.query options.initialState
-        else this.initialSubstate() or this
+        then @query options.initialState
+        else @initialSubstate() or this
 
 The initial state may be `abstract`, in which case currency must be forwarded
 to its default `concrete` substate.
