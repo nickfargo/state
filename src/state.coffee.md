@@ -650,12 +650,12 @@ Determines whether `this` is a superstate of `other`.
 
 > [protostate](/api/#state--methods--protostate)
 
-Returns `this` state’s **[protostate][]**, the `State` that both:
+Returns `this` state’s **protostate**, the `State` that both:
 
   1. belongs to the nearest possible prototype of `@owner`; and
   2. is taxonomically analogous to `this`, the inheriting **epistate**.
 
-If the owner does not share an analogous [state tree][] with its immediate
+If the owner does not share an analogous state tree with its immediate
 prototype, or if that prototype’s tree does not contain a `State` analogous to
 `this`, then the search is iterated up the owner’s prototype chain.
 
