@@ -34,7 +34,7 @@ Import a simplified set of functions for task declarations.
             separator: '\n\n\n\n'
 
           main:
-            src: affix 'src/', '.litcoffee', """
+            src: affix 'src/', '.coffee.md', """
               __prologue
 
               state-function
@@ -50,7 +50,7 @@ Import a simplified set of functions for task declarations.
               __epilogue
               __references
               """
-            dest: './state.litcoffee'
+            dest: './state.coffee.md'
 
     #      published_tests:
 
@@ -58,7 +58,7 @@ Import a simplified set of functions for task declarations.
         coffee:
           main:
             options: sourceMap: yes
-            src: 'state.litcoffee'
+            src: 'state.coffee.md'
 
         uglify:
           options: report: 'gzip'
