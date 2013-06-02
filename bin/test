@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+
+var spawn = require('child_process').spawn;
+
+function start () { grunt(); }
+
+function grunt ( exitcode ) {
+  if ( exitcode ) process.exit( exitcode );
+  var cmd = 'grunt';
+  var args = ["compile"];
+  var child = spawn( cmd, args );
+  child.stdout.pipe( process.stdout, { end: false } );
+  child.on( 'exit', mocha );
+}
+
+function mocha ( exitcode ) {
+  if ( exitcode ) process.exit( exitcode );
+  var cmd = 'mocha';
+  var args = [
+      "--compilers coffee:coffee-script",
+      "-R spec",
+      "--colors"
+    ].join(' ').split(' ');
+  var child = spawn( cmd, args );
+  child.stdout.pipe( process.stdout, { end: false } );
+  child.on( 'exit', stop );
+}
+
+function stop ( exitcode ) {
+  process.exit( exitcode );
+}
+
+start();
