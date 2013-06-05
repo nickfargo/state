@@ -179,6 +179,7 @@ ul ul, ul ol, ol ol, ol ul {
 }
 
 hr {
+  visibility: hidden;
   margin: 30px 0 20px;
   border: 1px solid transparent;
   border-top-color: #e7e7e7;
@@ -969,17 +970,15 @@ blockquote ol {
   position: fixed;
   visibility: visible;
   overflow-x: hidden;
-  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   top: 108px;
-  bottom: 36px;
+  bottom: 0;
   width: 280px;
   padding-top: 20px;
   padding-left: 1000px;
   margin-left: -1000px;
   background-color: #f1f1f1;
   background-image: url(/img/dust_f1c.png);
-  border-bottom: 1px solid #eee;
 }
   body.api .toc {
     font-size: 18px;
@@ -1003,6 +1002,7 @@ blockquote ol {
   .toc .fg {
     z-index: 1;
     padding: 10px 0 36px;
+    margin-right: 11px;
   }
 
   .toc .fg ul {
