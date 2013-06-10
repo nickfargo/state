@@ -215,8 +215,9 @@ in the owner’s prototype chain, then the owner’s implementation of that meth
 must be copied into the root, where it defines the owner’s default behavior.
 
         if this is @root
-          for own key, method of @owner when typeof method is 'function' and
-              not method.isDispatcher and @method key, VIA_PROTO
+          for own key, method of @owner when key isnt 'constructor' and
+              typeof method is 'function' and not method.isDispatcher and
+              @method key, VIA_PROTO
             @addMethod key, method
 
         this
