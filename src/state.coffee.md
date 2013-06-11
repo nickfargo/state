@@ -1209,8 +1209,8 @@ extract the actual method, closed over references to the locality of `this`.
         if typeof fn is 'object' and fn.type is 'state-fixed-function'
           fn = fn.fn this, @protostate()
 
-        throw TypeError unless typeof fn is 'function' or
-          fn?.type is 'state-bound-function'
+        unless typeof fn is 'function' or fn?.type is 'state-bound-function'
+          throw new TypeError "Must supply a plain, bound, or fixed function"
 
         { owner } = this
 
