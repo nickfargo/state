@@ -24,8 +24,6 @@ A **root state** is the `State` that holds the authoritative reference to the
       { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL } = this
       { VIA_NONE, VIA_PROTO } = this
 
-      DEFAULT_OPTIONS = {}
-
 
 ### [Constructor](#root-state--constructor)
 
@@ -33,13 +31,11 @@ A **root state** is the `State` that holds the authoritative reference to the
         @owner = owner or = {}
         unless expression instanceof StateExpression
           expression = new StateExpression expression
-        if options?
-        then if typeof options is 'string' then options = initialState: options
-        else options = DEFAULT_OPTIONS
+        options = initialState: options if typeof options is 'string'
 
 Assign to `owner` an **accessor** to its state implementation.
 
-        @accessorName = accessorName = options.name or 'state'
+        @accessorName = accessorName = options?.name or 'state'
         owner[ accessorName ] = createAccessor owner, accessorName, this
 
 A root state’s `name` is by definition the empty-string.
@@ -48,8 +44,8 @@ A root state’s `name` is by definition the empty-string.
 
 Determine the initial state, and set the `current` state to that.
 
-        current = if options.initialState?
-        then @query options.initialState
+        current = if initial = options?.initialState
+        then @query initial
         else @initialSubstate() or this
 
 The initial state may be `abstract`, in which case the `current` reference must
@@ -231,9 +227,8 @@ Ensure that `target` is a valid `State`.
 
 Resolve `options` to an object if necessary.
 
-        unless options then options = DEFAULT_OPTIONS
-        else if isArray options then options = args: options
-        { args } = options
+        options = args: options if isArray options
+        args = options?.args
 
 A transition cannot target an abstract state directly, so `target` must be
 reassigned to the appropriate concrete substate.
@@ -244,11 +239,11 @@ reassigned to the appropriate concrete substate.
 If any guards are in place for the given `origin` and `target`, both of those
 states must consent to the transition.
 
-        unless options.forced
+        unless options?.forced
           released = evaluateGuard origin, 'release', target
           admitted = evaluateGuard target, 'admit', origin
           unless released and admitted
-            options.failure?.call? this
+            options?.failure?.call? this
             return null
 
 If `target` is a protostate, then the protostate must be virtualized locally
@@ -348,7 +343,7 @@ Now complete, the `Transition` instance can be discarded.
             do transition.destroy
             @_transition = transition = null
 
-            options.success?.call? this
+            options?.success?.call? this
 
             return target
 
