@@ -185,10 +185,7 @@ ancestors, a generic actionless transition expression for the pair is returned.
 
 #### [change](#root-state--prototype--change)
 
-Attempts to execute a state transition. Handles asynchronous transitions,
-generation of appropriate events, and construction of any necessary temporary
-virtual states. Respects guards supplied in both the origin and `target`
-states.
+###### PARAMETERS
 
 The `target` parameter may be either a `State` object within the tree of this
 `RootState`, or a string that resolves to a likewise targetable `State` when
@@ -201,6 +198,13 @@ The `options` parameter is an optional map that may include:
     of the transition.
   * `failure` : `Function` — callback to be executed if the transition
     attempt is blocked by a guard.
+
+###### SYNOPSIS
+
+Attempts to execute a state transition. Handles asynchronous transitions,
+generation of appropriate events, and construction of any necessary temporary
+virtual states. Respects guards supplied in both the origin and `target`
+states.
 
       change: ( target, options ) ->
         { root, owner } = this
