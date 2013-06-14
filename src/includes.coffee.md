@@ -2,6 +2,8 @@
 
 
 
+## includes
+
 This function will be applied to the package’s exported `state` function.
 
     module.exports = ->

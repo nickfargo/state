@@ -8,9 +8,9 @@ Copyright (C) 2011-2013 Nick Fargo. License MIT.
 > [tests](/tests/)
 > <a class="icon-invertocat" href="http://github.com/nickfargo/state"></a>
 
-* * *
 
 
+## index
 
     exports = ->
       @State                = require './state'
