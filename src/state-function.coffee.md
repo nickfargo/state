@@ -1,3 +1,6 @@
+    RootState        = null
+    StateExpression  = null
+
     module.exports =
 
 
