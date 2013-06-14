@@ -1,6 +1,25 @@
+    state                 = require './state-function'
+    State                 = require './state'
+    StateExpression       = null
+    Transition            = null
+    TransitionExpression  = null
+
+    { O } = state
+
+    module.exports =
+
+
+
 ## [RootState](#root-state)
 
+A **root state** is the `State` that holds the authoritative reference to the
+`current` state, and that governs the proceeding of transitions.
+
     class RootState extends State
+
+      { rxTransitionArrow, transitionArrowMethods } = state
+      { env, hasOwn, trim, isEmpty, isArray } = O
+      { slice } = Array::
 
       { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL } = this
       { VIA_NONE, VIA_PROTO } = this
@@ -33,8 +52,8 @@ Determine the initial state, and set the `current` state to that.
         then @query options.initialState
         else @initialSubstate() or this
 
-The initial state may be `abstract`, in which case currency must be forwarded
-to its default `concrete` substate.
+The initial state may be `abstract`, in which case the `current` reference must
+snap to the abstract state’s default `concrete` substate.
 
         if current.attributes & ABSTRACT
           current = current.defaultSubstate() or current
@@ -42,9 +61,10 @@ to its default `concrete` substate.
 The previous redirections may have left `current` pointing to a protostate, in
 which case a virtual state must be created in `this` root’s tree.
 
-        if current.root isnt this then current = current.virtualize this
+        if current.root isnt this
+          current = current.virtualize this
 
-The authoritative property reference to the owner’s `current` state.
+With `current` now resolved, the authoritative reference to it is held here.
 
         @_current = current
 
@@ -84,13 +104,13 @@ Calling the accessor of a prototype means that `this` requires its own accessor
 and root state. Creating a new `RootState` will have the desired side-effect of
 also creating the object’s new accessor, to which the call is then forwarded.
 
-          else if owner.isPrototypeOf(this) and not O.hasOwn.call this, name
+          else if ( owner.isPrototypeOf this ) and not hasOwn.call this, name
             new RootState this, null, { name, initialState: current.path() }
             return @[ name ].apply this, arguments
 
         accessor.isAccessor = true
 
-        if O.env.debug
+        if env.debug
           accessor.toString = ->
             "[accessor] -> #{ root._current.path() }"
 
@@ -106,10 +126,10 @@ as evaluated `against` another `State`. Defaults to `true` if no guard exists.
         guard = context.guard guard if typeof guard is 'string'
         return true unless guard
 
-        args = O.slice.call arguments, 1
+        args = slice.call arguments, 1
         for own key, value of guard
           valueIsFn = typeof value is 'function'
-          selectors = O.trim( key ).split /\s*,+\s*/
+          selectors = trim( key ).split /\s*,+\s*/
           for selector in selectors when context.query selector, against
             result = if valueIsFn then value.apply context, args else value
             break
@@ -135,11 +155,11 @@ ancestors, a generic actionless transition expression for the pair is returned.
               return expr if (
                 not ( guards = expr.guards ) or (
                   not ( admit = guards.admit ) or
-                  O.isEmpty( admit ) or
+                  isEmpty( admit ) or
                   evaluateGuard.call origin, admit, target, origin
                 ) and (
                   not ( release = guards.release ) or
-                  O.isEmpty( release ) or
+                  isEmpty( release ) or
                   evaluateGuard.call target, release, origin, target
                 )
               ) and (
@@ -208,7 +228,7 @@ Ensure that `target` is a valid `State`.
 Resolve `options` to an object if necessary.
 
         unless options then options = DEFAULT_OPTIONS
-        else if O.isArray options then options = args: options
+        else if isArray options then options = args: options
         { args } = options
 
 A transition cannot target an abstract state directly, so `target` must be
@@ -334,3 +354,11 @@ At this point the transition is attached to the `domain` state and is ready to
 proceed.
 
         return transition?.start.apply( transition, args ) or @_current
+
+
+
+### Forward imports
+
+    StateExpression       = require './state-expression'
+    Transition            = require './transition'
+    TransitionExpression  = require './transition-expression'

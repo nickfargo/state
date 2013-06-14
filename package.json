@@ -20,7 +20,7 @@
   ],
 
 
-  "main"          : "state.js",
+  "main"          : "lib/index.js",
   "directories" : {
     "test"        : "test"
   },

@@ -1,22 +1,42 @@
+    state = require './state-function'
+
+    {
+      O
+      TRANSITION_PROPERTIES
+      TRANSITION_EXPRESSION_CATEGORIES
+      TRANSITION_EVENT_TYPES
+      GUARD_ACTIONS
+    } =
+        state
+
+    module.exports =
+
+
+
 ## [TransitionExpression](#transition-expression)
 
 A `State` may hold **transition expressions** that describe a transition that
 may take place between any two given **origin** and **target** states.
 
     class TransitionExpression
-      properties   = O.assign TRANSITION_PROPERTIES, null
-      categories   = O.assign TRANSITION_EXPRESSION_CATEGORIES, null
-      eventTypes   = O.assign TRANSITION_EVENT_TYPES
-      guardActions = O.assign GUARD_ACTIONS
+
+      { assign, edit, clone } = O
+
+      properties   = assign TRANSITION_PROPERTIES, null
+      categories   = assign TRANSITION_EXPRESSION_CATEGORIES, null
+      eventTypes   = assign TRANSITION_EVENT_TYPES
+      guardActions = assign GUARD_ACTIONS
+
 
 ### [Constructor](#transition-expression--constructor)
 
       constructor: ( map ) ->
         map = interpret map unless map instanceof TransitionExpression
-        O.edit 'deep all', this, map
+        edit 'deep all', this, map
 
 
-### [Class-private functions](#transition-expression--private)
+
+### [Private functions](#transition-expression--private)
 
 
 #### [interpret](#transition-expression--private--interpret)
@@ -25,13 +45,13 @@ Rewrites a plain object as a well-formed `TransitionExpression`, making the
 appropriate type inferences for any shorthand notation encountered.
 
       interpret = ( map ) ->
-        result = O.assign {}, properties, categories
+        result = assign {}, properties, categories
 
         for own key, value of map
           if key of properties
             result[ key ] = value
           else if key of categories
-            result[ key ] = O.clone result[ key ], value
+            result[ key ] = clone result[ key ], value
           else
             category =
               if key of eventTypes

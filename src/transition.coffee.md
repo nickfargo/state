@@ -1,12 +1,28 @@
+    State = require './state'
+
+    module.exports =
+
+
+
 ## [Transition](#transition)
 
-A `Transition` is a transient `State` adopted by the `RootState` while it
-changes currency from one of its proper `State`s to another.
+A `Transition` is a transient `State` which acts as a “vehicle” for the
+`RootState`’s currency, carrying it from one proper `State` to another.
 
-A transition may invoke an `action` within the **domain** of the least common
-ancestor between its `origin` and `target` states. During this time it behaves
-as if it were a substate of that domain state, inheriting method calls and
-propagating events in the familiar fashion.
+When a transition is instigated, e.g. with a call to `State::change`, the
+`RootState` sets its `_current` reference to a new `Transition`, which then
+traverses the state tree from its `origin` to its `target`, adopting each
+`State` along the way as its `superstate`.
+
+If a transition includes an `action` function, this will be invoked when the
+`Transition` has ascended to the top of its *domain*, defined as the least
+common ancestor `State` between its `origin` and `target` states. The `action`
+may be asynchronous, during which time the `Transition` continues to behave as
+if it were a substate the domain, inheriting method calls and propagating
+events in the familiar fashion, until the `action` is concluded, upon which the
+`Transition` resumes its descent to its `target`.
+
+> See also: `State::change`
 
 > [Transitions](/docs/#concepts--transitions)
 > [Transition](/api/#transition)
@@ -99,10 +115,3 @@ transitions along the `source` chain are discarded as well.
       destroy: ->
         do @source.destroy if @source instanceof Transition
         @target = @superstate = @root = null
-
-
-      emit: ( type ) ->
-        if 1 or type is 'enter' or type is 'exit'
-          debug "Transition::emit #{type}"
-          debug "  superstate: #{ @superstate }"
-        super

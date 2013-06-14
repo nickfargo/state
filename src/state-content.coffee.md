@@ -1,6 +1,12 @@
+    state = require './state-function'
+
+    module.exports =
+
+
+
 ## [StateContent](#state-content)
 
-    State::Content = class StateContent
+    class StateContent
 
       { useDispatchTables } = state.options
 

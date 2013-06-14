@@ -1,4 +1,28 @@
+    state                 = require './state-function'
+    StateEventEmitter     = null
+    StateExpression       = null
+    TransitionExpression  = null
+
+    { O, STATE_ATTRIBUTES, TRAVERSAL_FLAGS } = state
+
+    module.exports =
+
+
+
 ## [State](#state)
+
+A **state** defines a subset of behavior for its **owner** object. Each `State`
+holds a reference to a `superstate`, from which it may inherit more generic
+behavior, forming a *state tree* rooted by a single `RootState`.
+
+The owner’s `RootState` designates exactly one of the `State`s in its tree as
+its `current` state. This reference may be **transitioned** to a different
+`State` in the tree, causing the owner’s projected behavior to change.
+
+An owner and its tree of `State`s are also heritable along its prototype chain.
+Inheritors of a stateful prototype effectively possess all of the prototype’s
+`State`s, but each can independently adopt a `current` state and instigate
+transitions.
 
 > [State](/api/#state)
 
@@ -6,11 +30,13 @@
 
       { memoizeProtostates, useDispatchTables } = state.options
 
+      { env, NIL, isArray, isEmpty, has, hasOwn } = O
+      { assign, edit, delta, clone, lookup, flatten } = O
+
 Bit field constants will be used extensively throughout the class’s constructor
 and methods, so make them available as free variables.
 
       {
-        NORMAL
         INCIPIENT, ATOMIC, DESTROYED
         VIRTUAL
         MUTABLE, FINITE, STATIC, IMMUTABLE
@@ -19,14 +45,15 @@ and methods, so make them available as free variables.
         REFLECTIVE
         HISTORY, RETAINED, SHALLOW
         CONCURRENT
+        NORMAL
       } =
-          O.assign this, STATE_ATTRIBUTES
+          assign this, STATE_ATTRIBUTES
 
 For methods that query related states, the default behavior is to recurse
 through substates, superstates, and protostates.
 
       { VIA_NONE, VIA_SUB, VIA_SUPER, VIA_PROTO, VIA_ALL } =
-          O.assign this, TRAVERSAL_FLAGS
+          assign this, TRAVERSAL_FLAGS
 
 Precompute certain useful attribute combinations.
 
@@ -43,14 +70,14 @@ A bit mask indicates the attributes that can be inherited via protostates.
         ABSTRACT    |  CONCRETE    |  DEFAULT    |
         REFLECTIVE  |
         HISTORY     |  RETAINED    |  SHALLOW    |
-        CONCURRENT
-
+        CONCURRENT  |
+        NORMAL
 
 
 
 ### [Supporting classes](#state--supporting-classes)
 
-These are keyed here for shape order, and will be valued by the respective
+These are keyed here as a placeholder, and will be valued by the respective
 constructors after they are created.
 
       Expression: null
@@ -128,13 +155,13 @@ Literal or inherited `immutable` contradicts `mutable` absolutely, and implies
 
 Additional property assignments for easy viewing in the inspector.
 
-        if O.env.debug
+        if env.debug
           @[' <path>']       = @path()
           @['<attributes>']  = StateExpression.decodeAttributes attributes
 
 
 
-### [Class-private](#state--private)
+### [Private functions](#state--private)
 
 
 #### [createDispatcher](#state--private--create-dispatcher)
@@ -164,13 +191,13 @@ bound to the owner object.
         ( accessorName, methodName, original ) ->
           dispatcher = -> @[ accessorName ]().apply methodName, arguments
           dispatcher.isDispatcher = yes
-          dispatcher.toString = toString if O.env.debug
+          dispatcher.toString = toString if env.debug
           dispatcher.original = original if original
           dispatcher
 
 
 
-### [Ontological methods](#state--ontological-methods)
+### [Essential methods](#state--essential-methods)
 
 
 #### [initialize](#state--prototype--initialize)
@@ -332,8 +359,6 @@ By default the returned expression is returned as a plain object; if `typed`
 is truthy, the expression is a formally typed `StateExpression`.
 
       do =>
-        { edit, clone } = O
-
         @::express = ( typed ) ->
           if _ = @_ then expression = edit {}, {  # Why `edit`???
             @attributes
@@ -504,14 +529,14 @@ to emit individual `mutate` events as usual.
 
           @attributes &= ~ATOMIC
 
-Finally the `before` snapshot is used to acquire the `delta` of the mutation,
+Finally the `before` snapshot is used to acquire the `residue` of the mutation,
 which is emitted as part of a `mutate` event.
 
           unless incipient
             after = @express()
-            delta = diff before, after
-            unless isEmpty delta
-              @emit 'mutate', [ expr, delta, before, after ], VIA_PROTO
+            residue = diff before, after
+            unless isEmpty residue
+              @emit 'mutate', [ expr, residue, before, after ], VIA_PROTO
 
           this
 
@@ -521,7 +546,6 @@ which is emitted as part of a `mutate` event.
             if value is NIL then emitter.remove key
             else if value and value isnt items[ key ]
               emitter.set key, value
-
 
 
 
@@ -729,7 +753,6 @@ states are marked `initial`.
             queue.push s
         if via & VIA_PROTO and protostate = @protostate()
           return protostate.initialSubstate VIA_PROTO
-
 
 
 
@@ -980,20 +1003,19 @@ the parameter as `mutation`.
         mutation = via if via isnt via << 0
         if mutation
           { attributes } = this
-          if attributes & INCIPIENT_OR_MUTABLE and not O.isEmpty mutation
+          if attributes & INCIPIENT_OR_MUTABLE and not isEmpty mutation
             return @realize().data mutation if attributes & VIRTUAL
-            delta = O.delta @_.data or = {}, mutation
-            debug delta
-            if not ( attributes & ATOMIC ) and delta and not O.isEmpty delta
-              @emit 'mutate', [ mutation, delta ], VIA_PROTO
+            residue = delta @_.data or = {}, mutation
+            if not ( attributes & ATOMIC ) and residue and not isEmpty residue
+              @emit 'mutate', [ mutation, residue ], VIA_PROTO
           this
 
 Otherwise *read* and return a copy of `this` state’s `data`, including data
 inherited `via` superstates and protostates, unless directed otherwise.
 
-        else O.clone via & VIA_SUPER and @superstate?.data(),
-                     via & VIA_PROTO and @protostate()?.data VIA_PROTO,
-                     @_?.data
+        else clone via & VIA_SUPER and @superstate?.data(),
+                   via & VIA_PROTO and @protostate()?.data VIA_PROTO,
+                   @_?.data
 
 
 #### [has](#state--prototype--has)
@@ -1003,7 +1025,7 @@ inherited `via` superstates and protostates, unless directed otherwise.
         viaProto = via & VIA_PROTO
 
         !!(
-          ( data = @_?.data ) and O.has( data, key ) or
+          ( data = @_?.data ) and has( data, key ) or
           viaProto and @protostate()?.has( key, VIA_PROTO ) or
           viaSuper and @superstate?.has( key, VIA_SUPER | viaProto )
         )
@@ -1015,7 +1037,7 @@ inherited `via` superstates and protostates, unless directed otherwise.
         viaSuper = via & VIA_SUPER
         viaProto = via & VIA_PROTO
 
-        ( data = @_?.data ) and O.lookup( data, key ) or
+        ( data = @_?.data ) and lookup( data, key ) or
         viaProto and @protostate()?.get( key, VIA_PROTO ) or
         viaSuper and @superstate?.get( key, VIA_SUPER | viaProto )
 
@@ -1038,12 +1060,12 @@ Assignment proceeds only if the `value` being written is not the same as the
 `displaced` data that is being overwritten.
 
         data = @_.data or = {}
-        if value isnt displaced = O.lookup data, key
+        if value isnt displaced = lookup data, key
           { assign } = O
           assign data, key, value
-          assign ( edit = {} ).data = {}, key, value
-          assign ( delta = {} ).data = {}, key, displaced
-          @emit 'mutate', [ edit, delta ], VIA_PROTO
+          assign ( mutation = {} ).data = {}, key, value
+          assign ( residue = {} ).data = {}, key, displaced
+          @emit 'mutate', [ mutation, residue ], VIA_PROTO
 
         value
 
@@ -1177,7 +1199,7 @@ Returns an `Array` of names of methods defined for this state.
 > [methodNames](/api/#state--methods--method-names)
 
       methodNames: ->
-        O.keys methods if methods = @_?.methods
+        keys methods if methods = @_?.methods
 
 
 #### [addMethod](#state--prototype--add-method)
@@ -1357,7 +1379,7 @@ identifier for the listener.
         do @realize if @attributes & VIRTUAL
 
         events = @_.events or = {}
-        unless O.hasOwn.call events, eventType
+        unless hasOwn.call events, eventType
           events[ eventType ] = new StateEventEmitter this
 
         if fn.type is 'state-fixed-function'
@@ -1409,7 +1431,7 @@ Normal, unbound callbacks are invoked in the conventional context of `@owner`.
         if typeof context is 'number'
           via = context; context = undefined
 
-        args = [args] if args? and not O.isArray args
+        args = [args] if args? and not isArray args
 
 Provisional `context` is confined to the local state tree of `@owner` at the
 recursive origin; i.e., `State` context is inherited transparently via
@@ -1442,7 +1464,7 @@ Guards are inherited from protostates, but not from superstates.
 > [guard](/api/#state--methods--guard)
 
       guard: ( guardType ) ->
-        if guard = @_?.guards?[ guardType ] then O.clone guard
+        if guard = @_?.guards?[ guardType ] then clone guard
         else @protostate()?.guard( guardType ) or undefined
 
 
@@ -1458,7 +1480,7 @@ entries.
         return unless attributes & INCIPIENT_OR_MUTABLE
         do @realize if attributes & VIRTUAL
         guards = @_.guards or = {}
-        O.edit guards[ guardType ] or = {}, guard
+        edit guards[ guardType ] or = {}, guard
 
 
 #### [removeGuard](#state--prototype--remove-guard)
@@ -1475,7 +1497,7 @@ guard.
         return null unless guard = guards[ guardType ]
         return ( guard if delete guards[ guardType ] ) unless args.length
 
-        for key in O.flatten args when typeof key is 'string'
+        for key in flatten args when typeof key is 'string'
           entry = guard[ key ]
           return entry if delete guard[ key ]
 
@@ -1616,7 +1638,7 @@ on this state.
 
 > [transitions](/api/#state--methods--transitions)
 
-      transitions: -> O.clone @_?.transitions
+      transitions: -> clone @_?.transitions
 
 
 #### [addTransition](#state--prototype--add-transition)
@@ -1652,3 +1674,10 @@ Removes a transition expression from this state.
 
 
 
+### Forward imports
+
+    State::Content        = require './state-content'
+    State::Expression =
+    StateExpression       = require './state-expression'
+    StateEventEmitter     = require './state-event-emitter'
+    TransitionExpression  = require './transition-expression'

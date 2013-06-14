@@ -1,3 +1,21 @@
+    state                = require './state-function'
+    State                = require './state'
+    TransitionExpression = require './transition-expression'
+
+    {
+      O
+      STATE_ATTRIBUTES
+      STATE_ATTRIBUTE_MODIFIERS
+      STATE_EXPRESSION_CATEGORIES
+      STATE_EVENT_TYPES
+      GUARD_ACTIONS
+    } =
+        state
+
+    module.exports =
+
+
+
 ## [StateExpression](#state-expression)
 
 A **state expression** is a data structure that formalizes a definition of
@@ -8,9 +26,10 @@ passing it a descriptive plain object map. This input may be expressed in a
 shorthand format, in which case it is rewritten into an unambiguous long form
 that is used internally to create `State` instances.
 
-    State::Expression = class StateExpression
+    class StateExpression
 
-      { isNumber, isPlainObject, assign, edit, clone, invert } = O
+      { NIL, isNumber, isPlainObject, isArray } = O
+      { assign, edit, clone, invert } = O
       { NORMAL } = STATE_ATTRIBUTES
 
       attributeMap = do ->
@@ -105,7 +124,7 @@ as an empty state expression.
 
 Event values are coerced into an array.
 
-        for own key, value of object = result.events when not O.isArray value
+        for own key, value of object = result.events when not isArray value
           object[ key ] = [ value ]
 
 Guards are represented as an object keyed by selector, so non-object values are

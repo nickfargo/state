@@ -1,3 +1,12 @@
+    state = require './state-function'
+    State = require './state'
+
+    { O } = state
+
+    module.exports =
+
+
+
 ## [StateEventEmitter](#state-event-emitter)
 
 A `State` defines a `StateEventEmitter` for each of its event types.
@@ -9,6 +18,9 @@ an implicit command for the emitting state to `change` to the *target* state
 named by the string.
 
     class StateEventEmitter
+
+      { isArray } = O
+
       guid = 0
 
 
@@ -134,7 +146,7 @@ Interpret a string or `State` as an order to transition to the implicated
             continue
 
           if typeof item is 'function' then fn = item
-          else if O.isArray item then [ fn, context ] = item
+          else if isArray item then [ fn, context ] = item
 
 Unbox any state-bound functions.
 

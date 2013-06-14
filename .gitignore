@@ -1,7 +1,2 @@
 /node_modules
-*-min.js
-/test-qunit
-/state.coffee.md
-/state.map
-/state.js
-/state-min.js
+/lib

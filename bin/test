@@ -2,16 +2,7 @@
 
 var spawn = require('child_process').spawn;
 
-function start () { grunt(); }
-
-function grunt ( exitcode ) {
-  if ( exitcode ) process.exit( exitcode );
-  var cmd = 'grunt';
-  var args = ["compile"];
-  var child = spawn( cmd, args );
-  child.stdout.pipe( process.stdout, { end: false } );
-  child.on( 'exit', mocha );
-}
+function start () { mocha(0); }
 
 function mocha ( exitcode ) {
   if ( exitcode ) process.exit( exitcode );
@@ -23,6 +14,7 @@ function mocha ( exitcode ) {
     ].join(' ').split(' ');
   var child = spawn( cmd, args );
   child.stdout.pipe( process.stdout, { end: false } );
+  child.stderr.pipe( process.stderr, { end: false } );
   child.on( 'exit', stop );
 }
 
