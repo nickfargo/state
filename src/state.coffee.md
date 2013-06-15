@@ -77,8 +77,8 @@ A bit mask indicates the attributes that can be inherited via protostates.
 
 ### [Supporting classes](#state--supporting-classes)
 
-These are keyed here as a placeholder, and will be valued at the end of this
-class definition with a forward import.
+These are keyed here as a placeholder, and will be valued with a forward import
+at the end of this class definition.
 
       Expression: null
       Content: null
