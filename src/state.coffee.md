@@ -940,8 +940,8 @@ owner’s current state.
 
 #### [change](#state--prototype--change)
 
-Forwards a `change` command to the root and returns its result. Calling with no
-arguments directs the root to change to `this` state.
+Forwards a `change` command to `root` and returns its result. Calling with no
+arguments implicitly directs the root to change to `this` state.
 
 *Aliases:* **go**, **be**
 

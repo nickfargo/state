@@ -68,6 +68,8 @@ to keys in order, increasing from `1 << offset` onward.
 
 #### bind
 
+* `fn` : ( any… ) → any
+
 Used inside a state expression, a function `fn` wrapped with `state.bind` will
 bind the context of `fn` either to any `State` created from that expression, or
 when invoked for an object that inherits from the `owner` of the bound `State`,
@@ -75,8 +77,6 @@ to the corresponding **epistate** of that `State`.
 
 Thusly bound methods, event listeners, etc., whose context would have normally
 been the `owner`, still retain a reference thereto via `this.owner`.
-
-* `fn` : ( any… ) → any
 
       @bind = do ->
         bind = ( fn ) -> new StateBoundFunction fn
@@ -88,6 +88,8 @@ been the `owner`, still retain a reference thereto via `this.owner`.
 
 #### fix
 
+* `fn` : ( autostate, protostate ) → ( any… ) → any
+
 Used inside a state expression, a `combinator` wrapped with `state.fix` will
 be partially applied with a reference to `autostate`, the precise `State` to
 which the combinator’s returned function will belong, and a reference to
@@ -95,8 +97,6 @@ which the combinator’s returned function will belong, and a reference to
 
 A method, event listener, etc. that is `fix`ed thusly has access to, and full
 lexical awareness of, the particular `State` environment in which it exists.
-
-* `fn` : ( autostate, protostate ) → ( any… ) → any
 
       @fix = do ->
         fix = ( combinator ) -> new StateFixedFunction combinator

@@ -7,9 +7,6 @@
 
 ## [state()](#state-function)
 
-> [`state()`](/api/#state-function)
-> [The `state` function](/docs/#getting-started--the-state-function)
-
 Invoking the exported `state` function is the primary point of entry into the
 module. The `state` function is used either to:
 
@@ -28,6 +25,8 @@ The `attributes` argument may include any of the words defined in
 `STATE_ATTRIBUTE_MODIFIERS`, which are encoded into the provided `expression`.
 
 > See also: `STATE_ATTRIBUTES`
+> [`state()`](/api/#state-function)
+> [The `state` function](/docs/#getting-started--the-state-function)
 
     state = ( owner, attributes, expression, options ) ->
       if arguments.length < 2
