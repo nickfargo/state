@@ -19,10 +19,10 @@ The owner’s `RootState` designates exactly one of the `State`s in its tree as
 its `current` state. This reference may be **transitioned** to a different
 `State` in the tree, causing the owner’s projected behavior to change.
 
-An owner and its tree of `State`s are also heritable along its prototype chain.
-Inheritors of a stateful prototype effectively possess all of the prototype’s
-`State`s, but each can independently adopt a `current` state and instigate
-transitions.
+An owner and its tree of `State`s are also heritable along the owner’s
+prototype chain. Inheritors of a stateful prototype effectively possess all of
+the prototype’s `State`s, but each inheritor can adopt its own `current` state
+and instigate transitions independently of the prototype.
 
 > [State](/api/#state)
 
