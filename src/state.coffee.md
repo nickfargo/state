@@ -755,77 +755,6 @@ states are marked `initial`.
           return protostate.initialSubstate VIA_PROTO
 
 
-
-### [Currency](#state--currency)
-
-Methods that inspect or affect the owner’s current state.
-
-
-#### [current](#state--prototype--current)
-
-Gets the local state tree’s current state, which is authoritatively determined
-by the root state.
-
-> [current](/api/#state--methods--current)
-
-      current: -> @root._current
-
-
-#### [isCurrent](#state--prototype--is-current)
-
-Returns a `Boolean` indicating whether `this` is the owner’s current state.
-
-> [isCurrent](/api/#state--methods--is-current)
-
-      isCurrent: -> this is @current()
-
-
-#### [isActive](#state--prototype--is-active)
-
-Returns a `Boolean` indicating whether `this` or one of its substates is the
-owner’s current state.
-
-> [isActive](/api/#state--methods--is-active)
-
-      isActive: -> this is ( current = @current() ) or @isSuperstateOf current
-
-
-#### [change](#state--prototype--change)
-
-Forwards a `change` command to the root and returns its result. Calling with no
-arguments directs the root to change to `this` state.
-
-*Aliases:* **go**, **be**
-
-> [change](/api/#state--methods--change)
-
-      change: ( target, options ) ->
-        ( root = @root ).change.apply root, arguments
-
-      go: @::change
-      be: @::change
-
-
-#### [changeTo](#state--prototype--change-to)
-
-> Not yet implemented.
-
-Calls `change` without regard to a `target`’s retained internal state.
-
-*Aliases:* **goTo**, **goto**
-
-> See also: [`State::change`](#state--prototype--change)
-
-      changeTo: ( target, options ) ->
-
-      goTo: @::changeTo
-      goto: @::goTo
-
-
-
-### [Query](#state--querying)
-
-
 #### [query](#state--prototype--query)
 
 Matches a `selector` string with the state or states it represents, evaluated
@@ -972,6 +901,73 @@ the behavior of the object’s accessor method.
           return if args.length
           then @[ method ].apply this, [ match[2] ].concat args
           else @[ method ] match[2]
+
+
+
+### [Currency](#state--currency)
+
+Methods that inspect or affect the owner’s current state.
+
+
+#### [current](#state--prototype--current)
+
+Gets the local state tree’s current state, which is authoritatively determined
+by the root state.
+
+> [current](/api/#state--methods--current)
+
+      current: -> @root._current
+
+
+#### [isCurrent](#state--prototype--is-current)
+
+Returns a `Boolean` indicating whether `this` is the owner’s current state.
+
+> [isCurrent](/api/#state--methods--is-current)
+
+      isCurrent: -> this is @current()
+
+
+#### [isActive](#state--prototype--is-active)
+
+Returns a `Boolean` indicating whether `this` or one of its substates is the
+owner’s current state.
+
+> [isActive](/api/#state--methods--is-active)
+
+      isActive: -> this is ( current = @current() ) or @isSuperstateOf current
+
+
+#### [change](#state--prototype--change)
+
+Forwards a `change` command to the root and returns its result. Calling with no
+arguments directs the root to change to `this` state.
+
+*Aliases:* **go**, **be**
+
+> [change](/api/#state--methods--change)
+
+      change: ( target, options ) ->
+        ( root = @root ).change.apply root, arguments
+
+      go: @::change
+      be: @::change
+
+
+#### [changeTo](#state--prototype--change-to)
+
+> Not yet implemented.
+
+Calls `change` without regard to a `target`’s retained internal state.
+
+*Aliases:* **goTo**, **goto**
+
+> See also: [`State::change`](#state--prototype--change)
+
+      changeTo: ( target, options ) ->
+
+      goTo: @::changeTo
+      goto: @::goTo
 
 
 
