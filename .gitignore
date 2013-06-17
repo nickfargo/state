@@ -1,8 +1,2 @@
-node_modules/*
-.tmp*
-/state.js
-*.gz
-*-min.js
-.DS_Store
-_site/*
-test/tests.js
+/node_modules
+/lib
