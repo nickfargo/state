@@ -2,6 +2,9 @@
 
 var spawn = require('child_process').spawn;
 
+start();
+
+
 function start () { mocha(0); }
 
 function mocha ( exitcode ) {
@@ -9,9 +12,8 @@ function mocha ( exitcode ) {
   var cmd = 'mocha';
   var args = [
       "--compilers coffee:coffee-script",
-      "-R spec",
       "--colors"
-    ].join(' ').split(' ');
+    ].join(' ').split(' ').concat( process.argv.slice(2) );
   var child = spawn( cmd, args );
   child.stdout.pipe( process.stdout, { end: false } );
   child.stderr.pipe( process.stderr, { end: false } );
@@ -21,5 +23,3 @@ function mocha ( exitcode ) {
 function stop ( exitcode ) {
   process.exit( exitcode );
 }
-
-start();
