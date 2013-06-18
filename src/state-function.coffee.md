@@ -60,12 +60,14 @@ as a `StateExpression`.
 
 
 
-### Package includes
+### Static includes
 
 A set of package-global metadata and functions are included as properties of
 the exported `state` function.
 
-    ( require './includes' ).apply state
+> These must be required ahead of the forward imports.
+
+    ( require './export-static' ).apply state
 
 
 
