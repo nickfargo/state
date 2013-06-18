@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+var spawn = require('child_process').spawn;
+
+start();
+
+
+function start () { coffee(0); }
+
+function coffee ( exitcode ) {
+  if ( exitcode ) process.exit( exitcode );
+  var cmd = 'coffee';
+  var args = [
+      "-o lib/",
+      "-c src/"
+    ].join(' ').split(' ');
+  var child = spawn( cmd, args );
+  child.stdout.pipe( process.stdout, { end: false } );
+  child.stderr.pipe( process.stderr, { end: false } );
+  child.on( 'exit', stop );
+}
+
+function stop ( exitcode ) {
+  process.exit( exitcode );
+}
