@@ -12,8 +12,9 @@
 
 ## [RootState](#root-state)
 
-A **root state** is the `State` that holds the authoritative reference to the
-`current` state, and that governs the proceeding of transitions.
+A **root state** is the top-level `State` which holds the authoritative
+reference to the **owner**’s `current` state, and which governs the proceeding
+of **transitions** that traverse its **state tree**.
 
     class RootState extends State
 
@@ -30,7 +31,20 @@ A **root state** is the `State` that holds the authoritative reference to the
 ###### SYNOPSIS
 
 Direct construction via `new` is for internal use only; the `State` object
-model is properly created from the exported `state` function.
+model is properly created by defining `StateExpression`s that are provided to
+the exported `state` function.
+
+###### PARAMETERS
+
+* `owner` : object
+* `expression` : `StateExpression` | object — A plain object will be coerced
+  and interpreted if necessary into a formal `StateExpression`.
+* `options` : object | string — A string is coerced to the `initialState`
+  option. Options include:
+  * `initialState` : string — A state name or path. Presence of this option
+    supersedes the `initial` attribute of substates or inherited protostates.
+  * `name` : string – The property name on `owner` at which the generated
+    **accessor** function will appear. Defaults to `'state'`.
 
 ###### SOURCE
 
