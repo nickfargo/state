@@ -134,14 +134,23 @@ as evaluated `against` another `State`. Defaults to `true` if no guard exists.
 
 
 
-### [Class methods](#root-state--class-methods)
+### [Methods](#root-state--methods)
 
 
-#### [getTransitionExpression](#root-state--private--get-transition-expression)
+#### [getTransitionExpression](#root-state--prototype--get-transition-expression)
+
+###### SYNOPSIS
 
 Finds the appropriate transition expression for the given `target` and `origin`
 states. If no matching transitions are defined in either state or any of their
 ancestors, a generic actionless transition expression for the pair is returned.
+
+###### PARAMETERS
+
+* `target` : `State`
+* `origin` : `State` (optional) — defaults to the `current` state.
+
+###### SOURCE
 
       getTransitionExpression: do ->
 
@@ -173,10 +182,6 @@ ancestors, a generic actionless transition expression for the pair is returned.
           ( unless target.isIn origin
             search target, origin, origin.superstate, origin.common target ) or
           new TransitionExpression
-
-
-
-### [Prototype methods](#root-state--prototype-methods)
 
 
 #### [change](#root-state--prototype--change)
