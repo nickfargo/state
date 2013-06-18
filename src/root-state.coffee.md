@@ -27,6 +27,13 @@ A **root state** is the `State` that holds the authoritative reference to the
 
 ### [Constructor](#root-state--constructor)
 
+###### SYNOPSIS
+
+Direct construction via `new` is for internal use only; the `State` object
+model is properly created from the exported `state` function.
+
+###### SOURCE
+
       constructor: ( owner, expression, options ) ->
         @owner = owner or = {}
         unless expression instanceof StateExpression
@@ -77,8 +84,12 @@ also held at `_transition`.
 
 #### [createAccessor](#root-state--private--create-accessor)
 
+###### SYNOPSIS
+
 Returns the `accessor` function that will serve as an owner object’s interface
 to its state implementation.
+
+###### SOURCE
 
       createAccessor = ( owner, name, root ) ->
 
@@ -115,8 +126,12 @@ also creating the object’s new accessor, to which the call is then forwarded.
 
 #### [evaluateGuard](#root-state--private--evaluate-guard)
 
+###### SYNOPSIS
+
 Returns the boolean result of a `guard` function in the `context` of a `State`,
 as evaluated `against` another `State`. Defaults to `true` if no guard exists.
+
+###### SOURCE
 
       evaluateGuard = ( context, guard, against ) ->
         guard = context.guard guard if typeof guard is 'string'
