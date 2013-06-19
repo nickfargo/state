@@ -24,7 +24,7 @@ prototype chain. Inheritors of a stateful prototype effectively possess all of
 the prototype’s `State`s, but each inheritor can adopt its own `current` state
 and instigate transitions independently of the prototype.
 
-> [State](/api/#state)
+> [State](http://statejs.org/api/#state)
 
     class State
 
@@ -184,7 +184,7 @@ corresponding virtual state in the local state tree. For methods relocated to
 the root state as described above, however, the context appropriately remains
 bound to the owner object.
 
-> [Dispatchers](/docs/#concepts--methods--dispatchers)
+> [Dispatchers](http://statejs.org/docs/#concepts--methods--dispatchers)
 
       createDispatcher = do ->
         toString = -> "[dispatcher]"
@@ -260,7 +260,7 @@ Returns the state on `inheritor`’s state tree for which `this` is a protostate
 This will be the newly created virtual state, unless virtualization was
 unnecessary, in which case it will be the extant real epistate of `this`.
 
-> [Protostates](/docs/#concepts--inheritance--protostates)
+> [Protostates](http://statejs.org/docs/#concepts--inheritance--protostates)
 
       virtualize: ( inheritor ) ->
 
@@ -295,8 +295,8 @@ add virtual states to it until the whole superstate chain is represented.
 Attempts to cleanly destroy this state and all of its substates. A `destroy`
 event is issued to each state after it has been destroyed.
 
-> [destroy (method)](/api/#state--methods--destroy)
-> [destroy (event)](/api/#state--events--destroy)
+> [destroy (method)](http://statejs.org/api/#state--methods--destroy)
+> [destroy (event)](http://statejs.org/api/#state--events--destroy)
 
       destroy: ->
         { owner, root, superstate, _ } = this
@@ -553,8 +553,8 @@ which is emitted as part of a `mutate` event.
 
 Methods that inspect a state’s attributes.
 
-> [Attributes](/docs/#concepts--attributes)
-> [Attributes](/api/#state--attributes)
+> [Attributes](http://statejs.org/docs/#concepts--attributes)
+> [Attributes](http://statejs.org/api/#state--attributes)
 
       isVirtual:     -> !!( @attributes & VIRTUAL )
       isMutable:     -> !!( @attributes & MUTABLE )
@@ -584,7 +584,7 @@ Returns a `State` array of this state’s superstate chain, starting after the
 root state and ending at `this`. If `byName` is set to `true`, a string array
 of the states’ names is returned instead.
 
-> [derivation](/api/#state--methods--derivation)
+> [derivation](http://statejs.org/api/#state--methods--derivation)
 
       derivation: ( byName ) ->
         results = []; ss = this; while ( s = ss ) and ss = s.superstate
@@ -598,7 +598,7 @@ Returns this state’s fully qualified name.
 
 *Alias:* **toString**
 
-> [path](/api/#state--methods--path)
+> [path](http://statejs.org/api/#state--methods--path)
 
       path: -> @derivation( yes ).join '.'
       toString: @::path
@@ -609,7 +609,7 @@ Returns this state’s fully qualified name.
 Returns the number of superstates this state has. The root state returns `0`,
 its immediate substates return `1`, etc.
 
-> [depth](/api/#state--methods--depth)
+> [depth](http://statejs.org/api/#state--methods--depth)
 
       depth: ->
         n = 0; s = this
@@ -622,7 +622,7 @@ its immediate substates return `1`, etc.
 Returns the least common ancestor of `this` and `other`. If `this` is itself an
 ancestor of `other`, or vice versa, then that ancestor is returned.
 
-> [common](/api/#state--methods--common)
+> [common](http://statejs.org/api/#state--methods--common)
 
       common: ( other ) ->
         other = @query other unless other instanceof State
@@ -673,7 +673,7 @@ Determines whether `this` is a superstate of `other`.
 
 #### [protostate](#state--prototype--protostate)
 
-> [protostate](/api/#state--methods--protostate)
+> [protostate](http://statejs.org/api/#state--methods--protostate)
 
 Returns `this` state’s **protostate**, the `State` that both:
 
@@ -710,7 +710,7 @@ memoized.
 Determines whether `this` is a state analogous to `state` on any object in the
 prototype chain of `state`’s owner.
 
-> [isProtostateOf](/api/#state--methods--is-protostate-of)
+> [isProtostateOf](http://statejs.org/api/#state--methods--is-protostate-of)
 
       isProtostateOf: ( other ) ->
         other = @query other unless other instanceof State
@@ -725,7 +725,7 @@ Returns the first substate marked `default`, or simply the first substate.
 Recursion continues into the protostate only if no local substates are marked
 `default`.
 
-> [defaultSubstate](/api/#state--methods--default-substate)
+> [defaultSubstate](http://statejs.org/api/#state--methods--default-substate)
 
       defaultSubstate: ( via = VIA_PROTO, first ) ->
         for s in substates = @substates()
@@ -743,7 +743,7 @@ deeply nested `initial` state by way of the greatest `initial` descendant
 state. Recursion continues into the protostate only if no local descendant
 states are marked `initial`.
 
-> [initialSubstate](/api/#state--methods--initial-substate)
+> [initialSubstate](http://statejs.org/api/#state--methods--initial-substate)
 
       initialSubstate: ( via = VIA_PROTO ) ->
         i = 0; queue = [ this ]
@@ -772,8 +772,8 @@ query is recursed `via` the substates, superstates, and protostates of `this`,
 unless otherwise directed, such that a uniquely named state can be located by
 name alone from anywhere in the state tree.
 
-> [Selectors](/docs/#concepts--selectors)
-> [query](/api/#state--methods--query)
+> [Selectors](http://statejs.org/docs/#concepts--selectors)
+> [query](http://statejs.org/api/#state--methods--query)
 
       query: ( selector, against, via = VIA_ALL, toBeSkipped ) ->
         if typeof against is 'number'
@@ -914,7 +914,7 @@ Methods that inspect or affect the owner’s current state.
 Gets the local state tree’s current state, which is authoritatively determined
 by the root state.
 
-> [current](/api/#state--methods--current)
+> [current](http://statejs.org/api/#state--methods--current)
 
       current: -> @root._current
 
@@ -923,7 +923,7 @@ by the root state.
 
 Returns a `Boolean` indicating whether `this` is the owner’s current state.
 
-> [isCurrent](/api/#state--methods--is-current)
+> [isCurrent](http://statejs.org/api/#state--methods--is-current)
 
       isCurrent: -> this is @current()
 
@@ -933,7 +933,7 @@ Returns a `Boolean` indicating whether `this` is the owner’s current state.
 Returns a `Boolean` indicating whether `this` or one of its substates is the
 owner’s current state.
 
-> [isActive](/api/#state--methods--is-active)
+> [isActive](http://statejs.org/api/#state--methods--is-active)
 
       isActive: -> this is ( current = @current() ) or @isSuperstateOf current
 
@@ -945,7 +945,7 @@ arguments implicitly directs the root to change to `this` state.
 
 *Aliases:* **go**, **be**
 
-> [change](/api/#state--methods--change)
+> [change](http://statejs.org/api/#state--methods--change)
 
       change: ( target, options ) ->
         ( root = @root ).change.apply root, arguments
@@ -987,8 +987,8 @@ state. For keys in `mutation` whose values are set to the `NIL` directive, the
 matching keys in the state’s data are deleted. If the operation results in a
 change to the state’s data, a `mutate` event is emitted for this state.
 
-> [Data](/docs/#concepts--data)
-> [data](/api/#state--methods--data)
+> [Data](http://statejs.org/docs/#concepts--data)
+> [data](http://statejs.org/api/#state--methods--data)
 
       data: ( via = VIA_ALL ) ->
 
@@ -1045,7 +1045,7 @@ key already exists, it is added.
 
 > See also: `set`
 
-> [let](/api/#state--methods--let)
+> [let](http://statejs.org/api/#state--methods--let)
 
       let: ( key, value ) ->
         { attributes } = this
@@ -1075,8 +1075,8 @@ For `let` versus `set`, the notion of a property’s **scope** along the
 superstate chain is comparable to the same at the language level for variable
 bindings within functions being shadowed versus unshadowed, respectively.
 
-> [let](/api/#state--methods--let)
-> [set](/api/#state--methods--set)
+> [let](http://statejs.org/api/#state--methods--let)
+> [set](http://statejs.org/api/#state--methods--set)
 
       set: ( key, value ) ->
         { attributes } = this
@@ -1113,7 +1113,7 @@ Retrieves the named method for this state. Providing an optional `out` object
 allows the appropriate `context` for a state-bound method to be delivered as a
 property of `out`; if included, `context` is confined to the local state tree.
 
-> [method](/api/#state--methods--method)
+> [method](http://statejs.org/api/#state--methods--method)
 
       method: ( methodName, via = VIA_ALL, out, boxed ) ->
         realized = ~@attributes & VIRTUAL
@@ -1192,7 +1192,7 @@ Export `method` and `context` together if the `out` reference was provided.
 
 Returns an `Array` of names of methods defined for this state.
 
-> [methodNames](/api/#state--methods--method-names)
+> [methodNames](http://statejs.org/api/#state--methods--method-names)
 
       methodNames: ->
         keys methods if methods = @_?.methods
@@ -1216,7 +1216,7 @@ state’s implementation of this method.
 
 > See also: `state.bind`, `state.fix`
 
-> [addMethod](/api/#state--methods--add-method)
+> [addMethod](http://statejs.org/api/#state--methods--add-method)
 
       addMethod: ( methodName, fn ) ->
         return unless @attributes & INCIPIENT_OR_MUTABLE
@@ -1262,7 +1262,7 @@ override that method.
 
 Dissociates the named method from this state object and returns its function.
 
-> [removeMethod](/api/#state--methods--remove-method)
+> [removeMethod](http://statejs.org/api/#state--methods--remove-method)
 
       removeMethod: ( methodName ) ->
         return unless @attributes & MUTABLE and ( methods = @_?.methods ) and
@@ -1275,7 +1275,7 @@ Dissociates the named method from this state object and returns its function.
 
 Determines whether `this` possesses or inherits a method named `methodName`.
 
-> [hasMethod](/api/#state--methods--has-method)
+> [hasMethod](http://statejs.org/api/#state--methods--has-method)
 
       hasMethod: ( methodName ) ->
         method = @method methodName
@@ -1285,7 +1285,7 @@ Determines whether `this` possesses or inherits a method named `methodName`.
 
 Determines whether `this` directly possesses a method named `methodName`.
 
-> [hasOwnMethod](/api/#state--methods--has-own-method)
+> [hasOwnMethod](http://statejs.org/api/#state--methods--has-own-method)
 
       hasOwnMethod: ( methodName ) ->
         !! @method methodName, VIA_NONE
@@ -1298,7 +1298,7 @@ Finds a state method and applies it in the appropriate context.
 If the named method does not exist locally and cannot be inherited, then
 `noSuchMethod` events are emitted, and the call returns `undefined`.
 
-> [apply](/api/#state--methods--apply)
+> [apply](http://statejs.org/api/#state--methods--apply)
 
       apply: ( methodName, args ) ->
 
@@ -1334,7 +1334,7 @@ called directly as a method of `this` state’s `owner`.
 
 Variadic `apply`.
 
-> [call](/api/#state--methods--call)
+> [call](http://statejs.org/api/#state--methods--call)
 
       call: ( methodName, args... ) ->
         @apply methodName, args
@@ -1353,7 +1353,7 @@ If an `id` as returned by `addEvent` is provided, the event listener associated
 with that `id` is returned. If no `id` is provided, the number of event
 listeners registered to `type` is returned.
 
-> [event](/api/#state--methods--event)
+> [event](http://statejs.org/api/#state--methods--event)
 
       event: ( eventType, id ) ->
         return unless emitter = @_?.events?[ eventType ]
@@ -1369,7 +1369,7 @@ identifier for the listener.
 
 *Alias:* **on**
 
-> [addEvent](/api/#state--methods--add-event)
+> [addEvent](http://statejs.org/api/#state--methods--add-event)
 
       addEvent: ( eventType, fn, context ) ->
         do @realize if @attributes & VIRTUAL
@@ -1393,7 +1393,7 @@ Unbinds the event listener with the specified `id` that was supplied by
 
 *Alias:* **off**
 
-> [removeEvent](/api/#state--methods--remove-event)
+> [removeEvent](http://statejs.org/api/#state--methods--remove-event)
 
       removeEvent: ( eventType, id ) ->
         @_?.events?[ eventType ].remove id
@@ -1417,7 +1417,7 @@ Normal, unbound callbacks are invoked in the conventional context of `@owner`.
 
 *Alias:* **trigger**
 
-> [emit](/api/#state--methods--emit)
+> [emit](http://statejs.org/api/#state--methods--emit)
 
       emit: ( eventType, args, context, via = VIA_ALL ) ->
         return if typeof eventType isnt 'string'
@@ -1457,7 +1457,7 @@ applied.
 Guards are inherited from protostates, but not from superstates.
 
 > See also: [`evaluateGuard`](#state--private--evaluate-guard)
-> [guard](/api/#state--methods--guard)
+> [guard](http://statejs.org/api/#state--methods--guard)
 
       guard: ( guardType ) ->
         if guard = @_?.guards?[ guardType ] then clone guard
@@ -1469,7 +1469,7 @@ Guards are inherited from protostates, but not from superstates.
 Adds a guard to this state, or augments an existing guard with additional
 entries.
 
-> [addGuard](/api/#state--methods--add-guard)
+> [addGuard](http://statejs.org/api/#state--methods--add-guard)
 
       addGuard: ( guardType, guard ) ->
         { attributes } = this
@@ -1484,7 +1484,7 @@ entries.
 Removes a guard from this state, or removes specific entries from an existing
 guard.
 
-> [removeGuard](/api/#state--methods--remove-guard)
+> [removeGuard](http://statejs.org/api/#state--methods--remove-guard)
 
       removeGuard: ( guardType, args... ) ->
         { attributes } = this
@@ -1508,7 +1508,7 @@ Retrieves the named substate of `this` state. If no such substate exists in the
 local state, any identically named substate held on a protostate will be
 returned.
 
-> [substate](/api/#state--methods--substate)
+> [substate](http://statejs.org/api/#state--methods--substate)
 
       substate: ( name, via = VIA_PROTO ) ->
 
@@ -1531,7 +1531,7 @@ Returns an `Array` of this state’s substates. If the boolean `deep` argument i
 `true`, returns a depth-first flattened array containing all of this state’s
 descendant states.
 
-> [substates](/api/#state--methods--substates)
+> [substates](http://statejs.org/api/#state--methods--substates)
 
       substates: ( deep, virtual ) ->
         result = []
@@ -1560,7 +1560,7 @@ Creates a state from the supplied `expression` and adds it as a substate of
 this state. If a substate with the same `name` already exists, that state is
 first destroyed and then displaced.
 
-> [addSubstate](/api/#state--methods--add-substate)
+> [addSubstate](http://statejs.org/api/#state--methods--add-substate)
 
       addSubstate: ( name, expression ) ->
         { attributes } = this
@@ -1585,7 +1585,7 @@ first destroyed and then displaced.
 
 Removes the named substate from the local state, if possible.
 
-> [removeSubstate](/api/#state--methods--remove-substate)
+> [removeSubstate](http://statejs.org/api/#state--methods--remove-substate)
 
       removeSubstate: ( name ) ->
         { attributes } = this
@@ -1622,7 +1622,7 @@ involving itself or any descendant `State`.
 
 Returns the named transition expression held on this state.
 
-> [transition](/api/#state--methods--transition)
+> [transition](http://statejs.org/api/#state--methods--transition)
 
       transition: ( name ) -> @_?.transitions?[ name ]
 
@@ -1632,7 +1632,7 @@ Returns the named transition expression held on this state.
 Returns an object containing all of the transition expressions defined
 on this state.
 
-> [transitions](/api/#state--methods--transitions)
+> [transitions](http://statejs.org/api/#state--methods--transitions)
 
       transitions: -> clone @_?.transitions
 
@@ -1641,7 +1641,7 @@ on this state.
 
 Registers a transition expression to this state.
 
-> [addTransition](/api/#state--methods--add-transition)
+> [addTransition](http://statejs.org/api/#state--methods--add-transition)
 
       addTransition: ( name, expression ) ->
         { attributes } = this
@@ -1657,7 +1657,7 @@ Registers a transition expression to this state.
 
 Removes a transition expression from this state.
 
-> [removeTransition](/api/#state--methods--remove-transition)
+> [removeTransition](http://statejs.org/api/#state--methods--remove-transition)
 
       removeTransition: ( name ) ->
         { attributes } = this
