@@ -127,7 +127,8 @@ Calling the accessor of a prototype means that `this` requires its own accessor
 and root state. Creating a new `RootState` will have the desired side-effect of
 also creating the object’s new accessor, to which the call is then forwarded.
 
-          else if ( owner.isPrototypeOf this ) and not hasOwn.call this, name
+          else if ( owner.isPrototypeOf this ) and
+              ( ( not hasOwn.call this, name ) or @[ name ] is owner[ name ] )
             new RootState this, null, { name, initialState: current.path() }
             return @[ name ].apply this, arguments
 
