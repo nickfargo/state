@@ -37,8 +37,10 @@ the exported `state` function.
 ###### PARAMETERS
 
 * `owner` : object
+
 * `expression` : `StateExpression` | object — A plain object will be coerced
   and interpreted if necessary into a formal `StateExpression`.
+
 * `options` : object | string — A string is coerced to the `initialState`
   option. Options include:
   * `initialState` : string — A state name or path. Presence of this option
