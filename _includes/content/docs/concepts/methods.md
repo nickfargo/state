@@ -20,7 +20,7 @@ The dispatcher’s job is to redirect all invocations to the owner’s current s
 {% include examples/docs/methods--dispatchers.coffee %}
 {% endhighlight %}
 
-###### SEE ALSO
+###### See also
 
 > [`State createDispatcher`](/source/#state--private--create-dispatcher)
 > [`State::addMethod`](/source/#state--prototype--add-method)
@@ -45,7 +45,7 @@ In this way delegation to a superstate’s method is facilitated by the `apply` 
 
 Worth noting here is the significant difference distinguishing these `apply` and `call` methods from their familiar `Function.prototype` counterparts: whereas for a function, the first argument accepted by `apply` and `call` is a context object, for the `State::apply` and `State::call` methods, the first argument is a string that names a method on that state to be invoked.
 
-###### SEE ALSO
+###### See also
 
 > [state.bind](/api/#state-function--bind)
 > [method](/api/#state--methods--method)
@@ -80,7 +80,7 @@ The state-lexical references gained by methods transformed by `fix` are:
 
 Worth noting here is the distinction and relationship between `autostate` and `this`: if a method is inherited from a protostate, then `autostate` will reference that protostate of `this`; if the method is not inherited, then `autostate` and `this` are identical.
 
-###### SEE ALSO
+###### See also
 
 > [state.fix](/api/#state-function--fix)
 > [`state.fix`](/source/#state-function--fix)
@@ -105,7 +105,7 @@ Also emitted is a specific [`noSuchMethod:name`](/api/#state--events--no-such-me
 {% include examples/docs/methods--nonexistent.coffee %}
 {% endhighlight %}
 
-###### SEE ALSO
+###### See also
 
 > [noSuchMethod](/api/#state--events--no-such-method)
 > [noSuchMethod:name](/api/#state--events--no-such-method-name)
