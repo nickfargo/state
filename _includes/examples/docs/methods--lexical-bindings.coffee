@@ -3,16 +3,18 @@ class Superclass
   m: -> @foo
   state @::
     A:
-      m: state.method -> superstate.call('m') + owner.bar
+      m: state.bind ->
+        @superstate.call('m') + @owner.bar
       AA: state
 
 class Class extends Superclass
   baz: "BAZ"
   state @::
     A:
-      m: state.method -> protostate.call('m') + owner.baz
+      m: state.fix ( autostate, protostate ) -> ->
+        protostate.call('m') + @baz
 
 o = new Class
 o.m()             # >>> "FOO"
-o.state '-> AA'    
+o.state '-> AA'
 o.m()             # >>> "FOOBARBAZ"

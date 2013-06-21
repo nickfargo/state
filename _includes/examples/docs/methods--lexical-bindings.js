@@ -4,8 +4,8 @@ var q = {
 };
 state( q, {
   A: {
-    m: state.method( function () {
-      return superstate.call('m') + owner.bar;
+    m: state.bind( function () {
+      return this.superstate.call('m') + this.owner.bar;
     }),
     AA: state
   }
@@ -16,8 +16,10 @@ var p = Object.create( q, {
 });
 state( p, {
   A: {
-    m: state.method( function () {
-      return protostate.call('m') + owner.baz;
+    m: state.fix( function ( autostate, protostate ) {
+      return function () {
+        return protostate.call('m') + this.baz;
+      };
     })
   }
 });

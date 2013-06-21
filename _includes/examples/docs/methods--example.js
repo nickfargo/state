@@ -14,27 +14,27 @@ function Document ( location, text ) {
     };
 }
 state( Document.prototype, 'abstract', {
-    freeze: function () {                                   // [3]
+    freeze: state.bind( function () {                       // [3]
         var result = this.call('save');                     // [4]
-        this.change('Frozen');
+        this.go('Frozen');
         return result;
-    },
+    }),
 
     Dirty: {
-        save: function () {
+        save: state.bind( function () {
             var owner = this.owner(),
                 args = [ owner.location(), owner.read() ];
-            this.change( 'Saved', args );                   // [5]
+            this.go( 'Saved', args );                       // [5]
             return owner;
-        }
+        })
     },
     Saved: state( 'initial', {
-        edit: function () {
+        edit: state.bind( function () {
             var ss = this.superstate(),
                 result = ss.apply( 'edit', arguments );     // [2]
-            this.change('Dirty');
+            this.go('Dirty');
             return result;
-        },
+        }),
 
         Frozen: state( 'final', {
             edit: function () {},
@@ -45,19 +45,16 @@ state( Document.prototype, 'abstract', {
     transitions: {
         Writing: {
             origin: 'Dirty', target: 'Saved',
-            action: function ( location, text ) {
+            action: state.bind( function ( location, text ) {
                 var transition = this;
-                
                 function cb ( err ) {
                     if ( err ) {
-                        return transition.abort( err )
-                                         .change('Dirty');
+                        return transition.abort( err ).go('Dirty');
                     }
                     transition.end();
                 }
-
                 return fs.writeFile( location, text, cb );
-            }
+            })
         }
     }
 });

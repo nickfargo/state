@@ -10,22 +10,21 @@ class Document
       this
 
   state @::, 'abstract'
-    freeze: ->                                              # [3]
+    freeze: state.bind ->                                   # [3]
       result = @call 'save'                                 # [4]
-      @change 'Frozen'
+      @go 'Frozen'
       result
 
     Dirty:
-      save: ->
-        owner = @owner()
-        args = [ owner.location(), owner.read() ]
-        @change 'Saved', args                               # [5]
+      save: state.bind ->
+        args = [ @owner.location(), @owner.read() ]
+        @go 'Saved', args                                   # [5]
         owner
-    
+
     Saved: state 'initial'
-      edit: ->
+      edit: state.bind ->
         result = @superstate().apply 'edit', arguments      # [2]
-        @change 'Dirty'
+        @go 'Dirty'
         result
 
       Frozen: state 'final'
@@ -35,7 +34,7 @@ class Document
     transitions:
       Writing:
         origin: 'Dirty', target: 'Saved'
-        action: ( location, text ) ->
+        action: state.bind ( location, text ) ->
           fs.writeFile location, text, ( err ) =>
-            return @abort( err ).change('Dirty') and this if err
+            return @abort( err ).go('Dirty') and this if err
             do @end
