@@ -11,20 +11,20 @@ state( Kid.prototype, 'mutable', {
         favorite: 'chocolate'
     },
 
-    waver: function () {
+    waver: state.bind( function () {
         var i = Math.random() * flavors.length << 0;
         this.data({ favorite: flavors[i] });
-    },
+    }),
     whine: function ( complaint ) {
         if ( typeof console !== 'undefined' ) {
             console.log( complaint );
         }
     },
 
-    mutate: function ( mutation, delta, before, after ) {
+    mutate: function ( mutation, replaced ) {
         this.owner().whine(
-            "I hate " + delta.favorite +
-            ", I want " + mutation.favorite + "!"
+            "I hate " + replaced.favorite + ", " +
+            "I want " + mutation.favorite + "!"
         );
     }
 });
@@ -33,7 +33,7 @@ state( Kid.prototype, 'mutable', {
 var jr = new Kid;
 
 // We could have added listeners this way also:
-jr.state().on( 'mutate', function ( mutation, delta ) { /*...*/ } );
+jr.state().on( 'mutate', function ( mutation, replaced ) { /*...*/ } );
 
 jr.waver();  // log <<< "I hate chocolate, I want strawberry!"
 jr.waver();  // log <<< "I hate strawberry, I want chocolate!"

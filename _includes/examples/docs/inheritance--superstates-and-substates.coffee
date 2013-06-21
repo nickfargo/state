@@ -7,16 +7,16 @@ class Person
     state this,
       Formal:
         greet: ( person ) -> "How do you do?"
-      
+
       Informal:
         greet: ( person ) -> "Hi!"
-    
+
         Familiar:
-          hug: ( person ) -> @owner().give person, 'O'
-          greet: ( person ) -> @owner().hug person
-    
+          hug: ( person ) -> @give person, 'O'
+          greet: ( person ) -> @hug person
+
           Intimate:
-            kiss: ( person ) -> @owner().give person, 'X'
-            greet: ( person ) ->
-              @superstate().call 'greet', person
-              @owner().kiss person
+            kiss: ( person ) -> @give person, 'X'
+            greet: state.bind ( person ) ->
+              @superstate.call 'greet', person
+              @owner.kiss person

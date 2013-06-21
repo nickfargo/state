@@ -6,24 +6,24 @@ flavors = [
 ]
 
 class Kid
-  state @::, 'mutable'
+  state @::, 'mutable',
     data:
       favorite: 'chocolate'
 
-    waver: ->
+    waver: state.bind ->
       @data favorite: flavors[ Math.random() * flavors.length << 0 ]
     whine: ( complaint ) ->
       console?.log complaint
 
-    mutate: ( mutation, delta, before, after ) ->
-      @owner.whine "I hate #{ delta.favorite }, " +
-                   "I want #{ mutation.favorite }!"
+    mutate: ( mutation, replaced ) ->
+      @whine "I hate #{ replaced.favorite }, " +
+             "I want #{ mutation.favorite }!"
 
 
 jr = new Kid
 
 # We could have added listeners this way also:
-jr.state().on 'mutate', ( mutation, delta ) -> # ...
+jr.state().on 'mutate', ( mutation, replaced ) -> # ...
 
 jr.waver()  # log <<< "I hate chocolate, I want strawberry!"
 jr.waver()  # log <<< "I hate strawberry, I want chocolate!"

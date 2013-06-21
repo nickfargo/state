@@ -1,5 +1,6 @@
 fs = require 'fs'
 state = require 'state'
+{ bind } = state
 
 class Document
   constructor: ( location, text ) ->
@@ -10,20 +11,20 @@ class Document
       this
 
   state @::, 'abstract'
-    freeze: state.bind ->                                   # [3]
+    freeze: bind ->                                         # [3]
       result = @call 'save'                                 # [4]
       @go 'Frozen'
       result
 
     Dirty:
-      save: state.bind ->
+      save: bind ->
         args = [ @owner.location(), @owner.read() ]
         @go 'Saved', args                                   # [5]
         owner
 
     Saved: state 'initial'
-      edit: state.bind ->
-        result = @superstate().apply 'edit', arguments      # [2]
+      edit: bind ->
+        result = @superstate.apply 'edit', arguments        # [2]
         @go 'Dirty'
         result
 
@@ -34,7 +35,7 @@ class Document
     transitions:
       Writing:
         origin: 'Dirty', target: 'Saved'
-        action: state.bind ( location, text ) ->
+        action: bind ( location, text ) ->
           fs.writeFile location, text, ( err ) =>
             return @abort( err ).go('Dirty') and this if err
             do @end

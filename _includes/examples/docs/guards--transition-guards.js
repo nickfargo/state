@@ -2,7 +2,7 @@ function Scholar () {}
 state( Scholar.prototype, 'abstract', {
     Matriculated: state( 'initial', {
         graduate: function ( gpa ) {
-            this.owner().gpa = gpa;
+            this.gpa = gpa;
             this.change( 'Graduated' );
         }
     }),
@@ -11,13 +11,13 @@ state( Scholar.prototype, 'abstract', {
     transitions: {
         Summa: {
             origin: 'Matriculated', target: 'Graduated',
-            admit: function () { return this.data().gpa >= 3.9; },
+            admit: function () { return this.gpa >= 3.9; },
             action: function () { /* swat down offers */ }
         },
         Magna: {
             origin: 'Matriculated', target: 'Graduated',
             admit: function () {
-                var gpa = this.data().gpa;
+                var gpa = this.gpa;
                 return 3.75 <= gpa && gpa < 3.9;
             },
             action: function () { /* choose internship */ }
@@ -25,7 +25,7 @@ state( Scholar.prototype, 'abstract', {
         Laude: {
             origin: 'Matriculated', target: 'Graduated',
             admit: function () {
-                var gpa = this.data().gpa;
+                var gpa = this.gpa;
                 return 3.50 <= gpa && gpa < 3.75;
             },
             action: function () { /* brag to the cat */ }

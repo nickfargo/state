@@ -1,11 +1,13 @@
+{ bind } = state
+
 class Kid
   state @::
     Happy: state
     Sad: state
 
     events:
-      gotIceCream: -> @be 'Happy'
-      spilledIceCream: -> @be 'Sad'
+      gotIceCream: bind -> @be 'Happy'
+      spilledIceCream: bind -> @be 'Sad'
 
 
 jr = new Kid

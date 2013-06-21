@@ -21,7 +21,7 @@ state( object, {
     },
     D: {
         enter: function () {
-            this.$('B').removeGuard( 'admit' );
+            this.state('B').removeGuard( 'admit' );
         },
         admit: function ( fromState ) {
             return 'blorp' in fromState.data()

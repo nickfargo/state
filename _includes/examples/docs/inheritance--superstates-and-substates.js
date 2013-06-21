@@ -4,9 +4,9 @@ function Person () {
         return this;
     };
     this.receive = function ( from, what ) { return this; };
-    
+
     this.greet = function () { return "Hello."; };
-    
+
     state( this, {
         Formal: {
             greet: function ( person ) { return "How do you do?"; }
@@ -16,22 +16,22 @@ function Person () {
 
             Familiar: {
                 hug: function ( person ) {
-                    this.owner().give( person, 'O' );
+                    this.give( person, 'O' );
                 },
 
                 greet: function ( person ) {
-                    this.owner().hug( person );
+                    this.hug( person );
                 },
 
                 Intimate: {
                     kiss: function ( person ) {
-                        this.owner().give( person, 'X' );
+                        this.give( person, 'X' );
                     },
 
-                    greet: function ( person ) {
-                        this.superstate().call( 'greet', person );
-                        this.owner().kiss( person );
-                    }
+                    greet: state.bind( function ( person ) {
+                        this.superstate.call( 'greet', person );
+                        this.owner.kiss( person );
+                    })
                 }
             }
         }

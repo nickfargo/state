@@ -1,5 +1,5 @@
 state obj, 'abstract'
-  Alive: state 'default initial mutable'
+  Alive: state 'default initial mutable',
     update: -> # ...
-  Dead: state 'final'
+  Dead: state 'final',
     update: -> # ...

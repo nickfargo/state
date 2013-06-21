@@ -1,7 +1,7 @@
 class Superclass
   foo: "FOO", bar: "BAR"
   m: -> @foo
-  state @::
+  state @::,
     A:
       m: state.bind ->
         @superstate.call('m') + @owner.bar
@@ -9,7 +9,7 @@ class Superclass
 
 class Class extends Superclass
   baz: "BAZ"
-  state @::
+  state @::,
     A:
       m: state.fix ( autostate, protostate ) -> ->
         protostate.call('m') + @baz

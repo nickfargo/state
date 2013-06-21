@@ -1,10 +1,10 @@
 log = ( msg ) -> console.log msg
 owner = {}
 
-state owner, 'abstract'
+state owner, 'abstract',
   foo: -> log "I exist!"
 
-  A: state 'default'
+  A: state 'default',
     bar: -> log "So do I!"
   B: state
 # >>> State 'A'

@@ -1,6 +1,6 @@
 function Mover () {}
 state( Mover.prototype, {
-    
+
     // Programmatically set up the root to log the transitional
     // events of all states
     construct: function () {
@@ -9,9 +9,9 @@ state( Mover.prototype, {
         substates = [this].concat( this.substates( true ) );
         for ( i in substates ) for ( j in events ) {
             ( function ( s, e ) {
-                s.on( e, function () {
-                    console.log this.name() + " " + e;
-                });
+                s.on( e, state.bind( function () {
+                    console.log this.name + " " + e;
+                }));
             }( substates[i], events[j] ) );
         }
     },
@@ -30,10 +30,10 @@ state( Mover.prototype, {
     transitions: {
         Announcing: {
             source: '*', target: '*',
-            action: function () {
-                var name = this.superstate().name() || "the root";
+            action: state.bind( function () {
+                var name = this.superstate.name || "the root";
                 this.end( "action of transition is at " + name );
-            },
+            }),
             end: function ( message ) { console.log( message ); }
         }
     }

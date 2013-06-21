@@ -8,7 +8,7 @@ var longformExpression = state({
                 greet: function () { return "How do you do?"; }
             },
             events: {
-                enter: function () { this.owner().wearTux(); }
+                enter: function () { this.wearTux(); }
             }
         },
         Casual: {
@@ -16,7 +16,7 @@ var longformExpression = state({
                 greet: function () { return "Hi!"; }
             },
             events: {
-                enter: function () { this.owner().wearJeans(); }
+                enter: function () { this.wearJeans(); }
             }
         }
     }

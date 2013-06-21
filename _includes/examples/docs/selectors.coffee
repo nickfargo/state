@@ -1,7 +1,7 @@
 o = {}
 state o,
   A:
-    AA: state 'initial'
+    AA: state 'initial',
       AAA: state
     AB: state
   B: state

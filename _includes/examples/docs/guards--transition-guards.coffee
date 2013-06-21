@@ -1,28 +1,28 @@
 class Scholar
-  state @::, 'abstract'
-    Matriculated: state 'initial'
+  state @::, 'abstract',
+    Matriculated: state 'initial',
       graduate: ( gpa ) ->
-        @owner().gpa = gpa
-        @$ -> 'Graduated'
+        @gpa = gpa
+        @state '-> Graduated'
 
     Graduated: state 'final'
-  
+
     transitions:
       Summa: transition
         origin: 'Matriculated', target: 'Graduated'
-        admit: -> @owner().gpa >= 3.9
+        admit: -> @gpa >= 3.9
         action: -> # swat down offers
-  
+
       Magna: transition
         origin: 'Matriculated', target: 'Graduated'
-        admit: -> 3.75 <= @owner().gpa < 3.9
+        admit: -> 3.75 <= @gpa < 3.9
         action: -> # choose internship
-  
+
       Laude: transition
         origin: 'Matriculated', target: 'Graduated'
-        admit: -> 3.50 <= @owner().gpa < 3.75
+        admit: -> 3.50 <= @gpa < 3.75
         action: -> # brag to the cat
-  
+
       '': transition
         origin: 'Matriculated', target: 'Graduated'
         action: -> # blame rounding error

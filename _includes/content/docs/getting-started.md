@@ -28,7 +28,7 @@ state( [attributes], expression )
 state( [attributes], expression )
 {% endhighlight %}
 
-Given a single `expression` object (and optional `attributes`), calling `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call to define constituent [**substates**](#concepts--inheritance--superstates-and-substates).
+Given a single `expression` object (and optional `attributes`), calling `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call, to define constituent [**substates**](#concepts--inheritance--superstates-and-substates).
 
 
 #### [Step 1 — Building a state expression](#getting-started--building-a-state-expression)

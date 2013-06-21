@@ -6,10 +6,10 @@ longformExpression = state
       methods:
         greet: -> "How do you do?"
       events:
-        enter: -> do @owner().wearTux
+        enter: -> do @wearTux
     Casual:
       methods:
         greet: -> "Hi!"
       events:
-        enter: -> do @owner().wearJeans
+        enter: -> do @wearJeans
 # >>> StateExpression

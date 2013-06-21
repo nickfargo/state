@@ -1,5 +1,5 @@
 class Chief
-  state @::
+  state @::,
     data:
       mission: 'innovate'
       budget: 10000000000

@@ -1,5 +1,6 @@
 var fs = require('fs'),
-    state = require('state');
+    state = require('state'),
+    bind = state.bind;
 
 function Document ( location, text ) {
     this.location = function () {
@@ -14,14 +15,14 @@ function Document ( location, text ) {
     };
 }
 state( Document.prototype, 'abstract', {
-    freeze: state.bind( function () {                       // [3]
+    freeze: bind( function () {                             // [3]
         var result = this.call('save');                     // [4]
         this.go('Frozen');
         return result;
     }),
 
     Dirty: {
-        save: state.bind( function () {
+        save: bind( function () {
             var owner = this.owner(),
                 args = [ owner.location(), owner.read() ];
             this.go( 'Saved', args );                       // [5]
@@ -29,8 +30,8 @@ state( Document.prototype, 'abstract', {
         })
     },
     Saved: state( 'initial', {
-        edit: state.bind( function () {
-            var ss = this.superstate(),
+        edit: bind( function () {
+            var ss = this.superstate,
                 result = ss.apply( 'edit', arguments );     // [2]
             this.go('Dirty');
             return result;
@@ -45,7 +46,7 @@ state( Document.prototype, 'abstract', {
     transitions: {
         Writing: {
             origin: 'Dirty', target: 'Saved',
-            action: state.bind( function ( location, text ) {
+            action: bind( function ( location, text ) {
                 var transition = this;
                 function cb ( err ) {
                     if ( err ) {

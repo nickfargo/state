@@ -1,11 +1,17 @@
+var bind = state.bind;
+
 function Kid () {}
 state( Kid.prototype, {
     Happy: state,
     Sad: state,
 
     events: {
-        gotIceCream: function () { this.be('Happy'); },
-        spilledIceCream: function () { this.be('Sad'); }
+        gotIceCream: bind( function () {
+            this.be('Happy');
+        }),
+        spilledIceCream: bind( function () {
+            this.be('Sad');
+        })
     }
 });
 

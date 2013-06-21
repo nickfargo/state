@@ -2,7 +2,7 @@
 log = ( message, callback ) -> # ...
 
 class Foo
-  state @::, 'abstract'
+  state @::, 'abstract',
     Bar: state 'default initial'
     Baz:
       transitions:

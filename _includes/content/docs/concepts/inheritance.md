@@ -22,7 +22,7 @@ The root state also acts as the *default method store* for the object’s state 
 
 This is the basis for **State**’s *method delegation* pattern, wherein a method call made on the object is automatically forwarded to the object’s current state, with the assurance that the call will be resolved somewhere in the state tree. If a method override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the object’s original implementation of the method, held within the root state.
 
-> See also: [**Delegator methods**](#concepts--methods--delegators)
+> See also: [**Dispatcher methods**](#concepts--methods--dispatchers)
 
 > [root](/api/#state--methods--root)
 > [`State::root`](/source/#state--prototype--root)

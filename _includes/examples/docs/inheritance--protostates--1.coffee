@@ -1,6 +1,6 @@
 class Person
   greet: -> "Hello."
-  state @::
+  state @::,
     Formal:
       greet: -> "How do you do?"
     Casual:
