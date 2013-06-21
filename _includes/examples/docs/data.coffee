@@ -8,7 +8,7 @@ class Chief
         mission: 'compete'
 
   constructor: ->
-    state this, 'mutable'
+    state this, 'mutable',
       Enraged:
         Thermonuclear:
           data:
