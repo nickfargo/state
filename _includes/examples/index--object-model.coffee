@@ -1,5 +1,5 @@
 class Person
-  state @::
+  state @::,
     Formal:
       greet: -> "How do you do?"
       Highbrow:

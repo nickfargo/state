@@ -14,13 +14,13 @@ state( Mover.prototype, {
 
     // Use the root state’s `construct` event to programmatically
     // set up all of the states to log their transitional events.
-    construct: function () {
+    construct: state.bind( function () {
         var states, events, s, e, i, ls, j, le;
 
         function bindEventToState ( e, s ) {
-            s.on( e, function () {
-                console.log( e + " " + this.name() );
-            });
+            s.on( e, state.bind( function () {
+                console.log( e + " " + this.name );
+            }));
         }
 
         states = [ this ].concat( this.substates( true ) );
@@ -33,7 +33,7 @@ state( Mover.prototype, {
                 bindEventToState( e, s );
             }
         }
-    }
+    })
 });
 
 

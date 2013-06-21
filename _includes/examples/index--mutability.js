@@ -8,18 +8,18 @@ var theRomansDo = {
 };
 
 function doAs ( behavior ) {
-    return function () {
+    return state.bind( function () {
         return this.mutate( behavior );
-    };
+    });
 }
 
 
 inherit( Traveler, Person );
 function Traveler () {}
 state( Traveler.prototype, 'mutable abstract', {
-    goTo: function ( place ) {
+    goTo: state.bind( function ( place ) {
         this.emit( 'in' + place );
-    },
+    }),
 
     events: {
         inRome: doAs( theRomansDo )

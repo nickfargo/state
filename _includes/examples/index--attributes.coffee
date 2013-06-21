@@ -1,8 +1,8 @@
 class Person
-  state @::, 'abstract'
-    Formal: state 'default initial'
+  state @::, 'abstract',
+    Formal: state 'default initial',
       greet: -> "How do you do?"
-    Casual: state 'final'
+    Casual: state 'final',
       greet: -> "Hi!"
 
 

@@ -4,12 +4,12 @@ theRomansDo =
   Casual:
     greet: -> "Salve!"
 
-doAs = (behavior) -> -> @mutate behavior
+doAs = (behavior) -> state.bind -> @mutate behavior
 
 
 class Traveler extends Person
-  state @::, 'mutable abstract'
-    goTo: (place) -> @emit "in#{place}"
+  state @::, 'mutable abstract',
+    goTo: state.bind (place) -> @emit "in#{place}"
 
     events:
       inRome: doAs theRomansDo

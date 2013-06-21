@@ -1,5 +1,5 @@
 class ContainerView
-  state @::, 'abstract'
+  state @::, 'abstract',
     Grid: state 'default initial'
     List: state
 

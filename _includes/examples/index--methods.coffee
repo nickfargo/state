@@ -1,15 +1,16 @@
 class Sophisticate extends Person
   constructor: (@name) ->
 
-  state @::, 'abstract'
-    Formal: state 'default initial'
+  state @::, 'abstract',
+    Formal: state 'default initial',
       Cordial:
-        greet: state.method (person) ->
-          greeting = superstate.call 'greet'
-          if name = person?.name then "Hello #{name}. #{greeting}"
+        greet: state.bind (person) ->
+          greeting = @superstate.call 'greet'
+          if name = person?.name
+          then "Hello #{name}. #{greeting}"
           else greeting
     Casual:
-      greet: state.method (person) ->
+      greet: state.fix (autostate, protostate) -> (person) ->
         name = person?.name
         return "How’s it hanging?" if name is 'Lane'
         return "Hi #{name}." if name
