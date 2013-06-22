@@ -8,7 +8,7 @@ All state-related content is [expressed in a format][6] that is terse, declarati
 
 * * *
 
-Visit **[statejs.org][]** for an introduction, complete [documentation][], [getting started][] guide, and conceptual [overview][], along with the [API][], [annotated source][], and [tests][].
+Visit **[statejs.org][]** for an introduction, complete [documentation][] including a [getting started][] guide and conceptual [overview][], along with the [API][], [annotated source][], and [tests][].
 
 ### &#x1f44b;
 
