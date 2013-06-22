@@ -1,5 +1,32 @@
 # State.js
 
-Visit **[statejs.org](http://statejs.org/)** for an introduction, as well as complete [documentation](http://statejs.org/docs/), [API](http://statejs.org/api/), [annotated source](http://statejs.org/source), and [tests](http://statejs.org/tests/).
+**[State][0]** provides a model for implementing [hierarchical states][1] directly into an object and [throughout its prototype chain][2].
+
+Behavior modeling is [method-based][3] and powered by [event-driven][4] state [transitions][5].
+
+All state-related content is [expressed in a format][6] that is terse, declarative, reusable, and emphasizes **simplicity** and **ease of reasoning**.
+
+* * *
+
+Visit **[statejs.org][]** for an introduction, complete [documentation][], [getting started][] guide, and conceptual [overview][], along with the [API][], [annotated source][], and [tests][].
 
 ### &#x1f44b;
+
+
+
+
+[0]: http://statejs.org/
+[1]: http://statejs.org/docs/#concepts--inheritance--superstates-and-substates
+[2]: http://statejs.org/docs/#concepts--inheritance--protostates
+[3]: http://statejs.org/docs/#concepts--methods
+[4]: http://statejs.org/docs/#concepts--events
+[5]: http://statejs.org/docs/#concepts--transitions
+[6]: http://statejs.org/docs/#concepts--expressions
+
+[statejs.org]:       http://statejs.org/
+[documentation]:     http://statejs.org/docs/
+[getting started]:   http://statejs.org/docs/#getting-started
+[overview]:          http://statejs.org/docs/#overview
+[API]:               http://statejs.org/api/
+[annotated source]:  http://statejs.org/source/
+[tests]:             http://statejs.org/tests/
