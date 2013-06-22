@@ -28,11 +28,9 @@ of **transitions** that traverse its **state tree**.
 
 ### [Constructor](#root-state--constructor)
 
-###### SYNOPSIS
-
-Direct construction via `new` is for internal use only; the `State` object
-model is properly created by defining `StateExpression`s that are provided to
-the exported `state` function.
+Creates a working **state tree** based on a single **root state** as directed
+by an `expression`, and implements this tree as a behavior model for the
+provided `owner`.
 
 ###### PARAMETERS
 
@@ -47,6 +45,12 @@ the exported `state` function.
     supersedes the `initial` attribute of substates or inherited protostates.
   * `name` : string – The property name on `owner` at which the generated
     **accessor** function will appear. Defaults to `'state'`.
+
+###### DISCUSSION
+
+Direct construction via `new` is for internal use only; the `State` object
+model is properly created by defining `StateExpression`s that are provided to
+the exported `state` function.
 
 ###### SOURCE
 
@@ -100,12 +104,8 @@ also held at `_transition`.
 
 #### [createAccessor](#root-state--private--create-accessor)
 
-###### SYNOPSIS
-
 Returns the `accessor` function that will serve as an owner object’s interface
 to its state implementation.
-
-###### SOURCE
 
       createAccessor = ( owner, name, root ) ->
 
@@ -143,12 +143,8 @@ also creating the object’s new accessor, to which the call is then forwarded.
 
 #### [evaluateGuard](#root-state--private--evaluate-guard)
 
-###### SYNOPSIS
-
 Returns the boolean result of a `guard` function in the `context` of a `State`,
 as evaluated `against` another `State`. Defaults to `true` if no guard exists.
-
-###### SOURCE
 
       evaluateGuard = ( context, guard, against ) ->
         guard = context.guard guard if typeof guard is 'string'
@@ -170,8 +166,6 @@ as evaluated `against` another `State`. Defaults to `true` if no guard exists.
 
 
 #### [getTransitionExpression](#root-state--prototype--get-transition-expression)
-
-###### SYNOPSIS
 
 Finds the appropriate transition expression for the given `target` and `origin`
 states. If no matching transitions are defined in either state or any of their
@@ -218,12 +212,16 @@ ancestors, a generic actionless transition expression for the pair is returned.
 
 #### [change](#root-state--prototype--change)
 
+Attempts to execute a state **transition**.
+
 ###### SYNOPSIS
 
-Attempts to execute a state transition. Handles asynchronous transitions,
-generation of appropriate events, and construction of any necessary temporary
-virtual states. Respects guards supplied in both the origin and `target`
-states.
+A `change`/`go`/`be` operation conducts asynchronous transitions, generation of
+relevant transitional **events**, and construction of any necessary temporary
+**virtual states** for prototypal inheritors.
+
+Rules imposed by all **guards** held on both the origin and `target` states are
+respected, and if these are not satisfied the transition will be denied.
 
 ###### PARAMETERS
 
