@@ -46,6 +46,14 @@ Causes a function to be contextually bound to the `State` in which it acts. This
 
 Returns an object that boxes `fn`, marked with a `type` of `state-bound-function`.
 
+{% highlight javascript %}
+{% include examples/api/state-function--bind.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state-function--bind.coffee %}
+{% endhighlight %}
+
 ###### Discussion
 
 Normally a state method or event listener will be invoked in the context of the **owner** object. However, certain patterns may require a function to have a static reference to the `State` for which it acts: for example, if a state method wishes to inherit more generic behavior from an implementation located higher in the state tree.
