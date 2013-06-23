@@ -5,5 +5,5 @@ state( mover, {
     }
 });
 
-mover.state().name();  // >>> "Running"
+mover.state().name;    // >>> "Running"
 mover.state().path();  // >>> "Moving.Running"

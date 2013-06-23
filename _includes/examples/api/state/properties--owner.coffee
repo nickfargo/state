@@ -1,10 +1,6 @@
 class Mover
-  state @::
-    Moving:
-      getState: -> this
-      getOwner: -> @owner()
+  state @::,
+    Moving: state 'initial'
 
 mover = new Mover
-mover.state '-> Moving'
-mover.getState() is mover.state('Moving')  # >>> true
-mover.getOwner() is mover                  # >>> true
+mover.state().owner is mover  # >>> true

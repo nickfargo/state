@@ -5,6 +5,6 @@ state( mover, {
     }
 });
 
-mover.state().root();          // >>> State ''
-mover.state('').root();        // >>> State ''
-mover.state('Moving').root();  // >>> State ''
+mover.state().root;          // >>> State ''
+mover.state('').root;        // >>> State ''
+mover.state('Moving').root;  // >>> State ''

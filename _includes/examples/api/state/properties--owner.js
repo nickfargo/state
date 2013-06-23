@@ -1,12 +1,7 @@
-function Mover () {}
+function Mover() {}
 state( Mover.prototype, {
-    Moving: {
-        getState: function () { return this; },
-        getOwner: function () { return this.owner(); }
-    }
+    Moving: state('initial')
 });
 
 var mover = new Mover;
-mover.state('-> Moving');
-mover.getState() === mover.state('Moving');  // >>> true
-mover.getOwner() === mover                   // >>> true
+mover.state().owner === mover;  // >>> true
