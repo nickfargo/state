@@ -58,9 +58,9 @@ Returns an object that boxes `fn`, marked with a `type` of `state-bound-function
 
 Normally a state method or event listener will be invoked in the context of the **owner** object. However, certain patterns may require a function to have a static reference to the `State` for which it acts: for example, if a state method wishes to inherit more generic behavior from an implementation located higher in the state tree.
 
-> Note that the expression `this.state().superstate` does not provide a lexical reference to a precise superstate. Because the function may be inherited by a substate, the meaning of `this.state()` is dependent on the identity of the inheritor, and therefore *dynamic* along the superstate axis.
+> Note that the expression `this.state().superstate` does not provide a lexical reference to the targeted superstate. Because the function may be inherited by a substate, the meaning of `this.state()` is dependent on the identity of the inheritor, and is therefore *dynamic* along the superstate axis.
 
-To achieve this, the function must be wrapped in a call to `state.bind`, which boxes the function inside a special object. Thenceforth whenever **State** needs to use this function, it will be recognized as **state-bound**, and then automatically unboxed and invoked in the context of the prevailing `State`.
+To achieve this, the function must be wrapped in a call to `state.bind`, which boxes the function inside a specially typed object. Thenceforth whenever **State** needs to use this function, it will be recognized in its boxed form as **state-bound**, and then automatically unboxed and invoked in the context of the prevailing `State`.
 
 If a state-bound method, event listener, etc. is inherited from a **protostate**, then the prevailing `State` will be the inheriting **epistate**. To capture a reference to the precise `State` in which a function is defined, it must be wrapped with `state.fix`.
 
@@ -95,7 +95,7 @@ Returns an object that boxes `fn`, marked with a `type` of `state-fixed-function
 
 For a function to reliably access either the `State` in which it is defined, or important related `State`s such as its protostate, the function must be **lexically bound** to its host `State` by enclosing it within a **decorator**, and wrapping this in a call to `state.fix`.
 
-The decorator is provided as a `combinator` function that defines parameters `autostate` and optionally `protostate`, and returns the function `fn` that is to be fixed. Calling `fix` then boxes the decorator inside a special object. Thenceforth whenever **State** implements this function as a method, event listener, etc. for a `State`, it will recognize the object as a **state-fixed** function, upon which it will be automatically unboxed and partially applied with the host `State` as `autostate`, and its immediate protostate as `protostate`.
+The decorator is provided as a `combinator` function that defines parameters `autostate` and optionally `protostate`, and returns the function `fn` that is to be fixed. Calling `fix` then boxes the decorator inside a specially typed object. Thenceforth whenever **State** implements this function as a method, event listener, etc. for a `State`, it will recognize the object as a **state-fixed** function, which will be automatically unboxed and partially applied with the host `State` as `autostate`, and its immediate protostate as `protostate`.
 
 The fixed, enclosed `fn` is thusly bestowed with full lexical awareness of the particular `State` environment in which it exists.
 
