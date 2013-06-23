@@ -1,9 +1,9 @@
+    O                    = require 'omicron'
     state                = require './state-function'
     State                = require './state'
     TransitionExpression = require './transition-expression'
 
     {
-      O
       STATE_ATTRIBUTES
       STATE_ATTRIBUTE_MODIFIERS
       STATE_EXPRESSION_CATEGORIES

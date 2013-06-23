@@ -1,10 +1,9 @@
+    O                     = require 'omicron'
     state                 = require './state-function'
     State                 = require './state'
     StateExpression       = null
     Transition            = null
     TransitionExpression  = null
-
-    { O } = state
 
     module.exports =
 

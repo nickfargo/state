@@ -1,9 +1,10 @@
+    O                     = require 'omicron'
     state                 = require './state-function'
     StateEventEmitter     = null
     StateExpression       = null
     TransitionExpression  = null
 
-    { O, STATE_ATTRIBUTES, TRAVERSAL_FLAGS } = state
+    { STATE_ATTRIBUTES, TRAVERSAL_FLAGS } = state
 
     module.exports =
 
@@ -393,7 +394,6 @@ is truthy, the expression is a formally typed `StateExpression`.
           for name, substate of substates
             out[ name ] = substate.express typed
           out
-
 
 
 #### [mutate](#state--prototype--mutate)
