@@ -9,8 +9,8 @@ A transition acts within the **domain** of the least common ancestor between its
 
 <div class="local-toc"></div>
 
-{% include content/api/transition/events.md %}
 {% include content/api/transition/properties.md %}
 {% include content/api/transition/methods.md %}
+{% include content/api/transition/events.md %}
 
 * * *
