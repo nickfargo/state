@@ -53,7 +53,7 @@
 {% endhighlight %}
 
 
-To encourage behavioral determinism, [`State`](/api/#state) instances are [immutable by default](/docs/#concepts--attributes--mutability), but they may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
+To facilitate determinism, [`State`](/api/#state) instances are [immutable by default](/docs/#concepts--attributes--mutability), but they may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
 
 {% highlight javascript %}
 {% include examples/index--mutability.js %}
