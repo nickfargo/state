@@ -58,7 +58,7 @@ Returns an object that boxes `fn`, marked with a `type` of `state-bound-function
 
 Normally a state method or event listener will be invoked in the context of the **owner** object. However, certain patterns may require a function to have a static reference to the `State` for which it acts: for example, if a state method wishes to inherit more generic behavior from an implementation located higher in the state tree.
 
-> Note that the expression `this.state().superstate` does not reliably reference a precise superstate: because the function may be inherited by a substate, the meaning of `this.state()` is *dynamic*.
+> Note that the expression `this.state().superstate` does not provide a lexical reference to a precise superstate. Because the function may be inherited by a substate, the meaning of `this.state()` is dependent on the identity of the inheritor, and therefore *dynamic* along the superstate axis.
 
 To achieve this, the function must be wrapped in a call to `state.bind`, which boxes the function inside a special object. Thenceforth whenever **State** needs to use this function, it will be recognized as **state-bound**, and then automatically unboxed and invoked in the context of the prevailing `State`.
 
