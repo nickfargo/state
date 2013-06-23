@@ -1,10 +1,10 @@
 ## [state()](#state-function)
 
-The **State** module is exported as a function named `state`. This can be used either to build a **state expression** that declares the content for a [`State`](#state), or to apply a state expression to an object to give the object a working state implementation.
-
 {% highlight javascript %}
 state( owner, attributes, expression )
 {% endhighlight %}
+
+The **State** module is exported as a function named `state`. This can be used either to build a **state expression** that declares the content for a [`State`](#state), or to apply a state expression to an object to give the object a working state implementation.
 
 * [`owner`] : object
 * [`attributes`] : string
@@ -32,11 +32,11 @@ Calling `state` with no arguments returns an empty `StateExpression`. Similarly,
 
 ### [state.bind](#state-function--bind)
 
-Causes a function to be contextually bound to the `State` in which it acts. This provides the means to reliably reference the **superstate** within a state method, event listener, etc.
-
 {% highlight javascript %}
 state.bind( fn )
 {% endhighlight %}
+
+Causes a function to be contextually bound to the `State` in which it acts. This provides the means to reliably reference the **superstate** within a state method, event listener, etc.
 
 * `fn` : function
 
@@ -59,11 +59,11 @@ If a state-bound method, event listener, etc. is inherited from a **protostate**
 
 ### [state.fix](#state-function--fix)
 
-Causes a function to be decorated with fixed bindings to the precise `State` in which it is defined. This provides the means to reliably reference the **protostate** within a state method, event listener, etc.
-
 {% highlight javascript %}
 state.fix( combinator )
 {% endhighlight %}
+
+Causes a function to be decorated with fixed bindings to the precise `State` in which it is defined. This provides the means to reliably reference the **protostate** within a state method, event listener, etc.
 
 * `combinator` : function :: ( `autostate`, [`protostate`] ) → ( `fn` : function )
 
