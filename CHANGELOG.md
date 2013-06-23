@@ -19,7 +19,7 @@
 * Moved meta properties and export-level static functions to a separate module `export-static`.
 
 
-#### `state (exported function)`
+#### `state` (exported function)
 
 * Replaced `state.method` function with new `state.bind` and `state.fix` wrapper functions; adapted the `StateExpression` interpreter and `State::addMethod` to recognize and unpack the boxed function objects.
 
