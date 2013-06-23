@@ -1,6 +1,6 @@
-* [state()](#module)
+* **[state()](#module)**
   * [state.method](#module--method)
-* [State](#state)
+* **[State](#state)**
   * [Attributes](#state--attributes)
     * [mutable](#state--attributes--mutable)
     * [finite](#state--attributes--finite)
@@ -88,7 +88,7 @@
     * [mutate](#state--events--mutate)
     * [noSuchMethod](#state--events--no-such-method)
     * [noSuchMethod:name](#state--events--no-such-method-name)
-* [Transition](#transition)
+* **[Transition](#transition)**
   * [Properties](#transition--properties)
     * [owner](#transition--properties--owner)
     * [root](#transition--properties--root)
