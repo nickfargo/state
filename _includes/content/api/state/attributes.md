@@ -29,7 +29,7 @@ By default, states are **weakly immutable** — their data, methods, guards, sub
 
 The `mutable` attribute is inherited from both superstates and protostates, unless any also bear the [`immutable`](#state--attributes--immutable) attribute.
 
-> See also: 
+> See also:
 > [`isMutable`](#state--methods--is-mutable),
 > [`mutate` (method)](#state--methods--mutate),
 > [`mutate` (event)](#state--events--mutate)
@@ -39,7 +39,7 @@ The `mutable` attribute is inherited from both superstates and protostates, unle
 
 #### [finite](#state--attributes--finite)
 
-Declaring a state `finite` guarantees its hierarchical structure by hiding its `addSubstate` and `removeSubstate` methods after the state has been constructed.
+Declaring a state `finite` guarantees its hierarchical structure by disabling its `addSubstate` and `removeSubstate` methods after the state has been constructed.
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--finite.js %}
@@ -75,7 +75,7 @@ Adding `immutable` makes a state **strongly immutable**, whereupon immutability 
 
 The `immutable` attribute is inherited from both superstates and protostates, and has top precedence over [`mutable`](#state--attributes--mutable) and [`finite`](#state--attributes--finite).
 
-An inheriting owner object may still extend the state implementation of its prototype with states that are new or extend protostates, but any of these that inherit from an `immutable` state will also bear the `immutable` attribute themselves.
+An inheriting owner object may still extend the state implementation of its prototype with states that are new, or that extend protostates, but any of these that inherit from an `immutable` state will implicitly also bear the `immutable` attribute themselves.
 
 > See also:
 > [`isImmutable`](#state--methods--is-immutable)
@@ -87,7 +87,9 @@ An inheriting owner object may still extend the state implementation of its prot
 
 A state that is `abstract` cannot itself be current. Consequently a transition that targets an abstract state will be forcibly redirected to the appropriate [`concrete`](#state--attributes--concrete) descendant of the abstract state.
 
-The redirection target of an `abstract` state is determined by seeking its first substate marked [`default`](#state--attributes--default). If no `default` substate exists, the first substate is targeted. If the redirection target is itself abstract, then the process is repeated until a concrete descendant is found. If an abstract state has no concrete descendants, currency is directed as deep as possible via the first substate at each level.
+The redirection target of an `abstract` state is determined by seeking its first-iterated substate marked [`default`](#state--attributes--default). If no `default` substate exists, the first substate is targeted. If the redirection target is itself abstract, then the process is repeated until a concrete descendant is found. If an abstract state has no concrete descendants, currency is directed as deep as possible via the first substate at each level.
+
+> As object keys are not strictly ordered, it is a best practice to ensure that, whether literally or via inheritance, exactly one substate of an `abstract` state is always named as its `default`.
 
 The `abstract` attribute is inherited from protostates.
 
