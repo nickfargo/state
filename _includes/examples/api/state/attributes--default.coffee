@@ -1,7 +1,7 @@
 class Mover
-  state @::, 'abstract'
+  state @::, 'abstract',
     Stationary: state
-    Moving: state 'default abstract'
+    Moving: state 'default abstract',
       Walking: state
       Running: state 'default'
 

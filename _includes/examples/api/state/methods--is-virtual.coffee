@@ -1,5 +1,5 @@
 class Mover
-  state @::
+  state @::,
     Stationary: state 'initial'
     Moving: state
 

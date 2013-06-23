@@ -1,9 +1,9 @@
 class Mover
-  state @::, 'immutable'
+  state @::, 'immutable',
     Moving: state
 
 mover = new Mover
-state mover, 'mutable'                      #                 [1]
+state mover, 'mutable',                     #                 [1]
   Stationary: state                         #                 [2]
 
 mover.state('').isMutable()                 # >>> false       [1]

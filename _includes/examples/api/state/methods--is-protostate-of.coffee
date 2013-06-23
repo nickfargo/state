@@ -1,5 +1,5 @@
 class Animal
-  state @::, 'abstract'
+  state @::, 'abstract',
     Alive: state 'default'
     Dead: state
 

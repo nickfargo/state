@@ -1,5 +1,5 @@
 mover = {}
-state mover
+state mover,
   Moving:
     Running: state
 

@@ -1,7 +1,7 @@
 mover = {}
-state mover, 'abstract'
+state mover, 'abstract',
   Stationary: state
-  Moving: state 'default abstract'
+  Moving: state 'default abstract',
     Walking: state
     Running:
       Sprinting: state 'initial'

@@ -1,5 +1,5 @@
 class Mover
-  state @::, 'mutable'
+  state @::, 'mutable',
     Moving:
       Running: state
 

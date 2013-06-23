@@ -1,7 +1,7 @@
 class Mover
-  state @::
+  state @::,
     Stationary: state
-    Moving: state 'conclusive'
+    Moving: state 'conclusive',
       Walking: state
       Running: state
 

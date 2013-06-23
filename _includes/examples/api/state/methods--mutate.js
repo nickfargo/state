@@ -1,4 +1,4 @@
-var NIL = O.NIL;
+var NIL = state.NIL;
 
 var mover = {};
 state( mover, 'mutable', {

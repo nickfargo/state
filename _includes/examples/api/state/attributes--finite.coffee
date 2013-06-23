@@ -1,5 +1,5 @@
 class Mover
-  state @::, 'finite'
+  state @::, 'finite',
     Stationary: state
     Moving:
       Walking: state

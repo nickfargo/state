@@ -1,7 +1,7 @@
-{NIL} = O
+{NIL} = state
 
 mover = {}
-state mover, 'mutable'
+state mover, 'mutable',
   mutate: -> console.log "I feel different"
   Stationary: state
   Evil: state

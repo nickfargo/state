@@ -1,7 +1,7 @@
 class Mover
-  state @::
+  state @::,
     Stationary: state
-    Moving: state 'final'
+    Moving: state 'final',
       Walking: state
 
 mover = new Mover

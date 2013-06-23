@@ -1,5 +1,5 @@
 class Mover
-  state @::
+  state @::,
     Moving: state
 
 Mover::state().mutate

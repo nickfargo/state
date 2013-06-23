@@ -1,6 +1,6 @@
 mover = {}
-state mover, 'mutable abstract'
-  Stationary: state 'initial default'
+state mover, 'mutable abstract',
+  Stationary: state 'initial default',
     move: -> "!"
   Moving:
     Walking:

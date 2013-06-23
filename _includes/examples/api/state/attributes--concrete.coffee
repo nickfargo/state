@@ -1,6 +1,6 @@
 class Mover
-  state @::, 'abstract'
-    Moving: state 'abstract'
+  state @::, 'abstract',
+    Moving: state 'abstract',
       Walking: state
 
 mover = new Mover
