@@ -79,7 +79,7 @@ state.fix( combinator )
 
 * `combinator` : function :: ( `autostate`, [`protostate`] ) → ( `fn` : function )
 
-Causes a function to be decorated with fixed bindings to the precise `State` in which it is defined. This provides the means to reliably reference the **protostate** within a state method, event listener, etc.
+Causes a function to be decorated with fixed bindings that indicate the precise `State` in which it is defined. This provides the means to reliably reference the **protostate** within a state method, event listener, etc.
 
 Returns an object that boxes `fn`, marked with a `type` of `state-fixed-function`.
 
