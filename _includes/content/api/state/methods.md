@@ -1,26 +1,52 @@
 ### [Methods](#state--methods)
 
-#### [name](#state--methods--name)
+
+#### [realize](#state--methods--realize)
 
 {% highlight javascript %}
-this.name()
+this.realize()
 {% endhighlight %}
 
-Returns the string name of `this` state.
+Transforms `this` [virtual state](/docs/#concepts--inheritance--protostates--under-the-hood) into a “real” state that can bear content of its own. If `this` is already real instead of virtual, then calling `realize` has no effect.
+
+Returns `this`.
 
 {% highlight javascript %}
-{% include examples/api/state/methods--name.js %}
+{% include examples/api/state/methods--realize--1.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/api/state/methods--name.coffee %}
+{% include examples/api/state/methods--realize--1.coffee %}
 {% endhighlight %}
 
-> See also:
-> [**path**](#state--methods--path)
+If `this` is both `virtual` and `mutable`, then calling any of its `add...` methods necessarily uses `realize` to transform into a real state before content is added.
 
-> [`State` constructor](/source/#state--constructor)
+{% highlight javascript %}
+{% include examples/api/state/methods--realize--2.js %}
+{% endhighlight %}
 
+{% highlight coffeescript %}
+{% include examples/api/state/methods--realize--2.coffee %}
+{% endhighlight %}
+
+> [Protostates](/docs/#concepts--inheritance--protostates)
+> [`State realize`](/source/#state--private--realize)
+> [`State.privileged.realize`](/source/#state--privileged--realize)
+
+
+#### [destroy](#state--methods--destroy)
+
+{% highlight javascript %}
+this.destroy()
+{% endhighlight %}
+
+Attempts to cleanly destroy `this` state and all of its descendant states. A `destroy` event is issued by each state as it is destroyed.
+
+Returns `true` if `this` state is successfully destroyed, or `false` otherwise.
+
+If the root state is destroyed, the owner is given back any methods it bore prior to its state implementation.
+
+> [`State.privileged.destroy`](/source/#state--privileged--destroy)
 
 
 #### [express](#state--methods--express)
@@ -72,55 +98,6 @@ If the transaction causes a mutation, `this` emits a [`mutate` event](#state--ev
 > [`State::mutate`](/source/#state--prototype--mutate)
 
 
-#### [realize](#state--methods--realize)
-
-{% highlight javascript %}
-this.realize()
-{% endhighlight %}
-
-Transforms `this` [virtual state](/docs/#concepts--inheritance--protostates--under-the-hood) into a “real” state that can bear content of its own. If `this` is already real instead of virtual, then calling `realize` has no effect.
-
-Returns `this`.
-
-{% highlight javascript %}
-{% include examples/api/state/methods--realize--1.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/api/state/methods--realize--1.coffee %}
-{% endhighlight %}
-
-If `this` is both `virtual` and `mutable`, then calling any of its `add...` methods necessarily uses `realize` to transform into a real state before content is added.
-
-{% highlight javascript %}
-{% include examples/api/state/methods--realize--2.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/api/state/methods--realize--2.coffee %}
-{% endhighlight %}
-
-> [Protostates](/docs/#concepts--inheritance--protostates)
-> [`State realize`](/source/#state--private--realize)
-> [`State.privileged.realize`](/source/#state--privileged--realize)
-
-
-#### [destroy](#state--methods--destroy)
-
-{% highlight javascript %}
-this.destroy()
-{% endhighlight %}
-
-Attempts to cleanly destroy `this` state and all of its descendant states. A `destroy` event is issued by each state as it is destroyed.
-
-Returns `true` if `this` state is successfully destroyed, or `false` otherwise.
-
-If the root state is destroyed, the owner is given back any methods it bore prior to its state implementation.
-
-> [`State.privileged.destroy`](/source/#state--privileged--destroy)
-
-
-
 * * *
 
 Methods in this section are used to inspect the `State` object model.
@@ -128,65 +105,6 @@ Methods in this section are used to inspect the `State` object model.
 > [Inheritance](/docs/#concepts--inheritance)
 > [`state/model.js`](/source/#state--model.js)
 > [`state/query.js`](/source/#state--query.js)
-
-
-#### [owner](#state--methods--owner)
-
-{% highlight javascript %}
-this.owner()
-{% endhighlight %}
-
-Returns the object that is `this` state’s owner.
-
-{% highlight javascript %}
-{% include examples/api/state/methods--owner.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/api/state/methods--owner.coffee %}
-{% endhighlight %}
-
-> [`State::owner`](/source/#state--prototype--owner)
-
-
-#### [root](#state--methods--root)
-
-{% highlight javascript %}
-this.root()
-{% endhighlight %}
-
-Returns the `State` that is `this` state’s root state, i.e., the top-level superstate of `this` state.
-
-{% highlight javascript %}
-{% include examples/api/state/methods--root.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/api/state/methods--root.coffee %}
-{% endhighlight %}
-
-> [The root state](/docs/#concepts--inheritance--the-root-state)
-> [`State::root`](/source/#state--prototype--root)
-
-
-#### [superstate](#state--methods--superstate)
-
-{% highlight javascript %}
-this.superstate()
-{% endhighlight %}
-
-Returns the `State` that is `this` state’s superstate.
-
-{% highlight javascript %}
-{% include examples/api/state/methods--superstate.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/api/state/methods--superstate.coffee %}
-{% endhighlight %}
-
-> [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
-> [`State::superstate`](/source/#state--prototype--superstate)
 
 
 #### [derivation](#state--methods--derivation)
@@ -1195,4 +1113,8 @@ Registers a transition expression to `this` state.
 
 #### [removeTransition](#state--methods--remove-transition)
 
-(Not implemented.)
+{% highlight javascript %}
+this.removeTransition( transitionName )
+{% endhighlight %}
+
+Removes a registered transition expression from `this` state.
