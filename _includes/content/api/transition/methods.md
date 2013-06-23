@@ -1,40 +1,5 @@
 ### [Methods](#transition--methods)
 
-#### [superstate](#transition--methods--superstate)
-
-{% highlight javascript %}
-this.superstate()
-{% endhighlight %}
-
-Returns the `State` to which `this` transition is currently attached during its traversal from `origin` through `domain` toward `target`.
-
-
-#### [origin](#transition--methods--origin)
-
-{% highlight javascript %}
-this.origin()
-{% endhighlight %}
-
-Returns the owner object’s most recently current `State` that is not itself a `Transition` — i.e., the state from which `this` transition originally emerged.
-
-
-#### [source](#transition--methods--source)
-
-{% highlight javascript %}
-this.source()
-{% endhighlight %}
-
-Returns the `State` or `Transition` that was current immediately prior to `this` transition.
-
-
-#### [target](#transition--methods--target)
-
-{% highlight javascript %}
-this.target()
-{% endhighlight %}
-
-Returns the intended destination `State` for `this` transition.
-
 
 #### [wasAborted](#transition--methods--was-aborted)
 

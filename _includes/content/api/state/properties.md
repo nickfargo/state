@@ -29,7 +29,7 @@ The string name of `this` state.
 this.owner
 {% endhighlight %}
 
-References the object that is the **owner** of `this` and all related `State`s in their common state tree.
+References the object that is the **owner** of `this` state.
 
 {% highlight javascript %}
 {% include examples/api/state/properties--owner.js %}
@@ -48,7 +48,7 @@ References the object that is the **owner** of `this` and all related `State`s i
 this.root
 {% endhighlight %}
 
-References the `RootState` of the state tree to which `this` `State` belongs.
+References the `RootState` of the state tree to which `this` state belongs.
 
 {% highlight javascript %}
 {% include examples/api/state/properties--root.js %}
