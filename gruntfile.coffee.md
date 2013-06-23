@@ -26,7 +26,7 @@ Import a simplified set of functions for task declarations.
 
 ##### `initConfig`
 
-      ghPages = '/lab/gh-pages/restate/'
+      ghPages = '../gh-pages/state/'
 
       config
         concat:
@@ -57,11 +57,13 @@ Import a simplified set of functions for task declarations.
 
         coffee:
           main:
-            options: sourceMap: yes
+            options:
+              sourceMap: yes
             src: 'state.coffee.md'
 
         uglify:
-          options: report: 'gzip'
+          options:
+            report: 'gzip'
 
           main:
             src: 'state.js'
