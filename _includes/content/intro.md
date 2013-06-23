@@ -1,4 +1,4 @@
-**State.js** outfits JavaScript objects with a specific behavior model, powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates) graph of [states](/docs/#concepts--states).
+**State.js** outfits JavaScript objects with a subjective behavior model, powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates) graph of [states](/docs/#concepts--states).
 
 {% highlight javascript %}
 {% include examples/index--intro.js %}
@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-[`State` instances](/api/#state) define behavior for an **owner** object. They have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates) of their owner.
+[`State` instances](/api/#state) define subsets of behavior for an **owner** object. They have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates) of their owner.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
@@ -31,7 +31,7 @@
 {% endhighlight %}
 
 
-[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods are [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they are defined, and may optionally be decorated with [additional bindings](/docs/#concepts--methods--lexical-bindings) that describe the method’s complete [state–lexical environment](/blog/lexical-binding-in-state-methods).
+[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Methods may optionally be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they act, and also decorated with [fixed bindings](/docs/#concepts--methods--lexical-bindings) that describe the method’s precise [state–lexical environment](/blog/lexical-binding-in-state-methods).
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}
