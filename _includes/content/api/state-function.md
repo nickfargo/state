@@ -62,9 +62,9 @@ Normally a state method or event listener will be invoked in the context of the 
 
 To achieve this, the function must be wrapped in a call to `state.bind`, which boxes the function inside a specially typed object. Thenceforth whenever **State** needs to use this function, it will be recognized in its boxed form as **state-bound**, and then automatically unboxed and invoked in the context of the prevailing `State`.
 
-If a state-bound method, event listener, etc. is inherited from a **protostate**, then the prevailing `State` will be the inheriting **epistate**. To capture a reference to the precise `State` in which a function is defined, it must be wrapped with `state.fix`.
+The owner object, meanwhile, although no longer referenced directly as `this`, is still reliably available as `this.owner`.
 
-> Within a state-bound function, the owner object, while no longer referenced directly as `this`, is still reliably available as `this.owner`.
+If a state-bound method, event listener, etc. is inherited from a **protostate**, then the prevailing `State` will be the inheriting **epistate**. To capture a reference to the precise `State` in which a function is defined, it must be wrapped with `state.fix`.
 
 ###### See also
 
