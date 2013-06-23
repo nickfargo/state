@@ -8,7 +8,11 @@ state( owner, attributes, expression )
 * [`attributes`] : string
 * [`expression`] : ( object | `StateExpression` )
 
-The **State** module is exported as a function named `state`. This can be used either to build a **state expression** that declares the content for a [`State`](#state), or to apply a state expression to an object to give the object a working state implementation.
+The **State** module is exported as a function named `state`. This can be used either:
+
+  0. to apply a working state implementation to any **owner** object; or
+
+  0. to define a **state expression** that declares the content for a [`State`](#state).
 
 If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new state implementation based on the supplied `expression` and [`attributes`](#state--attributes), and returns the owner’s initial `State`.
 
@@ -30,7 +34,7 @@ Calling `state` with no arguments returns an empty `StateExpression`. Similarly,
 > [`state()`](/source/#state-function)
 
 
-### [state.bind](#state-function--bind)
+#### [state.bind](#state-function--bind)
 
 {% highlight javascript %}
 state.bind( fn )
@@ -59,7 +63,7 @@ If a state-bound method, event listener, etc. is inherited from a **protostate**
 > [`state.fix`](#state-function--fix)
 
 
-### [state.fix](#state-function--fix)
+#### [state.fix](#state-function--fix)
 
 {% highlight javascript %}
 state.fix( combinator )
