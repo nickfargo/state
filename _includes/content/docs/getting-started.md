@@ -91,7 +91,7 @@ person.greet()  # >>> "Hello."
 
 #### [Step 3 — Transitioning between states](#getting-started--transitioning-between-states)
 
-The object’s current state may be reassigned to a different state by calling its [`change`](/api/#state--prototype--change) method and providing it the name of a state to be targeted. Transitioning between states allows an object to exhibit different behaviors:
+The object’s current state may be reassigned to a different state by calling its [`change`](/api/#state--methods--change) method and providing it the name of a state to be targeted. Transitioning between states allows an object to exhibit different behaviors:
 
 {% highlight javascript %}
 person.state().change('Formal');
