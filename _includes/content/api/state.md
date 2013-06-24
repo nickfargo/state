@@ -15,8 +15,8 @@ In addition, a state also recognizes the owner object’s prototypal inheritance
 
 <div class="local-toc"></div>
 
-{% include content/api/state/attributes.md %}
 {% include content/api/state/properties.md %}
+{% include content/api/state/attributes.md %}
 {% include content/api/state/methods.md %}
 {% include content/api/state/events.md %}
 
