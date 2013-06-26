@@ -1,18 +1,21 @@
 ## [state()](#state-function)
 
-{% highlight javascript %}
-state( owner, attributes, expression )
-{% endhighlight %}
-
-* [`owner`] : object
-* [`attributes`] : string
-* [`expression`] : ( object | `StateExpression` )
-
 The **State** module is exported as a function named `state`. This can be used either:
 
   0. to apply a working state implementation to any **owner** object; or
 
   0. to define a **state expression** that declares the content for a [`State`](#state).
+
+{% highlight javascript %}
+state( owner, attributes, expression )
+state( owner, expression )
+state( attributes, expression )
+state( expression )
+{% endhighlight %}
+
+* [`owner`] : object
+* [`attributes`] : string
+* [`expression`] : ( object | `StateExpression` )
 
 If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new state implementation based on the supplied `expression` and [`attributes`](#state--attributes), and returns the owner’s initial `State`.
 
