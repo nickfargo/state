@@ -193,6 +193,9 @@ hr {
               0   1px  2px rgba(255,255,255,0.3);
 }
 
+em {
+  font-style: italic;
+}
 strong {
   font-weight: bold;
   color: #4b4b4b;
@@ -1229,7 +1232,7 @@ body.blog .index .preview {
   padding: 20px 0;
 }
 body.blog .index .preview.first {
-  
+
 }
 body.blog .index h2,
 body.blog .index h3 {
@@ -1330,7 +1333,7 @@ body.source .code pre {
 @media
 only screen and (-webkit-min-device-pixel-ratio: 2),
 only screen and (   min--moz-device-pixel-ratio: 2),
-only screen and (     -o-min-device-pixel-ratio: 2/1) { 
+only screen and (     -o-min-device-pixel-ratio: 2/1) {
   html {}
   .controls ul li a {
     background-image: url(/img/controls@2x.png);
