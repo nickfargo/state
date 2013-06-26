@@ -98,7 +98,7 @@ Returns an object that boxes `fn`, marked with a `type` of `state-fixed-function
 
 For a function to reliably access either the `State` in which it is defined, or important related `State`s such as its protostate, the function must be **lexically bound** to its host `State` by enclosing it within a **decorator**, and wrapping this in a call to `state.fix`.
 
-The decorator is provided as a `combinator` function that defines parameters `autostate` and optionally `protostate`, and returns the function `fn` that is to be fixed. Calling `fix` then boxes the decorator inside a specially typed object. Thenceforth whenever **State** implements this function as a method, event listener, etc. for a `State`, it will recognize the object as a **state-fixed** function, which will be automatically unboxed and partially applied with the host `State` as `autostate`, and its immediate protostate as `protostate`.
+The decorator is provided as a function that defines parameters `autostate` and optionally `protostate`, and returns the function `fn` that is to be fixed. Calling `fix` then boxes the decorator inside a specially typed object. Thenceforth whenever **State** implements this function as a method, event listener, etc. for a `State`, it will recognize the object as a **state-fixed** function, which will be automatically unboxed and partially applied with the host `State` as `autostate`, and its immediate protostate as `protostate`.
 
 The fixed, enclosed `fn` is thusly bestowed with full lexical awareness of the particular `State` environment in which it exists.
 

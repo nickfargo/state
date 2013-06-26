@@ -8,7 +8,7 @@ An owner object’s state tree is further heritable by any prototypal inheritors
 
 #### [The root state](#concepts--inheritance--the-root-state)
 
-For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s name is always and uniquely the empty string `''`. Either an empty-string selector or naked transition arrow may be used to change an object’s current state to the root state, causing the object to exhibit its default behavior.
+For every stateful object, a single **root state** is automatically generated, which is the top-level superstate of all other states. The root state’s `name` is always and uniquely the empty string `''`. Either an empty-string selector or naked transition arrow may be used to change an object’s current state to the root state, causing the object to exhibit its default behavior.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--the-root-state.js %}
