@@ -29,37 +29,19 @@ Import a simplified set of functions for task declarations.
       ghPages = '../gh-pages/state/'
 
       config
-        concat:
-          options:
-            separator: '\n\n\n\n'
-
+        browserify:
           main:
-            src: affix 'src/', '.coffee.md', """
-              __prologue
+            src: ['lib/']
+            dest: ghPages
 
-              state-function
-
-              state
-              state-content
-              state-expression
-              state-event-emitter
-              root-state
-              transition
-              transition-expression
-
-              __epilogue
-              __references
-              """
-            dest: './state.coffee.md'
-
-    #      published_tests:
-
+        concat: null
 
         coffee:
           main:
             options:
               sourceMap: yes
-            src: 'state.coffee.md'
+            src: 'src/'
+            dest: 'lib/'
 
         uglify:
           options:
