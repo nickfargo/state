@@ -359,19 +359,7 @@ exported snapshot of the state’s own contents.
 By default the returned expression is returned as a plain object; if `typed`
 is truthy, the expression is a formally typed `StateExpression`.
 
-      do =>
-        @::express = ( typed ) ->
-          if _ = @_ then expression = edit {}, {  # Why `edit`???
-            @attributes
-            data        : cloneCategory   _.data
-            methods     : cloneCategory   _.methods
-            events      : cloneEvents     _.events
-            guards      : cloneCategory   _.guards
-            states      : cloneSubstates  _.substates, typed
-            transitions : cloneCategory   _.transitions
-          }
-          if typed then new @Expression expression else expression
-
+      express: do ->
         cloneCategory = ( object ) ->
           return unless object?
           ( out = {}; break ) for key of object
@@ -395,16 +383,35 @@ is truthy, the expression is a formally typed `StateExpression`.
             out[ name ] = substate.express typed
           out
 
+        ( typed ) ->
+          if _ = @_ then expression = edit {}, {  # Why `edit`???
+            @attributes
+            data        : cloneCategory   _.data
+            methods     : cloneCategory   _.methods
+            events      : cloneEvents     _.events
+            guards      : cloneCategory   _.guards
+            states      : cloneSubstates  _.substates, typed
+            transitions : cloneCategory   _.transitions
+          }
+          if typed then new @Expression expression else expression
+
 
 #### [mutate](#state--prototype--mutate)
 
 Transactionally mutates `this` state by adding, updating, or removing items as
 specified by the expression provided in `expr`.
 
-      do =>
+      mutate: do ->
         { NIL, isArray, isEmpty, isPlainObject, edit, diff } = O
 
-        @::mutate = ( expr ) ->
+        editEvent = ( object, emitter ) ->
+          { items } = emitter
+          for own key, value of object
+            if value is NIL then emitter.remove key
+            else if value and value isnt items[ key ]
+              emitter.set key, value
+
+        ( expr ) ->
           { attributes, Expression } = this
 
           do @realize if attributes & VIRTUAL
@@ -539,13 +546,6 @@ which is emitted as part of a `mutate` event.
               @emit 'mutate', [ expr, residue, before, after ], VIA_PROTO
 
           this
-
-        editEvent = ( object, emitter ) ->
-          { items } = emitter
-          for own key, value of object
-            if value is NIL then emitter.remove key
-            else if value and value isnt items[ key ]
-              emitter.set key, value
 
 
 
