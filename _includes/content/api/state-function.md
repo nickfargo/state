@@ -1,16 +1,18 @@
 ## [state()](#state-function)
 
-The **State** module is exported as a function named `state`. This can be used either:
+The **State** module is exported as a function named `state`. This is used either:
 
   0. to apply a working state implementation to any **owner** object; or
 
   0. to define a **state expression** that declares the content for a [`State`](#state).
 
 {% highlight javascript %}
-state( owner, attributes, expression )
 state( owner, expression )
-state( attributes, expression )
 state( expression )
+
+state( owner, attributes, expression )
+state( attributes, expression )
+state( attributes )
 {% endhighlight %}
 
 * [`owner`] : object
@@ -21,7 +23,7 @@ If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new
 
 If no `owner` is provided, `state()` creates and returns a formal `StateExpression` based on the contents of `expression` and `attributes`.
 
-Calling `state` with no arguments returns an empty `StateExpression`. Similarly, within an `expression`, a reference to `state` (rather than an invocation) implies the expression of an empty state as well.
+When expressing a substate within a state expression, calling `state` with a lone object literal as `expression` evaluates identically to including just the object itself. It follows then that calling `state` with no arguments expresses an empty `StateExpression`, as would an empty object literal `{}` reference; however, the ideal means for expressing “empty state” is simply a reference to the `state` function, which is interpreted equivalently while avoiding the extra invocation and/or allocation.
 
 {% highlight javascript %}
 {% include examples/api/state-function.js %}
