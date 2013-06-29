@@ -39,7 +39,7 @@ References the object that is the **owner** of `this` state.
 {% include examples/api/state/properties--owner.coffee %}
 {% endhighlight %}
 
-> [`State::owner`](/source/#state--prototype--owner)
+> [`State` constructor](/source/#state--constructor)
 
 
 #### [root](#state--properties--root)
@@ -59,7 +59,7 @@ References the `RootState` of the state tree to which `this` state belongs.
 {% endhighlight %}
 
 > [The root state](/docs/#concepts--inheritance--the-root-state)
-> [`State::root`](/source/#state--prototype--root)
+> [`State` constructor](/source/#state--constructor)
 
 
 #### [superstate](#state--properties--superstate)
@@ -79,4 +79,4 @@ References the `State` that is `this` state’s immediate superstate.
 {% endhighlight %}
 
 > [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
-> [`State::superstate`](/source/#state--prototype--superstate)
+> [`State` constructor](/source/#state--constructor)
