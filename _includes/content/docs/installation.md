@@ -10,9 +10,9 @@ The lone dependency of **State** is [**Omicron**](http://github.com/nickfargo/om
 
 * * *
 
-#### In node.js
+#### In Node.js
 
-**State** can be installed as a [**node.js**](http://nodejs.org) module via [**npm**](http://npmjs.org/):
+**State** can be installed as a [**Node.js**](http://nodejs.org) module via [**npm**](http://npmjs.org/):
 
 {% highlight bash %}
 $ npm install state
