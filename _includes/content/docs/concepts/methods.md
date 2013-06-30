@@ -1,6 +1,6 @@
 ### [Methods](#concepts--methods)
 
-A defining feature of **State** is the ability for an object to exhibit a variety of behaviors. A state expresses a particular behavior with **state methods** that override or augment its **owner** object’s methods.
+A core feature of **State** is the ability for an object to exhibit any of multiple well-defined behaviors. This is achieved with **state methods**, which may override or augment the methods of a `State`’s **owner** anytime that `State` is *current* or *active*.
 
 <div class="local-toc"></div>
 
