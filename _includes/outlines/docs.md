@@ -22,7 +22,7 @@
     * [Destination](#concepts--attributes--destination)
   * [Data](#concepts--data)
   * [Methods](#concepts--methods)
-    * [Delegators](#concepts--methods--delegators)
+    * [Dispatchers](#concepts--methods--dispatchers)
     * [Method context](#concepts--methods--context)
     * [Optional lexical bindings](#concepts--methods--lexical-bindings)
     * [Nonexistent methods](#concepts--methods--nonexistent)
