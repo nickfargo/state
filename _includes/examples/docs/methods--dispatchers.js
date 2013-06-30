@@ -20,7 +20,7 @@ state( raygun, {
 // root state and, since `raygun` is presently in that state, can be
 // be called in the normal fashion.
 raygun.shoot === shoot;                     // >>> false
-raygun.shoot.isDispatcher;                   // >>> true
+raygun.shoot.isDispatcher;                  // >>> true
 raygun.state('').method('shoot') === shoot; // >>> true
 raygun.shoot();                             // >>> "pew!"
 

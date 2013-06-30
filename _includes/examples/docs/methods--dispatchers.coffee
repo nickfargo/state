@@ -16,7 +16,7 @@ state raygun,
 # root state and, since `raygun` is presently in that state, can be
 # called in the normal fashion.
 raygun.shoot is shoot                       # >>> false
-raygun.shoot.isDispatcher                    # >>> true
+raygun.shoot.isDispatcher                   # >>> true
 raygun.state('').method('shoot') is shoot   # >>> true
 raygun.shoot()                              # >>> "pew!"
 

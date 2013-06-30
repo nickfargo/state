@@ -8,9 +8,9 @@ A core feature of **State** is the ability for an object to exhibit any of multi
 
 #### [Dispatchers](#concepts--methods--dispatchers)
 
-When applied to an owner object by calling [`state()`](#getting-started--the-state-function), **State** first identifies any methods already present on the owner for which there exists at least one override somewhere within the provided state expression, and relocates these methods to the new [root state](#concepts--inheritance--the-root-state). Then, for all state methods, a special **dispatcher** method is instated on the owner.
+When applied to an owner object by calling [`state()`](#getting-started--the-state-function), **State** first identifies any methods already present on the owner for which there exists at least one override somewhere within the provided state expression, and relocates these methods to the new [root state](#concepts--inheritance--the-root-state). For all state methods, a special **dispatcher** method is then instated on the owner at the corresponding key.
 
-The dispatcher’s job is to redirect all invocations to the owner’s current state, from which **State** will then locate and invoke the proper stateful implementation of the method. If no active states contain an implementation for the invoked method, the delegation will default to the owner’s original implementation of the method, if one exists, or result in a [`noSuchMethod`](#concepts--methods--nonexistent) [**event**](#concepts--events) otherwise.
+The dispatcher’s job is to redirect all invocations to the owner’s current state, from which **State** will then locate and invoke the proper stateful implementation of the method. If no active states contain an implementation for the invoked method, the invocation will be forwarded to the owner’s original implementation of the method, if one exists, or will cause a [`noSuchMethod`](#concepts--methods--nonexistent) [**event**](#concepts--events) otherwise.
 
 {% highlight javascript %}
 {% include examples/docs/methods--dispatchers.js %}
