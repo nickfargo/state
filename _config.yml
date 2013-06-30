@@ -11,7 +11,7 @@ meta:
     github: nickfargo
     twitter: nickfargo
   license: MIT
-  license_url: http://github.com/nickfargo/state/blob/master/LICENSE 
+  license_url: http://github.com/nickfargo/state/blob/master/LICENSE
 
 tag_dir: tag
 pygments: true
@@ -21,9 +21,9 @@ exclude: art/*, diagrams/*
 
 packages:
   state:
-    version: 0.0.8
-    size: 147kB
-    size_gz: 9.3kB
+    version: 0.1.0
+    size: 98.6kB
+    size_gz: 15.1kB
   omicron:
     version: 0.1.9
     size: 25kB
