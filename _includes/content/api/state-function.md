@@ -23,7 +23,7 @@ If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new
 
 If no `owner` is provided, `state()` creates and returns a formal `StateExpression` based on the contents of `expression` and `attributes`.
 
-When expressing a substate within a state expression, calling `state` with a lone object literal as `expression` evaluates identically to including just the object itself. It follows then that calling `state` with no arguments expresses an empty `StateExpression`, as would an empty object literal `{}` reference; however, the ideal means for expressing “empty state” is simply a reference to the `state` function, which is interpreted equivalently while avoiding the extra invocation and/or allocation.
+When expressing a substate within a state expression, calling `state` with a lone object literal as `expression` evaluates identically to including just the object itself. It follows then that calling `state` with no arguments expresses an empty `StateExpression`, as would an empty object literal `{}` reference; however, the ideal way to express “empty state” is simply a reference to the `state` function, which is interpreted equivalently while avoiding the extra invocation and/or allocation.
 
 {% highlight javascript %}
 {% include examples/api/state-function.js %}
