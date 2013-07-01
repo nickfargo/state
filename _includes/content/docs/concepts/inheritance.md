@@ -31,6 +31,10 @@ This is the basis for **State**’s *method delegation* pattern, wherein a metho
 
 Substates help to express ever greater specificity of their owner’s behavior and condition. An object may exhibit a specific condition by transitioning to a state nested deep within the tree, and it is also free to express itself more generically by transitioning to a concrete interior state.
 
+![Superstates and substates][diagram--model-1]
+
+> **The superstate axis** — A stateful **owner** bears a rooted state tree. Each `State` in the tree may bear zero or more **substates**, and likewise trace a **superstate** chain up to the unique `RootState`. Any state content, including methods, events, etc. may be inherited from superstates and extended or overridden by substates.
+
 {% highlight javascript %}
 {% include examples/docs/inheritance--superstates-and-substates.js %}
 {% endhighlight %}
@@ -42,6 +46,10 @@ Substates help to express ever greater specificity of their owner’s behavior a
 #### [Protostates: inheriting states across prototypes](#concepts--inheritance--protostates)
 
 All of the examples given to this point have created stateful objects by applying the [`state()`](#getting-started--the-state-function) function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
+
+![Protostates and epistates][diagram--model-2]
+
+> **The protostate axis** — Expanding on the previous diagram, we can examine a particular superstate chain (root–`A`–`AA`), viewed here along the horizontal axis, within the prevailing context of a prototype chain (`q`–`p`–`o`). Here, a second prototype `q` defines state `A`, which first prototype `p` extends, also adding a new substate `AA`. In turn the inheriting owner `o`, despite defining no states of its own, views states `A` and `AA` of `p` and `q` as its **protostates**, and will inherit those states as **epistates**; state content, behavior, etc. from `p` and `q` will be exhibited by `o` just as if the states had been defined directly on `o` itself.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--1.js %}
@@ -89,3 +97,9 @@ This system of protostates and virtual states allows an object’s state impleme
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--inheritance">Inheritance</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>
 </div>
+
+
+
+
+[diagram--model-1]: /img/model-1.png "Superstates and substates"
+[diagram--model-2]: /img/model-2.png "Protostates and epistates"
