@@ -2,11 +2,11 @@
 
 **[State][0]** is a library for implementing a system of **[hierarchical states][1]** directly into objects **[and inherently across prototypes][2]**.
 
-An object’s behavior is exhibitied via its **[methods][3]**, which may be overridden by its `State`s, allowing an object’s **State** implementation to remain transparent to its consumers, while imposing minimally on its interface.
+An object’s behavior is exhibitied via its **[methods][3]**, which may be overridden by its `State`s. This allows a **State** implementation to impose minimally on the object’s interface while remaining transparent to consumers.
 
 Changes to an object’s behavior are facilitated by **[evented][4]** state **[transitions][5]**.
 
-State content is **[expressed in a format][6]** that is terse and declarative, encouraging composition, reuse, and ease of reasoning.
+State content, including methods, events, substates, and transitions, is **[expressed in a format][6]** that is terse and declarative, encouraging composition, reuse, and ease of reasoning.
 
 * * *
 
