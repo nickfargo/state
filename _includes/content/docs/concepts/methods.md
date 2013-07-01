@@ -78,7 +78,17 @@ The state-lexical references gained by methods transformed by `fix` are:
 * `autostate` : the precise `State` in which the method is defined.
 * `protostate` : the protostate of `autostate`.
 
-Worth noting here is the distinction and relationship between `autostate` and `this`: if a method is inherited from a protostate, then `autostate` will reference that protostate of `this`; if the method is not inherited, then `autostate` and `this` are identical.
+Should a function require insight into both its calling context and its state-lexical environment, this can be composed neatly with both `fix` and `bind`:
+
+{% highlight javascript %}
+{% include examples/docs/methods--fix-bind.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/docs/methods--fix-bind.coffee %}
+{% endhighlight %}
+
+In such a case the distinction and relationship between `autostate` and `this` is important: if a function is inherited from a protostate, then `autostate` will accordingly be a protostate of `this`; if the function is not inherited, then `autostate` and `this` are identical.
 
 ###### See also
 
