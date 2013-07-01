@@ -49,9 +49,9 @@ Substates help to express ever greater specificity of their owner’s behavior a
 
 ![Protostates and epistates][diagram--model-2]
 
-> **The protostate axis** — Expanding on the previous diagram, we can examine a particular superstate chain (root–`A`–`AA`), viewed here along the horizontal axis, within the prevailing context of a prototype chain (`q`–`p`–`o`). In turn this prototypal relation of the owner objects implicitly defines orthogonal **protostate chains** which link analogously-pathed `State`s, e.g. (`qA`–`pA`–`oA`), along the vertical axis.
+> **The protostate axis** — Expanding on the previous diagram, we can examine a particular superstate chain (root–`A`–`AA`), viewed here along the horizontal axis, within the prevailing context of a prototype chain (`q`–`p`–`o`). The prototypal relation between these owner objects implicitly defines orthogonal **protostate chains** which link analogously-pathed `State`s, e.g. (`qA`–`pA`–`oA`) and (`pAA`–`oAA`), along the vertical axis.
 
-> In this diagram the inheriting owner `o`, despite defining no states of its own, views states `A` and `AA` of `p` and `q` as its protostates, and will inherit those states as **epistates**. State content, behavior, etc. from `p` and `q` will be exhibited by `o` just as if the states had been defined directly on `o` itself.
+> In this diagram the inheriting owner `o` defines no *real states* of its own, other than the root, however it still views states `A` and `AA` of `p` as its protostates, which it inherits as **virtual epistates**. In this manner, state content, behavior, etc. defined for `p` and `q` will also be exhibited by `o`, just as if those states had been defined directly on `o` itself.
 
 The examples given to this point have implemented state on an object by applying the [`state()`](#getting-started--the-state-function) function directly to the object. The next example will consider the case of an object that instead inherits from a prototype which already bears a state implementation.
 
