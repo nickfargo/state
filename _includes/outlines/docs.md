@@ -14,7 +14,7 @@
   * [Inheritance](#concepts--inheritance)
     * [The root state](#concepts--inheritance--the-root-state)
     * [Superstates and substates](#concepts--inheritance--superstates-and-substates)
-    * [Protostates](#concepts--inheritance--protostates)
+    * [Protostates and epistates](#concepts--inheritance--protostates)
   * [Selectors](#concepts--selectors)
   * [Attributes](#concepts--attributes)
     * [Mutability](#concepts--attributes--mutability)

@@ -33,7 +33,7 @@ Substates help to express ever greater specificity of their owner’s behavior a
 
 ![Superstates and substates][diagram--model-1]
 
-> **The superstate axis** — A stateful **owner** bears a rooted state tree. Each `State` in the tree may bear zero or more **substates**, and likewise trace a **superstate** chain up to the unique `RootState`. Any state content, including methods, events, etc. may be inherited from superstates and extended or overridden by substates.
+> **The superstate axis** — A stateful **owner** bears a rooted state tree. Each `State` in the tree may bear zero or more **substates**, and accordingly trace a **superstate** chain up to the unique `RootState`. Any state content, including methods, events, etc. may be inherited from superstates and extended or overridden by substates.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--superstates-and-substates.js %}
@@ -43,7 +43,7 @@ Substates help to express ever greater specificity of their owner’s behavior a
 {% include examples/docs/inheritance--superstates-and-substates.coffee %}
 {% endhighlight %}
 
-#### [Protostates: inheriting states across prototypes](#concepts--inheritance--protostates)
+#### [Protostates and epistates: states via prototypes](#concepts--inheritance--protostates)
 
 **State** also recognizes the relationship between an owner object and its prototype. When a state implementation exists on a prototype, it is completely extended to that prototype’s inheritors, each of which views the inherited **protostates** as if they were its own.
 
