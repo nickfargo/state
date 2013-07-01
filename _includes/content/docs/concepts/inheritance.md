@@ -51,7 +51,7 @@ Substates help to express ever greater specificity of their owner’s behavior a
 
 > **The protostate axis** — Expanding on the previous diagram, we can examine a particular superstate chain (root–`A`–`AA`), viewed here along the horizontal axis, within the prevailing context of a prototype chain (`q`–`p`–`o`). Here, a second prototype `q` defines state `A`, which first prototype `p` extends, also adding a new substate `AA`. In turn the inheriting owner `o`, despite defining no states of its own, views states `A` and `AA` of `p` and `q` as its **protostates**, and will inherit those states as **epistates**; state content, behavior, etc. from `p` and `q` will be exhibited by `o` just as if the states had been defined directly on `o` itself.
 
-The examples given to this point have created stateful objects by applying the [`state()`](#getting-started--the-state-function) function directly to the object. Consider now the case of an object that inherits from a stateful prototype.
+The examples given to this point have implemented state on an object by applying the [`state()`](#getting-started--the-state-function) function directly to the object. The next example will consider the case of an object that instead inherits from a prototype which already bears a state implementation.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--1.js %}
@@ -61,7 +61,7 @@ The examples given to this point have created stateful objects by applying the [
 {% include examples/docs/inheritance--protostates--1.coffee %}
 {% endhighlight %}
 
-At this point `person`, lacking a state implementation of its own, inherits the `state` method from its prototype. Upon calling `person.state()`, a new state implementation is automatically created for `person`, which is given its own `state` method and an empty `RootState`.
+Here `person`, lacking a state implementation of its own, inherits the `state` method from its prototype. When `person.state()` is invoked, a new state implementation is automatically created for `person`, which is given its own `state` method and an empty `RootState`.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--2.js %}
@@ -71,7 +71,7 @@ At this point `person`, lacking a state implementation of its own, inherits the 
 {% include examples/docs/inheritance--protostates--2.coffee %}
 {% endhighlight %}
 
-Now, `person` will automatically inherit all content from the states of its prototype, which it identifies as its protostates. It will maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
+Henceforth `person` will automatically inherit all content from its protostates. It will however independently maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--3.js %}
