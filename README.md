@@ -1,10 +1,12 @@
 # State.js
 
-**[State][0]** provides a model for implementing **[hierarchical states][1]** directly into an object and **[across prototypes][2]**.
+**[State][0]** is a library for implementing a system of **[hierarchical states][1]** directly into objects **[and inherently across prototypes][2]**.
 
-Behavior modeling is **[method-based][3]** and powered by [event-driven][4] state [transitions][5].
+An object’s behavior is exhibitied via its **[methods][3]**, which may be overridden by its `State`s, allowing an object’s **State** implementation to remain transparent to its consumers, while imposing minimally on its interface.
 
-All state-related content is [expressed in a format][6] that is terse, declarative, reusable, and emphasizes **simplicity** and **ease of reasoning**.
+Changes to an object’s behavior are facilitated by **[evented][4]** state **[transitions][5]**.
+
+State content is **[expressed in a format][6]** that is terse and declarative, encouraging composition, reuse, and ease of reasoning.
 
 * * *
 
