@@ -20,7 +20,7 @@ For every stateful object, a single **root state** is automatically generated, w
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself, for which now exist one or more stateful reimplementations elsewhere within the state tree.
 
-This is the basis for **State**’s *method delegation* pattern, wherein a method call made on the object is automatically forwarded to the object’s current state, with the assurance that the call will be resolved somewhere in the state tree. If a method override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the object’s original implementation of the method, held within the root state.
+This is the basis for **State**’s method dispatch pattern, wherein a method call made on the object is automatically forwarded to the object’s current state, with the assurance that the call will be resolved somewhere in the state tree. If a method override is not present on the current state, then the call is forwarded on to its superstate, and so on as necessary, until as a last resort **State** will resolve the call using the object’s original implementation of the method, held within the root state.
 
 > See also: [**Dispatcher methods**](#concepts--methods--dispatchers)
 
@@ -49,7 +49,9 @@ Substates help to express ever greater specificity of their owner’s behavior a
 
 ![Protostates and epistates][diagram--model-2]
 
-> **The protostate axis** — Expanding on the previous diagram, we can examine a particular superstate chain (root–`A`–`AA`), viewed here along the horizontal axis, within the prevailing context of a prototype chain (`q`–`p`–`o`). Here, a second prototype `q` defines state `A`, which first prototype `p` extends, also adding a new substate `AA`. In turn the inheriting owner `o`, despite defining no states of its own, views states `A` and `AA` of `p` and `q` as its **protostates**, and will inherit those states as **epistates**; state content, behavior, etc. from `p` and `q` will be exhibited by `o` just as if the states had been defined directly on `o` itself.
+> **The protostate axis** — Expanding on the previous diagram, we can examine a particular superstate chain (root–`A`–`AA`), viewed here along the horizontal axis, within the prevailing context of a prototype chain (`q`–`p`–`o`). In turn this prototypal relation of the owner objects implicitly defines orthogonal **protostate chains** which link analogously-pathed `State`s, e.g. (`qA`–`pA`–`oA`), along the vertical axis.
+
+> In this diagram the inheriting owner `o`, despite defining no states of its own, views states `A` and `AA` of `p` and `q` as its protostates, and will inherit those states as **epistates**. State content, behavior, etc. from `p` and `q` will be exhibited by `o` just as if the states had been defined directly on `o` itself.
 
 The examples given to this point have implemented state on an object by applying the [`state()`](#getting-started--the-state-function) function directly to the object. The next example will consider the case of an object that instead inherits from a prototype which already bears a state implementation.
 

@@ -61,7 +61,7 @@ Worth noting here is the significant difference distinguishing these `apply` and
 
 #### [Lexical bindings](#concepts--methods--lexical-bindings)
 
-A state method may require awareness of the precise `State` in which it is defined, which is necessary for introspecting and inheriting along the **protostate** axis.
+A state method may require awareness of the precise `State` in which it is defined, which is necessary for introspecting and inheriting along the protostate axis.
 
 This can be expressed by enclosing a method’s function expression in a combinator which is then wrapped in a call to `state.fix` — a pattern that **lexically binds** additional `State` context into the method.
 
