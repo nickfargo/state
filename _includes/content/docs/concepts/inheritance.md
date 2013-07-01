@@ -71,7 +71,7 @@ Here `person`, lacking a state implementation of its own, inherits the `state` m
 {% include examples/docs/inheritance--protostates--2.coffee %}
 {% endhighlight %}
 
-Henceforth `person` will automatically inherit all content from its protostates. It will however independently maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
+Henceforth `person` will automatically inherit all content from its protostates, but will independently maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--3.js %}
@@ -83,11 +83,11 @@ Henceforth `person` will automatically inherit all content from its protostates.
 
 ##### [Under the hood](#concepts--inheritance--protostates--under-the-hood)
 
-When an accessor method (`person.state`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it does not, and is instead attempting to inherit the accessor (`state`) of a prototype, then an empty state implementation is automatically created for the inheritor, which in turn generates a corresponding new accessor method (`person.state`), to which the original call is then forwarded. The new state tree of `person` will consist only of an empty root state, but this is sufficient to allow the object to inherit from any of its protostates.
+When an accessor method (`person.state`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it does not, and is instead attempting to inherit the accessor (`state`) of a prototype, then an empty state implementation is automatically created for the inheritor, which in turn generates a corresponding new accessor method (`person.state`), to which the original call is then forwarded. The new state tree of `person` will consist only of an empty root state, but this is sufficient to allow the object to inherit from any of its protostates while maintaining its own independent currency.
 
-The inheritor may adopt a protostate as its current state just as it would with a state of its own. When that happens, a temporary, lightweight **virtual state** is created within the state implementation of the inheritor, acting as a stand-in for the protostate. Virtual states exist only so long as they are active; once the object transitions elsewhere, any virtual states consequently rendered inactive are automatically destroyed.
+When an inheritor adopts a protostate as its current state, the currency is borne by a temporary, lightweight **virtual epistate** that is created in the inheritor’s state tree. Virtual states exist only so long as they are active and necessary; once the object transitions elsewhere, any virtual states consequently rendered inactive are automatically destroyed.
 
-This system of protostates and virtual states allows an object’s state implementation to benefit from the prototypal reuse patterns of JavaScript without entangling the constituent `State` instances themselves in any direct prototypal relationships with each other.
+This system of protostates, epistates, and virtual states confers the benefits of language-level prototypal reuse patterns to an object’s `State`s, but without entangling them in any extraneous prototypal relationships themselves.
 
 > [`createAccessor`](/source/#state-controller--private--create-accessor)
 
