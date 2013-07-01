@@ -24,7 +24,7 @@
   * [Methods](#concepts--methods)
     * [Dispatchers](#concepts--methods--dispatchers)
     * [Method context](#concepts--methods--context)
-    * [Optional lexical bindings](#concepts--methods--lexical-bindings)
+    * [Lexical bindings](#concepts--methods--lexical-bindings)
     * [Nonexistent methods](#concepts--methods--nonexistent)
     * [Example](#concepts--methods--example)
   * [Transitions](#concepts--transitions)
