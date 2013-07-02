@@ -51,7 +51,7 @@ An owner object’s expressed behavior is *specified* by substates, and converse
 
 > In this diagram the inheriting owner `o` defines no *real states* of its own, other than the root, however it still views states `A` and `AA` of `p` as its protostates, which it inherits as **virtual epistates**. In this manner, state content, behavior, etc. defined for `p` and `q` will also be exhibited by `o`, just as if those states had been defined directly on `o` itself.
 
-The examples given to this point have implemented state on an object by applying the [`state()`](#getting-started--the-state-function) function directly to the object. The next example will consider the case of an object that instead inherits from a prototype which already bears a state implementation.
+The next example considers the case of an object that, rather then applying the [`state()`](#getting-started--the-state-function) function directly to the object, instead inherits from a prototype which already bears a state implementation.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--protostates--1.js %}
