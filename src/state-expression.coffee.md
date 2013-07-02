@@ -99,7 +99,7 @@ as an empty state expression.
 
 **Priority 2:** Recognize an explicitly named category object.
 
-          else if key of result and value
+          else if categoryMap[ key ]? and value
             result[ key ] = clone result[ key ], value
 
 **Priority 3:** Use keys and value types to infer implicit categorization.
