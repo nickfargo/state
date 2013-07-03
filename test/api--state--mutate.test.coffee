@@ -6,6 +6,7 @@
 describe "`State::mutate`", ->
   { NIL } = O
 
+  # `mutations` and `expectations` are iterated synchronously
   unit =
     expression: state 'mutable'
 
@@ -80,3 +81,34 @@ describe "`State::mutate`", ->
         expect( unit.expectations[ index ] o ).to.be.ok
 
 
+  describe "a virtual state", ->
+
+    class Class
+      state @::,
+        A: state 'mutable'
+        B: state
+        C: state 'immutable'
+
+    it "is automatically realized if mutable", ->
+      o = new Class
+      o.state '-> A'
+      expect( o.state().isVirtual() ).to.equal yes
+      o.state().mutate method: -> 'heyo'
+      expect( o.state().isVirtual() ).to.equal no
+      expect( o.method?() ).to.equal 'heyo'
+
+    it "is auto-realized but not mutated if weak-immutable", ->
+      o = new Class
+      o.state '-> B'
+      expect( o.state().isVirtual() ).to.equal yes
+      o.state().mutate method: -> 'heyo'
+      expect( o.state().isVirtual() ).to.equal no
+      expect( o.method? ).to.equal no
+
+    it "is not automatically realized if strong-immutable", ->
+      o = new Class
+      o.state '-> C'
+      expect( o.state().isVirtual() ).to.equal yes
+      o.state().mutate method: -> 'heyo'
+      expect( o.state().isVirtual() ).to.equal yes
+      expect( o.method? ).to.equal no

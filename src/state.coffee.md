@@ -233,9 +233,12 @@ later time to a real `State` if necessary.
 > `virtualize`
 
       realize: ( expression ) ->
-        return this unless @attributes & INCIPIENT_OR_VIRTUAL
+        { attributes } = this
+        return this unless attributes & INCIPIENT_OR_VIRTUAL
+        @attributes &= ~VIRTUAL if attributes & VIRTUAL
+
         @_ or = new @Content
-        @mutate expression
+        @mutate expression if expression?
 
 Realizing a root state requires that, for each of the owner’s own methods, if
 there exists at least one stateful implementation of that method located higher
@@ -414,14 +417,14 @@ specified by the expression provided in `expr`.
         ( expr ) ->
           { attributes, Expression } = this
 
-          do @realize if attributes & VIRTUAL
-
 Booleans to determine whether mutation of particular categories is permissible;
 all content is mutable for the special case of a state being initialized.
 
           incipient = attributes & INCIPIENT
+          return unless incipient or not ( attributes & IMMUTABLE )
           mutable = incipient or attributes & MUTABLE
-          notStrongImmutable = incipient or not ( attributes & IMMUTABLE )
+
+          do @realize if attributes & VIRTUAL
 
 Load the category collections.
 
@@ -510,7 +513,7 @@ contents cannot be altered, although any of its substates may yet be mutable,
 so any submutations must therefore still be applied recursively to their
 corresponding substates.
 
-          if notStrongImmutable then for own name, stateExpr of expr.states
+          for own name, stateExpr of expr.states
             if substates and name of substates
               if stateExpr is NIL
               then @removeSubstate name
