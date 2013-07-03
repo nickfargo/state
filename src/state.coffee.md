@@ -421,7 +421,7 @@ Booleans to determine whether mutation of particular categories is permissible;
 all content is mutable for the special case of a state being initialized.
 
           incipient = attributes & INCIPIENT
-          return unless incipient or not ( attributes & IMMUTABLE )
+          return if not incipient and attributes & IMMUTABLE
           mutable = incipient or attributes & MUTABLE
 
           do @realize if attributes & VIRTUAL
