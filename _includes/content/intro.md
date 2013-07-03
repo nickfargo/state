@@ -1,4 +1,4 @@
-**State.js** outfits JavaScript objects with a subjective behavior model, powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates) graph of [states](/docs/#concepts--states).
+**State.js** outfits JavaScript objects with a subjective behavior model, powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates-and-epistates) graph of [states](/docs/#concepts--states).
 
 {% highlight javascript %}
 {% include examples/index--intro.js %}
@@ -9,7 +9,7 @@
 {% endhighlight %}
 
 
-[`State` instances](/api/#state) define subsets of behavior for an **owner** object. They have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates) of their owner.
+[`State` instances](/api/#state) define subsets of behavior for an **owner** object. They have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates-and-epistates) of their owner.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}

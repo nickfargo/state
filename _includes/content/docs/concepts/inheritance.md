@@ -41,7 +41,7 @@ An owner object’s expressed behavior is *specified* by substates, and converse
 {% include examples/docs/inheritance--superstates-and-substates.coffee %}
 {% endhighlight %}
 
-#### [Protostates and epistates](#concepts--inheritance--protostates)
+#### [Protostates and epistates](#concepts--inheritance--protostates-and-epistates)
 
 **State** also recognizes the relationship between an owner object and its prototype. When a state implementation exists on a prototype, it is completely extended to that prototype’s inheritors, each of which views the inherited **protostates** as if they were its own.
 
@@ -49,39 +49,39 @@ An owner object’s expressed behavior is *specified* by substates, and converse
 
 > **The protostate axis** — Expanding on the previous diagram, we can examine a particular superstate chain (root–`A`–`AA`), viewed here along the horizontal axis, within the prevailing context of a prototype chain (`q`–`p`–`o`). The prototypal relation between these owner objects implicitly defines **protostate chains** which link analogously-pathed `State`s, e.g. (`qA`–`pA`–`oA`) and (`pAA`–`oAA`), along the vertical axis.
 
-> In this diagram the inheriting owner `o` defines no *real states* of its own, other than the root, however it still views states `A` and `AA` of `p` as its protostates, which it inherits as **virtual epistates**. In this manner, state content, behavior, etc. defined for `p` and `q` will also be exhibited by `o`, just as if those states had been defined directly on `o` itself.
+> In this diagram the inheriting owner `o` defines no *real states* of its own, other than the root, however it still views states `pA` and `pAA` as its protostates, and may inherit these as [virtual epistates](#concepts--inheritance--virtual-epistates). In this manner, state content, behavior, etc. defined for `p` and `q` will also be exhibited by `o`, just as if those states had been defined directly on `o` itself.
 
 The next example considers the case of an object that, rather then applying the [`state()`](#getting-started--the-state-function) function directly to the object, instead inherits from a prototype which already bears a state implementation.
 
 {% highlight javascript %}
-{% include examples/docs/inheritance--protostates--1.js %}
+{% include examples/docs/inheritance--protostates-and-epistates--1.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/docs/inheritance--protostates--1.coffee %}
+{% include examples/docs/inheritance--protostates-and-epistates--1.coffee %}
 {% endhighlight %}
 
 Here `person`, lacking a state implementation of its own, inherits the `state` method from its prototype. When `person.state()` is invoked, a new state implementation is automatically created for `person`, which is given its own `state` method and an empty `RootState`.
 
 {% highlight javascript %}
-{% include examples/docs/inheritance--protostates--2.js %}
+{% include examples/docs/inheritance--protostates-and-epistates--2.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/docs/inheritance--protostates--2.coffee %}
+{% include examples/docs/inheritance--protostates-and-epistates--2.coffee %}
 {% endhighlight %}
 
 Henceforth `person` will automatically inherit all content from its protostates, but will independently maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
 
 {% highlight javascript %}
-{% include examples/docs/inheritance--protostates--3.js %}
+{% include examples/docs/inheritance--protostates-and-epistates--3.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/docs/inheritance--protostates--3.coffee %}
+{% include examples/docs/inheritance--protostates-and-epistates--3.coffee %}
 {% endhighlight %}
 
-##### [Under the hood](#concepts--inheritance--protostates--under-the-hood)
+#### [Virtual epistates](#concepts--inheritance--virtual-epistates)
 
 When an accessor method (`person.state`) is called, it first checks the context object (`person`) to ensure that it has its own accessor method. If it does not, and is instead attempting to inherit the accessor (`state`) of a prototype, then an empty state implementation is automatically created for the inheritor, which in turn generates a corresponding new accessor method (`person.state`), to which the original call is then forwarded. The new state tree of `person` will consist only of an empty root state, but this is sufficient to allow the object to inherit from any of its protostates while maintaining its own independent currency.
 

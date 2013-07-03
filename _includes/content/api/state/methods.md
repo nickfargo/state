@@ -7,7 +7,7 @@
 this.realize()
 {% endhighlight %}
 
-Transforms `this` [virtual state](/docs/#concepts--inheritance--protostates--under-the-hood) into a “real” state that can bear content of its own. If `this` is already real instead of virtual, then calling `realize` has no effect.
+Transforms `this` [virtual state](/docs/#concepts--inheritance--virtual-epistates) into a “real” state that can bear content of its own. If `this` is already real instead of virtual, then calling `realize` has no effect.
 
 Returns `this`.
 
@@ -29,7 +29,8 @@ If `this` is both `virtual` and `mutable`, then calling any of its `add...` meth
 {% include examples/api/state/methods--realize--2.coffee %}
 {% endhighlight %}
 
-> [Protostates](/docs/#concepts--inheritance--protostates)
+> [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 > [`State realize`](/source/#state--private--realize)
 > [`State.privileged.realize`](/source/#state--privileged--realize)
 
@@ -294,7 +295,7 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 {% endhighlight %}
 
 
-> [Protostates](/docs/#concepts--inheritance--protostates)
+> [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [`State::protostate`](/source/#state--prototype--protostate)
 
 
@@ -316,7 +317,7 @@ Returns a boolean indicating whether `this` state is a **protostate** of the pro
 {% include examples/api/state/methods--is-protostate-of.coffee %}
 {% endhighlight %}
 
-> [Protostates](/docs/#concepts--inheritance--protostates)
+> [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [`State::isProtostateOf`](/source/#state--prototype--is-prototstate-of)
 
 See also: [**protostate**](#state--protostate)
@@ -503,7 +504,7 @@ A **virtual state** is a lightweight inheritor of a **protostate** located highe
 
 > 2. Root states are never virtualized. Even an object that inherits all statefulness from its prototypes is given a real root state.
 
-> [Protostates](/docs/#concepts--inheritance--protostates)
+> [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
 
 
 #### [isMutable](#state--methods--is-mutable)
