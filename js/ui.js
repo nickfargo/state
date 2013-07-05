@@ -40,7 +40,7 @@ $( function () {
       $h = $a.parent().next();
     }
     if ( !$h.length ) return;
-    
+
     margin = parseInt( $h.css('margin-top').replace( /(\d+)px/, "$1" ) );
     offset = topbarHeight + Math.min( margin, maxScrollMargin );
     targetTop = $h.offset().top;
@@ -110,7 +110,7 @@ $( function () {
   var $h = $('.content .body').children('h1, h2, h3, h4, h5');
   l = $h.length;
   if ( !l ) return;
-  
+
   stack = [];
 
   // Starting the loop with `i = -1` does a preliminary lookahead to initialize
@@ -275,7 +275,7 @@ $( function () {
         },
         toggle: function () { this.go('Hidden'); }
       }),
-      
+
       Hidden: {
         enter: function () {
           $body.removeClass('chrome-hiding')
@@ -283,7 +283,7 @@ $( function () {
         },
         toggle: function () { this.go('Visible'); }
       },
-      
+
       transitions: {
         Revealing: {
           target: 'Visible', action: action, abort: abort,
@@ -379,7 +379,7 @@ $( function () {
             handle = setTimeout( hide, 400 );
           }
           $toc.toggleClass('toggled-hidden');
-          
+
           event.stopPropagation();
         })
         .appendTo( $li );
@@ -435,7 +435,7 @@ $( function () {
       }
     })
     .addClass('polyglot');
-    
+
   // Remove the blocks that are now empty.
   $blocks.not( $initial ).remove();
 
@@ -525,7 +525,7 @@ $( function () {
       initialized &&
       language[ hiddenLanguage ].$elements
         .hide();
-      
+
       language[ activeLanguage ].$elements
         .show();
 
@@ -534,7 +534,7 @@ $( function () {
       if ( $el && $el.length ) {
         $page.scrollTop( $el.offset().top - localOffset );
       }
-      
+
       // Update the UI button states.
       initialized &&
       language[ hiddenLanguage ].$control
@@ -666,7 +666,7 @@ $( function () {
     if ( $toc.length === 0 ) return;
 
     $topbar = $('.topbar');
-    
+
     $fg = $( '.fg', $toc );
     if ( $fg.children().length === 0 ) return;
 
@@ -682,7 +682,7 @@ $( function () {
 
     $window
       .on( 'scroll', refresh )
-      .on( 'resize orientationchange', reflow )
+      .on( 'load resize orientationchange', reflow )
     ;
 
     $viewportRect = $('<div class="viewport">').appendTo('.toc .bg');
