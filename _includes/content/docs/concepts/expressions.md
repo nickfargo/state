@@ -1,6 +1,6 @@
 ### [Expressions](#concepts--expressions)
 
-States are described using a **state expression**, a data structure that represents the content of a `State` instance.
+`State` instances are defined declaratively using the **state expression** data structure.
 
 A formal `StateExpression` is created by calling the [`state()`](#getting-started--the-state-function) function with no `owner` argument, providing it only a plain object map for its `expression` argument, optionally preceded by a string of whitespace-delimited `attributes` to be encoded into the returned `StateExpression`.
 
