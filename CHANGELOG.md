@@ -2,19 +2,19 @@
 
 
 
-### 0.1.1
+### 0.1.1 *(edge)*
 
 * Constructors with stateful prototypes may now add an instance reference to the prototype’s accessor, for example, `this.state = this.constructor.prototype.state;`, to accommodate JS engine optimization schemes such as Shapes (SpiderMonkey), hidden classes (V8), etc.
 
 
 
-### 0.1.0
+### 0.1.0 *(released)*
 
 > History begins here; entries are notable changes relative to any 0.0.x.
 
 * Merged the role of `StateController` and the root `State` into a single class `RootState`.
 
-* Adopted CommonJS/Node—style module system with bundling by browserify, replacing prior strategy of shared enclosing scope and flat concatenation.
+* Adopted CommonJS/Node–style module system with bundling by browserify, replacing prior strategy of shared enclosing scope and flat concatenation.
 
 * Moved meta properties and export-level static functions to a separate module `export-static`.
 
