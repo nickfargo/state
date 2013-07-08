@@ -778,9 +778,10 @@ name alone from anywhere in the state tree.
 > [Selectors](http://statejs.org/docs/#concepts--selectors)
 > [query](http://statejs.org/api/#state--methods--query)
 
-      query: ( selector, against, via = VIA_ALL, toBeSkipped ) ->
+      query: ( selector, against, via, toBeSkipped ) ->
         if typeof against is 'number'
           toBeSkipped = via; via = against; against = undefined
+        via = VIA_ALL unless via?
 
 A few exceptional cases may be resolved early.
 
