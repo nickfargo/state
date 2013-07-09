@@ -221,7 +221,7 @@ Builds out the state’s members based on the expression provided.
 
 #### [realize](#state--prototype--realize)
 
-Transforms an incipient or virtual `State` into a real state.
+Transforms an incipient or **virtual** `State` into a **real** state.
 
 Much of the initialization for `State` is offloaded from the constructor,
 allowing for creation of lightweight virtual `State` instances that inherit all
@@ -235,6 +235,9 @@ later time to a real `State` if necessary.
       realize: ( expression ) ->
         { attributes, name } = this
         return this unless attributes & INCIPIENT_OR_VIRTUAL
+
+Propagate realization up the superstate chain if necessary, adding each newly
+realized state to the `substates` collection of its real superstate.
 
         if attributes & VIRTUAL
           if ss = @superstate
