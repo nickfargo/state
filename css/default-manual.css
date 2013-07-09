@@ -122,8 +122,9 @@ h5 {
 }
 h6 {
   font-size: 16px;
-  text-transform: none;
+  text-transform: uppercase;
   color: inherit;
+  opacity: 0.6;
 }
 
 h1,
@@ -138,7 +139,7 @@ h3,
 h4,
 h5,
 h6 {
-  margin: 1.25em 0 0.33em;
+  margin: 1.5em 0 0.67em;
   line-height: 1.75em;
 }
 
