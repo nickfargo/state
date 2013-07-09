@@ -151,7 +151,7 @@ h6 {
   opacity: 0.5;
   font-weight: 300;
   background: rgba( 0, 0, 0, 0.04 );
-  margin-left: 6px;
+  margin-left: -6px;
   padding: 0 6px;
 }
 
