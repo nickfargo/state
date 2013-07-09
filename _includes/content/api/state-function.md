@@ -119,7 +119,7 @@ state.own( owner, selector, expr )
 * `selector` : string
 * [`expr`] : object | `StateExpression`
 
-Causes an inherited protostate or virtual epistate to be realized within the state tree of `owner`.
+Causes the inherited protostate or virtual epistate identified by `selector` to be realized, if necessary, within the state tree of `owner`. If a realization does occur, the new epistate can be augmented by the optional `expr`.
 
 {% highlight javascript %}
 {% include examples/api/state-function--own.js %}
@@ -129,9 +129,9 @@ Causes an inherited protostate or virtual epistate to be realized within the sta
 {% include examples/api/state-function--own.coffee %}
 {% endhighlight %}
 
-> 1. **Unexpected** — the `enter` event listener is added to state `A` of `p`, not `o`. Instance `o` inherits its state tree from `p`, so `o.state('A')` must be equal to `p.state('A')`.
+> 1. **Unexpected:** the `enter` event listener is added to state `A` of `p`, not `o`. The incipient instance `o` inherits its entire state tree from `p`, so `o.state('A')` is equal to `p.state('A')`.
 
-> 2. Calling `state.own(o,'A')` instead of `o.state('A')` ensures that the returned `State` is **real** (not *virtual*) and that its `owner` is `o` (not a prototype).
+> 2. Calling `state.own(o,'A')` instead of `o.state('A')` ensures that the returned `State` is **real** (not *virtual*) and that its `owner` is `o` (not a prototype). The event listener will be held in the state tree of `o`, as expected.
 
 
 
