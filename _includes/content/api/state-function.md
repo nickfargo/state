@@ -23,13 +23,13 @@ state( attributes )
 * [`attributes`] : string
 * [`expression`] : ( object | `StateExpression` )
 
+###### Returns
+
 If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new state implementation based on the supplied `expression` and [`attributes`](#state--attributes), and returns the owner’s initial `State`.
 
 If no `owner` is provided, `state()` creates and returns a formal `StateExpression` based on the contents of `expression` and `attributes`.
 
-###### Discussion
-
-When expressing a substate within a state expression, calling `state` with a lone object literal as `expression` evaluates identically to including just the object itself. It follows then that calling `state` with no arguments expresses an empty `StateExpression`, as would an empty object literal `{}` reference; however, the ideal way to express “empty state” is simply a reference to the `state` function, which is interpreted equivalently while avoiding the extra invocation and/or allocation.
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state-function.js %}
@@ -38,6 +38,10 @@ When expressing a substate within a state expression, calling `state` with a lon
 {% highlight coffeescript %}
 {% include examples/api/state-function.coffee %}
 {% endhighlight %}
+
+###### Discussion
+
+When expressing a substate within a state expression, calling `state` with a lone object literal as `expression` evaluates identically to including just the object itself. It follows then that calling `state` with no arguments expresses an empty `StateExpression`, as would an empty object literal `{}` reference; however, the ideal way to express “empty state” is simply a reference to the `state` function, which is interpreted equivalently while avoiding the extra invocation and/or allocation.
 
 ###### See also
 
@@ -115,6 +119,8 @@ An object that boxes `fn`, marked with a `type` of `state-fixed-function`.
 ###### Description
 
 Wrapping a state method, event listener, etc. in `state.fix` provides the means to reliably reference the **protostate** from within that function.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state-function--fix.js %}

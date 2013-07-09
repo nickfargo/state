@@ -124,7 +124,10 @@ h6 {
   font-size: 16px;
   text-transform: uppercase;
   color: inherit;
-  opacity: 0.6;
+  opacity: 0.5;
+  font-weight: 300;
+  background: rgba( 0, 0, 0, 0.04 );
+  padding: 0 6px;
 }
 
 h1,
@@ -147,8 +150,7 @@ h1,
 h2,
 h3,
 h4,
-h5,
-h6 {
+h5 {
   font-weight: bold;
 }
 
