@@ -19,7 +19,7 @@ State attributes are added to a state expression by preceding the `expression` a
 
 #### [mutable](#state--attributes--mutable)
 
-By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed. Applying the `mutable` attribute lifts the restriction of immutability, exposing instance methods such as [`mutate`](#state--methods--mutate), [`addMethod`](#state--methods--add-method), [`addSubstate`](#state--methods--add-substate), etc., which can be used to alter the contents of the state.
+By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed. Applying the `mutable` attribute lifts the restriction of immutability, allowing the use of methods such as [`mutate`](#state--methods--mutate), [`addMethod`](#state--methods--add-method), [`addSubstate`](#state--methods--add-substate), etc., which can be used to alter the contents of the state.
 
 ###### Notes
 
