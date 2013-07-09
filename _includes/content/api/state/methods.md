@@ -3,13 +3,21 @@
 
 #### [realize](#state--methods--realize)
 
+Transforms `this` [virtual state](/docs/#concepts--inheritance--virtual-epistates) into a “real” state that can bear content of its own.
+
+###### Syntax
+
 {% highlight javascript %}
 this.realize()
 {% endhighlight %}
 
-Transforms `this` [virtual state](/docs/#concepts--inheritance--virtual-epistates) into a “real” state that can bear content of its own. If `this` is already real instead of virtual, then calling `realize` has no effect.
+###### Returns
 
-Returns `this`.
+`this`
+
+###### Examples
+
+If `this` is already real instead of virtual, then calling `realize` has no effect.
 
 {% highlight javascript %}
 {% include examples/api/state/methods--realize--1.js %}
@@ -29,6 +37,8 @@ If `this` is both `virtual` and `mutable`, then calling any of its `add...` meth
 {% include examples/api/state/methods--realize--2.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 > [`State realize`](/source/#state--private--realize)
@@ -37,28 +47,52 @@ If `this` is both `virtual` and `mutable`, then calling any of its `add...` meth
 
 #### [destroy](#state--methods--destroy)
 
+Attempts to cleanly destroy `this` state and all of its descendant states.
+
+###### Syntax
+
 {% highlight javascript %}
 this.destroy()
 {% endhighlight %}
 
-Attempts to cleanly destroy `this` state and all of its descendant states. A `destroy` event is issued by each state as it is destroyed.
+###### Returns
 
-Returns `true` if `this` state is successfully destroyed, or `false` otherwise.
+`true` if `this` state is successfully destroyed, or `false` otherwise.
+
+###### Notes
+
+A `destroy` event is issued by each state as it is destroyed.
 
 If the root state is destroyed, the owner is given back any methods it bore prior to its state implementation.
+
+###### See also
 
 > [`State.privileged.destroy`](/source/#state--privileged--destroy)
 
 
+
+### Methods: expression and mutation
+
+
 #### [express](#state--methods--express)
+
+Produces an object containing an expression of the contents of `this` state, such as would be sufficient to create a new `State` structurally identical to `this`.
+
+###### Syntax
 
 {% highlight javascript %}
 this.express( typed )
 {% endhighlight %}
 
+###### Parameters
+
 * [`typed = false`] : boolean
 
-Returns an object containing an expression of the contents of `this` state, such as would be sufficient to create a new `State` structurally identical to `this`. If `typed` is `true`, a formal `StateExpression` object is returned.
+###### Returns
+
+The generated plain-object, or equivalent `StateExpression` if `typed` is `true`.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--express.js %}
@@ -68,23 +102,37 @@ Returns an object containing an expression of the contents of `this` state, such
 {% include examples/api/state/methods--express.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [Expressions](/docs/#concepts--expressions)
 > [`State.privileged.express`](/source/#state--privileged--express)
 
 
 #### [mutate](#state--methods--mutate)
 
+Transactionally mutates `this` state by adding, updating, or removing items as implied by the contents of `expression`.
+
+###### Syntax
+
 {% highlight javascript %}
 this.mutate( expression )
 {% endhighlight %}
 
+###### Parameters
+
 * `expression` : ( `StateExpression` | object )
 
-Transactionally mutates `this` state by adding, updating, or removing items as implied by the contents of `expression`. Removal is indicated with the unique `O.NIL` reference.
+###### Returns
 
-Returns `this`.
+`this`
+
+###### Notes
+
+Property removal is indicated with a value equal to the unique `O.NIL` reference.
 
 If the transaction causes a mutation, `this` emits a [`mutate` event](#state--events--mutate).
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--mutate.js %}
@@ -94,31 +142,38 @@ If the transaction causes a mutation, `this` emits a [`mutate` event](#state--ev
 {% include examples/api/state/methods--mutate.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [Mutation events](/docs/#concepts--events--mutation)
 > [`State.privileged.mutate`](/source/#state--privileged--mutate)
 > [`State::mutate`](/source/#state--prototype--mutate)
 
 
-* * *
 
-Methods in this section are used to inspect the `State` object model.
-
-> [Inheritance](/docs/#concepts--inheritance)
-> [`state/model.js`](/source/#state--model.js)
-> [`state/query.js`](/source/#state--query.js)
+### Methods: object model
 
 
 #### [derivation](#state--methods--derivation)
+
+Describes the superstate chain of `this` as an array.
+
+###### Syntax
 
 {% highlight javascript %}
 this.derivation( byName )
 {% endhighlight %}
 
+###### Parameters
+
 * [`byName = false`] : boolean
 
-Returns an `Array` containing each `State` from the root state to `this` state, starting with the immediate substate from the root.
+###### Returns
+
+An `Array` containing each `State` from the root state to `this` state, starting with the immediate substate from the root.
 
 If `byName` is `true`, the returned `Array` contains the string names of each state, rather than the `State`s themselves.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--derivation.js %}
@@ -128,16 +183,26 @@ If `byName` is `true`, the returned `Array` contains the string names of each st
 {% include examples/api/state/methods--derivation.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [`State::derivation`](/source/#state--prototype--derivation)
 
 
 #### [path](#state--methods--path)
 
+Describes the superstate chain of `this` as a dot-delimited string.
+
+###### Syntax
+
 {% highlight javascript %}
 this.path()
 {% endhighlight %}
 
-Returns a string that is the absolute selector referencing `this` state.
+###### Returns
+
+A string that matches the absolute selector referencing `this` state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--path.js %}
@@ -147,16 +212,26 @@ Returns a string that is the absolute selector referencing `this` state.
 {% include examples/api/state/methods--path.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [`State::path`](/source/#state--prototype--path)
 
 
 #### [depth](#state--methods--depth)
 
+Quantifies the height of the superstate chain of `this`.
+
+###### Syntax
+
 {% highlight javascript %}
 this.depth()
 {% endhighlight %}
 
-Returns the number of superstates separating `this` state from its root state.
+###### Returns
+
+The number of superstates separating `this` state from its root state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--depth.js %}
@@ -166,18 +241,30 @@ Returns the number of superstates separating `this` state from its root state.
 {% include examples/api/state/methods--depth.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [`State::depth`](/source/#state--prototype--depth)
 
 
 #### [common](#state--methods--common)
 
+Establishes the hierarchical relation between `this` and another `State`.
+
+###### Syntax
+
 {% highlight javascript %}
 this.common( other )
 {% endhighlight %}
 
+###### Parameters
+
 * `other` : ( `State` | string )
 
-Returns the `State` that is the nearest common ancestor of both `this` state and the provided `other` state.
+###### Returns
+
+The `State` that is the nearest common ancestor of both `this` state and the provided `other` state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--common.js %}
@@ -187,18 +274,30 @@ Returns the `State` that is the nearest common ancestor of both `this` state and
 {% include examples/api/state/methods--common.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [`State::common`](/source/#state--prototype--common)
 
 
 #### [is](#state--methods--is)
 
+Asserts identity.
+
+###### Syntax
+
 {% highlight javascript %}
 this.is( other )
 {% endhighlight %}
 
+###### Parameters
+
 * `other` : ( `State` | string )
 
-Returns a boolean indicating whether `this` state is the provided `other` state.
+###### Returns
+
+A boolean indicating whether `this` state is the provided `other` state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--is.js %}
@@ -208,18 +307,30 @@ Returns a boolean indicating whether `this` state is the provided `other` state.
 {% include examples/api/state/methods--is.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [`State::is`](/source/#state--prototype--is)
 
 
 #### [isIn](#state--methods--is-in)
 
+Asserts descendant familiarity.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isIn( other )
 {% endhighlight %}
 
+###### Parameters
+
 * `other` : ( `State` | string )
 
-Returns a boolean indicating whether `this` state is or is a substate of the provided `other` state.
+###### Returns
+
+A boolean indicating whether `this` state is or is a substate of the provided `other` state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--is-in.js %}
@@ -229,18 +340,30 @@ Returns a boolean indicating whether `this` state is or is a substate of the pro
 {% include examples/api/state/methods--is-in.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [`State::isIn`](/source/#state--prototype--is-in)
 
 
 #### [hasSubstate](#state--methods--has-substate)
 
+Asserts ancestral familiarity.
+
+###### Syntax
+
 {% highlight javascript %}
 this.hasSubstate( other )
 {% endhighlight %}
 
+###### Parameters
+
 * `other` : ( `State` | string )
 
-Returns a boolean indicating whether `this` state is or is a superstate of the provided `other` state.
+###### Returns
+
+A boolean indicating whether `this` state is or is a superstate of the provided `other` state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--has-substate.js %}
@@ -250,18 +373,30 @@ Returns a boolean indicating whether `this` state is or is a superstate of the p
 {% include examples/api/state/methods--has-substate.coffee %}
 {% endhighlight %}
 
+###### See also
+
 > [`State::hasSubstate`](/source/#state--prototype--has-substate)
 
 
 #### [isSuperstateOf](#state--methods--is-superstate-of)
 
+Asserts hierarchical ancestry.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isSuperstateOf( other )
 {% endhighlight %}
 
+###### Parameters
+
 * `other` : ( `State` | string )
 
-Returns a boolean indicating whether `this` state is a superstate of the provided `other` state.
+###### Returns
+
+A boolean indicating whether `this` state is a superstate of the provided `other` state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--is-superstate-of.js %}
@@ -271,20 +406,30 @@ Returns a boolean indicating whether `this` state is a superstate of the provide
 {% include examples/api/state/methods--is-superstate-of.coffee %}
 {% endhighlight %}
 
-> [`State::isSuperstateOf`](/source/#state--prototype--is-superstate-of)
+###### See also
 
-See also: [**superstate**](#state--superstate)
+> [**superstate**](#state--superstate)
+
+> [`State::isSuperstateOf`](/source/#state--prototype--is-superstate-of)
 
 
 #### [protostate](#state--methods--protostate)
+
+Identifies the `State` analogous to `this` owned by a prototype of the `owner`.
+
+###### Syntax
 
 {% highlight javascript %}
 this.protostate()
 {% endhighlight %}
 
-Returns a `State` that is `this` state’s **protostate**: the state analogous to `this` within the state tree of the nearest prototype of `this.owner()` in which such a state exists.
+###### Returns
+
+The **protostate** of `this`: that `State` which both has a derivation `path` identical to the `path` of `this`, and whose `owner` is the nearest possible prototype of the `owner` of `this`.
 
 Returns `undefined` if no protostate exists anywhere in the owner’s prototype chain.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--protostate.js %}
@@ -294,6 +439,7 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 {% include examples/api/state/methods--protostate.coffee %}
 {% endhighlight %}
 
+###### See also
 
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [`State::protostate`](/source/#state--prototype--protostate)
@@ -301,13 +447,23 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 
 #### [isProtostateOf](#state--methods--is-protostate-of)
 
+Asserts prototypal ancestry.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isProtostateOf( other )
 {% endhighlight %}
 
+###### Parameters
+
 * `other` : ( `State` | string )
 
-Returns a boolean indicating whether `this` state is a **protostate** of the provided `other` state.
+###### Returns
+
+A boolean indicating whether `this` state is a **protostate** of the provided `other` state.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--is-protostate-of.js %}
@@ -317,21 +473,33 @@ Returns a boolean indicating whether `this` state is a **protostate** of the pro
 {% include examples/api/state/methods--is-protostate-of.coffee %}
 {% endhighlight %}
 
+###### See also
+
+> [**protostate**](#state--protostate)
+
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [`State::isProtostateOf`](/source/#state--prototype--is-prototstate-of)
 
-See also: [**protostate**](#state--protostate)
-
 
 #### [defaultSubstate](#state--methods--default-substate)
+
+Resolves the proper concretion for an abstract state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.defaultSubstate( viaProto )
 {% endhighlight %}
 
+###### Parameters
+
 * [`viaProto = true`] : boolean
 
-Returns the `State` that is `this` state’s first substate bearing the `default` attribute, or just the first substate if none are found.
+###### Returns
+
+The `State` that is `this` state’s first substate bearing the `default` attribute, or just the first substate if none are found.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--default-substate.js %}
@@ -347,16 +515,24 @@ Returns the `State` that is `this` state’s first substate bearing the `default
 
 > 3. A transition targeting the root state will fall through to `Walking`, since both the root and its default state `Moving` are abstract.
 
+###### See also
+
 > [`State::defaultSubstate`](/source/#state--prototype--default-substate)
 
 
 #### [initialSubstate](#state--methods--initial-substate)
 
+###### Syntax
+
 {% highlight javascript %}
 this.initialSubstate()
 {% endhighlight %}
 
-Returns the `State` that is `this` state’s most deeply nested state bearing the `initial` attribute, by way of its greatest `initial` descendant state.
+###### Returns
+
+The `State` that is `this` state’s most deeply nested state bearing the `initial` attribute, by way of its greatest `initial` descendant state.
+
+###### See also
 
 > [`State::initialSubstate`](/source/#state--prototype--initial-substate)
 
@@ -365,24 +541,37 @@ Returns the `State` that is `this` state’s most deeply nested state bearing th
 
 Alias: **match**
 
+Matches a `selector` string with the state or states it represents in the context of `this` state.
+
+###### Syntax
+
 {% highlight javascript %}
 this.query( selector, against, descend, ascend, viaProto )
 {% endhighlight %}
 
+###### Parameters
+
 * `selector` : string
 * [`against`] : `State`
-* [`descend = true`] : boolean
-* [`ascend = true`] : boolean
-* [`viaProto = true`] : boolean
+* [`via = VIA_ALL`] : number
 
-Matches a `selector` string with the state or states it represents in the context of `this` state. If no match exists in `this` context, the selector is reevaluated in the context of all its substates and descendant states, and if necessary in the context of its superstates and all of their descendants, until all possible locations in the state tree have been exhausted.
+The `via` parameter is a bit-field integer comprised of one or more of the `TRAVERSAL_FLAGS` constants:
 
-Returns the matched `State`, or an `Array` containing the set of matched states. If a state to be tested `against` is provided, then a boolean is returned, indicating whether `against` is the matched state itself or is included in the matching set.
+* `VIA_SUB`
+* `VIA_SUPER`
+* `VIA_PROTO`
 
-Setting `descend` to `false` disables recursion through the substates of `this`, and likewise setting `ascend` to `false` disables the subsequent recursion through its superstates.
+By default `via` is `VIA_ALL` (`~0`), which implies each of the flags’ bits are set, and consequently that the `query` operation will be recursed, in order, over the substates, superstates, and protostates of `this`. Providing a `via` argument that unsets any of the `VIA_SUB`, `VIA_SUPER`, or `VIA_PROTO` bits will disable recursion through the substates, superstates, or protostates, respectively, of `this`.
+
+###### Returns
+
+The nearest matching `State`, or if a non-specific `selector` is provided, an `Array` containing the set of matched states. If a state to be tested `against` is provided, then a boolean is returned, indicating whether `against` is the matched state itself or is included in the matching set.
+
+###### Notes
 
 Calling an owner object’s accessor method with a selector string invokes `query` on the owner’s current state.
 
+###### See also
 
 > [Getting started](/docs/#getting-started)
 > [Selectors](/docs/#concepts--selectors)
@@ -391,13 +580,23 @@ Calling an owner object’s accessor method with a selector string invokes `quer
 
 #### [$](#state--methods--dollarsign)
 
+Convenience method that mimics the behavior of the owner’s accessor method.
+
+###### Syntax
+
 {% highlight javascript %}
 this.$( selector )
 {% endhighlight %}
 
+###### Parameters
+
 * `selector` : string
 
-Convenience method that mimics the behavior of the owner’s accessor method. If the first argument is a transition arrow selector string, the call is aliased to [`change`](#state--methods--change). If passed a plain selector string, the call is aliased to [`query`](#state--methods--query).
+###### Returns
+
+If the first argument is a transition arrow selector string, the call is aliased to [`change`](#state--methods--change). If passed a plain selector string, the call is aliased to [`query`](#state--methods--query).
+
+###### Examples
 
 {% highlight javascript %}
 this.$('-> Awake')
@@ -418,11 +617,10 @@ this.$('Awake')
 Aliases to [`query`](#state--methods--query), returning the `State` named `'Awake'`.
 
 
-* * *
+
+### Methods: currency
 
 The **currency methods** in this section determine or decide which of an owner object’s `State`s are presently **current** or **active**, and thus presently influence the behavior exhibited by the owner.
-
-> [`state/currency.js`](/source/#state--currency.js)
 
 
 #### [current](#state--methods--current)
