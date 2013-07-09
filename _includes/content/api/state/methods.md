@@ -609,29 +609,47 @@ Aliases to [`query`](#state--methods--query), returning the `State` named `'Awak
 
 #### [current](#state--methods--current)
 
+Returns the current `State` of `this` state’s owner.
+
+###### Syntax
+
 {% highlight javascript %}
 this.current()
 {% endhighlight %}
 
-Returns the current `State` of `this` state’s owner.
+###### Returns
+
+`State`.
 
 
 #### [isCurrent](#state--methods--is-current)
+
+Indicates whether `this` state is the owner’s current state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.isCurrent()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state is the owner’s current state.
+###### Returns
+
+Boolean.
 
 
 #### [isActive](#state--methods--is-active)
+
+Indicates whether `this` state or one of its substates is the owner’s current state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.isActive()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state or one of its substates is the owner’s current state.
+###### Returns
+
+Boolean.
 
 
 #### [change](#state--methods--change)
