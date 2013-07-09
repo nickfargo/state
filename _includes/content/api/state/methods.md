@@ -914,11 +914,11 @@ Once a state marked `final` is entered, no further outbound transitions within i
 > [`final`](#state--attributes--final)
 
 
-#### [data](#state--methods--data)
+#### [data (read)](#state--methods--data--read)
 
-Reads or writes `data` attached to `this` state.
+Reads a composite of the `data` assigned to `this` state.
 
-###### Syntax 1
+###### Syntax
 
 {% highlight javascript %}
 this.data( via )
@@ -932,7 +932,16 @@ this.data( via )
 
 An object clone of the data attached to `this` state, including any data inherited from protostates and superstates, unless specified otherwise by zeroing the `VIA_SUPER` and `VIA_PROTO` bits of `via`.
 
-###### Syntax 2
+###### See also
+
+> [`State.prototype.data`](/source/#state--prototype--data)
+
+
+#### [data (write)](#state--methods--data--write)
+
+Adds, updates, and/or removes `data` properties on `this` state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.data( edit )
@@ -942,9 +951,11 @@ this.data( edit )
 
 * `edit` : object
 
-###### Notes
+###### Returns
 
-Adds, updates, and/or removes `data` properties on `this` state, and returns `this`.
+`this`.
+
+###### Notes
 
 For any keys in `edit` whose values are set to the `O.NIL` directive, the matching properties are deleted from `this` state’s data.
 
