@@ -109,5 +109,30 @@ The fixed, enclosed `fn` is thusly bestowed with full lexical awareness of the p
 > [`state.bind`](#state-function--bind)
 
 
+#### [state.own](#state-function--own)
+
+{% highlight javascript %}
+state.own( owner, selector, expr )
+{% endhighlight %}
+
+* `owner` : object
+* `selector` : string
+* [`expr`] : object | `StateExpression`
+
+Causes an inherited protostate or virtual epistate to be realized within the state tree of `owner`.
+
+{% highlight javascript %}
+{% include examples/api/state-function--own.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state-function--own.coffee %}
+{% endhighlight %}
+
+> 1. **Unexpected** — the `enter` event listener is added to state `A` of `p`, not `o`. Instance `o` inherits its state tree from `p`, so `o.state('A')` must be equal to `p.state('A')`.
+
+> 2. Calling `state.own(o,'A')` instead of `o.state('A')` ensures that the returned `State` is **real** (not *virtual*) and that its `owner` is `o` (not a prototype).
+
+
 
 * * *
