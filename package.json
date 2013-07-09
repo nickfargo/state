@@ -34,7 +34,7 @@
     "test": "bin/test -R spec"
   },
   "dependencies": {
-    "omicron": ">=0.1.9"
+    "omicron": "~0.2.0"
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",
