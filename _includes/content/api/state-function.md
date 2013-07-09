@@ -47,15 +47,27 @@ When expressing a substate within a state expression, calling `state` with a lon
 
 #### [state.bind](#state-function--bind)
 
+Causes a function to be contextually bound to the `State` in which it acts.
+
+###### Syntax
+
 {% highlight javascript %}
 state.bind( fn )
 {% endhighlight %}
 
+###### Parameters
+
 * `fn` : function
 
-Causes a function to be contextually bound to the `State` in which it acts. This provides the means to reliably reference the **superstate** within a state method, event listener, etc.
+###### Description
 
-Returns an object that boxes `fn`, marked with a `type` of `state-bound-function`.
+Wrapping a state method, event listener, etc. provides the means to reliably reference the **superstate** from within that function.
+
+###### Returns
+
+An object that boxes `fn`, marked with a `type` of `state-bound-function`.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state-function--bind.js %}
@@ -84,15 +96,25 @@ If a state-bound method, event listener, etc. is inherited from a **protostate**
 
 #### [state.fix](#state-function--fix)
 
+Causes a function to be decorated with fixed bindings that indicate the precise `State` in which it is defined.
+
+###### Syntax
+
 {% highlight javascript %}
 state.fix( combinator )
 {% endhighlight %}
 
+###### Parameters
+
 * `combinator` : function :: ( `autostate`, [`protostate`] ) → ( `fn` : function )
 
-Causes a function to be decorated with fixed bindings that indicate the precise `State` in which it is defined. This provides the means to reliably reference the **protostate** within a state method, event listener, etc.
+###### Returns
 
-Returns an object that boxes `fn`, marked with a `type` of `state-fixed-function`.
+An object that boxes `fn`, marked with a `type` of `state-fixed-function`.
+
+###### Description
+
+Wrapping a state method, event listener, etc. in `state.fix` provides the means to reliably reference the **protostate** from within that function.
 
 {% highlight javascript %}
 {% include examples/api/state-function--fix.js %}
@@ -117,17 +139,29 @@ The fixed, enclosed `fn` is thusly bestowed with full lexical awareness of the p
 
 #### [state.own](#state-function--own)
 
+Ensures that, for a given `owner`, the `State` returned by a queried `selector` is both *real* and not an inherited protostate.
+
+###### Syntax
+
 {% highlight javascript %}
 state.own( owner, selector, expr )
 {% endhighlight %}
+
+###### Parameters
 
 * `owner` : object
 * `selector` : string
 * [`expr`] : object | `StateExpression`
 
+###### Returns
+
+Either the new real epistate, or `null` if `selector` does not identify a `State` that is heritable by `owner`.
+
+###### Description
+
 Causes the inherited protostate or virtual epistate identified by `selector` to be realized, if necessary, within the state tree of `owner`. If a realization does occur, the new epistate can be augmented by the optional `expr`.
 
-Returns the new real epistate, or `null` if `selector` does not identify a `State` that is heritable by `owner`.
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state-function--own.js %}
