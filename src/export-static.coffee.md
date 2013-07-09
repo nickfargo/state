@@ -104,6 +104,26 @@ lexical awareness of, the particular `State` environment in which it exists.
         fix
 
 
+#### own
+
+Causes `owner` to realize and take ownership of the protostate or virtual
+epistate returned by `selector`. Returns the incipient or extant “own” state,
+augmented with any `StateExpression` content supplied by the optional `expr`.
+
+      @own = do ->
+        rxAccessor = /([$_A-Za-z][$\w]*)::(.*)/
+
+        ( owner, selector, expr ) ->
+          if rxAccessor.test selector
+          then [ match, accessorName, selector ] = rxAccessor.exec selector
+          else accessorName = 'state'
+
+          return null unless instated = owner[ accessorName ] selector
+          if instated.owner is owner
+          then instated[ instated.isVirtual() and 'realize' or 'mutate' ] expr
+          else instated.virtualize( owner[ accessorName ] '' ).realize expr
+
+
 
 ### Miscellaneous constants
 
