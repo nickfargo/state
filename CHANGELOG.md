@@ -4,7 +4,9 @@
 
 ### 0.1.1 *(edge)*
 
-* Constructors with stateful prototypes may now add an instance reference to the prototype’s accessor, for example, `this.state = this.constructor.prototype.state;`, to accommodate JS engine optimization schemes such as Shapes (SpiderMonkey), hidden classes (V8), etc.
+* Fixed `realize` method to properly devirtualize `this`.
+
+* Constructors with stateful prototypes may now add an instance reference to the prototype’s accessor — for example, `this.state = this.constructor.prototype.state;` — to accommodate JS engine optimization schemes such as Shapes (SpiderMonkey), hidden classes (V8), etc.
 
 
 
