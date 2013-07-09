@@ -42,7 +42,7 @@ If `this` is both `virtual` and `mutable`, then calling any of its `add...` meth
 > [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 > [`State realize`](/source/#state--private--realize)
-> [`State.privileged.realize`](/source/#state--privileged--realize)
+> [`State.prototype.realize`](/source/#state--prototype--realize)
 
 
 #### [destroy](#state--methods--destroy)
@@ -67,11 +67,7 @@ If the root state is destroyed, the owner is given back any methods it bore prio
 
 ###### See also
 
-> [`State.privileged.destroy`](/source/#state--privileged--destroy)
-
-
-
-### Methods: expression and mutation
+> [`State.prototype.destroy`](/source/#state--prototype--destroy)
 
 
 #### [express](#state--methods--express)
@@ -105,7 +101,7 @@ The generated plain-object, or equivalent `StateExpression` if `typed` is `true`
 ###### See also
 
 > [Expressions](/docs/#concepts--expressions)
-> [`State.privileged.express`](/source/#state--privileged--express)
+> [`State.prototype.express`](/source/#state--prototype--express)
 
 
 #### [mutate](#state--methods--mutate)
@@ -145,12 +141,8 @@ If the transaction causes a mutation, `this` emits a [`mutate` event](#state--ev
 ###### See also
 
 > [Mutation events](/docs/#concepts--events--mutation)
-> [`State.privileged.mutate`](/source/#state--privileged--mutate)
+> [`State.prototype.mutate`](/source/#state--prototype--mutate)
 > [`State::mutate`](/source/#state--prototype--mutate)
-
-
-
-### Methods: object model
 
 
 #### [derivation](#state--methods--derivation)
@@ -488,12 +480,12 @@ Resolves the proper concretion for an abstract state.
 ###### Syntax
 
 {% highlight javascript %}
-this.defaultSubstate( viaProto )
+this.defaultSubstate( via )
 {% endhighlight %}
 
 ###### Parameters
 
-* [`viaProto = true`] : boolean
+* [`via = VIA_PROTO`] : number
 
 ###### Returns
 
@@ -539,14 +531,16 @@ The `State` that is `this` state’s most deeply nested state bearing the `initi
 
 #### [query](#state--methods--query)
 
-Alias: **match**
-
 Matches a `selector` string with the state or states it represents in the context of `this` state.
+
+###### Aliases
+
+**match**
 
 ###### Syntax
 
 {% highlight javascript %}
-this.query( selector, against, descend, ascend, viaProto )
+this.query( selector, against, descend, ascend, via )
 {% endhighlight %}
 
 ###### Parameters
@@ -555,13 +549,9 @@ this.query( selector, against, descend, ascend, viaProto )
 * [`against`] : `State`
 * [`via = VIA_ALL`] : number
 
-The `via` parameter is a bit-field integer comprised of one or more of the `TRAVERSAL_FLAGS` constants:
+The `via` parameter is a bit-field integer comprised of one or more of the `TRAVERSAL_FLAGS` constants: [`VIA_SUB`, `VIA_SUPER`, `VIA_PROTO`].
 
-* `VIA_SUB`
-* `VIA_SUPER`
-* `VIA_PROTO`
-
-By default `via` is `VIA_ALL` (`~0`), which implies each of the flags’ bits are set, and consequently that the `query` operation will be recursed, in order, over the substates, superstates, and protostates of `this`. Providing a `via` argument that unsets any of the `VIA_SUB`, `VIA_SUPER`, or `VIA_PROTO` bits will disable recursion through the substates, superstates, or protostates, respectively, of `this`.
+By default `via` is `VIA_ALL` (`~0`), which implies each of the flags’ bits are set, and consequently that the `query` operation will be recursed over the substates, superstates, and protostates, in order, of `this`. Providing a `via` argument that zeroes any of the `VIA_SUB`, `VIA_SUPER`, or `VIA_PROTO` bits will disable recursion through the substates, superstates, or protostates, respectively, of `this`.
 
 ###### Returns
 
@@ -617,12 +607,6 @@ this.$('Awake')
 Aliases to [`query`](#state--methods--query), returning the `State` named `'Awake'`.
 
 
-
-### Methods: currency
-
-The **currency methods** in this section determine or decide which of an owner object’s `State`s are presently **current** or **active**, and thus presently influence the behavior exhibited by the owner.
-
-
 #### [current](#state--methods--current)
 
 {% highlight javascript %}
@@ -652,16 +636,22 @@ Returns a boolean indicating whether `this` state or one of its substates is the
 
 #### [change](#state--methods--change)
 
-Aliases: **go**, **be**
+Attempts to execute a state transition.
+
+###### Aliases
+
+**go**, **be**
+
+###### Syntax
 
 {% highlight javascript %}
 this.change( target, options )
 {% endhighlight %}
 
+###### Parameters
+
 * `target` : ( `State` | string )
 * [`options`] : object
-
-Attempts to execute a state transition. Handles asynchronous transitions, generation of appropriate events, and construction of any necessary temporary virtual states. Respects guards supplied in both the origin and `target` states.
 
 The `target` parameter may be either a `State` object within the purview of this controller, or a string that resolves to a likewise targetable `State` when evaluated from the context of the most recently current state.
 
@@ -671,24 +661,30 @@ The `options` parameter is an optional map that may include:
 * `success` : function — callback to be executed upon successful completion of the transition.
 * `failure` : function — callback to be executed if the transition attempt is blocked by a guard.
 
+###### Discussion
 
-* * *
-
-The **attribute methods** in this section are predicates that inspect the attributes that have been affixed to a `State`.
-
-> [Attributes](/docs/#concepts--attributes)
-> [`state/attributes.js`](/source/#state--attributes.js)
+Handles asynchronous transitions, generation of appropriate events, and construction of any necessary temporary virtual states. Respects guards supplied in both the origin and `target` states.
 
 
 #### [isVirtual](#state--methods--is-virtual)
+
+Indicates whether `this` state bears the `virtual` attribute.
+
+###### Syntax
 
 {% highlight javascript %}
 this.isVirtual()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `virtual` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 A **virtual state** is a lightweight inheritor of a **protostate** located higher in the owner object’s prototype chain. Notably, as virtual states are created automatically, no modifier keyword exists for the `virtual` attribute.
+
+###### Example
 
 {% highlight javascript %}
 {% include examples/api/state/methods--is-virtual.js %}
@@ -702,163 +698,251 @@ A **virtual state** is a lightweight inheritor of a **protostate** located highe
 
 > 2. Root states are never virtualized. Even an object that inherits all statefulness from its prototypes is given a real root state.
 
+###### See also
+
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
 
 
 #### [isMutable](#state--methods--is-mutable)
 
+Indicates whether `this` state bears the `mutable` attribute.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isMutable()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `mutable` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 By default, states are **weakly immutable**; i.e., once a `State` has been constructed, its declared data, methods, guards, substates, and transitions cannot be altered. By including the `mutable` attribute in the state’s expression, this restriction is lifted. Mutability is also inherited from any of a state’s superstates or protostates.
 
-> See also:
+###### See also
+
 > [`mutable`](#state--attributes--mutable)
 
 
 #### [isFinite](#state--methods--is-finite)
 
+Indicates whether `this` state bears the `finite` attribute.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isFinite()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `finite` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 If a state is declared `finite`, no substates or descendant states may be added, nor may any be removed without also destroying the state itself.
 
-> See also:
+###### See also
+
 > [`finite`](#state--attributes--finite)
 
 
 #### [isImmutable](#state--methods--is-immutable)
 
+Indicates whether `this` state bears the `immutable` attribute.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isImmutable()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `immutable` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 A literal or inherited `immutable` attribute causes a state to become **strongly immutable**, wherein it guarantees immutability absolutely, throughout all inheriting states. The `immutable` attribute also implies `finite`, and contradicts and overrides any literal or inherited `mutable` attribute.
 
-> See also:
+###### See also
+
 > [`immutable`](#state--attributes--immutable)
 
 
 #### [isAbstract](#state--methods--is-abstract)
 
+Indicates whether `this` state is `abstract`.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isAbstract()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state is `abstract`.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 An `abstract` state is used only as a source of inheritance, and cannot itself be current. A transition that directly targets an abstract state will be automatically redirected to one of its substates.
 
-> See also:
+###### See also
+
 > [`abstract`](#state--attributes--abstract)
 
 
 #### [isConcrete](#state--methods--is-concrete)
 
+Indicates whether `this` state is `concrete`.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isConcrete()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state is `concrete`.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 All non-abstract states are concrete. Marking a state with the `concrete` attribute in a state expression will override any `abstract` attribute, particularly such as would otherwise be inherited from a protostate.
 
-> See also:
+###### See also
+
 > [`concrete`](#state--attributes--concrete)
 
 
 #### [isDefault](#state--methods--is-default)
 
+Indicates whether `this` state bears the `default` attribute.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isDefault()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `default` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 Marking a state `default` designates it as the specific redirection target for any transition that targets its abstract superstate.
 
-> See also:
+###### See also
+
 > [`default`](#state--attributes--default),
 > [`defaultSubstate`](#state--methods--default-substate)
 
 
 #### [isInitial](#state--methods--is-initial)
 
+Indicates whether `this` state bears the `initial` attribute.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isInitial()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `initial` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 Marking a state `initial` specifies which state a newly stateful object should assume.
 
 Objects inheriting from a stateful prototype will have their initial state set to the prototype’s current state.
 
-> See also:
+###### See also
+
 > [`initial`](#state--attributes--initial),
 > [`initialSubstate`](#state--methods--initial-substate)
 
 
 #### [isConclusive](#state--methods--is-conclusive)
 
+Indicates whether `this` state bears the `conclusive` attribute.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isConclusive()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `conclusive` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 Once a state marked `conclusive` is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
-> See also:
+###### See also
+
 > [`conclusive`](#state--attributes--conclusive)
 
 
 #### [isFinal](#state--methods--is-final)
 
+Indicates whether `this` state bears the `final` attribute.
+
+###### Syntax
+
 {% highlight javascript %}
 this.isFinal()
 {% endhighlight %}
 
-Returns a boolean indicating whether `this` state bears the `final` attribute.
+###### Returns
+
+Boolean.
+
+###### Discussion
 
 Once a state marked `final` is entered, no further outbound transitions within its local region are allowed.
 
-> See also:
+###### See also
+
 > [`final`](#state--attributes--final)
-
-
-* * *
-
-The methods below allow states to store and manipulate arbitrary **data**.
-
-> [Data](/docs/#concepts--data)
-> [`state/data.js`](/source/#state--data.js)
 
 
 #### [data](#state--methods--data)
 
+Reads or writes `data` attached to `this` state.
+
+###### Syntax 1
+
 {% highlight javascript %}
-this.data( viaSuper, viaProto )
+this.data( via )
 {% endhighlight %}
 
-* [`viaSuper = true`] : boolean
-* [`viaProto = true`] : boolean
+###### Parameters
 
-Returns an object clone of the data attached to `this` state, including any data inherited from protostates and superstates, unless specified otherwise by the inheritance flags `viaSuper` and `viaProto`.
+* [`via = VIA_ALL`] : number
+
+###### Returns
+
+An object clone of the data attached to `this` state, including any data inherited from protostates and superstates, unless specified otherwise by zeroing the `VIA_SUPER` and `VIA_PROTO` bits of `via`.
+
+###### Syntax 2
 
 {% highlight javascript %}
 this.data( edit )
 {% endhighlight %}
 
+###### Parameters
+
 * `edit` : object
+
+###### Notes
 
 Adds, updates, and/or removes `data` properties on `this` state, and returns `this`.
 
@@ -866,182 +950,305 @@ For any keys in `edit` whose values are set to the `O.NIL` directive, the matchi
 
 If the operation results in a change to `this` state’s data, a `mutate` event is emitted.
 
-> [`State.privileged.data`](/source/#state--privileged--data)
+###### See also
+
+> [`State.prototype.data`](/source/#state--prototype--data)
 
 
 #### [has](#state--methods--has)
 
+Determines whether a `data` property with the given `key` exists on `this` state, or is inherited from a protostate or superstate.
+
+###### Syntax
+
 {% highlight javascript %}
-this.has( key, viaSuper, viaProto )
+this.has( key, via )
 {% endhighlight %}
 
+###### Parameters
+
 * `key` : string
-* [`viaSuper = true`] : boolean
-* [`viaProto = true`] : boolean
+* [`via = VIA_ALL`] : number
 
-Predicate that determines whether a `data` property with the given `key` exists on `this` state, or is inherited from a protostate or superstate. Supports `long.key` lookups for deeply nested properties.
+###### Notes
 
-> [`State.privileged.has`](/source/#state--privileged--has)
+Supports `long.key` lookups for deeply nested properties.
+
+###### See also
+
+> [`State.prototype.has`](/source/#state--prototype--has)
 
 
 #### [get](#state--methods--get)
 
+Reads a `data` item on `this` state.
+
+###### Syntax
+
 {% highlight javascript %}
-this.get( key, viaSuper, viaProto )
+this.get( key, via )
 {% endhighlight %}
 
+###### Parameters
+
 * `key` : string
-* [`viaSuper = true`] : boolean
-* [`viaProto = true`] : boolean
+* [`via = VIA_ALL`] : number
 
-Returns the value of the `data` property with the given `key` on `this` state, or one inherited from the nearest protostate, or the nearest superstate. Supports `long.key` lookups for deeply nested properties. Returns `undefined` if `key` cannot be resolved.
+###### Returns
 
-> [`State.privileged.get`](/source/#state--privileged--get)
+The value of the `data` property with the given `key` on `this` state, or one inherited from the nearest protostate, or the nearest superstate.
+
+###### Notes
+
+Supports `long.key` lookups for deeply nested properties. Returns `undefined` if `key` cannot be resolved.
+
+> [`State.prototype.get`](/source/#state--prototype--get)
 
 
 #### [let](#state--methods--let)
+
+Writes a `data` item on `this` state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.let( key, value )
 {% endhighlight %}
 
+###### Parameters
+
 * `key` : string
 * `value` : var
 
-Creates a new data property or updates an existing data property on `this` state, and returns the assigned `value`. Succeeds only if `this` state is `mutable`. Supports `long.key` assignments to deeply nested properties.
+###### Returns
 
-> [`State.privileged.let`](/source/#state--privileged--let)
+If successful, the assigned `value`.
+
+###### Notes
+
+Creates a new data property or updates an existing data property on `this` state.
+
+Succeeds only if `this` state is `mutable`.
+
+Supports `long.key` assignments to deeply nested properties.
+
+###### See also
+
+> [`State.prototype.let`](/source/#state--prototype--let)
 
 
 #### [set](#state--methods--set)
+
+Writes or updates an existing `data` item on either `this` state or a superstate.
+
+###### Syntax
 
 {% highlight javascript %}
 this.set( key, value )
 {% endhighlight %}
 
+###### Parameters
+
 * `key` : string
 * `value` : var
 
-Updates an existing `data` property and returns the assigned `value`. If the property is inherited from a `mutable` superstate, then the property is updated in place, equivalent to calling `let` on that superstate. If the data property does not yet exist in the superstate chain, it is created on `this`. Properties inherited from protostates are not affected. Supports `long.key` assignments to deeply nested properties.
+###### Returns
+
+The assigned `value`.
+
+###### Discussion
+
+If the property is inherited from a `mutable` superstate, then the property is updated in place, equivalent to calling `let` on that superstate. If the data property does not yet exist in the superstate chain, it is created on `this`. Properties inherited from protostates are not affected.
+
+###### Notes
+
+Supports `long.key` assignments to deeply nested properties.
+
+###### See also
 
 > [`State.prototype.set`](/source/#state--prototype--set)
 
 
 #### [delete](#state--methods--delete)
 
+Deletes an existing `data` property on `this` state.
+
+###### Syntax
+
 {% highlight javascript %}
 this.delete( key )
 {% endhighlight %}
 
+###### Parameters
+
 * `key` : string
 
-Deletes an existing `data` property on `this` state. Returns boolean `true` if the deletion was successful or unnecessary, or `false` otherwise, in the same manner as the native `delete` operator. Supports `long.key` lookups for deeply nested properties.
+###### Returns
+
+Boolean `true` if the deletion was successful or unnecessary, or `false` otherwise, in the same manner as the native `delete` operator.
+
+###### Notes
+
+Supports `long.key` lookups for deeply nested properties.
+
+###### See also
 
 > [`State.prototype.delete`](/source/#state--prototype--delete)
 
 
-* * *
-
-The methods in this section deal with adding, removing, inspecting, and the application of **state methods**.
-
-> [Methods](/docs/#concepts--methods)
-> [`state/methods.js`](/source/#state--methods.js)
-
-
 #### [method](#state--methods--method)
 
+Retrieves
+
+###### Syntax
+
 {% highlight javascript %}
-this.method( methodName, viaSuper, viaProto, out )
+this.method( methodName, via, out )
 {% endhighlight %}
 
+###### Parameters
+
 * `methodName` : string
-* [`viaSuper = true`] : boolean
-* [`viaProto = true`] : boolean
+* [`via = VIA_ALL`] : number
 * [`out`] : object
 
-Returns the function that is the method held on `this` state whose name is `methodName`.
+###### Returns
 
-If the named method does not exist on `this` state, then it will be inherited, in order, first from protostates of `this` (unless `viaProto` is `false`), and if no such method exists there, then from superstates of `this` (unless `viaSuper` is `false`).
+The function that is the method held on `this` state whose name is `methodName`.
+
+###### Discussion
+
+If the named method does not exist on `this` state, then it will be inherited, in order, first from protostates of `this` (if the `VIA_PROTO` bit of `via` is set), and if no such method exists there, then from superstates of `this` (if the `VIA_SUPER` bit of `via` is set).
 
 If an `out` object is supplied, then the returned `function` is attached to `out.method`, and the `State` context to which the method will be bound when invoked with `this.apply` or `this.call` is attached to `out.context`.
 
-> [`State.privileged.method`](/source/#state--privileged--method)
+###### See also
+
+> [`State.prototype.method`](/source/#state--prototype--method)
 
 
 #### [methodNames](#state--methods--method-names)
+
+###### Syntax
 
 {% highlight javascript %}
 this.methodNames()
 {% endhighlight %}
 
-Returns an `Array` of names of methods defined locally on `this` state.
+###### Returns
 
-> [`State.privileged.methodNames`](/source/#state--privileged--method-names)
+An `Array` of names of methods defined locally on `this` state.
+
+###### See also
+
+> [`State.prototype.methodNames`](/source/#state--prototype--method-names)
 
 
 #### [addMethod](#state--methods--add-method)
+
+Adds `fn` as a method named `methodName` to `this` state, which will be callable directly from the owner, but with its context bound to `this`.
+
+###### Syntax
 
 {% highlight javascript %}
 this.addMethod( methodName, fn )
 {% endhighlight %}
 
+###### Parameters
+
 * `methodName` : string
 * `fn` : function
 
-Adds `fn` as a method named `methodName` to `this` state, which will be callable directly from the owner, but with its context bound to `this`.
+###### Returns
 
-Returns `fn`.
+`fn`.
 
-> [`State.privileged.addMethod`](/source/#state--privileged--add-method)
+###### See also
+
+> [`State.prototype.addMethod`](/source/#state--prototype--add-method)
 
 
 #### [removeMethod](#state--methods--remove-method)
+
+Dissociates the method named `methodName` from `this` state and returns its function.
+
+###### Syntax
 
 {% highlight javascript %}
 this.removeMethod( methodName )
 {% endhighlight %}
 
+###### Parameters
+
 * `methodName` : string
 
-Dissociates the method named `methodName` from `this` state and returns its function.
+###### See also
 
-> [`State.privileged.removeMethod`](/source/#state--privileged--remove-method)
+> [`State.prototype.removeMethod`](/source/#state--prototype--remove-method)
 
 
 #### [hasMethod](#state--methods--has-method)
+
+Indicates whether `this` state possesses or inherits a method named `methodName`.
+
+###### Syntax
 
 {% highlight javascript %}
 this.hasMethod( methodName )
 {% endhighlight %}
 
+###### Parameters
+
 * `methodName` : string
 
-Returns a boolean indicating whether `this` state possesses or inherits a method named `methodName`.
+###### Returns
+
+Boolean.
+
+###### See also
 
 > [`State::hasMethod`](/source/#state--prototype--has-method)
 
 
 #### [hasOwnMethod](#state--methods--has-own-method)
 
+Indicates whether `this` state directly possesses a method named `methodName`.
+
+###### Syntax
+
 {% highlight javascript %}
 this.hasOwnMethod( methodName )
 {% endhighlight %}
 
+###### Parameters
+
 * `methodName` : string
 
-Returns a boolean indicating whether `this` state directly possesses a method named `methodName`.
+###### Returns
+
+Boolean.
+
+###### See also
 
 > [`State::hasOwnMethod`](/source/#state--prototype--has-own-method)
 
 
 #### [apply](#state--methods--apply)
 
+Invokes a state method, passing an array of arguments.
+
+###### Syntax
+
 {% highlight javascript %}
 this.apply( methodName, args )
 {% endhighlight %}
 
+###### Parameters
+
 * `methodName` : string
 * [`args`] : `Array`
+
+###### Discussion
 
 Finds the state method named by `methodName`, applies it with the provided `args` in the appropriate context, and returns its result.
 
@@ -1049,271 +1256,382 @@ If the method was originally defined in the owner, the context will be the owner
 
 If the named method does not exist locally and cannot be inherited, a `noSuchMethod` event is emitted and the call returns `undefined`.
 
+###### See also
+
 > [`State::apply`](/source/#state--prototype--apply)
 
 
 #### [call](#state--methods--call)
 
+Invokes a state method, with varidic arguments.
+
+###### Syntax
+
 {% highlight javascript %}
 this.call( methodName, args... )
 {% endhighlight %}
+
+###### Parameters
 
 * `methodName` : string
 * [`args...`] : *individual arguments*
 
 The variadic companion to `apply`.
 
+###### See also
+
 > [`State::call`](/source/#state--prototype--call)
 
 
-
-* * *
-
-The **event methods** in this section are an implementation of the common **event emitter** pattern.
-
-> See also: [Events](#state--events)
-
-> [Events](/docs/#state--events)
-> [`state/events.js`](/source/#state--events.js)
-
-
 #### [event](#state--methods--event)
+
+###### Syntax
 
 {% highlight javascript %}
 this.event( eventType, id )
 {% endhighlight %}
 
+###### Parameters
+
 * `eventType` : string
 * [`id`] : ( string | number | function )
 
-Returns a registered event listener, or the number of listeners registered, for a given `eventType`.
+###### Returns
+
+A registered event listener function, or the number of listeners registered, for a given `eventType`.
 
 If an `id` as returned by [`addEvent`](#state--add-event) is provided, the event listener associated with that `id` is returned. If no `id` is provided, the number of event listeners registered to `eventType` is returned.
 
-> [`State.privileged.event`](/source/#state--privileged--event)
+###### See also
+
+> [`State.prototype.event`](/source/#state--prototype--event)
 
 
 #### [addEvent](#state--methods--add-event)
 
-Aliases: **on**, **bind**
+Binds an event listener `fn` to the specified `eventType`.
+
+###### Aliases
+
+**on**, **bind**
+
+###### Syntax
 
 {% highlight javascript %}
 this.addEvent( eventType, fn, context )
 {% endhighlight %}
 
+###### Parameters
+
 * `eventType` : string
 * `fn` : function
 * [`context = this`] : object
 
-Binds an event listener `fn` to the specified `eventType` and returns a unique identifier for the listener.
+###### Returns
 
-> [`State.privileged.addEvent`](/source/#state--privileged--add-event)
+A unique identifier for the listener.
+
+###### See also
+
+> [`State.prototype.addEvent`](/source/#state--prototype--add-event)
 
 
 #### [removeEvent](#state--methods--remove-event)
 
-Aliases: **off**, **unbind**
+Unbinds the event listener with the specified `id` that was supplied by `addEvent`.
+
+###### Aliases
+
+**off**, **unbind**
+
+###### Syntax
 
 {% highlight javascript %}
 this.removeEvent( eventType, id )
 {% endhighlight %}
 
+###### Parameters
+
 * `eventType` : string
 * [`id`] : ( string | number | function )
 
-Unbinds the event listener with the specified `id` that was supplied by `addEvent`.
+###### See also
 
-> [`State.privileged.removeEvent`](/source/#state--privileged--remove-event)
+> [`State.prototype.removeEvent`](/source/#state--prototype--remove-event)
 
 
 #### [emit](#state--methods--emit)
 
-Aliases: **trigger**
+Invokes all listeners bound to the given `eventType`.
+
+###### Aliases
+
+**trigger**
+
+###### Syntax
 
 {% highlight javascript %}
-this.emit( eventType, args, context, viaSuper, viaProto )
+this.emit( eventType, args, context, via )
 {% endhighlight %}
+
+###### Parameters
 
 * `eventType` : string
 * [`args = []`] : `Array`
 * [`context = this`] : object
-* [`viaSuper = true`] : boolean
-* [`viaProto = true`] : boolean
-
-Invokes all listeners bound to the given `eventType`.
+* [`via = VIA_ALL`] : number
 
 Arguments for the listeners can be passed as an array to the `args` parameter.
 
+###### Notes
+
 Listeners are invoked in the context of `this` state, or as specified by `context`.
 
-Listeners bound to superstates and protostates of `this` are also invoked, unless otherwise directed by setting `viaSuper` or `viaProto` to `false`.
+Listeners bound to superstates and protostates of `this` are also invoked, unless otherwise directed by zeroing the `VIA_SUPER` or `VIA_PROTO` bits of `via`.
 
-> [`State.privileged.emit`](/source/#state--privileged--emit)
+###### See also
 
-
-
-* * *
-
-> [Guards](/docs/#concepts--guards)
-> [`state/guards.js`](/source/#state--guards.js)
+> [`State.prototype.emit`](/source/#state--prototype--emit)
 
 
 #### [guard](#state--methods--guard)
+
+Describes the guards in effect for `this` state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.guard( guardType )
 {% endhighlight %}
 
+###### Parameters
+
 * `guardType` : string
 
-Returns an object containing the guard predicates and/or expressions for the specified `guardType` held on `this` state.
+###### Returns
+
+An object containing the guard predicates and/or expressions for the specified `guardType` held on `this` state.
+
+###### Discussion
 
 A **guard** is a map of functions or values that will be evaluated as either a predicate or boolean expression, respectively, to provide a determination of whether the owner’s currency will be admitted into or released from the state to which the guard is applied.
 
 Valid `guardType`s include `admit` and `release`.
 
+###### Notes
+
 Guards are inherited from protostates, but not from superstates.
 
-> [`State.privileged.guard`](/source/#state--privileged--guard)
+###### See also
+
+> [`State.prototype.guard`](/source/#state--prototype--guard)
 
 
 #### [addGuard](#state--methods--add-guard)
+
+Adds a guard to `this` state, or augments an existing guard with additional entries.
+
+###### Syntax
 
 {% highlight javascript %}
 this.addGuard( guardType, guard )
 {% endhighlight %}
 
+###### Parameters
+
 * `guardType` : string
 * `guard` : object
 
-Adds a guard to `this` state, or augments an existing guard with additional entries.
+###### See also
 
-> [`State.privileged.addGuard`](/source/#state--privileged--add-guard)
+> [`State.prototype.addGuard`](/source/#state--prototype--add-guard)
 
 
 #### [removeGuard](#state--methods--remove-guard)
+
+Removes a guard from `this` state, or removes specific entries from an existing guard.
+
+###### Syntax
 
 {% highlight javascript %}
 this.removeGuard( guardType, keys )
 {% endhighlight %}
 
+###### Parameters
+
 * `guardType` : string
 * [`keys`] : ( `Array` | string )
 
-Removes a guard from `this` state, or removes specific entries from an existing guard.
+###### See also
 
-> [`State.privileged.removeGuard`](/source/#state--privileged--remove-guard)
-
-
-
-* * *
-
-> [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
-> [`state/model.js`](/source/#state--model.js)
+> [`State.prototype.removeGuard`](/source/#state--prototype--remove-guard)
 
 
 #### [substate](#state--methods--substate)
 
+Identifies a named substate of `this`.
+
+###### Syntax
+
 {% highlight javascript %}
-this.substate( stateName, viaProto )
+this.substate( stateName, via )
 {% endhighlight %}
 
+###### Parameters
+
 * `stateName` : string
-* [`viaProto = true`] : boolean
+* [`via = VIA_PROTO`] : boolean
 
-Returns the substate of `this` state named `stateName`. If no such substate exists locally within `this`, and `viaProto` is `true`, then the nearest identically named substate held on a protostate will be returned.
+###### Returns
 
-> [`State.privileged.substate`](/source/#state--privileged--substate)
+The substate of `this` state named `stateName`. If no such substate exists locally within `this`, and the `VIA_PROTO` bit of `via` is set, then the nearest identically named substate held on a protostate will be returned.
+
+###### See also
+
+> [`State.prototype.substate`](/source/#state--prototype--substate)
 
 
 #### [substates](#state--methods--substates)
+
+Generates a collection of substates of `this`.
+
+###### Syntax
 
 {% highlight javascript %}
 this.substates( deep, virtual )
 {% endhighlight %}
 
+###### Parameters
+
 * [`deep = false`] : boolean
 * [`virtual = false`] : boolean
 
-Returns an `Array` of `this` state’s substates.
+###### Returns
+
+An `Array` of `this` state’s substates.
+
+###### Notes
 
 If `deep` is `true`, the returned array is a depth-first flattened list of all of this state’s descendant states.
 
 If `virtual` is `true`, the returned array may include any active virtual states held by an owner object that is inheriting currency from a prototype.
 
-> [`State.privileged.substates`](/source/#state--privileged--substates)
+###### See also
+
+> [`State.prototype.substates`](/source/#state--prototype--substates)
 
 
 #### [addSubstate](#state--methods--add-substate)
+
+Creates a `State` based on the provided `stateExpression`, adds it as a substate of `this` state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.addSubstate( stateName, stateExpression )
 {% endhighlight %}
 
+###### Parameters
+
 * `stateName` : string
 * `stateExpression` : ( `StateExpression` | object | `State` )
 
-Creates a `State` based on the provided `stateExpression`, adds it as a substate of `this` state, and returns the new `State`.
+###### Returns
+
+The new `State`.
+
+###### Notes
 
 If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
 
-> [`State.privileged.addSubstate`](/source/#state--privileged--add-substate)
+###### See also
+
+> [`State.prototype.addSubstate`](/source/#state--prototype--add-substate)
 
 
 #### [removeSubstate](#state--methods--remove-substate)
+
+Removes the substate named by `stateName` from `this` state, if possible.
+
+###### Syntax
 
 {% highlight javascript %}
 this.removeSubstate( stateName )
 {% endhighlight %}
 
+###### Parameters
+
 * `stateName` : string
 
-Removes the substate named by `stateName` from `this` state, if possible, and returns the removed `State`.
+###### Returns
+
+The removed `State`.
+
+###### Notes
 
 If the owner object is in the midst of a transition involving the state targeted for removal, then the removal will fail, returning `false`.
 
-> [`State.privileged.removeSubstate`](/source/#state--privileged--remove-substate)
+###### See also
 
-
-* * *
+> [`State.prototype.removeSubstate`](/source/#state--prototype--remove-substate)
 
 
 #### [transition](#state--methods--transition)
+
+###### Syntax
 
 {% highlight javascript %}
 this.transition( transitionName )
 {% endhighlight %}
 
+###### Parameters
+
 * `transitionName` : string
 
-Returns the transition expression named by `transitionName` registered to `this` state.
+###### Returns
+
+The transition expression named by `transitionName` registered to `this` state.
 
 
 #### [transitions](#state--methods--transitions)
+
+###### Syntax
 
 {% highlight javascript %}
 this.transitions()
 {% endhighlight %}
 
-Returns an object containing all of the transition expressions registered to `this` state.
+###### Returns
+
+An object containing all of the transition expressions registered to `this` state.
 
 
 #### [addTransition](#state--methods--add-transition)
+
+Registers a transition expression to `this` state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.addTransition( transitionName, transitionExpression )
 {% endhighlight %}
 
+###### Parameters
+
 * `transitionName` : string
 * `transitionExpression` : ( `TransitionExpression` | object )
 
-Registers a transition expression to `this` state.
-
 
 #### [removeTransition](#state--methods--remove-transition)
+
+Removes a registered transition expression from `this` state.
+
+###### Syntax
 
 {% highlight javascript %}
 this.removeTransition( transitionName )
 {% endhighlight %}
 
-Removes a registered transition expression from `this` state.
+###### Parameters
+
+* `transitionName` : string
