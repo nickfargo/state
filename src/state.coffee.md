@@ -233,11 +233,11 @@ later time to a real `State` if necessary.
 > `virtualize`
 
       realize: ( expression ) ->
-        { attributes, superstate } = this
+        { attributes } = this
         return this unless attributes & INCIPIENT_OR_VIRTUAL
         if attributes & VIRTUAL
           @attributes &= ~VIRTUAL
-          do superstate.realize if superstate.attributes & VIRTUAL
+          if ( ss = @superstate )?.attributes & VIRTUAL then do ss.realize
 
         @_ or = new @Content
         @mutate expression if expression?
