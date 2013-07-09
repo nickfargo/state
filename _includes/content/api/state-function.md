@@ -121,6 +121,8 @@ state.own( owner, selector, expr )
 
 Causes the inherited protostate or virtual epistate identified by `selector` to be realized, if necessary, within the state tree of `owner`. If a realization does occur, the new epistate can be augmented by the optional `expr`.
 
+Returns the new real epistate, or `null` if `selector` does not identify a `State` that is heritable by `owner`.
+
 {% highlight javascript %}
 {% include examples/api/state-function--own.js %}
 {% endhighlight %}
