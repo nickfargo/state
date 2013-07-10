@@ -168,6 +168,7 @@ h6 a, h6 code, h6 a code {
 p {
   margin-bottom: 12px;
   margin: 1em 0;
+  word-spacing: 1px;
 }
 
 ul, ol {
