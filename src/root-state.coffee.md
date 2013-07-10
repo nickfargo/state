@@ -18,7 +18,7 @@ of **transitions** that traverse its **state tree**.
     class RootState extends State
 
       { rxTransitionArrow, transitionArrowMethods } = state
-      { env, hasOwn, trim, isEmpty, isArray } = O
+      { env, hasOwn, trim, type, isEmpty, isArray } = O
       { slice } = Array::
 
       { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL } = this
@@ -261,10 +261,13 @@ Ensure that `target` is a valid `State`.
         return null if owner isnt targetOwner and
           not targetOwner.isPrototypeOf owner
 
-Resolve `options` to an object if necessary.
+Extract `args` from `options` and resolve `options` to an object if necessary.
 
-        options = args: options if isArray options
-        args = options?.args
+        if options?
+          args = if ( isArray options ) or type( options ) is 'arguments'
+          then options
+          else options.args
+          args = slice.call args if args?
 
 A transition cannot target an abstract state directly, so `target` must be
 reassigned to the appropriate concrete substate.

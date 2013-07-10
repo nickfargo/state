@@ -7,6 +7,15 @@ describe "Events:", ->
   describe "Context and arguments", ->
     { bind, fix } = state
 
+    it "converts raw arguments to an array", ->
+      state o = {},
+        A: state
+          enter: ( transition, args ) ->
+            expect( args.join ' ' ).to.equal "one two three"
+
+      do ( a = 'one', b = 'two', c = 'three' ) -> o.state '-> A', arguments
+
+
     state o = {},
       A: state
         enter: ( transition, args ) ->

@@ -2,7 +2,13 @@
 
 
 
-### 0.1.1 *(edge)*
+### 0.1.2 *(edge)*
+
+* Allow raw arguments to be passed in with (or as) `options` parameter of `change`.
+
+
+
+### 0.1.1 *(released)*
 
 * Added `state.own` function to facilitate protostate inheritance and enforced realization of virtual epistates.
 
@@ -12,7 +18,7 @@
 
 
 
-### 0.1.0 *(released)*
+### 0.1.0
 
 > History begins here; entries are notable changes relative to any 0.0.x.
 
