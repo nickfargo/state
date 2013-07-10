@@ -9,7 +9,7 @@ This function will be applied to the package’s exported `state` function.
 
 ### Package metadata
 
-      @VERSION = '0.1.0'
+      @VERSION = '0.1.2'
 
       @options =
         memoizeProtostates: yes
