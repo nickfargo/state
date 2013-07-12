@@ -59,7 +59,7 @@ If a new transition is started while a transition is already in progress, an `ab
 
 > [`Transition`](/source/#transition)
 > [`TransitionExpression`](/source/#transition-expression)
-> [`StateController.privileged.change`](/source/#state-controller--privileged--change)
+> [`RootState::change`](/source/#root-state--prototype--change)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--transitions">Transitions</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>
