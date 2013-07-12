@@ -197,7 +197,8 @@ Listeners receive the contents of the `mutation` experienced by the state, the `
 
 ###### See also
 
-> [`State::mutate` (method)](/source/#state--prototype--mutate)
+> [`mutate` (method)](#state--methods--mutate)
+> [`State::mutate`](/source/#state--prototype--mutate)
 
 
 #### [noSuchMethod](#state--events--no-such-method)
