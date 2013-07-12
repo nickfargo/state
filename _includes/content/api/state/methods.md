@@ -1275,13 +1275,17 @@ this.apply( methodName, args )
 * `methodName` : string
 * [`args`] : `Array`
 
+###### Returns
+
+The value returned by the invocation of the named method, or `undefined` if no such method can be invoked.
+
 ###### Discussion
 
-Finds the state method named by `methodName`, applies it with the provided `args` in the appropriate context, and returns its result.
+If the state method named by `methodName` exists locally or can be inherited via protostate or superstate, that function is applied with the provided `args` in the appropriate context, and its result is returned.
 
-If the method was originally defined in the owner, the context will be the owner. Otherwise, the context will either be the precise `State` in which the method is defined, or if the method resides in a protostate, the corresponding `State` belonging to the inheriting owner.
+By default the context will be the [owner](#state--properties--owner). If the method was defined using [state.bind](#state-function--bind), the context will be either the precise `State` in which the method is defined, or if the method is inherited from a protostate, the corresponding epistate belonging to the inheriting owner.
 
-If the named method does not exist locally and cannot be inherited, a `noSuchMethod` event is emitted and the call returns `undefined`.
+If the named method does not exist and cannot be inherited, a `noSuchMethod` event is emitted and the call returns `undefined`.
 
 ###### See also
 
