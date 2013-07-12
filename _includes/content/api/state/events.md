@@ -175,17 +175,17 @@ Listeners receive a reference to the involved `transition`.
 ###### Syntax
 
 {% highlight javascript %}
-function ( mutation, delta, before, after ) {}
+function ( mutation, residue, before, after ) {}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-( mutation, delta, before, after ) ->
+( mutation, residue, before, after ) ->
 {% endhighlight %}
 
 ###### Parameters
 
 * `mutation` : object
-* `delta` : object
+* `residue` : object
 * `before` : object
 * `after` : object
 
@@ -193,7 +193,7 @@ function ( mutation, delta, before, after ) {}
 
 When a state’s contents are altered, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
-Listeners receive the contents of the `mutation` experienced by the state, the `delta` containing the contents displaced by the mutation, and a full expression of the state’s contents both `before` and `after` the mutation.
+Listeners receive the contents of the `mutation` experienced by the state, the `residue` containing the contents displaced by the mutation, and a full expression of the state’s contents both `before` and `after` the mutation.
 
 ###### See also
 
