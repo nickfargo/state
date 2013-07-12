@@ -8,7 +8,7 @@ An owner object’s state tree is further heritable by any prototypal inheritors
 
 #### [The root state](#concepts--inheritance--the-root-state)
 
-All stateful objects bear a single **root state**, which is the top-level superstate of all other states. The root state’s `name` is always and uniquely the empty string `''`. Either an empty-string selector or naked transition arrow may be used to change an object’s current state to the root state, causing the object to exhibit its default behavior.
+All stateful objects bear a single **root state**, whose `name` is always and uniquely the empty string `''`. Either an empty-string selector or naked transition arrow may be used to change an object’s current state to the root state, causing the object to exhibit its default behavior.
 
 {% highlight javascript %}
 {% include examples/docs/inheritance--the-root-state.js %}
@@ -20,14 +20,16 @@ All stateful objects bear a single **root state**, which is the top-level supers
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself for which now exist one or more stateful reimplementations elsewhere within the state tree.
 
-> See also: [**Dispatcher methods**](#concepts--methods--dispatchers)
+###### See also
+
+[**Dispatcher methods**](#concepts--methods--dispatchers)
 
 > [root](/api/#state--methods--root)
 > [`State::root`](/source/#state--prototype--root)
 
 #### [Superstates and substates](#concepts--inheritance--superstates-and-substates)
 
-An owner object’s expressed behavior is *specified* by substates, and conversely *generalized* by superstates. Currency is not necessarily confined to “leaf” states: an object is free to both exhibit specific behavior by transitioning to a state nested deep within the tree, and to exhibit more generic behavior by transitioning to a [concrete](#concepts--attributes--abstraction) interior superstate.
+An owner object’s expressed behavior is *specified* by substates, and conversely *generalized* by superstates. Currency is not necessarily confined to “leaf” states: an object is free both to exhibit specific behavior by transitioning to a state nested deep within the tree, and to exhibit more generic behavior by transitioning to a [concrete](#concepts--attributes--abstraction) interior superstate.
 
 ![Superstates and substates][diagram--model-1]
 
