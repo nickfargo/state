@@ -32,40 +32,26 @@ During a transition’s traversal from its origin state to its target state, the
 
 ##### Event sequence
 
-###### `State` : [depart](/api/#state--events--depart)
+**`State`** : [depart](/api/#state--events--depart) — The beginning of the transition consists of exactly one `depart` event that is always emitted from the origin state.
 
-The beginning of the transition consists of exactly one `depart` event that is always emitted from the origin state.
+**`Transition`** : [enter](/api/#transition--events--enter) — Next the owner object’s currency is passed from the origin state to the new `Transition`, and the transition emits an `enter` event.
 
-###### `Transition` : [enter](/api/#transition--events--enter)
+**`State`** : [exit](/api/#state--events--exit) — This is followed by the *ascending phase* of the transition, which consists of zero or more `exit` events, one each from amongst the origin state and any of its superstates that will no longer be active as a result of the transition.
 
-Next the owner object’s currency is passed from the origin state to the new `Transition`, and the transition emits an `enter` event.
+**`Transition`** : [start](/api/#transition--events--start) — When the transition reaches the top of its domain, the ascending phase ends and the *action phase* begins. The transition emits a `start` event, and its *action* function is invoked.
 
-###### `State` : [exit](/api/#state--events--exit)
+**`Transition`** : [end](/api/#transition--events--end) — When the transition’s action function calls [`end`](/api/#transition--methods--end), signifying the end of its action phase, the transition emits an `end` event, and the *descending phase* begins.
 
-This is followed by the *ascending phase* of the transition, which consists of zero or more `exit` events, one each from amongst the origin state and any of its superstates that will no longer be active as a result of the transition.
+**`State`** : [enter](/api/#state--events--enter) — The descending phase of the transition consists of zero or more `enter` events, one for each state that will become newly active.
 
-###### `Transition` : [start](/api/#transition--events--start)
+**`Transition`** : [exit](/api/#transition--events--exit) — After the transition has `enter`ed its target state, the descending phase ends, the transition emits an `exit` event, and the object’s currency is passed from the transition to the target state.
 
-When the transition reaches the top of its domain, the ascending phase ends and the *action phase* begins. The transition emits a `start` event, and its *action* function is invoked.
-
-###### `Transition` : [end](/api/#transition--events--end)
-
-When the transition’s action function calls [`end`](/api/#transition--methods--end), signifying the end of its action phase, the transition emits an `end` event, and the *descending phase* begins.
-
-###### `State` : [enter](/api/#state--events--enter)
-
-The descending phase of the transition consists of zero or more `enter` events, one for each state that will become newly active.
-
-###### `Transition` : [exit](/api/#transition--events--exit)
-
-After the transition has `enter`ed its target state, the descending phase ends, the transition emits an `exit` event, and the object’s currency is passed from the transition to the target state.
-
-###### `State` : [arrive](/api/#state--events--arrive)
-
-Finally, an `arrive` event will occur exactly once, specifically at the target state, marking the end of the transition.
+**`State`** : [arrive](/api/#state--events--arrive) — Finally, an `arrive` event will occur exactly once, specifically at the target state, marking the end of the transition.
 
 
-> See also: [**The transition lifecycle**](#concepts--transitions--lifecycle)
+###### See also
+
+[**The transition lifecycle**](#concepts--transitions--lifecycle)
 
 
 
