@@ -40,7 +40,7 @@ During a transition’s traversal from its origin state to its target state, the
 
 `Transition` : [**start**](/api/#transition--events--start) — When the transition reaches the top of its domain, the ascending phase ends and the *action phase* begins. The transition emits a `start` event, and its *action* function is invoked.
 
-`Transition` : [**end**](/api/#transition--events--end) — When the transition’s action function calls [`end`](/api/#transition--methods--end), signifying the end of its action phase, the transition emits an `end` event, and the *descending phase* begins.
+`Transition` : [**end**](/api/#transition--events--end) — When the transition’s [`end`](/api/#transition--methods--end) method is called, it emits an `end` event, and the *descending phase* begins.
 
 `State` : [**enter**](/api/#state--events--enter) — The descending phase of the transition consists of zero or more `enter` events, one for each state that will become newly active.
 
