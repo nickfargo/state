@@ -1127,8 +1127,6 @@ Supports `long.key` lookups for deeply nested properties.
 
 #### [method](#state--methods--method)
 
-Retrieves
-
 ###### Syntax
 
 {% highlight javascript %}
