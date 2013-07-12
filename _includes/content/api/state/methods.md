@@ -142,7 +142,6 @@ If the transaction causes a mutation, `this` emits a [`mutate` event](#state--ev
 
 > [Mutation events](/docs/#concepts--events--mutation)
 > [`State.prototype.mutate`](/source/#state--prototype--mutate)
-> [`State::mutate`](/source/#state--prototype--mutate)
 
 
 #### [derivation](#state--methods--derivation)
@@ -177,7 +176,7 @@ If `byName` is `true`, the returned `Array` contains the string names of each st
 
 ###### See also
 
-> [`State::derivation`](/source/#state--prototype--derivation)
+> [`State.prototype.derivation`](/source/#state--prototype--derivation)
 
 
 #### [path](#state--methods--path)
@@ -206,7 +205,7 @@ A string that matches the absolute selector referencing `this` state.
 
 ###### See also
 
-> [`State::path`](/source/#state--prototype--path)
+> [`State.prototype.path`](/source/#state--prototype--path)
 
 
 #### [depth](#state--methods--depth)
@@ -235,7 +234,7 @@ The number of superstates separating `this` state from its root state.
 
 ###### See also
 
-> [`State::depth`](/source/#state--prototype--depth)
+> [`State.prototype.depth`](/source/#state--prototype--depth)
 
 
 #### [common](#state--methods--common)
@@ -268,7 +267,7 @@ The `State` that is the nearest common ancestor of both `this` state and the pro
 
 ###### See also
 
-> [`State::common`](/source/#state--prototype--common)
+> [`State.prototype.common`](/source/#state--prototype--common)
 
 
 #### [is](#state--methods--is)
@@ -301,7 +300,7 @@ A boolean indicating whether `this` state is the provided `other` state.
 
 ###### See also
 
-> [`State::is`](/source/#state--prototype--is)
+> [`State.prototype.is`](/source/#state--prototype--is)
 
 
 #### [isIn](#state--methods--is-in)
@@ -334,7 +333,7 @@ A boolean indicating whether `this` state is or is a substate of the provided `o
 
 ###### See also
 
-> [`State::isIn`](/source/#state--prototype--is-in)
+> [`State.prototype.isIn`](/source/#state--prototype--is-in)
 
 
 #### [hasSubstate](#state--methods--has-substate)
@@ -367,7 +366,7 @@ A boolean indicating whether `this` state is or is a superstate of the provided 
 
 ###### See also
 
-> [`State::hasSubstate`](/source/#state--prototype--has-substate)
+> [`State.prototype.hasSubstate`](/source/#state--prototype--has-substate)
 
 
 #### [isSuperstateOf](#state--methods--is-superstate-of)
@@ -402,7 +401,7 @@ A boolean indicating whether `this` state is a superstate of the provided `other
 
 > [**superstate**](#state--superstate)
 
-> [`State::isSuperstateOf`](/source/#state--prototype--is-superstate-of)
+> [`State.prototype.isSuperstateOf`](/source/#state--prototype--is-superstate-of)
 
 
 #### [protostate](#state--methods--protostate)
@@ -434,7 +433,7 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 ###### See also
 
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
-> [`State::protostate`](/source/#state--prototype--protostate)
+> [`State.prototype.protostate`](/source/#state--prototype--protostate)
 
 
 #### [isProtostateOf](#state--methods--is-protostate-of)
@@ -470,7 +469,7 @@ A boolean indicating whether `this` state is a **protostate** of the provided `o
 > [**protostate**](#state--protostate)
 
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
-> [`State::isProtostateOf`](/source/#state--prototype--is-prototstate-of)
+> [`State.prototype.isProtostateOf`](/source/#state--prototype--is-prototstate-of)
 
 
 #### [defaultSubstate](#state--methods--default-substate)
@@ -509,7 +508,7 @@ The `State` that is `this` state’s first substate bearing the `default` attrib
 
 ###### See also
 
-> [`State::defaultSubstate`](/source/#state--prototype--default-substate)
+> [`State.prototype.defaultSubstate`](/source/#state--prototype--default-substate)
 
 
 #### [initialSubstate](#state--methods--initial-substate)
@@ -526,7 +525,7 @@ The `State` that is `this` state’s most deeply nested state bearing the `initi
 
 ###### See also
 
-> [`State::initialSubstate`](/source/#state--prototype--initial-substate)
+> [`State.prototype.initialSubstate`](/source/#state--prototype--initial-substate)
 
 
 #### [query](#state--methods--query)
@@ -565,7 +564,7 @@ Calling an owner object’s accessor method with a selector string invokes `quer
 
 > [Getting started](/docs/#getting-started)
 > [Selectors](/docs/#concepts--selectors)
-> [`State::query`](/source/#state--prototype--query)
+> [`State.prototype.query`](/source/#state--prototype--query)
 
 
 #### [$](#state--methods--dollarsign)
@@ -1234,7 +1233,7 @@ Boolean.
 
 ###### See also
 
-> [`State::hasMethod`](/source/#state--prototype--has-method)
+> [`State.prototype.hasMethod`](/source/#state--prototype--has-method)
 
 
 #### [hasOwnMethod](#state--methods--has-own-method)
@@ -1257,7 +1256,7 @@ Boolean.
 
 ###### See also
 
-> [`State::hasOwnMethod`](/source/#state--prototype--has-own-method)
+> [`State.prototype.hasOwnMethod`](/source/#state--prototype--has-own-method)
 
 
 #### [apply](#state--methods--apply)
@@ -1289,12 +1288,12 @@ If the named method does not exist and cannot be inherited, a `noSuchMethod` eve
 
 ###### See also
 
-> [`State::apply`](/source/#state--prototype--apply)
+> [`State.prototype.apply`](/source/#state--prototype--apply)
 
 
 #### [call](#state--methods--call)
 
-Invokes a state method, with varidic arguments.
+The variadic companion to `apply`, where a state method is invoked with individually provided arguments.
 
 ###### Syntax
 
@@ -1307,11 +1306,9 @@ this.call( methodName, args... )
 * `methodName` : string
 * [`args...`] : *individual arguments*
 
-The variadic companion to `apply`.
-
 ###### See also
 
-> [`State::call`](/source/#state--prototype--call)
+> [`State.prototype.call`](/source/#state--prototype--call)
 
 
 #### [event](#state--methods--event)
