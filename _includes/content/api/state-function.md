@@ -177,6 +177,10 @@ Causes the inherited protostate or virtual epistate identified by `selector` to 
 
 > 2. Calling `state.own(o,'A')` instead of `o.state('A')` ensures that the returned `State` is **real** (not *virtual*) and that its `owner` is `o` (not a prototype). The event listener will be held in the state tree of `o`, as expected.
 
+###### See also
+
+> [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 
 
 * * *
