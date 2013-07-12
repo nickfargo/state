@@ -1,10 +1,6 @@
 ## [state()](#state-function)
 
-The **State** module is exported as a function named `state`. This is used either:
-
-  0. to apply a working state implementation to any **owner** object; or
-
-  0. to define a **state expression** that declares the content for a [`State`](#state).
+The **State** module is exported as a function named `state`. This is used either **(1)** to apply a working state implementation to any **owner** object; or **(2)** to define a **state expression** that declares the content for a [`State`](#state).
 
 ###### Syntax
 
