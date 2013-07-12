@@ -1,6 +1,6 @@
 ### [Inheritance](#concepts--inheritance)
 
-The [`State`](/api/#state) object model is a rooted tree, where each `State` may serve as the **superstate** of one or more **substates**, each of which expresses further specificity of their common owner object’s behavior and condition.
+The hierarchical [`State`](/api/#state) object model is a rooted tree, where each `State` may serve as the **superstate** of one or more **substates**, each of which expresses further specificity of their common owner object’s behavior and condition.
 
 An owner object’s state tree is further heritable by any prototypal inheritors of that object, which view their prototype’s states as **protostates** from which their own **epistates** inherit.
 
