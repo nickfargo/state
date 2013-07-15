@@ -74,11 +74,10 @@ describe "`State::mutate`", ->
 
   o = {}
   state o, unit.expression
-  for mutation, index in unit.mutations
-    do ( mutation, index ) ->
-      it "performed mutation #{ index } properly", ->
-        o.state('').mutate mutation
-        expect( unit.expectations[ index ] o ).to.be.ok
+  unit.mutations.forEach ( mutation, index ) ->
+    it "performed mutation #{ index } properly", ->
+      o.state('').mutate mutation
+      expect( unit.expectations[ index ] o ).to.be.ok
 
 
   describe "a virtual state", ->
