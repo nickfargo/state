@@ -22,5 +22,5 @@ exclude: art/*, diagrams/*
 packages:
   state:
     version: 0.1.2
-    size: 97.0kB
-    size_gz: 15.3kB
+    size: 97.4kB
+    size_gz: 15.4kB
