@@ -133,7 +133,7 @@ its `owner`.
 
       emit: ( args, autostate = @state ) ->
         throw TypeError unless owner = autostate?.owner
-        protostate = autostate.protostate()
+        { protostate } = autostate
 
         for own key, item of @items
           fn = context = null

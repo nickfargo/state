@@ -63,7 +63,7 @@ describe "Events:", ->
             currentState = @current()
             it "binds context for a fixed-bound function to the state", =>
               expect( @isVirtual() ).to.be.ok
-              expect( @protostate() ).to.equal Subclass::state 'A'
+              expect( @protostate ).to.equal Subclass::state 'A'
             it "closes over the proper autostate and protostate", ->
               expect( autostate ).to.equal Subclass::state 'A'
               expect( protostate ).to.equal Class::state 'A'

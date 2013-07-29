@@ -59,7 +59,7 @@ describe "Attributes:", ->
         expect( s.isConcrete() ).to.be.true
         expect( s.isAbstract() ).to.be.false
         expect( s.attributes & ( ABSTRACT | CONCRETE ) )
-          .to.equal s.protostate().attributes & ( ABSTRACT | CONCRETE )
+          .to.equal s.protostate.attributes & ( ABSTRACT | CONCRETE )
 
 
     describe "An invalid production including both literal `abstract` and literal `concrete`", ->

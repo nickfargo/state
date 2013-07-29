@@ -46,7 +46,7 @@ describe "Creating `State` implementations using the `state` function:", ->
         expect( root.owner ).to.equal object
 
       it "define a *protostate* relation between the two root states", ->
-        expect( root.protostate() ).to.equal Class::state('')
+        expect( root.protostate ).to.equal Class::state('')
 
 
   describe "State tree declarations:", ->

@@ -94,13 +94,13 @@ The `base` argument can specify either a `superstate` from which to inherit,
 or an `owner` for which to act as a new `root` state.
 
         if base instanceof State
-          @superstate = superstate = base
-          @root = root = superstate.root
-          @owner = owner = root.owner
-        else
-          @superstate = superstate = null
-          @root = root = this
-          @owner = owner = base
+        then superstate = base; root = superstate.root; owner = root.owner
+        else superstate = null; root = this; owner = base
+
+        @owner = owner
+        @root = root
+        @superstate = superstate
+        @protostate = protostate = @getProtostate()
 
 ###### Attribute inheritance masking
 
@@ -119,8 +119,7 @@ straight away.
 
 A subset of the attributes may be inherited from protostates.
 
-        if protostate = @protostate()
-
+        if protostate
           protoAttr = protostate.attributes & PROTO_HERITABLE_ATTRIBUTES
 
 Literal `concrete` forcibly contradicts literal `abstract`; if a bad production
@@ -684,9 +683,9 @@ Determines whether `this` is a superstate of `other`.
         else no
 
 
-#### [protostate](#state--prototype--protostate)
+#### [getProtostate](#state--prototype--get-protostate)
 
-> [protostate](http://statejs.org/api/#state--methods--protostate)
+> [getProtostate](http://statejs.org/api/#state--methods--get-protostate)
 
 Returns `this` state’s **protostate**, the `State` that both:
 
@@ -697,25 +696,21 @@ If the owner does not share an analogous state tree with its immediate
 prototype, or if that prototype’s tree does not contain a `State` analogous to
 `this`, then the search is iterated up the owner’s prototype chain.
 
-      protostate: ->
-        return protostate if protostate = @_protostate
-
+      getProtostate: ->
         { getPrototypeOf } = O
         { owner, root } = this
         { accessorName } = root
         path = @path()
 
 Walk up the prototype chain, and, starting at each prototype’s root state, use
-`this` state’s `path` to locate the nearest analogous `protostate`. If the
-protostate is found on the `first` prototype, then a reference to it can be
-memoized.
+`this` state’s `path` to locate the nearest analogous `protostate`.
 
-        first = prototype = getPrototypeOf owner
+        prototype = getPrototypeOf owner
         while prototype
           if protostate = prototype[ accessorName ]? path, VIA_NONE
-            @_protostate = protostate if prototype is first
             return protostate
           prototype = getPrototypeOf prototype
+        null
 
 
 #### [isProtostateOf](#state--prototype--is-protostate-of)
@@ -727,7 +722,7 @@ prototype chain of `state`’s owner.
 
       isProtostateOf: ( other ) ->
         other = @query other unless other instanceof State
-        if protostate = other.protostate()
+        if protostate = other.protostate
           this is protostate or @isProtostateOf protostate
         else no
 
@@ -744,7 +739,7 @@ Recursion continues into the protostate only if no local substates are marked
         for s in substates = @substates()
           return s if s.attributes & DEFAULT
         first or substates.length and first = substates[0]
-        if via & VIA_PROTO and protostate = @protostate()
+        if via & VIA_PROTO and protostate = @protostate
           return protostate.defaultSubstate VIA_PROTO
         first
 
@@ -764,7 +759,7 @@ states are marked `initial`.
           for s in substates = subject.substates VIA_PROTO
             return s.initialSubstate( VIA_NONE ) or s if s.attributes & INITIAL
             queue.push s
-        if via & VIA_PROTO and protostate = @protostate()
+        if via & VIA_PROTO and protostate = @protostate
           return protostate.initialSubstate VIA_PROTO
 
 
@@ -891,7 +886,7 @@ the subsequent descent, since it’s already been searched.
 Retry the query on the protostate.
 
         if via & VIA_PROTO
-          return result if result = @protostate()?.query selector, against, via
+          return result if result = @protostate?.query selector, against, via
 
 All possibilities exhausted; no matches exist.
 
@@ -1024,7 +1019,7 @@ Otherwise *read* and return a copy of `this` state’s `data`, including data
 inherited `via` superstates and protostates, unless directed otherwise.
 
         else clone via & VIA_SUPER and @superstate?.data(),
-                   via & VIA_PROTO and @protostate()?.data VIA_PROTO,
+                   via & VIA_PROTO and @protostate?.data VIA_PROTO,
                    @_?.data
 
 
@@ -1036,7 +1031,7 @@ inherited `via` superstates and protostates, unless directed otherwise.
 
         !!(
           ( data = @_?.data ) and has( data, key ) or
-          viaProto and @protostate()?.has( key, VIA_PROTO ) or
+          viaProto and @protostate?.has( key, VIA_PROTO ) or
           viaSuper and @superstate?.has( key, VIA_SUPER | viaProto )
         )
 
@@ -1048,7 +1043,7 @@ inherited `via` superstates and protostates, unless directed otherwise.
         viaProto = via & VIA_PROTO
 
         ( data = @_?.data ) and lookup( data, key ) or
-        viaProto and @protostate()?.get( key, VIA_PROTO ) or
+        viaProto and @protostate?.get( key, VIA_PROTO ) or
         viaSuper and @superstate?.get( key, VIA_SUPER | viaProto )
 
 
@@ -1153,7 +1148,7 @@ If this succeeds, the provisional `context` *must be the epistate* inheriting
 the method (constrast with the `VIA_SUPER` case).
 
           if ( viaProto = via & VIA_PROTO ) and
-              method = @protostate()?.method methodName, VIA_PROTO, out, yes
+              method = @protostate?.method methodName, VIA_PROTO, out, yes
             context = this
             inherited = yes; break
 
@@ -1238,7 +1233,7 @@ If `fn` boxes a *state-fixed* function, then partially apply that function to
 extract the actual method, closed over references to the locality of `this`.
 
         if typeof fn is 'object' and fn.type is 'state-fixed-function'
-          fn = fn.fn this, @protostate()
+          fn = fn.fn this, @protostate
 
         unless typeof fn is 'function' or fn?.type is 'state-bound-function'
           throw new TypeError "Must supply a plain, bound, or fixed function"
@@ -1392,7 +1387,7 @@ identifier for the listener.
           events[ eventType ] = new StateEventEmitter this
 
         if fn.type is 'state-fixed-function'
-          fn = fn.fn this, @protostate()
+          fn = fn.fn this, @protostate
 
         events[ eventType ].add fn, context
 
@@ -1448,7 +1443,7 @@ protostates, but is dynamic along the superstate chain.
 
         @_?.events?[ eventType ]?.emit args, context or this
         if via & VIA_PROTO
-          @protostate()?.emit eventType, args, context or this, VIA_PROTO
+          @protostate?.emit eventType, args, context or this, VIA_PROTO
         if via & VIA_SUPER
           ( ss = @superstate )?.emit eventType, args, context or ss
         return
@@ -1474,7 +1469,7 @@ Guards are inherited from protostates, but not from superstates.
 
       guard: ( guardType ) ->
         if guard = @_?.guards?[ guardType ] then clone guard
-        else @protostate()?.guard( guardType ) or undefined
+        else @protostate?.guard( guardType ) or undefined
 
 
 #### [addGuard](#state--prototype--add-guard)
@@ -1535,7 +1530,7 @@ First scan for any virtual active substates in the local state tree.
 Otherwise retrieve a real substate, either locally or from a protostate.
 
         @_?.substates?[ name ] or
-        via & VIA_PROTO and @protostate()?.substate name
+        via & VIA_PROTO and @protostate?.substate name
 
 
 #### [substates](#state--prototype--substates)
