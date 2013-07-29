@@ -1071,7 +1071,6 @@ Assignment proceeds only if the `value` being written is not the same as the
 
         data = @_.data or = {}
         if value isnt displaced = lookup data, key
-          { assign } = O
           assign data, key, value
           assign ( mutation = {} ).data = {}, key, value
           assign ( residue = {} ).data = {}, key, displaced
