@@ -38,12 +38,11 @@ provided `owner`.
 * `expression` : `StateExpression` | object — A plain object will be coerced
   and interpreted if necessary into a formal `StateExpression`.
 
-* `options` : object | string — A string is coerced to the `initialState`
-  option. Options include:
-  * `initialState` : string — A state name or path. Presence of this option
-    supersedes the `initial` attribute of substates or inherited protostates.
-  * `name` : string – The property name on `owner` at which the generated
-    **accessor** function will appear. Defaults to `'state'`.
+* `accessorName` : string – The property name on `owner` at which the
+  generated **accessor** function will appear. Defaults to `'state'`.
+
+* `initialState` : string — A state name or path. If present, supersedes the
+  `initial` attribute of substates or inherited protostates.
 
 ###### DISCUSSION
 
@@ -53,37 +52,34 @@ the exported `state` function.
 
 ###### SOURCE
 
-      constructor: ( owner = {}, expression, options ) ->
+      constructor: ( owner = {}, expression, accessorName, initialState ) ->
         unless expression instanceof StateExpression
           expression = new StateExpression expression
-        options = initialState: options if typeof options is 'string'
 
 Assign to `owner` an **accessor** to its state implementation.
 
-        @accessorName = accessorName = options?.name or 'state'
+        @accessorName = accessorName ?= 'state'
         owner[ accessorName ] = createAccessor owner, accessorName, this
 
-A root state’s `name` is by definition the empty-string.
+A root state’s `name` by definition is the empty-string.
 
         super owner, '', expression
 
 Determine the initial state, and set the `current` state to that.
 
-        current = if initial = options?.initialState
-        then @query initial
-        else @initialSubstate() or this
+        current = ( if initialState? then @query initialState else
+          @initialSubstate() ) ? this
 
 The initial state may be `abstract`, in which case the `current` reference must
 snap to the abstract state’s default `concrete` substate.
 
         if current.attributes & ABSTRACT
-          current = current.defaultSubstate() or current
+          current = current.defaultSubstate() ? current
 
 The previous redirections may have left `current` pointing to a protostate, in
 which case a virtual state must be created in `this` root’s tree.
 
-        if current.root isnt this
-          current = current.virtualize this
+        current = current.virtualize this if current.root isnt this
 
 With `current` now resolved, the authoritative reference to it is held here.
 
@@ -127,7 +123,7 @@ also creating the object’s new accessor, to which the call is then forwarded.
 
           else if ( owner.isPrototypeOf this ) and
               ( ( not hasOwn.call this, name ) or @[ name ] is owner[ name ] )
-            new RootState this, null, { name, initialState: current.path() }
+            new RootState this, null, name, current.path()
             return @[ name ].apply this, arguments
 
         accessor.isAccessor = true
