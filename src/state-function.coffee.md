@@ -55,7 +55,8 @@ into `owner`; otherwise the inference is only to *formalize* the `expression`
 as a `StateExpression`.
 
       if owner
-      then ( new RootState owner, expression, options )._current
+        { name, initialState } = options if options
+        ( new RootState owner, expression, name, initialState )._current
       else expression
 
 

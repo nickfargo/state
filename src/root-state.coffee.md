@@ -53,8 +53,6 @@ the exported `state` function.
 ###### SOURCE
 
       constructor: ( owner = {}, expression, accessorName, initialState ) ->
-        unless expression instanceof StateExpression
-          expression = new StateExpression expression
 
 Assign to `owner` an **accessor** to its state implementation.
 
