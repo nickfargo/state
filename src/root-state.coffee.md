@@ -53,8 +53,7 @@ the exported `state` function.
 
 ###### SOURCE
 
-      constructor: ( owner, expression, options ) ->
-        @owner = owner or = {}
+      constructor: ( owner = {}, expression, options ) ->
         unless expression instanceof StateExpression
           expression = new StateExpression expression
         options = initialState: options if typeof options is 'string'
@@ -66,7 +65,7 @@ Assign to `owner` an **accessor** to its state implementation.
 
 A root state’s `name` is by definition the empty-string.
 
-        super owner, @name = '', expression
+        super owner, '', expression
 
 Determine the initial state, and set the `current` state to that.
 

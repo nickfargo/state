@@ -100,7 +100,7 @@ or an `owner` for which to act as a new `root` state.
         @owner = owner
         @root = root
         @superstate = superstate
-        @protostate = protostate = @getProtostate()
+        @protostate = protostate = @getProtostate() or null
 
 ###### Attribute inheritance masking
 
@@ -113,13 +113,13 @@ attribute values acquired from `this` state’s superstate and protostate.
 The `mutable` and `finite` attributes can be inherited from the superstate
 straight away.
 
-        if superstate
+        if superstate?
           superAttr = superstate.attributes
           attributes |= superAttr & MUTABLE_OR_FINITE
 
 A subset of the attributes may be inherited from protostates.
 
-        if protostate
+        if protostate?
           protoAttr = protostate.attributes & PROTO_HERITABLE_ATTRIBUTES
 
 Literal `concrete` forcibly contradicts literal `abstract`; if a bad production
@@ -143,8 +143,7 @@ Literal or inherited `immutable` contradicts `mutable` absolutely, and implies
 
         attributes |= ( superAttr | protoAttr ) & IMMUTABLE
         if attributes & IMMUTABLE
-          attributes &= ~MUTABLE
-          attributes |= FINITE
+          attributes = attributes & ~MUTABLE | FINITE
 
         @attributes = attributes
 
