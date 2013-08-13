@@ -1,0 +1,253 @@
+<div class="source-content">
+  
+    
+    <div class="row">
+      <div class="text span5">
+        
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>state = require <span class="string">'./state-function'</span>
+State = require <span class="string">'./state'</span>
+
+{ O } = state
+
+module.exports =</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h2><a href="#state-event-emitter">StateEventEmitter</a></h2>
+<p>A <code>State</code> defines a <code>StateEventEmitter</code> for each of its event types.</p>
+<p>For the purposes of <code>StateEventEmitter</code>s, a <em>callback</em> is normally a function,
+but may also take the form of a string, which, when the client <code>state</code>
+<code>emit</code>s the event type associated with <code>this</code> emitter, will be interpreted as
+an implicit command for the emitting state to <code>change</code> to the <em>target</em> state
+named by the string.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">StateEventEmitter</span></span>
+
+  { isArray } = O
+
+  guid = <span class="number">0</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#state-event-emitter--constructor">Constructor</a></h3>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  constructor: ( <span class="property">@state</span> ) -&gt;
+    <span class="property">@items</span> = {}
+    <span class="property">@length</span> = <span class="number">0</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#state-event-emitter--prototype-methods">Prototype methods</a></h3>
+<h4><a href="#state-event-emitter--prototype--get">get</a></h4>
+<p>Retrieves a bound callback associated with the provided <code>id</code> as returned by
+<code>add</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  get: ( id ) -&gt;
+    <span class="property">@items</span>[ id ]</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--get-all">getAll</a></h4>
+<p>Returns an array of all callbacks bound to this emitter.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  getAll: -&gt;
+    value <span class="keyword">for</span> own key, value <span class="keyword">of</span> <span class="property">@items</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--set">set</a></h4>
+<p>Adds or replaces a callback bound to a specific key.</p>
+<ul>
+<li><code>id</code> : string | number</li>
+<li><code>callback</code> : function | string</li>
+</ul>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  set: ( id, callback ) -&gt;
+    { items } = <span class="keyword">this</span>
+    <span class="property">@length</span> += <span class="number">1</span> <span class="keyword">unless</span> id <span class="keyword">of</span> items
+    items[ id ] = callback
+    id</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--key">key</a></h4>
+<p>Retrieves the <code>id</code> string associated with the bound <code>callback</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  key: ( callback ) -&gt;
+    <span class="keyword">return</span> key <span class="keyword">if</span> value <span class="keyword">is</span> callback <span class="keyword">for</span> own key, value <span class="keyword">of</span> <span class="property">@items</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--keys">keys</a></h4>
+<p>Returns the set of <code>id</code> strings associated with all bound callbacks.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  keys: -&gt;
+    key <span class="keyword">for</span> own key <span class="keyword">of</span> <span class="property">@items</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--add">add</a></h4>
+<p>Binds a callback and optional context object.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  add: ( callback, context ) -&gt;
+    id = guid += <span class="number">1</span>
+    <span class="property">@items</span>[ id ] = <span class="keyword">if</span> context? <span class="keyword">then</span> [ callback, context ] <span class="keyword">else</span> callback
+    <span class="property">@length</span> += <span class="number">1</span>
+    id
+
+  @::<span class="literal">on</span> = @::bind = @::add</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--remove">remove</a></h4>
+<p>Unbinds a callback, identified either by its numeric key or direct reference.</p>
+<ul>
+<li><code>id</code> : string | number | function</li>
+</ul>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  remove: ( id ) -&gt;
+    { items } = <span class="keyword">this</span>
+    callback = items[ <span class="keyword">if</span> <span class="keyword">typeof</span> id <span class="keyword">is</span> <span class="string">'function'</span> <span class="keyword">then</span> <span class="property">@key</span> id <span class="keyword">else</span> id ]
+    <span class="keyword">return</span> <span class="literal">no</span> <span class="keyword">unless</span> callback
+    <span class="keyword">delete</span> items[ id ]
+    <span class="property">@length</span> -= <span class="number">1</span>
+    callback
+
+  @::<span class="literal">off</span> = @::unbind = @::remove</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--empty">empty</a></h4>
+<p>Removes all callbacks, and returns the number removed.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  empty: -&gt;
+    <span class="keyword">return</span> <span class="number">0</span> <span class="keyword">unless</span> n = <span class="property">@length</span>
+    <span class="property">@items</span> = {}
+    <span class="property">@length</span> = <span class="number">0</span>
+    n</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--emit">emit</a></h4>
+<p>Invokes all bound callbacks with the provided array of <code>args</code>. Callbacks
+registered with an explicit context are invoked with that stored context.
+Callbacks that are state-bound functions are invoked in the context of the
+provided <code>autostate</code>, while unbound functions are invoked in the context of
+its <code>owner</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  emit: ( args, autostate = <span class="property">@state</span> ) -&gt;
+    <span class="keyword">throw</span> TypeError <span class="keyword">unless</span> owner = autostate?.owner
+
+    <span class="keyword">for</span> own key, item <span class="keyword">of</span> <span class="property">@items</span>
+      fn = context = <span class="literal">null</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>Interpret a string or <code>State</code> as an order to transition to the implicated
+<code>State</code> after all the callbacks have been invoked.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>      <span class="keyword">if</span> <span class="keyword">typeof</span> item <span class="keyword">is</span> <span class="string">'string'</span> <span class="keyword">or</span> item <span class="keyword">instanceof</span> State
+        eventualTarget = item
+        <span class="keyword">continue</span>
+
+      <span class="keyword">if</span> <span class="keyword">typeof</span> item <span class="keyword">is</span> <span class="string">'function'</span> <span class="keyword">then</span> fn = item
+      <span class="keyword">else</span> <span class="keyword">if</span> isArray item <span class="keyword">then</span> [ fn, context ] = item</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>Unbox any state-bound functions.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>      <span class="keyword">else</span> <span class="keyword">if</span> item?.type <span class="keyword">is</span> <span class="string">'state-bound-function'</span>
+        { fn } = item
+        context <span class="keyword">or</span> = autostate
+
+      fn.apply context <span class="keyword">or</span> owner, args
+
+    <span class="property">@state</span>.change eventualTarget <span class="keyword">if</span> eventualTarget
+
+  @::trigger = @::emit</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-event-emitter--prototype--destroy">destroy</a></h4>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  destroy: -&gt;
+    <span class="keyword">do</span> <span class="property">@empty</span>
+    <span class="property">@state</span> = <span class="property">@items</span> = <span class="literal">null</span>
+    <span class="literal">true</span></pre></div>
+      </div>
+    </div>
+  
+</div>

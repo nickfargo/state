@@ -1280,6 +1280,49 @@ body.blog .post .lede p {
 }
 
 
+body.source {
+}
+body.source .source-title {
+  position: fixed;
+  right: 12px;
+  top: 108px;
+  border-radius: 0 0 8px 8px;
+  background: rgba(250,250,250,0.92);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.17);
+}
+body.source .source-title a {
+  display: block;
+  padding: 6px 12px;
+  border-radius: 0 0 8px 8px;
+  font-weight: bold;
+}
+body.source .source-title a:hover {
+  background-color: rgba(0, 128, 255, 0.07);
+}
+body.source ul.source-menu {
+  position: fixed;
+  right: 12px;
+  top: 138px;
+  display: none;
+  background: rgba(248,248,248,0.98);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.17);
+  padding: 6px;
+  list-style: none;
+}
+body.source ul.source-menu li {
+  margin: 0;
+}
+body.source ul.source-menu li a {
+  display: block;
+  padding: 6px 12px;
+  font-size: 14px;
+}
+body.source ul.source-menu li a:hover {
+  background-color: rgba(0, 128, 255, 0.07);
+}
+body.source .source-content {
+  padding-top: 36px;
+}
 body.source .controls ul.languages {
   display: none;
 }
@@ -1290,6 +1333,8 @@ body.source .content .body {
 body.source .text {
   width: 360px;
   min-height: 1px;
+  font-size: 14px;
+  line-height: 20px;
 }
 body.source .text p {
   font-size: 14px;
@@ -1743,7 +1788,152 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 }
 
 
+
+
+/*---------------------- Syntax Highlighting -----------------------------*/
+
+/* highlight.js */
+
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+/*
+
+github.com style (c) Vasily Polovnyov <vast@whiteants.net>
+
+*/
+
+pre code {
+  display: block; padding: 0.5em;
+  color: #000;
+  background: #f8f8ff
+}
+
+pre .comment,
+pre .template_comment,
+pre .diff .header,
+pre .javadoc {
+  color: #408080;
+  font-style: italic
+}
+
+pre .keyword,
+pre .assignment,
+pre .literal,
+pre .css .rule .keyword,
+pre .winutils,
+pre .javascript .title,
+pre .lisp .title,
+pre .subst {
+  color: #954121;
+  /*font-weight: bold*/
+}
+
+pre .number,
+pre .hexcolor {
+  color: #40a070
+}
+
+pre .string,
+pre .tag .value,
+pre .phpdoc,
+pre .tex .formula {
+  color: #219161;
+}
+
+pre .title,
+pre .id {
+  color: #19469D;
+}
+pre .params {
+  color: #00F;
+}
+
+pre .javascript .title,
+pre .lisp .title,
+pre .subst {
+  font-weight: normal
+}
+
+pre .class .title,
+pre .haskell .label,
+pre .tex .command {
+  color: #458;
+  font-weight: bold
+}
+
+pre .tag,
+pre .tag .title,
+pre .rules .property,
+pre .django .tag .keyword {
+  color: #000080;
+  font-weight: normal
+}
+
+pre .attribute,
+pre .variable,
+pre .instancevar,
+pre .lisp .body {
+  color: #008080
+}
+
+pre .regexp {
+  color: #B68
+}
+
+pre .class {
+  color: #458;
+  font-weight: bold
+}
+
+pre .symbol,
+pre .ruby .symbol .string,
+pre .ruby .symbol .keyword,
+pre .ruby .symbol .keymethods,
+pre .lisp .keyword,
+pre .tex .special,
+pre .input_number {
+  color: #990073
+}
+
+pre .builtin,
+pre .constructor,
+pre .built_in,
+pre .lisp .title {
+  color: #0086b3
+}
+
+pre .preprocessor,
+pre .pi,
+pre .doctype,
+pre .shebang,
+pre .cdata {
+  color: #999;
+  font-weight: bold
+}
+
+pre .deletion {
+  background: #fdd
+}
+
+pre .addition {
+  background: #dfd
+}
+
+pre .diff .change {
+  background: #0086b3
+}
+
+pre .chunk {
+  color: #aaa
+}
+
+pre .tex .formula {
+  opacity: 0.5;
+}
+
+
 /* pygments */
+
 .hll { background-color: #ffffcc }
 .c   { color: #408080; font-style: italic } /* Comment */
 .err { border: 1px none #FF0000 }           /* Error */

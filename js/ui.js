@@ -848,4 +848,25 @@ $( function () {
   $strings.filter( search( /^".*"$/ ) ).addClass('s2').removeClass('s');
 });
 
+
+// ### Source file-picker menu
+//
+$( function () {
+  var $bodySource = $('body.source');
+  if ( !$bodySource.length ) return;
+  var $sourceTitle = $( '.source-title', $bodySource );
+  var $sourceMenu = $( '.source-menu', $bodySource );
+
+  $bodySource.on( 'click', function () {
+    $sourceMenu.hide();
+  });
+  $sourceMenu.on( 'click', function ( event ) {
+    event.stopPropagation();
+  });
+  $sourceTitle.on( 'click', function ( event ) {
+    $sourceMenu.toggle();
+    event.stopPropagation();
+  });
+});
+
 }( jQuery ) );

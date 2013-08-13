@@ -1,0 +1,140 @@
+<div class="source-content">
+  
+    
+    <div class="row">
+      <div class="text span5">
+        
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>RootState        = <span class="literal">null</span>
+StateExpression  = <span class="literal">null</span>
+
+module.exports =</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h2><a href="#state-function">state()</a></h2>
+<p>Invoking the exported <code>state</code> function is the primary point of entry into the
+module. The <code>state</code> function is used either to:</p>
+<ol>
+<li>generate a formal <code>StateExpression</code> object; or</li>
+<li>bestow any given <code>owner</code> object with a working state implementation.</li>
+</ol>
+<h6>PARAMETERS</h6>
+<ul>
+<li><p>[<code>owner</code>] : object</p>
+</li>
+<li><p>[<code>attributes</code>] : string — A whitespace-delimited set of attribute keywords.</p>
+</li>
+<li><p>[<code>expression</code>] : object | <code>StateExpression</code></p>
+</li>
+<li><p>[<code>options</code>] : object — A map that includes any of the following properties:</p>
+<ul>
+<li><p><code>name</code> : string — A name to be given to the <strong>accessor</strong> method that will
+be added to <code>owner</code>. Defaults to <code>&#39;state&#39;</code>.</p>
+</li>
+<li><p><code>initial</code> : string — A selector that names a specific <code>State</code>. Providing
+this option overrides any <code>initial</code> attributes borne by <code>owner</code>’s states.</p>
+</li>
+</ul>
+</li>
+</ul>
+<h6>DISCUSSION</h6>
+<p>All arguments are optional. If only one <code>object</code>-typed argument is provided,
+it is assigned to the <code>expression</code> parameter. If no <code>owner</code> is present,
+<code>state()</code> returns a <code>StateExpression</code> based on the contents of <code>expression</code>
+(and <code>attributes</code>). If both an <code>owner</code> and <code>expression</code> are present, <code>state()</code>
+acts in the second capacity: it causes <code>owner</code> to become stateful, creating a
+new <code>RootState</code> (and subordinate state tree) based on <code>expression</code>, and returns
+the owner’s initial <code>State</code>.</p>
+<p>The <code>attributes</code> argument may include any of the words defined in
+<code>STATE_ATTRIBUTE_MODIFIERS</code>, which are encoded into the provided <code>expression</code>.</p>
+<h6>SEE ALSO</h6>
+<blockquote>
+<p><code>STATE_ATTRIBUTES</code></p>
+<p><a href="/api/#state-function"><code>state()</code></a>
+<a href="/docs/#getting-started--the-state-function">The <code>state</code> function</a></p>
+</blockquote>
+<h6>SOURCE</h6>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre><span class="function"><span class="title">state</span></span> = ( owner, attributes, expression, options ) -&gt;
+  <span class="keyword">if</span> arguments.length &lt; <span class="number">2</span>
+    <span class="keyword">if</span> <span class="keyword">typeof</span> owner <span class="keyword">is</span> <span class="string">'string'</span>
+    <span class="keyword">then</span> attributes = owner
+    <span class="keyword">else</span> expression = owner
+    owner = <span class="literal">undefined</span>
+  <span class="keyword">else</span>
+    <span class="keyword">if</span> <span class="keyword">typeof</span> owner <span class="keyword">is</span> <span class="string">'string'</span>
+      options = expression
+      expression = attributes
+      attributes = owner
+      owner = <span class="literal">undefined</span>
+    <span class="keyword">if</span> <span class="keyword">typeof</span> attributes <span class="keyword">isnt</span> <span class="string">'string'</span>
+      options = expression
+      expression = attributes
+      attributes = <span class="literal">undefined</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>Formalize the provided <code>expression</code> (even if <code>expression</code> is already a formal
+<code>StateExpression</code>), incorporating any provided <code>attributes</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  expression = <span class="keyword">new</span> StateExpression attributes, expression</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>If <code>owner</code> is absent, the inferred intent is only to return the formalized
+<code>expression</code>; otherwise the inference is to implement <code>expression</code> into
+<code>owner</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="keyword">if</span> owner
+    { name, initial } = options <span class="keyword">if</span> options
+    ( <span class="keyword">new</span> RootState owner, expression, name, initial )._current
+  <span class="keyword">else</span> expression</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Static includes</h3>
+<p>A set of package-global metadata and functions are included as properties of
+the exported <code>state</code> function.</p>
+<blockquote>
+<p>These must be required ahead of the forward imports.</p>
+</blockquote>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>( require <span class="string">'./export-static'</span> ).apply state</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Forward imports</h3>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>RootState        = require <span class="string">'./root-state'</span>
+StateExpression  = require <span class="string">'./state-expression'</span></pre></div>
+      </div>
+    </div>
+  
+</div>

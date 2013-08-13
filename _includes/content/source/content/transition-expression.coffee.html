@@ -1,0 +1,95 @@
+<div class="source-content">
+  
+    
+    <div class="row">
+      <div class="text span5">
+        
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>state = require <span class="string">'./state-function'</span>
+
+{
+  O
+  TRANSITION_PROPERTIES
+  TRANSITION_EXPRESSION_CATEGORIES
+  TRANSITION_EVENT_TYPES
+  GUARD_ACTIONS
+} =
+    state
+
+module.exports =</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h2><a href="#transition-expression">TransitionExpression</a></h2>
+<p>A <code>State</code> may hold <strong>transition expressions</strong> that describe a transition that
+may take place between any two given <strong>origin</strong> and <strong>target</strong> states.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">TransitionExpression</span></span>
+
+  { assign, edit, clone } = O
+
+  properties   = assign TRANSITION_PROPERTIES, <span class="literal">null</span>
+  categories   = assign TRANSITION_EXPRESSION_CATEGORIES, <span class="literal">null</span>
+  eventTypes   = assign TRANSITION_EVENT_TYPES
+  guardActions = assign GUARD_ACTIONS</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#transition-expression--constructor">Constructor</a></h3>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  constructor: ( map ) -&gt;
+    map = interpret map <span class="keyword">unless</span> map <span class="keyword">instanceof</span> TransitionExpression
+    edit <span class="string">'deep all'</span>, <span class="keyword">this</span>, map</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#transition-expression--private">Private functions</a></h3>
+<h4><a href="#transition-expression--private--interpret">interpret</a></h4>
+<p>Rewrites a plain object as a well-formed <code>TransitionExpression</code>, making the
+appropriate type inferences for any shorthand notation encountered.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="function"><span class="title">interpret</span></span> = ( map ) -&gt;
+    result = assign {}, properties, categories
+
+    <span class="keyword">for</span> own key, value <span class="keyword">of</span> map
+      <span class="keyword">if</span> key <span class="keyword">of</span> properties
+        result[ key ] = value
+      <span class="keyword">else</span> <span class="keyword">if</span> key <span class="keyword">of</span> categories
+        result[ key ] = clone result[ key ], value
+      <span class="keyword">else</span>
+        category =
+          <span class="keyword">if</span> key <span class="keyword">of</span> eventTypes
+            <span class="string">'events'</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> key <span class="keyword">of</span> guardActions
+            <span class="string">'guards'</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">typeof</span> value <span class="keyword">is</span> <span class="string">'functions'</span>
+            <span class="string">'methods'</span>
+        <span class="keyword">if</span> category
+          item = result[ category ]
+          item <span class="keyword">or</span> = result[ category ] = {}
+          item[ key ] = value
+
+    <span class="keyword">for</span> key, value <span class="keyword">of</span> events = result.events
+      events[ key ] = [ value ] <span class="keyword">if</span> <span class="keyword">typeof</span> value <span class="keyword">is</span> <span class="string">'function'</span>
+
+    result</pre></div>
+      </div>
+    </div>
+  
+</div>

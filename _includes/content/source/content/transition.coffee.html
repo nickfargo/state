@@ -1,0 +1,170 @@
+<div class="source-content">
+  
+    
+    <div class="row">
+      <div class="text span5">
+        
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>State = require <span class="string">'./state'</span>
+
+module.exports =</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h2><a href="#transition">Transition</a></h2>
+<p>A <code>Transition</code> is a transient <code>State</code> which acts as a “vehicle” for the
+<code>RootState</code>’s currency, carrying it from one proper <code>State</code> to another.</p>
+<p>When a transition is instigated, e.g. with a call to <code>State::change</code>, the
+<code>RootState</code> sets its <code>_current</code> reference to a new <code>Transition</code>, which then
+traverses the state tree from its <code>origin</code> to its <code>target</code>, adopting each
+<code>State</code> along the way as its <code>superstate</code>.</p>
+<p>If a transition includes an <code>action</code> function, this will be invoked when the
+<code>Transition</code> has ascended to the top of its <em>domain</em>, defined as the least
+common ancestor <code>State</code> between its <code>origin</code> and <code>target</code> states. The <code>action</code>
+may be asynchronous, during which time the <code>Transition</code> continues to behave as
+if it were a substate the domain, inheriting method calls and propagating
+events in the familiar fashion, until the <code>action</code> is concluded, upon which the
+<code>Transition</code> resumes its descent to its <code>target</code>.</p>
+<blockquote>
+<p>See also: <code>State::change</code></p>
+<p><a href="/docs/#concepts--transitions">Transitions</a>
+<a href="/api/#transition">Transition</a></p>
+</blockquote>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">Transition</span> <span class="keyword">extends</span> <span class="title">State</span></span>
+
+  { VIA_PROTO } = <span class="keyword">this</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#transition--constructor">Constructor</a></h3>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  constructor: ( target, source, expression, callback ) -&gt;
+    <span class="property">@name</span> = expression.name <span class="keyword">or</span> <span class="literal">null</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>Unlike a proper <code>State</code>, a transition’s <code>superstate</code> is inherently dynamic, as
+it tracks the transition’s progression as it traverses from <code>source</code> through
+the domain and on to <code>target</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="property">@superstate</span> = source
+
+    root = source.root
+    <span class="keyword">throw</span> ReferenceError <span class="keyword">unless</span> target.root <span class="keyword">is</span> root
+    <span class="property">@root</span> = root
+
+    <span class="property">@owner</span> = root.owner
+
+    <span class="property">@target</span> = target
+    <span class="property">@source</span> = source
+    <span class="property">@origin</span> = <span class="keyword">if</span> source <span class="keyword">instanceof</span> Transition
+    <span class="keyword">then</span> source.origin
+    <span class="keyword">else</span> source
+
+    <span class="property">@callback</span> = callback</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>The <code>action</code>, if provided, is responsible for calling <code>end</code>, either in the same
+turn to complete a synchronous transition, or at some point in the future for
+an asynchronous transition.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="property">@action</span> = expression.action <span class="keyword">or</span> <span class="literal">null</span>
+
+    <span class="property">@_</span> = <span class="keyword">new</span> <span class="property">@Content</span>
+
+    <span class="property">@aborted</span> = <span class="literal">no</span>
+
+    <span class="property">@initialize</span> expression</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#transition--methods">Methods</a></h3>
+<h4><a href="#transition--prototype--start">start</a></h4>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  start: -&gt;
+    <span class="property">@aborted</span> = <span class="literal">no</span>
+    <span class="property">@emit</span> <span class="string">'start'</span>, arguments, VIA_PROTO
+    <span class="keyword">if</span> action = <span class="property">@action</span> <span class="keyword">then</span> action.apply <span class="keyword">this</span>, arguments; <span class="keyword">this</span>
+    <span class="keyword">else</span> <span class="property">@end</span>.apply <span class="keyword">this</span>, arguments</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#transition--prototype--abort">abort</a></h4>
+<p>Indicates that <code>this</code> transition will not reach its <code>target</code>. Currency may be
+delegated to a new <code>Transition</code>, in which case <code>this</code> will be retained as the
+<code>source</code> of the new transition.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  abort: -&gt;
+    <span class="property">@aborted</span> = <span class="literal">yes</span>
+    <span class="property">@callback</span> = <span class="literal">null</span>
+    <span class="property">@emit</span> <span class="string">'abort'</span>, arguments, VIA_PROTO
+    <span class="keyword">this</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#transition--prototype--end">end</a></h4>
+<p>Indicates that <code>this</code> transition has completed and has reached its intended
+<code>target</code>. The transition is retired by its <code>root</code>, and any preceding aborted
+transitions along the <code>source</code> chain are discarded as well.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  end: -&gt;
+    <span class="keyword">unless</span> <span class="property">@aborted</span>
+      <span class="property">@emit</span> <span class="string">'end'</span>, arguments, VIA_PROTO
+      <span class="property">@callback</span>?.apply <span class="property">@root</span>, arguments
+    <span class="keyword">do</span> <span class="property">@destroy</span>
+    <span class="property">@target</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#transition--prototype--destroy">destroy</a></h4>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  destroy: -&gt;
+    <span class="keyword">do</span> <span class="property">@source</span>.destroy <span class="keyword">if</span> <span class="property">@source</span> <span class="keyword">instanceof</span> Transition
+    <span class="property">@target</span> = <span class="property">@superstate</span> = <span class="property">@root</span> = <span class="literal">null</span></pre></div>
+      </div>
+    </div>
+  
+</div>

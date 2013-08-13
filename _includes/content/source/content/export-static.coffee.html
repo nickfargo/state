@@ -1,0 +1,296 @@
+<div class="source-content">
+  
+    
+    <div class="row">
+      <div class="text span5">
+        
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>global = <span class="keyword">this</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>This function will be applied to the package’s exported <code>state</code> function.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>module.<span class="function"><span class="title">exports</span></span> = -&gt;</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Package metadata</h3>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@VERSION</span> = <span class="string">'0.1.2'</span>
+
+  <span class="property">@options</span> =
+    memoizeProtostates: <span class="literal">yes</span>
+    useDispatchTables: <span class="literal">no</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Imports</h3>
+<p><strong>State</strong> uses [Omicron][] to assist with object manipulation tasks, such as
+differential operations.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@O</span> = {</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p><code>env</code> is a set of variables that describe the platform environment.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="property">@env</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>The <code>NIL</code> identity is a sentinel used by diff/patch operations to indicate
+the deletion or nonexistence of a property.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="property">@NIL</span>
+
+  } = require <span class="string">'omicron'</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Utility functions</h3>
+<h4>noConflict</h4>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@noConflict</span> = <span class="keyword">do</span> -&gt;
+    original = global.state
+    -&gt; global.state = original; <span class="keyword">this</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4>bitfield</h4>
+<p>Creates a bit field map on a given <code>object</code> by associating each string in a
+list of <code>names</code> as a key to a single-bit integer value. Bit values are applied
+to keys in order, increasing from <code>1 &lt;&lt; offset</code> onward.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@bitfield</span> = ( object = {}, names, offset = <span class="number">0</span> ) -&gt;
+    names = names.split <span class="regexp">/\s+/</span> <span class="keyword">if</span> <span class="keyword">typeof</span> names <span class="keyword">is</span> <span class="string">'string'</span>
+    object[ key ] = <span class="number">1</span> &lt;&lt; index + offset <span class="keyword">for</span> key, index <span class="keyword">in</span> names
+    object</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4>debug</h4>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@debug</span> = =&gt; console.log.apply console, arguments <span class="keyword">if</span> <span class="property">@env</span>.debug</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4>bind</h4>
+<ul>
+<li><code>fn</code> : ( any… ) → any</li>
+</ul>
+<p>Used inside a state expression, a function <code>fn</code> wrapped with <code>state.bind</code> will
+bind the context of <code>fn</code> either to any <code>State</code> created from that expression, or
+when invoked for an object that inherits from the <code>owner</code> of the bound <code>State</code>,
+to the corresponding <strong>epistate</strong> of that <code>State</code>.</p>
+<p>Thusly bound methods, event listeners, etc., whose context would have normally
+been the <code>owner</code>, still retain a reference thereto via <code>this.owner</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@bind</span> = <span class="keyword">do</span> -&gt;
+    <span class="function"><span class="title">bind</span></span> = ( fn ) -&gt; <span class="keyword">new</span> StateBoundFunction fn
+    bind.<span class="class"><span class="keyword">class</span> = <span class="title">class</span> <span class="title">StateBoundFunction</span></span>
+      type: <span class="string">'state-bound-function'</span>
+      constructor: ( <span class="property">@fn</span> ) -&gt;
+    bind</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4>fix</h4>
+<ul>
+<li><code>fn</code> : ( autostate, protostate ) → ( any… ) → any</li>
+</ul>
+<p>Used inside a state expression, a <code>combinator</code> wrapped with <code>state.fix</code> will
+be partially applied with a reference to <code>autostate</code>, the precise <code>State</code> to
+which the combinator’s returned function will belong, and a reference to
+<code>protostate</code>, the immediate <strong>protostate</strong> of <code>autostate</code>.</p>
+<p>A method, event listener, etc. that is <code>fix</code>ed thusly has access to, and full
+lexical awareness of, the particular <code>State</code> environment in which it exists.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@fix</span> = <span class="keyword">do</span> -&gt;
+    <span class="function"><span class="title">fix</span></span> = ( combinator ) -&gt; <span class="keyword">new</span> StateFixedFunction combinator
+    fix.<span class="class"><span class="keyword">class</span> = <span class="title">class</span> <span class="title">StateFixedFunction</span></span>
+      type: <span class="string">'state-fixed-function'</span>
+      constructor: ( <span class="property">@fn</span> ) -&gt;
+    fix</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4>own</h4>
+<p>Causes <code>owner</code> to realize and take ownership of the protostate or virtual
+epistate returned by <code>selector</code>. Returns the incipient or extant “own” state,
+augmented with any <code>StateExpression</code> content supplied by the optional <code>expr</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@own</span> = <span class="keyword">do</span> -&gt;
+    rxAccessor = <span class="regexp">/([$_A-Za-z][$\w]*)::(.*)/</span>
+
+    ( owner, selector, expr ) -&gt;
+      <span class="keyword">if</span> rxAccessor.test selector
+      <span class="keyword">then</span> [ match, accessorName, selector ] = rxAccessor.exec selector
+      <span class="keyword">else</span> accessorName = <span class="string">'state'</span>
+
+      <span class="keyword">return</span> <span class="literal">null</span> <span class="keyword">unless</span> instated = owner[ accessorName ] selector
+      <span class="keyword">if</span> instated.owner <span class="keyword">is</span> owner
+      <span class="keyword">then</span> instated[ instated.isVirtual() <span class="keyword">and</span> <span class="string">'realize'</span> <span class="keyword">or</span> <span class="string">'mutate'</span> ] expr
+      <span class="keyword">else</span> instated.virtualize( owner[ accessorName ] <span class="string">''</span> ).realize expr</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Miscellaneous constants</h3>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@rxTransitionArrow</span> = <span class="regexp">/^\s*([\-|=]&gt;)\s*(.*)/</span>
+  <span class="property">@transitionArrowMethods</span> =
+    <span class="string">'-&gt;'</span>: <span class="string">'change'</span>
+    <span class="string">'=&gt;'</span>: <span class="string">'changeTo'</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Name sets</h3>
+<p>The <strong>state attribute modifiers</strong> are the subset of attribute names that are
+valid or reserved keywords for the <code>attributes</code> argument in a call to the
+exported <code>state()</code> function.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@STATE_ATTRIBUTE_MODIFIERS</span> = <span class="string">"""
+    mutable finite static immutable
+    initial conclusive final
+    abstract concrete default
+    reflective
+    history retained shallow versioned
+    concurrent
+  """</span>
+
+  <span class="property">@STATE_EXPRESSION_CATEGORIES</span> =
+    <span class="string">'data methods events guards states transitions'</span>
+
+  <span class="property">@STATE_EVENT_TYPES</span> =
+    <span class="string">'construct depart exit enter arrive destroy mutate noSuchMethod'</span>
+
+  <span class="property">@GUARD_ACTIONS</span> =
+    <span class="string">'admit release'</span>
+
+  <span class="property">@TRANSITION_PROPERTIES</span> =
+    <span class="string">'origin source target action conjugate'</span>
+
+  <span class="property">@TRANSITION_EXPRESSION_CATEGORIES</span> =
+    <span class="string">'methods events guards'</span>
+
+  <span class="property">@TRANSITION_EVENT_TYPES</span> =
+    <span class="string">'construct destroy enter exit start end abort'</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3>Bit field enums</h3>
+<h4>State attributes</h4>
+<p><code>State</code> instances use a bit field to store their attributes, the encoded values
+of which are included in the constants enumerated here.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@STATE_ATTRIBUTES</span> = <span class="property">@bitfield</span> { NORMAL: <span class="number">0</span> }, <span class="string">"""
+    INCIPIENT
+    ATOMIC
+    DESTROYED
+    VIRTUAL
+  """</span> + <span class="string">' '</span> + <span class="property">@STATE_ATTRIBUTE_MODIFIERS</span>.toUpperCase()</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4>Traversal flags</h4>
+<p>Tree-traversal operations use these flags to restrict their recursive scope.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@TRAVERSAL_FLAGS</span> = <span class="property">@bitfield</span> { VIA_NONE: <span class="number">0</span>, VIA_ALL: ~<span class="number">0</span> }, <span class="string">"""
+    VIA_SUB
+    VIA_SUPER
+    VIA_PROTO
+  """</span>
+
+
+
+  <span class="keyword">return</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre></pre></div>
+      </div>
+    </div>
+  
+</div>

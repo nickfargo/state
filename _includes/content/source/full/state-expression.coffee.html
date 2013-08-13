@@ -1,0 +1,333 @@
+<div class="source-title">
+  <a href="javascript:void(0)">state-expression.coffee.md</a>
+</div>
+
+<ul class="source-menu">
+  
+    
+    
+    <li><a href="export-static.html">export-static.coffee.md</a></li>
+  
+    
+    
+    <li><a href="index.html">index.coffee.md</a></li>
+  
+    
+    
+    <li><a href="root-state.html">root-state.coffee.md</a></li>
+  
+    
+    
+    <li><a href="state-content.html">state-content.coffee.md</a></li>
+  
+    
+    
+    <li><a href="state-event-emitter.html">state-event-emitter.coffee.md</a></li>
+  
+    
+    
+    <li><a href="state-expression.html">state-expression.coffee.md</a></li>
+  
+    
+    
+    <li><a href="state-function.html">state-function.coffee.md</a></li>
+  
+    
+    
+    <li><a href="state.html">state.coffee.md</a></li>
+  
+    
+    
+    <li><a href="transition-expression.html">transition-expression.coffee.md</a></li>
+  
+    
+    
+    <li><a href="transition.html">transition.coffee.md</a></li>
+  
+</ul>
+
+<div class="source-content">
+  
+    
+    <div class="row">
+      <div class="text span5">
+        
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>O                    = require <span class="string">'omicron'</span>
+state                = require <span class="string">'./state-function'</span>
+State                = require <span class="string">'./state'</span>
+TransitionExpression = require <span class="string">'./transition-expression'</span>
+
+{
+  STATE_ATTRIBUTES
+  STATE_ATTRIBUTE_MODIFIERS
+  STATE_EXPRESSION_CATEGORIES
+  STATE_EVENT_TYPES
+  GUARD_ACTIONS
+} =
+    state
+
+module.exports =</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h2><a href="#state-expression">StateExpression</a></h2>
+<p>A <strong>state expression</strong> is a data structure that formalizes a definition of
+a state’s contents.</p>
+<p>States are declared by calling the module’s exported <code>state()</code> function and
+passing it a descriptive plain object map. This input may be expressed in a
+shorthand format, in which case it is rewritten into an unambiguous long form
+that is used internally to create <code>State</code> instances.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">StateExpression</span></span>
+
+  { NIL, isNumber, isPlainObject, isArray } = O
+  { assign, edit, clone, invert } = O
+  { NORMAL } = STATE_ATTRIBUTES
+
+  attributeMap = <span class="keyword">do</span> -&gt;
+    <span class="keyword">for</span> key, value <span class="keyword">of</span> object = assign STATE_ATTRIBUTE_MODIFIERS
+      object[ key ] = key.toUpperCase()
+    object
+
+  attributeFlags = <span class="keyword">do</span> -&gt;
+    <span class="keyword">for</span> key, value <span class="keyword">of</span> object = invert STATE_ATTRIBUTES
+      object[ key ] = value.toLowerCase()
+    object
+
+  categoryMap  = assign STATE_EXPRESSION_CATEGORIES
+  eventTypes   = assign STATE_EVENT_TYPES
+  guardActions = assign GUARD_ACTIONS</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#state-expression--constructor">Constructor</a></h3>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  constructor: ( attributes, map ) -&gt;
+    <span class="keyword">if</span> <span class="keyword">typeof</span> attributes <span class="keyword">is</span> <span class="string">'string'</span> <span class="keyword">then</span> map <span class="keyword">or</span> = {}
+    <span class="keyword">else</span> <span class="keyword">unless</span> map
+      map = attributes; attributes = <span class="literal">undefined</span>
+
+    map = interpret map <span class="keyword">unless</span> map <span class="keyword">instanceof</span> StateExpression
+    edit <span class="string">'deep all'</span>, <span class="keyword">this</span>, map
+
+    <span class="keyword">if</span> attributes?
+      attributes = encodeAttributes attributes <span class="keyword">unless</span> isNumber attributes
+    <span class="keyword">else</span> { attributes } = map <span class="keyword">if</span> map
+
+    <span class="property">@attributes</span> = attributes <span class="keyword">or</span> NORMAL</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#state-expression--private">Private functions</a></h3>
+<h4><a href="#state-expression--private--interpret">interpret</a></h4>
+<p>Transforms a plain object map into a well-formed <code>StateExpression</code>, making the
+appropriate type inferences for any shorthand notation encountered.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="function"><span class="title">interpret</span></span> = ( map ) -&gt;</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>Start with a null-valued map keyed with the category names.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    result = assign STATE_EXPRESSION_CATEGORIES, <span class="literal">null</span>
+
+    <span class="keyword">for</span> own key, value <span class="keyword">of</span> map</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>If <code>value</code> is just a reference to the exported <code>state</code> function, interpret that
+as an empty state expression.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>      value = <span class="keyword">new</span> StateExpression <span class="keyword">if</span> value <span class="keyword">is</span> state</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h6>Categorization</h6>
+<p><strong>Priority 1:</strong> Do a nominative type match for explicit expression instances.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>      category =
+        <span class="keyword">if</span> value <span class="keyword">instanceof</span> StateExpression <span class="keyword">then</span> <span class="string">'states'</span>
+        <span class="keyword">else</span> <span class="keyword">if</span> value <span class="keyword">instanceof</span> TransitionExpression <span class="keyword">then</span> <span class="string">'transitions'</span>
+      <span class="keyword">if</span> category
+        item = result[ category ] <span class="keyword">or</span> = {}
+        item[ key ] = value</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p><strong>Priority 2:</strong> Recognize an explicitly named category object.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>      <span class="keyword">else</span> <span class="keyword">if</span> categoryMap[ key ]? <span class="keyword">and</span> value
+        result[ key ] = clone result[ key ], value</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p><strong>Priority 3:</strong> Use keys and value types to infer implicit categorization.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>      <span class="keyword">else</span>
+        category =
+          <span class="keyword">if</span> eventTypes[ key ]? <span class="keyword">or</span> <span class="keyword">typeof</span> value <span class="keyword">is</span> <span class="string">'string'</span>
+            <span class="string">'events'</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> guardActions[ key ]?
+            <span class="string">'guards'</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">typeof</span> value <span class="keyword">is</span> <span class="string">'function'</span> <span class="keyword">or</span> ( type = value?.type ) <span class="keyword">and</span>
+              ( type <span class="keyword">is</span> <span class="string">'state-bound-function'</span> <span class="keyword">or</span>
+                type <span class="keyword">is</span> <span class="string">'state-fixed-function'</span> )
+            <span class="string">'methods'</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> value <span class="keyword">is</span> NIL <span class="keyword">or</span> isPlainObject value
+            <span class="string">'states'</span>
+        <span class="keyword">if</span> category
+          item = result[ category ] <span class="keyword">or</span> = {}
+          item[ key ] = value</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h6>Coersion</h6>
+<p>Event values are coerced into an array.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="keyword">for</span> own key, value <span class="keyword">of</span> object = result.events <span class="keyword">when</span> <span class="keyword">not</span> isArray value
+      object[ key ] = [ value ]</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>Guards are represented as an object keyed by selector, so non-object values are
+coerced into a single-element object with the value keyed to the wildcard
+selector <code>*</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="keyword">for</span> own key, value <span class="keyword">of</span> object = result.guards
+      object[ key ] = <span class="string">'*'</span>: value <span class="keyword">unless</span> isPlainObject value</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>Transition values must be a <code>TransitionExpression</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="keyword">for</span> own key, value <span class="keyword">of</span> object = result.transitions
+      <span class="keyword">unless</span> value <span class="keyword">is</span> NIL <span class="keyword">or</span> value <span class="keyword">instanceof</span> TransitionExpression
+        object[ key ] = <span class="keyword">new</span> TransitionExpression value</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <p>State values must resolve to a <code>StateExpression</code>. They may be supplied as a
+plain object, or as a live <code>State</code> instance, which is automatically <code>express</code>ed
+to a formal <code>StateExpression</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>    <span class="keyword">for</span> own key, value <span class="keyword">of</span> object = result.states
+      <span class="keyword">if</span> value <span class="keyword">instanceof</span> State
+        object[ key ] = value.express <span class="literal">true</span>
+      <span class="keyword">else</span> <span class="keyword">unless</span> value <span class="keyword">is</span> NIL <span class="keyword">or</span> value <span class="keyword">instanceof</span> StateExpression
+        object[ key ] = <span class="keyword">new</span> StateExpression value
+
+    result</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h3><a href="#state-expression--class-methods">Class methods</a></h3>
+<h4><a href="#state-expression--class--encode-attributes">encodeAttributes</a></h4>
+<p>Returns the bit-field integer represented by the provided set of <code>attributes</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@encodeAttributes</span> = <span class="function"><span class="title">encodeAttributes</span></span> = ( attributes ) -&gt;
+    attributes = assign attributes <span class="keyword">if</span> <span class="keyword">typeof</span> attributes <span class="keyword">is</span> <span class="string">'string'</span>
+    result = NORMAL
+    <span class="keyword">for</span> own key, value <span class="keyword">of</span> attributes <span class="keyword">when</span> key <span class="keyword">of</span> attributeMap
+      result |= STATE_ATTRIBUTES[ attributeMap[ key ] ]
+    result</pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-expression--class--decode-attributes">decodeAttributes</a></h4>
+<p>Returns the space-delimited set of attribute names represented by the provided
+bit-field integer <code>number</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@decodeAttributes</span> = <span class="function"><span class="title">decodeAttributes</span></span> = ( number ) -&gt;
+    ( value <span class="keyword">for</span> key, value <span class="keyword">of</span> attributeFlags <span class="keyword">when</span> number &amp; key ).join <span class="string">' '</span></pre></div>
+      </div>
+    </div>
+  
+    
+    <div class="row">
+      <div class="text span5">
+        <h4><a href="#state-expression--class-methods--untype">untype</a></h4>
+<p>Returns the <code>StateExpression</code> provided by <code>expr</code> as a plain-<code>Object</code>.</p>
+
+      </div>
+      <div class="code span11">
+        <div class='highlight'><pre>  <span class="property">@untype</span> = <span class="function"><span class="title">untype</span></span> = ( expr ) -&gt;
+    result = {}
+    result[ key ] = value <span class="keyword">for</span> own key, value <span class="keyword">of</span> expr
+    s[ name ] = untype subexpr <span class="keyword">for</span> name, subexpr <span class="keyword">of</span> s = result.states
+    result</pre></div>
+      </div>
+    </div>
+  
+</div>
