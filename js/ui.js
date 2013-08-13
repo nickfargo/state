@@ -857,7 +857,7 @@ $( function () {
   var $sourceTitle = $( '.source-title', $bodySource );
   var $sourceMenu = $( '.source-menu', $bodySource );
 
-  $bodySource.on( 'click', function () {
+  $(document).on( 'click', function () {
     $sourceMenu.hide();
   });
   $sourceMenu.on( 'click', function ( event ) {
