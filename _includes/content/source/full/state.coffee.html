@@ -81,7 +81,7 @@ prototype chain. Inheritors of a stateful prototype effectively possess all of
 the prototype’s <code>State</code>s, but each inheritor can adopt its own <code>current</code> state
 and instigate transitions independently of the prototype.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state">State</a></p>
+<p><a href="/api/#state">State</a></p>
 </blockquote>
 
       </div>
@@ -345,7 +345,7 @@ corresponding virtual state in the local state tree. For methods relocated to
 the root state as described above, however, the context appropriately remains
 bound to the owner object.</p>
 <blockquote>
-<p><a href="http://statejs.org/docs/#concepts--methods--dispatchers">Dispatchers</a></p>
+<p><a href="/docs/#concepts--methods--dispatchers">Dispatchers</a></p>
 </blockquote>
 
       </div>
@@ -461,7 +461,7 @@ ancestor superstates as necessary to reach a real <code>State</code> within that
 This will be the newly created virtual state, unless virtualization was
 unnecessary, in which case it will be the extant real epistate of <code>this</code>.</p>
 <blockquote>
-<p><a href="http://statejs.org/docs/#concepts--inheritance--protostates">Protostates</a></p>
+<p><a href="/docs/#concepts--inheritance--protostates">Protostates</a></p>
 </blockquote>
 
       </div>
@@ -530,8 +530,8 @@ add virtual states to it until the whole superstate chain is represented.</p>
 <p>Attempts to cleanly destroy this state and all of its substates. A <code>destroy</code>
 event is issued to each state after it has been destroyed.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--destroy">destroy (method)</a>
-<a href="http://statejs.org/api/#state--events--destroy">destroy (event)</a></p>
+<p><a href="/api/#state--methods--destroy">destroy (method)</a>
+<a href="/api/#state--events--destroy">destroy (event)</a></p>
 </blockquote>
 
       </div>
@@ -932,8 +932,8 @@ which is emitted as part of a <code>mutate</code> event.</p>
         <h3><a href="#state--attributes">Attributes</a></h3>
 <p>Methods that inspect a state’s attributes.</p>
 <blockquote>
-<p><a href="http://statejs.org/docs/#concepts--attributes">Attributes</a>
-<a href="http://statejs.org/api/#state--attributes">Attributes</a></p>
+<p><a href="/docs/#concepts--attributes">Attributes</a>
+<a href="/api/#state--attributes">Attributes</a></p>
 </blockquote>
 
       </div>
@@ -966,7 +966,7 @@ which is emitted as part of a <code>mutate</code> event.</p>
 root state and ending at <code>this</code>. If <code>byName</code> is set to <code>true</code>, a string array
 of the states’ names is returned instead.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--derivation">derivation</a></p>
+<p><a href="/api/#state--methods--derivation">derivation</a></p>
 </blockquote>
 
       </div>
@@ -985,7 +985,7 @@ of the states’ names is returned instead.</p>
 <p>Returns this state’s fully qualified name.</p>
 <p><em>Alias:</em> <strong>toString</strong></p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--path">path</a></p>
+<p><a href="/api/#state--methods--path">path</a></p>
 </blockquote>
 
       </div>
@@ -1002,7 +1002,7 @@ of the states’ names is returned instead.</p>
 <p>Returns the number of superstates this state has. The root state returns <code>0</code>,
 its immediate substates return <code>1</code>, etc.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--depth">depth</a></p>
+<p><a href="/api/#state--methods--depth">depth</a></p>
 </blockquote>
 
       </div>
@@ -1021,7 +1021,7 @@ its immediate substates return <code>1</code>, etc.</p>
 <p>Returns the least common ancestor of <code>this</code> and <code>other</code>. If <code>this</code> is itself an
 ancestor of <code>other</code>, or vice versa, then that ancestor is returned.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--common">common</a></p>
+<p><a href="/api/#state--methods--common">common</a></p>
 </blockquote>
 
       </div>
@@ -1099,7 +1099,7 @@ ancestor of <code>other</code>, or vice versa, then that ancestor is returned.</
       <div class="text span5">
         <h4><a href="#state--prototype--get-protostate">getProtostate</a></h4>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--get-protostate">getProtostate</a></p>
+<p><a href="/api/#state--methods--get-protostate">getProtostate</a></p>
 </blockquote>
 <p>Returns <code>this</code> state’s <strong>protostate</strong>, the <code>State</code> that both:</p>
 <ol>
@@ -1144,7 +1144,7 @@ prototype, or if that prototype’s tree does not contain a <code>State</code> a
 <p>Determines whether <code>this</code> is a state analogous to <code>state</code> on any object in the
 prototype chain of <code>state</code>’s owner.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--is-protostate-of">isProtostateOf</a></p>
+<p><a href="/api/#state--methods--is-protostate-of">isProtostateOf</a></p>
 </blockquote>
 
       </div>
@@ -1165,7 +1165,7 @@ prototype chain of <code>state</code>’s owner.</p>
 Recursion continues into the protostate only if no local substates are marked
 <code>default</code>.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--default-substate">defaultSubstate</a></p>
+<p><a href="/api/#state--methods--default-substate">defaultSubstate</a></p>
 </blockquote>
 
       </div>
@@ -1189,7 +1189,7 @@ deeply nested <code>initial</code> state by way of the greatest <code>initial</c
 state. Recursion continues into the protostate only if no local descendant
 states are marked <code>initial</code>.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--initial-substate">initialSubstate</a></p>
+<p><a href="/api/#state--methods--initial-substate">initialSubstate</a></p>
 </blockquote>
 
       </div>
@@ -1222,8 +1222,8 @@ query is recursed <code>via</code> the substates, superstates, and protostates o
 unless otherwise directed, such that a uniquely named state can be located by
 name alone from anywhere in the state tree.</p>
 <blockquote>
-<p><a href="http://statejs.org/docs/#concepts--selectors">Selectors</a>
-<a href="http://statejs.org/api/#state--methods--query">query</a></p>
+<p><a href="/docs/#concepts--selectors">Selectors</a>
+<a href="/api/#state--methods--query">query</a></p>
 </blockquote>
 
       </div>
@@ -1492,7 +1492,7 @@ the behavior of the object’s accessor method.</p>
 <p>Gets the local state tree’s current state, which is authoritatively determined
 by the root state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--current">current</a></p>
+<p><a href="/api/#state--methods--current">current</a></p>
 </blockquote>
 
       </div>
@@ -1507,7 +1507,7 @@ by the root state.</p>
         <h4><a href="#state--prototype--is-current">isCurrent</a></h4>
 <p>Returns a <code>Boolean</code> indicating whether <code>this</code> is the owner’s current state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--is-current">isCurrent</a></p>
+<p><a href="/api/#state--methods--is-current">isCurrent</a></p>
 </blockquote>
 
       </div>
@@ -1523,7 +1523,7 @@ by the root state.</p>
 <p>Returns a <code>Boolean</code> indicating whether <code>this</code> or one of its substates is the
 owner’s current state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--is-active">isActive</a></p>
+<p><a href="/api/#state--methods--is-active">isActive</a></p>
 </blockquote>
 
       </div>
@@ -1540,7 +1540,7 @@ owner’s current state.</p>
 arguments implicitly directs the root to change to <code>this</code> state.</p>
 <p><em>Aliases:</em> <strong>go</strong>, <strong>be</strong></p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--change">change</a></p>
+<p><a href="/api/#state--methods--change">change</a></p>
 </blockquote>
 
       </div>
@@ -1589,8 +1589,8 @@ state. For keys in <code>mutation</code> whose values are set to the <code>NIL</
 matching keys in the state’s data are deleted. If the operation results in a
 change to the state’s data, a <code>mutate</code> event is emitted for this state.</p>
 <blockquote>
-<p><a href="http://statejs.org/docs/#concepts--data">Data</a>
-<a href="http://statejs.org/api/#state--methods--data">data</a></p>
+<p><a href="/docs/#concepts--data">Data</a>
+<a href="/api/#state--methods--data">data</a></p>
 </blockquote>
 
       </div>
@@ -1678,7 +1678,7 @@ inherited <code>via</code> superstates and protostates, unless directed otherwis
 key already exists, it is added.</p>
 <blockquote>
 <p>See also: <code>set</code></p>
-<p><a href="http://statejs.org/api/#state--methods--let">let</a></p>
+<p><a href="/api/#state--methods--let">let</a></p>
 </blockquote>
 
       </div>
@@ -1719,8 +1719,8 @@ inherited along the superstate chain of <code>this</code>.</p>
 superstate chain is comparable to the same at the language level for variable
 bindings within functions being shadowed versus unshadowed, respectively.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--let">let</a>
-<a href="http://statejs.org/api/#state--methods--set">set</a></p>
+<p><a href="/api/#state--methods--let">let</a>
+<a href="/api/#state--methods--set">set</a></p>
 </blockquote>
 
       </div>
@@ -1780,7 +1780,7 @@ to a <code>let</code>.</p>
 allows the appropriate <code>context</code> for a state-bound method to be delivered as a
 property of <code>out</code>; if included, <code>context</code> is confined to the local state tree.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--method">method</a></p>
+<p><a href="/api/#state--methods--method">method</a></p>
 </blockquote>
 
       </div>
@@ -1931,7 +1931,7 @@ the local dispatch table.</p>
         <h4><a href="#state--prototype--method-names">methodNames</a></h4>
 <p>Returns an <code>Array</code> of names of methods defined for this state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--method-names">methodNames</a></p>
+<p><a href="/api/#state--methods--method-names">methodNames</a></p>
 </blockquote>
 
       </div>
@@ -1960,7 +1960,7 @@ the owner is provided a <em>dispatcher</em> to accommodate calls to the appropri
 state’s implementation of this method.</p>
 <blockquote>
 <p>See also: <code>state.bind</code>, <code>state.fix</code></p>
-<p><a href="http://statejs.org/api/#state--methods--add-method">addMethod</a></p>
+<p><a href="/api/#state--methods--add-method">addMethod</a></p>
 </blockquote>
 
       </div>
@@ -2040,7 +2040,7 @@ override that method.</p>
         <h4><a href="#state--prototype--remove-method">removeMethod</a></h4>
 <p>Dissociates the named method from this state object and returns its function.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--remove-method">removeMethod</a></p>
+<p><a href="/api/#state--methods--remove-method">removeMethod</a></p>
 </blockquote>
 
       </div>
@@ -2059,7 +2059,7 @@ override that method.</p>
         <h4><a href="#state--prototype--has-method">hasMethod</a></h4>
 <p>Determines whether <code>this</code> possesses or inherits a method named <code>methodName</code>.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--has-method">hasMethod</a></p>
+<p><a href="/api/#state--methods--has-method">hasMethod</a></p>
 </blockquote>
 
       </div>
@@ -2075,7 +2075,7 @@ override that method.</p>
         <h4><a href="#state--prototype--has-own-method">hasOwnMethod</a></h4>
 <p>Determines whether <code>this</code> directly possesses a method named <code>methodName</code>.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--has-own-method">hasOwnMethod</a></p>
+<p><a href="/api/#state--methods--has-own-method">hasOwnMethod</a></p>
 </blockquote>
 
       </div>
@@ -2093,7 +2093,7 @@ override that method.</p>
 <p>If the named method does not exist locally and cannot be inherited, then
 <code>noSuchMethod</code> events are emitted, and the call returns <code>undefined</code>.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--apply">apply</a></p>
+<p><a href="/api/#state--methods--apply">apply</a></p>
 </blockquote>
 
       </div>
@@ -2163,7 +2163,7 @@ called directly as a method of <code>this</code> state’s <code>owner</code>.</
         <h4><a href="#state--prototype--call">call</a></h4>
 <p>Variadic <code>apply</code>.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--call">call</a></p>
+<p><a href="/api/#state--methods--call">call</a></p>
 </blockquote>
 
       </div>
@@ -2184,7 +2184,7 @@ a given event <code>type</code>.</p>
 with that <code>id</code> is returned. If no <code>id</code> is provided, the number of event
 listeners registered to <code>type</code> is returned.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--event">event</a></p>
+<p><a href="/api/#state--methods--event">event</a></p>
 </blockquote>
 
       </div>
@@ -2205,7 +2205,7 @@ listeners registered to <code>type</code> is returned.</p>
 identifier for the listener.</p>
 <p><em>Alias:</em> <strong>on</strong></p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--add-event">addEvent</a></p>
+<p><a href="/api/#state--methods--add-event">addEvent</a></p>
 </blockquote>
 
       </div>
@@ -2234,7 +2234,7 @@ identifier for the listener.</p>
 <code>addEvent</code>.</p>
 <p><em>Alias:</em> <strong>off</strong></p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--remove-event">removeEvent</a></p>
+<p><a href="/api/#state--methods--remove-event">removeEvent</a></p>
 </blockquote>
 
       </div>
@@ -2260,7 +2260,7 @@ will be either <code>this</code> or an <em>epistate</em> that inherits events fr
 <p>Normal, unbound callbacks are invoked in the conventional context of <code>@owner</code>.</p>
 <p><em>Alias:</em> <strong>trigger</strong></p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--emit">emit</a></p>
+<p><a href="/api/#state--methods--emit">emit</a></p>
 </blockquote>
 
       </div>
@@ -2309,7 +2309,7 @@ applied.</p>
 <p>Guards are inherited from protostates, but not from superstates.</p>
 <blockquote>
 <p>See also: <a href="#state--private--evaluate-guard"><code>evaluateGuard</code></a>
-<a href="http://statejs.org/api/#state--methods--guard">guard</a></p>
+<a href="/api/#state--methods--guard">guard</a></p>
 </blockquote>
 
       </div>
@@ -2327,7 +2327,7 @@ applied.</p>
 <p>Adds a guard to this state, or augments an existing guard with additional
 entries.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--add-guard">addGuard</a></p>
+<p><a href="/api/#state--methods--add-guard">addGuard</a></p>
 </blockquote>
 
       </div>
@@ -2348,7 +2348,7 @@ entries.</p>
 <p>Removes a guard from this state, or removes specific entries from an existing
 guard.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--remove-guard">removeGuard</a></p>
+<p><a href="/api/#state--methods--remove-guard">removeGuard</a></p>
 </blockquote>
 
       </div>
@@ -2375,7 +2375,7 @@ guard.</p>
 local state, any identically named substate held on a protostate will be
 returned.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--substate">substate</a></p>
+<p><a href="/api/#state--methods--substate">substate</a></p>
 </blockquote>
 
       </div>
@@ -2418,7 +2418,7 @@ returned.</p>
 <code>true</code>, returns a depth-first flattened array containing all of this state’s
 descendant states.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--substates">substates</a></p>
+<p><a href="/api/#state--methods--substates">substates</a></p>
 </blockquote>
 
       </div>
@@ -2467,7 +2467,7 @@ descendant states.</p>
 this state. If a substate with the same <code>name</code> already exists, that state is
 first destroyed and then displaced.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--add-substate">addSubstate</a></p>
+<p><a href="/api/#state--methods--add-substate">addSubstate</a></p>
 </blockquote>
 
       </div>
@@ -2498,7 +2498,7 @@ first destroyed and then displaced.</p>
         <h4><a href="#state--prototype--remove-substate">removeSubstate</a></h4>
 <p>Removes the named substate from the local state, if possible.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--remove-substate">removeSubstate</a></p>
+<p><a href="/api/#state--methods--remove-substate">removeSubstate</a></p>
 </blockquote>
 
       </div>
@@ -2551,7 +2551,7 @@ involving itself or any descendant <code>State</code>.</p>
 <h4><a href="#state--prototype--transition">transition</a></h4>
 <p>Returns the named transition expression held on this state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--transition">transition</a></p>
+<p><a href="/api/#state--methods--transition">transition</a></p>
 </blockquote>
 
       </div>
@@ -2567,7 +2567,7 @@ involving itself or any descendant <code>State</code>.</p>
 <p>Returns an object containing all of the transition expressions defined
 on this state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--transitions">transitions</a></p>
+<p><a href="/api/#state--methods--transitions">transitions</a></p>
 </blockquote>
 
       </div>
@@ -2582,7 +2582,7 @@ on this state.</p>
         <h4><a href="#state--prototype--add-transition">addTransition</a></h4>
 <p>Registers a transition expression to this state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--add-transition">addTransition</a></p>
+<p><a href="/api/#state--methods--add-transition">addTransition</a></p>
 </blockquote>
 
       </div>
@@ -2604,7 +2604,7 @@ on this state.</p>
         <h4><a href="#state--prototype--remove-transition">removeTransition</a></h4>
 <p>Removes a transition expression from this state.</p>
 <blockquote>
-<p><a href="http://statejs.org/api/#state--methods--remove-transition">removeTransition</a></p>
+<p><a href="/api/#state--methods--remove-transition">removeTransition</a></p>
 </blockquote>
 
       </div>
