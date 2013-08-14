@@ -861,11 +861,11 @@ $( function () {
     $sourceMenu.hide();
   });
   $sourceMenu.on( 'click', function ( event ) {
-    event.stopPropagation();
+    if ( !navigator.standalone ) event.stopPropagation();
   });
   $sourceTitle.on( 'click', function ( event ) {
     $sourceMenu.toggle();
-    event.stopPropagation();
+    if ( !navigator.standalone ) event.stopPropagation();
   });
 });
 
