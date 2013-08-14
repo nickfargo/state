@@ -4,7 +4,7 @@
 
 A formal `StateExpression` is created by calling the [`state()`](#getting-started--the-state-function) function with no `owner` argument, providing it only a plain object map for its `expression` argument, optionally preceded by a string of whitespace-delimited `attributes` to be encoded into the returned `StateExpression`.
 
-Internally, the contents of a state expression are shaped according to a set of **categories**: `data`, `methods`, `events`, `guards`, `states`, and `transitions`, along with the encoded `attributes`. The object map supplied to the `state()` call can be structured according to these categories, or it may be pared down to a more convenient shorthand, which, by making certain type inferences, the `state()` call will interpret into a formal `StateExpression`.
+Internally, the contents of a state expression are shaped according to a set of **categories**: `data`, `methods`, `events`, `guards`, `states` (substates), and `transitions`, along with the encoded `attributes`. The object map supplied to the `state()` call can be structured according to these categories, or it may be pared down to a more convenient shorthand, which, by making certain type inferences, the `state()` call will interpret into a formal `StateExpression`.
 
 > [express](/api/#state--methods--express)
 > [`state()`](/source/#module)
@@ -14,7 +14,7 @@ Internally, the contents of a state expression are shaped according to a set of 
 
 #### [Structured state expressions](#concepts--expressions--structured)
 
-Building upon the introductory example, we could write a state expression that consists of explicitly categorized states, methods, and events, etc., looking something like this:
+Building upon the introductory example, we could write a state expression that consists of explicitly categorized members (substates, methods, events, etc.), looking something like this:
 
 {% highlight javascript %}
 {% include examples/docs/expressions--structured.js %}
@@ -26,7 +26,7 @@ Building upon the introductory example, we could write a state expression that c
 
 #### [Shorthand](#concepts--expressions--shorthand)
 
-Explicit categorization is unambiguous, but it can be verbose, so `state()` also accepts a more concise expression format, which is interpreted into a `StateExpression` that is materially identical to the result of the example above:
+Explicitly categorizing the defined members is unambiguous, but it can be verbose, so `state()` also accepts a more concise expression format, which is interpreted into a `StateExpression` that is materially identical to the result of the example above:
 
 {% highlight javascript %}
 {% include examples/docs/expressions--shorthand.js %}
@@ -36,15 +36,15 @@ Explicit categorization is unambiguous, but it can be verbose, so `state()` also
 {% include examples/docs/expressions--shorthand.coffee %}
 {% endhighlight %}
 
-Interpreting the input supplied in this example, the `state()` invocation:
+In this example, the `state()` invocation interpreted the input by:
 
-* recognized the absence of any items whose keys are category names, and instead inferred that object literals `Formal` and `Casual` describe *states*.
+* recognizing the absence of any items whose keys are category names, and instead inferring that object literals `Formal` and `Casual` describe *states*.
 
-* identified `enter` as a built-in *event type* and thus treated the associated function values as listeners for `enter` events that will be emitted by the containing state.
+* identifying `enter` as a built-in *event type*, and thus treating the associated function values as listeners for `enter` events that will be emitted by the containing state.
 
-* inferred that functions keyed `greet`, which is not a built-in event type, were to be treated as a *method* of the containing state.
+* inferring that functions keyed `greet`, which is not a built-in event type, were to be treated as a *method* of the containing state.
 
-Explicit categorization can also be mixed freely with shorthand in the same expression input, so as to resolve ambiguities in certain edge cases (for example, to create a state named `data`, or a method named `enter`).
+Explicit definition can also be mixed freely with shorthand in the same expression input, so as to resolve ambiguities in certain edge cases (for example, to create a state named `data`, or a method named `enter`).
 
 #### [Interpreting expression input](#concepts--expressions--interpreting-expression-input)
 
