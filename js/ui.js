@@ -869,4 +869,33 @@ $( function () {
   });
 });
 
+// ### Pygments coffee-enhancements delivered client-side
+//
+$( function () {
+  var $pre = $('.highlight pre');
+  if ( !$pre.length ) return;
+
+  // classify param-less arrows as functions
+  $( 'span.o:contains("->"), span.o:contains("=>")', $pre )
+    .addClass('nf');
+
+  // classify `this` and @-sigil expressions as instance variables
+  $( 'span.k:contains("this")', $pre )
+    .addClass('vi').removeClass('k');
+  $( 'span.err:contains("@")', $pre )
+    .addClass('vi').removeClass('err');
+  $( 'span.nx', $pre ).filter( function () {
+    return /^@/.test( $(this).text() );
+  })
+    .addClass('vi').removeClass('nx');
+
+  // classify coffee keywords correctly
+  $( 'span.nx', $pre ).filter( function () {
+    return /^do|when|unless$/.test( $(this).text() );
+  })
+    .add( $( 'span.k:contains("for")', $pre ).next('span.nx:contains("own")') )
+    .addClass('k').removeClass('nx');
+
+});
+
 }( jQuery ) );

@@ -56,19 +56,20 @@
         
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>state = require <span class="string">'./state-function'</span>
-State = require <span class="string">'./state'</span>
+        <div class="highlight"><pre><span class="nv">state = </span><span class="nx">require</span> <span class="s1">&#39;./state-function&#39;</span>
+<span class="nv">State = </span><span class="nx">require</span> <span class="s1">&#39;./state&#39;</span>
 
-{ O } = state
+<span class="p">{</span> <span class="nx">O</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">state</span>
 
-module.exports =</pre></div>
+<span class="nv">module.exports =</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h2><a href="#state-event-emitter">StateEventEmitter</a></h2>
+        
+<h2><a href="#state-event-emitter">StateEventEmitter</a></h2>
 <p>A <code>State</code> defines a <code>StateEventEmitter</code> for each of its event types.</p>
 <p>For the purposes of <code>StateEventEmitter</code>s, a <em>callback</em> is normally a function,
 but may also take the form of a string, which, when the client <code>state</code>
@@ -78,59 +79,63 @@ named by the string.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">StateEventEmitter</span></span>
+        <div class="highlight"><pre><span class="k">class</span> <span class="nx">StateEventEmitter</span>
 
-  { isArray } = O
+  <span class="p">{</span> <span class="nx">isArray</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">O</span>
 
-  guid = <span class="number">0</span></pre></div>
+  <span class="nv">guid = </span><span class="mi">0</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h3><a href="#state-event-emitter--constructor">Constructor</a></h3>
+        
+<h3><a href="#state-event-emitter--constructor">Constructor</a></h3>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  constructor: ( <span class="property">@state</span> ) -&gt;
-    <span class="property">@items</span> = {}
-    <span class="property">@length</span> = <span class="number">0</span></pre></div>
+        <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">( @state ) -&gt;</span>
+    <span class="vi">@items = </span><span class="p">{}</span>
+    <span class="vi">@length = </span><span class="mi">0</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h3><a href="#state-event-emitter--prototype-methods">Prototype methods</a></h3>
+        
+<h3><a href="#state-event-emitter--prototype-methods">Prototype methods</a></h3>
 <h4><a href="#state-event-emitter--prototype--get">get</a></h4>
 <p>Retrieves a bound callback associated with the provided <code>id</code> as returned by
 <code>add</code>.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  get: ( id ) -&gt;
-    <span class="property">@items</span>[ id ]</pre></div>
+        <div class="highlight"><pre>  <span class="nv">get: </span><span class="nf">( id ) -&gt;</span>
+    <span class="nx">@items</span><span class="p">[</span> <span class="nx">id</span> <span class="p">]</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--get-all">getAll</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--get-all">getAll</a></h4>
 <p>Returns an array of all callbacks bound to this emitter.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  getAll: -&gt;
-    value <span class="keyword">for</span> own key, value <span class="keyword">of</span> <span class="property">@items</span></pre></div>
+        <div class="highlight"><pre>  <span class="nv">getAll: </span><span class="o">-&gt;</span>
+    <span class="nx">value</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">@items</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--set">set</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--set">set</a></h4>
 <p>Adds or replaces a callback bound to a specific key.</p>
 <ul>
 <li><code>id</code> : string | number</li>
@@ -139,62 +144,66 @@ named by the string.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  set: ( id, callback ) -&gt;
-    { items } = <span class="keyword">this</span>
-    <span class="property">@length</span> += <span class="number">1</span> <span class="keyword">unless</span> id <span class="keyword">of</span> items
-    items[ id ] = callback
-    id</pre></div>
+        <div class="highlight"><pre>  <span class="nv">set: </span><span class="nf">( id, callback ) -&gt;</span>
+    <span class="p">{</span> <span class="nx">items</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+    <span class="nx">@length</span> <span class="o">+=</span> <span class="mi">1</span> <span class="nx">unless</span> <span class="nx">id</span> <span class="k">of</span> <span class="nx">items</span>
+    <span class="nx">items</span><span class="p">[</span> <span class="nx">id</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">callback</span>
+    <span class="nx">id</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--key">key</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--key">key</a></h4>
 <p>Retrieves the <code>id</code> string associated with the bound <code>callback</code>.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  key: ( callback ) -&gt;
-    <span class="keyword">return</span> key <span class="keyword">if</span> value <span class="keyword">is</span> callback <span class="keyword">for</span> own key, value <span class="keyword">of</span> <span class="property">@items</span></pre></div>
+        <div class="highlight"><pre>  <span class="nv">key: </span><span class="nf">( callback ) -&gt;</span>
+    <span class="k">return</span> <span class="nx">key</span> <span class="k">if</span> <span class="nx">value</span> <span class="o">is</span> <span class="nx">callback</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">@items</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--keys">keys</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--keys">keys</a></h4>
 <p>Returns the set of <code>id</code> strings associated with all bound callbacks.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  keys: -&gt;
-    key <span class="keyword">for</span> own key <span class="keyword">of</span> <span class="property">@items</span></pre></div>
+        <div class="highlight"><pre>  <span class="nv">keys: </span><span class="o">-&gt;</span>
+    <span class="nx">key</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span> <span class="k">of</span> <span class="nx">@items</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--add">add</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--add">add</a></h4>
 <p>Binds a callback and optional context object.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  add: ( callback, context ) -&gt;
-    id = guid += <span class="number">1</span>
-    <span class="property">@items</span>[ id ] = <span class="keyword">if</span> context? <span class="keyword">then</span> [ callback, context ] <span class="keyword">else</span> callback
-    <span class="property">@length</span> += <span class="number">1</span>
-    id
+        <div class="highlight"><pre>  <span class="nv">add: </span><span class="nf">( callback, context ) -&gt;</span>
+    <span class="nv">id = </span><span class="nx">guid</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nx">@items</span><span class="p">[</span> <span class="nx">id</span> <span class="p">]</span> <span class="o">=</span> <span class="k">if</span> <span class="nx">context</span><span class="o">?</span> <span class="k">then</span> <span class="p">[</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">context</span> <span class="p">]</span> <span class="k">else</span> <span class="nx">callback</span>
+    <span class="nx">@length</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="nx">id</span>
 
-  @::<span class="literal">on</span> = @::bind = @::add</pre></div>
+  <span class="err">@</span><span class="o">::</span><span class="kc">on</span> <span class="o">=</span> <span class="err">@</span><span class="o">::</span><span class="nv">bind = </span><span class="err">@</span><span class="o">::</span><span class="nx">add</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--remove">remove</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--remove">remove</a></h4>
 <p>Unbinds a callback, identified either by its numeric key or direct reference.</p>
 <ul>
 <li><code>id</code> : string | number | function</li>
@@ -202,38 +211,40 @@ named by the string.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  remove: ( id ) -&gt;
-    { items } = <span class="keyword">this</span>
-    callback = items[ <span class="keyword">if</span> <span class="keyword">typeof</span> id <span class="keyword">is</span> <span class="string">'function'</span> <span class="keyword">then</span> <span class="property">@key</span> id <span class="keyword">else</span> id ]
-    <span class="keyword">return</span> <span class="literal">no</span> <span class="keyword">unless</span> callback
-    <span class="keyword">delete</span> items[ id ]
-    <span class="property">@length</span> -= <span class="number">1</span>
-    callback
+        <div class="highlight"><pre>  <span class="nv">remove: </span><span class="nf">( id ) -&gt;</span>
+    <span class="p">{</span> <span class="nx">items</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+    <span class="nv">callback = </span><span class="nx">items</span><span class="p">[</span> <span class="k">if</span> <span class="k">typeof</span> <span class="nx">id</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span> <span class="k">then</span> <span class="nx">@key</span> <span class="nx">id</span> <span class="k">else</span> <span class="nx">id</span> <span class="p">]</span>
+    <span class="k">return</span> <span class="kc">no</span> <span class="nx">unless</span> <span class="nx">callback</span>
+    <span class="k">delete</span> <span class="nx">items</span><span class="p">[</span> <span class="nx">id</span> <span class="p">]</span>
+    <span class="nx">@length</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="nx">callback</span>
 
-  @::<span class="literal">off</span> = @::unbind = @::remove</pre></div>
+  <span class="err">@</span><span class="o">::</span><span class="kc">off</span> <span class="o">=</span> <span class="err">@</span><span class="o">::</span><span class="nv">unbind = </span><span class="err">@</span><span class="o">::</span><span class="nx">remove</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--empty">empty</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--empty">empty</a></h4>
 <p>Removes all callbacks, and returns the number removed.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  empty: -&gt;
-    <span class="keyword">return</span> <span class="number">0</span> <span class="keyword">unless</span> n = <span class="property">@length</span>
-    <span class="property">@items</span> = {}
-    <span class="property">@length</span> = <span class="number">0</span>
-    n</pre></div>
+        <div class="highlight"><pre>  <span class="nv">empty: </span><span class="o">-&gt;</span>
+    <span class="k">return</span> <span class="mi">0</span> <span class="nx">unless</span> <span class="nv">n = </span><span class="nx">@length</span>
+    <span class="vi">@items = </span><span class="p">{}</span>
+    <span class="vi">@length = </span><span class="mi">0</span>
+    <span class="nx">n</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--emit">emit</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--emit">emit</a></h4>
 <p>Invokes all bound callbacks with the provided array of <code>args</code>. Callbacks
 registered with an explicit context are invoked with that stored context.
 Callbacks that are state-bound functions are invoked in the context of the
@@ -242,61 +253,66 @@ its <code>owner</code>.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  emit: ( args, autostate = <span class="property">@state</span> ) -&gt;
-    <span class="keyword">throw</span> TypeError <span class="keyword">unless</span> owner = autostate?.owner
+        <div class="highlight"><pre>  <span class="nv">emit: </span><span class="nf">( args, autostate = @state ) -&gt;</span>
+    <span class="k">throw</span> <span class="nx">TypeError</span> <span class="nx">unless</span> <span class="nv">owner = </span><span class="nx">autostate</span><span class="o">?</span><span class="p">.</span><span class="nx">owner</span>
 
-    <span class="keyword">for</span> own key, item <span class="keyword">of</span> <span class="property">@items</span>
-      fn = context = <span class="literal">null</span></pre></div>
+    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">item</span> <span class="k">of</span> <span class="nx">@items</span>
+      <span class="nv">fn = context = </span><span class="kc">null</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <p>Interpret a string or <code>State</code> as an order to transition to the implicated
+        
+<p>Interpret a string or <code>State</code> as an order to transition to the implicated
 <code>State</code> after all the callbacks have been invoked.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>      <span class="keyword">if</span> <span class="keyword">typeof</span> item <span class="keyword">is</span> <span class="string">'string'</span> <span class="keyword">or</span> item <span class="keyword">instanceof</span> State
-        eventualTarget = item
-        <span class="keyword">continue</span>
+        <div class="highlight"><pre>      <span class="k">if</span> <span class="k">typeof</span> <span class="nx">item</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span> <span class="o">or</span> <span class="nx">item</span> <span class="k">instanceof</span> <span class="nx">State</span>
+        <span class="nv">eventualTarget = </span><span class="nx">item</span>
+        <span class="k">continue</span>
 
-      <span class="keyword">if</span> <span class="keyword">typeof</span> item <span class="keyword">is</span> <span class="string">'function'</span> <span class="keyword">then</span> fn = item
-      <span class="keyword">else</span> <span class="keyword">if</span> isArray item <span class="keyword">then</span> [ fn, context ] = item</pre></div>
+      <span class="k">if</span> <span class="k">typeof</span> <span class="nx">item</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span> <span class="k">then</span> <span class="nv">fn = </span><span class="nx">item</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">isArray</span> <span class="nx">item</span> <span class="k">then</span> <span class="p">[</span> <span class="nx">fn</span><span class="p">,</span> <span class="nx">context</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">item</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <p>Unbox any state-bound functions.</p>
+        
+<p>Unbox any state-bound functions.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>      <span class="keyword">else</span> <span class="keyword">if</span> item?.type <span class="keyword">is</span> <span class="string">'state-bound-function'</span>
-        { fn } = item
-        context <span class="keyword">or</span> = autostate
+        <div class="highlight"><pre>      <span class="k">else</span> <span class="k">if</span> <span class="nx">item</span><span class="o">?</span><span class="p">.</span><span class="nx">type</span> <span class="o">is</span> <span class="s1">&#39;state-bound-function&#39;</span>
+        <span class="p">{</span> <span class="nx">fn</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">item</span>
+        <span class="nx">context</span> <span class="o">or</span> <span class="o">=</span> <span class="nx">autostate</span>
 
-      fn.apply context <span class="keyword">or</span> owner, args
+      <span class="nx">fn</span><span class="p">.</span><span class="nx">apply</span> <span class="nx">context</span> <span class="o">or</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">args</span>
 
-    <span class="property">@state</span>.change eventualTarget <span class="keyword">if</span> eventualTarget
+    <span class="nx">@state</span><span class="p">.</span><span class="nx">change</span> <span class="nx">eventualTarget</span> <span class="k">if</span> <span class="nx">eventualTarget</span>
 
-  @::trigger = @::emit</pre></div>
+  <span class="err">@</span><span class="o">::</span><span class="nv">trigger = </span><span class="err">@</span><span class="o">::</span><span class="nx">emit</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h4><a href="#state-event-emitter--prototype--destroy">destroy</a></h4>
+        
+<h4><a href="#state-event-emitter--prototype--destroy">destroy</a></h4>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  destroy: -&gt;
-    <span class="keyword">do</span> <span class="property">@empty</span>
-    <span class="property">@state</span> = <span class="property">@items</span> = <span class="literal">null</span>
-    <span class="literal">true</span></pre></div>
+        <div class="highlight"><pre>  <span class="nv">destroy: </span><span class="o">-&gt;</span>
+    <span class="nx">do</span> <span class="nx">@empty</span>
+    <span class="vi">@state = @items = </span><span class="kc">null</span>
+    <span class="kc">true</span>
+
+</pre></div>
       </div>
     </div>
   

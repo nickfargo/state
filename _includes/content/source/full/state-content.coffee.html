@@ -56,32 +56,35 @@
         
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>state = require <span class="string">'./state-function'</span>
+        <div class="highlight"><pre><span class="nv">state = </span><span class="nx">require</span> <span class="s1">&#39;./state-function&#39;</span>
 
-module.exports =</pre></div>
+<span class="nv">module.exports =</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h2><a href="#state-content">StateContent</a></h2>
+        
+<h2><a href="#state-content">StateContent</a></h2>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">StateContent</span></span>
+        <div class="highlight"><pre><span class="k">class</span> <span class="nx">StateContent</span>
 
-  { useDispatchTables } = state.options
+  <span class="p">{</span> <span class="nx">useDispatchTables</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">state</span><span class="p">.</span><span class="nx">options</span>
 
-  constructor: -&gt;
-    <span class="property">@data</span>         = <span class="literal">null</span>
-    <span class="property">@methods</span>      = <span class="literal">null</span>
-    <span class="property">@events</span>       = <span class="literal">null</span>
-    <span class="property">@guards</span>       = <span class="literal">null</span>
-    <span class="property">@substates</span>    = <span class="literal">null</span>
-    <span class="property">@transitions</span>  = <span class="literal">null</span>
+  <span class="nv">constructor: </span><span class="o">-&gt;</span>
+    <span class="vi">@data         = </span><span class="kc">null</span>
+    <span class="vi">@methods      = </span><span class="kc">null</span>
+    <span class="vi">@events       = </span><span class="kc">null</span>
+    <span class="vi">@guards       = </span><span class="kc">null</span>
+    <span class="vi">@substates    = </span><span class="kc">null</span>
+    <span class="vi">@transitions  = </span><span class="kc">null</span>
 
-    <span class="property">@__dispatch_table__</span> = <span class="literal">null</span> <span class="keyword">if</span> useDispatchTables</pre></div>
+    <span class="vi">@__dispatch_table__ = </span><span class="kc">null</span> <span class="k">if</span> <span class="nx">useDispatchTables</span>
+
+</pre></div>
       </div>
     </div>
   

@@ -6,89 +6,94 @@
         
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>state = require <span class="string">'./state-function'</span>
+        <div class="highlight"><pre><span class="nv">state = </span><span class="nx">require</span> <span class="s1">&#39;./state-function&#39;</span>
 
-{
-  O
-  TRANSITION_PROPERTIES
-  TRANSITION_EXPRESSION_CATEGORIES
-  TRANSITION_EVENT_TYPES
-  GUARD_ACTIONS
-} =
-    state
+<span class="p">{</span>
+  <span class="nx">O</span>
+  <span class="nx">TRANSITION_PROPERTIES</span>
+  <span class="nx">TRANSITION_EXPRESSION_CATEGORIES</span>
+  <span class="nx">TRANSITION_EVENT_TYPES</span>
+  <span class="nx">GUARD_ACTIONS</span>
+<span class="p">}</span> <span class="o">=</span>
+    <span class="nx">state</span>
 
-module.exports =</pre></div>
+<span class="nv">module.exports =</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h2><a href="#transition-expression">TransitionExpression</a></h2>
+        
+<h2><a href="#transition-expression">TransitionExpression</a></h2>
 <p>A <code>State</code> may hold <strong>transition expressions</strong> that describe a transition that
 may take place between any two given <strong>origin</strong> and <strong>target</strong> states.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre><span class="class"><span class="keyword">class</span> <span class="title">TransitionExpression</span></span>
+        <div class="highlight"><pre><span class="k">class</span> <span class="nx">TransitionExpression</span>
 
-  { assign, edit, clone } = O
+  <span class="p">{</span> <span class="nx">assign</span><span class="p">,</span> <span class="nx">edit</span><span class="p">,</span> <span class="nx">clone</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">O</span>
 
-  properties   = assign TRANSITION_PROPERTIES, <span class="literal">null</span>
-  categories   = assign TRANSITION_EXPRESSION_CATEGORIES, <span class="literal">null</span>
-  eventTypes   = assign TRANSITION_EVENT_TYPES
-  guardActions = assign GUARD_ACTIONS</pre></div>
+  <span class="nv">properties   = </span><span class="nx">assign</span> <span class="nx">TRANSITION_PROPERTIES</span><span class="p">,</span> <span class="kc">null</span>
+  <span class="nv">categories   = </span><span class="nx">assign</span> <span class="nx">TRANSITION_EXPRESSION_CATEGORIES</span><span class="p">,</span> <span class="kc">null</span>
+  <span class="nv">eventTypes   = </span><span class="nx">assign</span> <span class="nx">TRANSITION_EVENT_TYPES</span>
+  <span class="nv">guardActions = </span><span class="nx">assign</span> <span class="nx">GUARD_ACTIONS</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h3><a href="#transition-expression--constructor">Constructor</a></h3>
+        
+<h3><a href="#transition-expression--constructor">Constructor</a></h3>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  constructor: ( map ) -&gt;
-    map = interpret map <span class="keyword">unless</span> map <span class="keyword">instanceof</span> TransitionExpression
-    edit <span class="string">'deep all'</span>, <span class="keyword">this</span>, map</pre></div>
+        <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">( map ) -&gt;</span>
+    <span class="nv">map = </span><span class="nx">interpret</span> <span class="nx">map</span> <span class="nx">unless</span> <span class="nx">map</span> <span class="k">instanceof</span> <span class="nx">TransitionExpression</span>
+    <span class="nx">edit</span> <span class="s1">&#39;deep all&#39;</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="nx">map</span></pre></div>
       </div>
     </div>
   
     
     <div class="row">
       <div class="text span5">
-        <h3><a href="#transition-expression--private">Private functions</a></h3>
+        
+<h3><a href="#transition-expression--private">Private functions</a></h3>
 <h4><a href="#transition-expression--private--interpret">interpret</a></h4>
 <p>Rewrites a plain object as a well-formed <code>TransitionExpression</code>, making the
 appropriate type inferences for any shorthand notation encountered.</p>
 
       </div>
       <div class="code span11">
-        <div class='highlight'><pre>  <span class="function"><span class="title">interpret</span></span> = ( map ) -&gt;
-    result = assign {}, properties, categories
+        <div class="highlight"><pre>  <span class="nv">interpret = </span><span class="nf">( map ) -&gt;</span>
+    <span class="nv">result = </span><span class="nx">assign</span> <span class="p">{},</span> <span class="nx">properties</span><span class="p">,</span> <span class="nx">categories</span>
 
-    <span class="keyword">for</span> own key, value <span class="keyword">of</span> map
-      <span class="keyword">if</span> key <span class="keyword">of</span> properties
-        result[ key ] = value
-      <span class="keyword">else</span> <span class="keyword">if</span> key <span class="keyword">of</span> categories
-        result[ key ] = clone result[ key ], value
-      <span class="keyword">else</span>
-        category =
-          <span class="keyword">if</span> key <span class="keyword">of</span> eventTypes
-            <span class="string">'events'</span>
-          <span class="keyword">else</span> <span class="keyword">if</span> key <span class="keyword">of</span> guardActions
-            <span class="string">'guards'</span>
-          <span class="keyword">else</span> <span class="keyword">if</span> <span class="keyword">typeof</span> value <span class="keyword">is</span> <span class="string">'functions'</span>
-            <span class="string">'methods'</span>
-        <span class="keyword">if</span> category
-          item = result[ category ]
-          item <span class="keyword">or</span> = result[ category ] = {}
-          item[ key ] = value
+    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">map</span>
+      <span class="k">if</span> <span class="nx">key</span> <span class="k">of</span> <span class="nx">properties</span>
+        <span class="nx">result</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">key</span> <span class="k">of</span> <span class="nx">categories</span>
+        <span class="nx">result</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">clone</span> <span class="nx">result</span><span class="p">[</span> <span class="nx">key</span> <span class="p">],</span> <span class="nx">value</span>
+      <span class="k">else</span>
+        <span class="nv">category =</span>
+          <span class="k">if</span> <span class="nx">key</span> <span class="k">of</span> <span class="nx">eventTypes</span>
+            <span class="s1">&#39;events&#39;</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="nx">key</span> <span class="k">of</span> <span class="nx">guardActions</span>
+            <span class="s1">&#39;guards&#39;</span>
+          <span class="k">else</span> <span class="k">if</span> <span class="k">typeof</span> <span class="nx">value</span> <span class="o">is</span> <span class="s1">&#39;functions&#39;</span>
+            <span class="s1">&#39;methods&#39;</span>
+        <span class="k">if</span> <span class="nx">category</span>
+          <span class="nv">item = </span><span class="nx">result</span><span class="p">[</span> <span class="nx">category</span> <span class="p">]</span>
+          <span class="nx">item</span> <span class="o">or</span> <span class="o">=</span> <span class="nx">result</span><span class="p">[</span> <span class="nx">category</span> <span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+          <span class="nx">item</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">value</span>
 
-    <span class="keyword">for</span> key, value <span class="keyword">of</span> events = result.events
-      events[ key ] = [ value ] <span class="keyword">if</span> <span class="keyword">typeof</span> value <span class="keyword">is</span> <span class="string">'function'</span>
+    <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">events = </span><span class="nx">result</span><span class="p">.</span><span class="nx">events</span>
+      <span class="nx">events</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="nx">value</span> <span class="p">]</span> <span class="k">if</span> <span class="k">typeof</span> <span class="nx">value</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span>
 
-    result</pre></div>
+    <span class="nx">result</span>
+
+</pre></div>
       </div>
     </div>
   
