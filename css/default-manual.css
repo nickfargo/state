@@ -2042,7 +2042,7 @@ pre .tex .formula {
 .nn  { color: #0000FF; font-weight: bold }  /* Name.Namespace */
 .nt  { color: #954121; font-weight: bold }  /* Name.Tag */
 .nv  {
- /* Name.Variable */
+  /* Name.Variable */
   color: #08A36B;
   text-shadow: 0 0 1px rgba(8,163,107,0.3);
 }
@@ -2067,8 +2067,23 @@ pre .tex .formula {
 .ss  { color: #19469D }                     /* Literal.String.Symbol */
 .bp  { color: #954121 }                     /* Name.Builtin.Pseudo */
 .vc  { color: #19469D }                     /* Name.Variable.Class */
+.vf  {
+  /* Name.Variable.Function */
+  color: #54B309;
+  font-weight: bold;
+  background: rgba(84, 179, 9, 0.07);
+  padding: 1px 2px;
+  margin: 0 -2px;
+}
 .vg  { color: #19469D }                     /* Name.Variable.Global */
-.vi  { color: #5A9674; font-weight: bold }  /* Name.Variable.Instance */
+.vi  {
+  /* Name.Variable.Instance */
+  color: #44966E;
+  font-weight: bold;
+  background: rgba(70, 150, 110, 0.05);
+  padding: 1px 2px;
+  margin: 0 -2px;
+}
 .il  { color: #666666 }                     /* Literal.Number.Integer.Long */
 
 .s1 {

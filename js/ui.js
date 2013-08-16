@@ -869,7 +869,7 @@ $( function () {
   });
 });
 
-// ### Pygments coffee-enhancements delivered client-side
+// ### Corrections and enhancements to pygments
 //
 $( function () {
   var $pre = $('.highlight pre');
@@ -878,6 +878,30 @@ $( function () {
   // classify param-less arrows as functions
   $( 'span.o:contains("->"), span.o:contains("=>")', $pre )
     .addClass('nf');
+
+  // classify identifier or key (`nv`) preceding function (`nf`) as `vf`
+  $( 'span.nf', $pre ).prev('span.nv').filter( function () {
+    return /[\w$]\s*=\s*$|[\w$'"]:\s+$/.test( $(this).text() );
+  })
+    .addClass('vf').removeClass('nv');
+
+  // split trailing assignment operator from `nv|vi`
+  $( 'span.nv, span.vi, span.vf', $pre = $('.highlight pre') ).each( function () {
+    var $this = $(this);
+    var match = /(@?[$A-Za-z][$\w]*)(\s*)=(\s*)$/.exec( $this.text() );
+    if ( match ) {
+      $this
+        .text( match[1] )
+        .after( match[2] + '<span class="o">=</span>' + match[3] );
+    }
+  });
+
+  // trim trailing whitespace from identifiers
+  $( 'span.nf, span.vi, span.vf', $pre ).each( function () {
+    var $this = $(this);
+    var match = /(.*?)(\s*)$/.exec( $this.text() );
+    if ( match ) $this.text( match[1] ).after( match[2] );
+  });
 
   // classify `this` and @-sigil expressions as instance variables
   $( 'span.k:contains("this")', $pre )
