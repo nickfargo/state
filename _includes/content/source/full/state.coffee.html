@@ -73,9 +73,14 @@
       <div class="text">
         
 <h2><a href="#state">State</a></h2>
-<p>A <strong>state</strong> defines a subset of behavior for its <strong>owner</strong> object. Each <code>State</code>
-holds a reference to a <code>superstate</code>, from which it may inherit more generic
-behavior, forming a <em>state tree</em> rooted by a single <code>RootState</code>.</p>
+<p>A <strong>state</strong> defines a subset of behavior for its <strong>owner</strong> object. Each
+<a href="/api/#state"><code>State</code></a> holds a reference to a <code>superstate</code>, from which it may
+inherit more generic behavior, forming a <em>state tree</em> rooted by a single
+<code>RootState</code>.</p>
+<blockquote>
+<p><a href="/docs/#concepts--inheritance">Inheritance</a>
+<a href="/docs/#concepts--inheritance--superstates-and-substates">Superstates and substates</a></p>
+</blockquote>
 <p>The owner’s <code>RootState</code> designates exactly one of the <code>State</code>s in its tree as
 its <code>current</code> state. This reference may be <strong>transitioned</strong> to a different
 <code>State</code> in the tree, causing the owner’s projected behavior to change.</p>
@@ -84,7 +89,7 @@ prototype chain. Inheritors of a stateful prototype effectively possess all of
 the prototype’s <code>State</code>s, but each inheritor can adopt its own <code>current</code> state
 and instigate transitions independently of the prototype.</p>
 <blockquote>
-<p><a href="/api/#state">State</a></p>
+<p><a href="/docs/#concepts--inheritance--protostates-and-epistates">Protostates and epistates</a></p>
 </blockquote>
 
       </div>
@@ -486,7 +491,7 @@ ancestor superstates as necessary to reach a real <code>State</code> within that
 This will be the newly created virtual state, unless virtualization was
 unnecessary, in which case it will be the extant real epistate of <code>this</code>.</p>
 <blockquote>
-<p><a href="/docs/#concepts--inheritance--protostates">Protostates</a></p>
+<p><a href="/docs/#concepts--inheritance--virtual-epistates">Virtual epistates</a></p>
 </blockquote>
 
       </div>
@@ -1112,7 +1117,7 @@ ancestor of <code>other</code>, or vice versa, then that ancestor is returned.</
     <div class="pair">
       <div class="text">
         
-<h4><a href="#state--prototype--isIn">isIn</a></h4>
+<h4><a href="#state--prototype--is-in">isIn</a></h4>
 <p>Determines whether <code>this</code> is or is a substate of <code>other</code>.</p>
 
       </div>
@@ -1127,7 +1132,7 @@ ancestor of <code>other</code>, or vice versa, then that ancestor is returned.</
     <div class="pair">
       <div class="text">
         
-<h4><a href="#state--prototype--hasSubstate">hasSubstate</a></h4>
+<h4><a href="#state--prototype--has-substate">hasSubstate</a></h4>
 <p>Determines whether <code>this</code> is or is a superstate of <code>other</code>.</p>
 
       </div>
@@ -1142,7 +1147,7 @@ ancestor of <code>other</code>, or vice versa, then that ancestor is returned.</
     <div class="pair">
       <div class="text">
         
-<h4><a href="#state--prototype--isSuperstateOf">isSuperstateOf</a></h4>
+<h4><a href="#state--prototype--is-superstate-of">isSuperstateOf</a></h4>
 <p>Determines whether <code>this</code> is a superstate of <code>other</code>.</p>
 
       </div>

@@ -70,7 +70,7 @@ Listeners receive four objects as arguments: the contents of the `mutation` expe
 {% include examples/docs/events--mutation.coffee %}
 {% endhighlight %}
 
-> [`state/mutation.js`](/source/#state--mutation.js)
+> [`state/mutation.js`](/source/state.html#state--mutation.js)
 
 #### [Custom event types](#concepts--events--custom)
 
@@ -83,7 +83,7 @@ A state’s `emit` method allows any type of event to be broadcast and consumed.
 {% include examples/docs/events--custom.coffee %}
 {% endhighlight %}
 
-> [`State.privileged.emit`](/source/#state--privileged--emit)
+> [`State.privileged.emit`](/source/state.html#state--privileged--emit)
 
 #### [Using events to express simple determinism](#concepts--events--expressing-determinism)
 

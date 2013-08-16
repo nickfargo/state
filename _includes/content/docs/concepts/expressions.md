@@ -7,8 +7,8 @@ A formal `StateExpression` is created by calling the [`state()`](#getting-starte
 Internally, the contents of a state expression are shaped according to a set of **categories**: `data`, `methods`, `events`, `guards`, `states` (substates), and `transitions`, along with the encoded `attributes`. The object map supplied to the `state()` call can be structured according to these categories, or it may be pared down to a more convenient shorthand, which, by making certain type inferences, the `state()` call will interpret into a formal `StateExpression`.
 
 > [express](/api/#state--methods--express)
-> [`state()`](/source/#module)
-> [`StateExpression`](/source/#state-expression)
+> [`state()`](/source/state-function.html)
+> [`StateExpression`](/source/state-expression.html)
 
 <div class="local-toc"></div>
 
@@ -60,7 +60,7 @@ Expression input provided to `state()` is interpreted according to the following
 
 5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
 
-> [`StateExpression interpret`](/source/#state-expression--private--interpret)
+> [`StateExpression interpret`](/source/state-expression.html#state-expression--private--interpret)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--expressions">Expressions</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

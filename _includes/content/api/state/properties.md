@@ -25,7 +25,7 @@ this.name
 
 > [**path**](#state--methods--path)
 
-> [`State` constructor](/source/#state--constructor)
+> [`State` constructor](/source/state.html#state--constructor)
 
 
 #### [owner](#state--properties--owner)
@@ -50,7 +50,7 @@ this.owner
 
 ###### See also
 
-> [`State` constructor](/source/#state--constructor)
+> [`State` constructor](/source/state.html#state--constructor)
 
 
 #### [root](#state--properties--root)
@@ -76,7 +76,7 @@ this.root
 ###### See also
 
 > [The root state](/docs/#concepts--inheritance--the-root-state)
-> [`State` constructor](/source/#state--constructor)
+> [`State` constructor](/source/state.html#state--constructor)
 
 
 #### [superstate](#state--properties--superstate)
@@ -102,4 +102,30 @@ this.superstate
 ###### See also
 
 > [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
-> [`State` constructor](/source/#state--constructor)
+> [`State` constructor](/source/state.html#state--constructor)
+
+
+#### [protostate](#state--properties--protostate)
+
+References the `State` that is `this` state’s immediate protostate.
+
+###### Syntax
+
+{% highlight javascript %}
+this.protostate
+{% endhighlight %}
+
+###### Example
+
+{% highlight javascript %}
+{% include examples/api/state/properties--protostate.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/properties--protostate.coffee %}
+{% endhighlight %}
+
+###### See also
+
+> [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [`State` constructor](/source/state.html#state--constructor)

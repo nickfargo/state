@@ -42,7 +42,7 @@ When expressing a substate within a state expression, calling `state` with a lon
 ###### See also
 
 > [Getting started: The `state` function](/docs/#getting-started--the-state-function)
-> [`state()`](/source/#state-function)
+> [`state()`](/source/state-function.html)
 
 
 #### [state.bind](#state-function--bind)

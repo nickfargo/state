@@ -31,7 +31,7 @@ Any state may be ordered to keep a **history** of its own internal state. Entrie
 
 #### [Optimization](#about--roadmap--optimization)
 
-* **Further granularize the [`State realize`](/source/#state--private--realize) function** such that each of the internal closed objects (`data`, `methods`, etc.), and their associated per-instance methods, would be dynamically added only as needed.
+* **Further granularize the [`State realize`](/source/state.html#state--private--realize) function** such that each of the internal closed objects (`data`, `methods`, etc.), and their associated per-instance methods, would be dynamically added only as needed.
 
 * **Allow opt-in to ES5’s meta-programming features and Harmony Proxies** on supporting platforms to more deeply embed the state implementation into objects.
 

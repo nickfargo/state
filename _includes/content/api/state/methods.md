@@ -41,8 +41,8 @@ If `this` is both `virtual` and `mutable`, then calling any of its `add...` meth
 
 > [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
-> [`State realize`](/source/#state--private--realize)
-> [`State::realize`](/source/#state--prototype--realize)
+> [`State realize`](/source/state.html#state--private--realize)
+> [`State::realize`](/source/state.html#state--prototype--realize)
 
 
 #### [destroy](#state--methods--destroy)
@@ -67,7 +67,7 @@ If the root state is destroyed, the owner is given back any methods it bore prio
 
 ###### See also
 
-> [`State::destroy`](/source/#state--prototype--destroy)
+> [`State::destroy`](/source/state.html#state--prototype--destroy)
 
 
 #### [express](#state--methods--express)
@@ -101,7 +101,7 @@ The generated plain-object, or equivalent `StateExpression` if `typed` is `true`
 ###### See also
 
 > [Expressions](/docs/#concepts--expressions)
-> [`State::express`](/source/#state--prototype--express)
+> [`State::express`](/source/state.html#state--prototype--express)
 
 
 #### [mutate](#state--methods--mutate)
@@ -141,7 +141,7 @@ If the transaction causes a mutation, `this` emits a [`mutate` event](#state--ev
 ###### See also
 
 > [Mutation events](/docs/#concepts--events--mutation)
-> [`State::mutate`](/source/#state--prototype--mutate)
+> [`State::mutate`](/source/state.html#state--prototype--mutate)
 
 
 #### [derivation](#state--methods--derivation)
@@ -176,7 +176,7 @@ If `byName` is `true`, the returned `Array` contains the string names of each st
 
 ###### See also
 
-> [`State::derivation`](/source/#state--prototype--derivation)
+> [`State::derivation`](/source/state.html#state--prototype--derivation)
 
 
 #### [path](#state--methods--path)
@@ -205,7 +205,7 @@ A string that matches the absolute selector referencing `this` state.
 
 ###### See also
 
-> [`State::path`](/source/#state--prototype--path)
+> [`State::path`](/source/state.html#state--prototype--path)
 
 
 #### [depth](#state--methods--depth)
@@ -234,7 +234,7 @@ The number of superstates separating `this` state from its root state.
 
 ###### See also
 
-> [`State::depth`](/source/#state--prototype--depth)
+> [`State::depth`](/source/state.html#state--prototype--depth)
 
 
 #### [common](#state--methods--common)
@@ -267,7 +267,7 @@ The `State` that is the nearest common ancestor of both `this` state and the pro
 
 ###### See also
 
-> [`State::common`](/source/#state--prototype--common)
+> [`State::common`](/source/state.html#state--prototype--common)
 
 
 #### [is](#state--methods--is)
@@ -300,7 +300,7 @@ A boolean indicating whether `this` state is the provided `other` state.
 
 ###### See also
 
-> [`State::is`](/source/#state--prototype--is)
+> [`State::is`](/source/state.html#state--prototype--is)
 
 
 #### [isIn](#state--methods--is-in)
@@ -333,7 +333,7 @@ A boolean indicating whether `this` state is or is a substate of the provided `o
 
 ###### See also
 
-> [`State::isIn`](/source/#state--prototype--is-in)
+> [`State::isIn`](/source/state.html#state--prototype--is-in)
 
 
 #### [hasSubstate](#state--methods--has-substate)
@@ -366,7 +366,7 @@ A boolean indicating whether `this` state is or is a superstate of the provided 
 
 ###### See also
 
-> [`State::hasSubstate`](/source/#state--prototype--has-substate)
+> [`State::hasSubstate`](/source/state.html#state--prototype--has-substate)
 
 
 #### [isSuperstateOf](#state--methods--is-superstate-of)
@@ -401,10 +401,10 @@ A boolean indicating whether `this` state is a superstate of the provided `other
 
 > [**superstate**](#state--superstate)
 
-> [`State::isSuperstateOf`](/source/#state--prototype--is-superstate-of)
+> [`State::isSuperstateOf`](/source/state.html#state--prototype--is-superstate-of)
 
 
-#### [getProtostate](#state--methods--getProtostate)
+#### [getProtostate](#state--methods--get-protostate)
 
 Identifies the `State` analogous to `this` owned by a prototype of the `owner`.
 
@@ -433,7 +433,7 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 ###### See also
 
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
-> [`State::getProtostate`](/source/#state--prototype--getProtostate)
+> [`State::getProtostate`](/source/state.html#state--prototype--get-protostate)
 
 
 #### [isProtostateOf](#state--methods--is-protostate-of)
@@ -469,7 +469,7 @@ A boolean indicating whether `this` state is a **protostate** of the provided `o
 > [**protostate**](#state--protostate)
 
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
-> [`State::isProtostateOf`](/source/#state--prototype--is-prototstate-of)
+> [`State::isProtostateOf`](/source/state.html#state--prototype--is-prototstate-of)
 
 
 #### [defaultSubstate](#state--methods--default-substate)
@@ -508,7 +508,7 @@ The `State` that is `this` state’s first substate bearing the `default` attrib
 
 ###### See also
 
-> [`State::defaultSubstate`](/source/#state--prototype--default-substate)
+> [`State::defaultSubstate`](/source/state.html#state--prototype--default-substate)
 
 
 #### [initialSubstate](#state--methods--initial-substate)
@@ -525,7 +525,7 @@ The `State` that is `this` state’s most deeply nested state bearing the `initi
 
 ###### See also
 
-> [`State::initialSubstate`](/source/#state--prototype--initial-substate)
+> [`State::initialSubstate`](/source/state.html#state--prototype--initial-substate)
 
 
 #### [query](#state--methods--query)
@@ -564,7 +564,7 @@ Calling an owner object’s accessor method with a selector string invokes `quer
 
 > [Getting started](/docs/#getting-started)
 > [Selectors](/docs/#concepts--selectors)
-> [`State::query`](/source/#state--prototype--query)
+> [`State::query`](/source/state.html#state--prototype--query)
 
 
 #### [$](#state--methods--dollarsign)
@@ -951,7 +951,7 @@ An object clone of the data attached to `this` state, including any data inherit
 
 ###### See also
 
-> [`State::data`](/source/#state--prototype--data)
+> [`State::data`](/source/state.html#state--prototype--data)
 
 
 #### [data (write)](#state--methods--data--write)
@@ -980,7 +980,7 @@ If the operation results in a change to `this` state’s data, a `mutate` event 
 
 ###### See also
 
-> [`State::data`](/source/#state--prototype--data)
+> [`State::data`](/source/state.html#state--prototype--data)
 
 
 #### [has](#state--methods--has)
@@ -1004,7 +1004,7 @@ Supports `long.key` lookups for deeply nested properties.
 
 ###### See also
 
-> [`State::has`](/source/#state--prototype--has)
+> [`State::has`](/source/state.html#state--prototype--has)
 
 
 #### [get](#state--methods--get)
@@ -1030,7 +1030,7 @@ The value of the `data` property with the given `key` on `this` state, or one in
 
 Supports `long.key` lookups for deeply nested properties. Returns `undefined` if `key` cannot be resolved.
 
-> [`State::get`](/source/#state--prototype--get)
+> [`State::get`](/source/state.html#state--prototype--get)
 
 
 #### [let](#state--methods--let)
@@ -1062,7 +1062,7 @@ Supports `long.key` assignments to deeply nested properties.
 
 ###### See also
 
-> [`State::let`](/source/#state--prototype--let)
+> [`State::let`](/source/state.html#state--prototype--let)
 
 
 #### [set](#state--methods--set)
@@ -1094,7 +1094,7 @@ Supports `long.key` assignments to deeply nested properties.
 
 ###### See also
 
-> [`State::set`](/source/#state--prototype--set)
+> [`State::set`](/source/state.html#state--prototype--set)
 
 
 #### [delete](#state--methods--delete)
@@ -1121,7 +1121,7 @@ Supports `long.key` lookups for deeply nested properties.
 
 ###### See also
 
-> [`State::delete`](/source/#state--prototype--delete)
+> [`State::delete`](/source/state.html#state--prototype--delete)
 
 
 #### [method](#state--methods--method)
@@ -1150,7 +1150,7 @@ If an `out` object is supplied, then the returned `function` is attached to `out
 
 ###### See also
 
-> [`State::method`](/source/#state--prototype--method)
+> [`State::method`](/source/state.html#state--prototype--method)
 
 
 #### [methodNames](#state--methods--method-names)
@@ -1167,7 +1167,7 @@ An `Array` of names of methods defined locally on `this` state.
 
 ###### See also
 
-> [`State::methodNames`](/source/#state--prototype--method-names)
+> [`State::methodNames`](/source/state.html#state--prototype--method-names)
 
 
 #### [addMethod](#state--methods--add-method)
@@ -1191,7 +1191,7 @@ this.addMethod( methodName, fn )
 
 ###### See also
 
-> [`State::addMethod`](/source/#state--prototype--add-method)
+> [`State::addMethod`](/source/state.html#state--prototype--add-method)
 
 
 #### [removeMethod](#state--methods--remove-method)
@@ -1210,7 +1210,7 @@ this.removeMethod( methodName )
 
 ###### See also
 
-> [`State::removeMethod`](/source/#state--prototype--remove-method)
+> [`State::removeMethod`](/source/state.html#state--prototype--remove-method)
 
 
 #### [hasMethod](#state--methods--has-method)
@@ -1233,7 +1233,7 @@ Boolean.
 
 ###### See also
 
-> [`State::hasMethod`](/source/#state--prototype--has-method)
+> [`State::hasMethod`](/source/state.html#state--prototype--has-method)
 
 
 #### [hasOwnMethod](#state--methods--has-own-method)
@@ -1256,7 +1256,7 @@ Boolean.
 
 ###### See also
 
-> [`State::hasOwnMethod`](/source/#state--prototype--has-own-method)
+> [`State::hasOwnMethod`](/source/state.html#state--prototype--has-own-method)
 
 
 #### [apply](#state--methods--apply)
@@ -1288,7 +1288,7 @@ If the named method does not exist and cannot be inherited, a `noSuchMethod` eve
 
 ###### See also
 
-> [`State::apply`](/source/#state--prototype--apply)
+> [`State::apply`](/source/state.html#state--prototype--apply)
 
 
 #### [call](#state--methods--call)
@@ -1308,7 +1308,7 @@ this.call( methodName, args... )
 
 ###### See also
 
-> [`State::call`](/source/#state--prototype--call)
+> [`State::call`](/source/state.html#state--prototype--call)
 
 
 #### [event](#state--methods--event)
@@ -1332,7 +1332,7 @@ If an `id` as returned by [`addEvent`](#state--add-event) is provided, the event
 
 ###### See also
 
-> [`State::event`](/source/#state--prototype--event)
+> [`State::event`](/source/state.html#state--prototype--event)
 
 
 #### [addEvent](#state--methods--add-event)
@@ -1361,7 +1361,7 @@ A unique identifier for the listener.
 
 ###### See also
 
-> [`State::addEvent`](/source/#state--prototype--add-event)
+> [`State::addEvent`](/source/state.html#state--prototype--add-event)
 
 
 #### [removeEvent](#state--methods--remove-event)
@@ -1385,7 +1385,7 @@ this.removeEvent( eventType, id )
 
 ###### See also
 
-> [`State::removeEvent`](/source/#state--prototype--remove-event)
+> [`State::removeEvent`](/source/state.html#state--prototype--remove-event)
 
 
 #### [emit](#state--methods--emit)
@@ -1419,7 +1419,7 @@ Listeners bound to superstates and protostates of `this` are also invoked, unles
 
 ###### See also
 
-> [`State::emit`](/source/#state--prototype--emit)
+> [`State::emit`](/source/state.html#state--prototype--emit)
 
 
 #### [guard](#state--methods--guard)
@@ -1452,7 +1452,7 @@ Guards are inherited from protostates, but not from superstates.
 
 ###### See also
 
-> [`State::guard`](/source/#state--prototype--guard)
+> [`State::guard`](/source/state.html#state--prototype--guard)
 
 
 #### [addGuard](#state--methods--add-guard)
@@ -1472,7 +1472,7 @@ this.addGuard( guardType, guard )
 
 ###### See also
 
-> [`State::addGuard`](/source/#state--prototype--add-guard)
+> [`State::addGuard`](/source/state.html#state--prototype--add-guard)
 
 
 #### [removeGuard](#state--methods--remove-guard)
@@ -1492,7 +1492,7 @@ this.removeGuard( guardType, keys )
 
 ###### See also
 
-> [`State::removeGuard`](/source/#state--prototype--remove-guard)
+> [`State::removeGuard`](/source/state.html#state--prototype--remove-guard)
 
 
 #### [substate](#state--methods--substate)
@@ -1516,7 +1516,7 @@ The substate of `this` state named `stateName`. If no such substate exists local
 
 ###### See also
 
-> [`State::substate`](/source/#state--prototype--substate)
+> [`State::substate`](/source/state.html#state--prototype--substate)
 
 
 #### [substates](#state--methods--substates)
@@ -1546,7 +1546,7 @@ If `virtual` is `true`, the returned array may include any active virtual states
 
 ###### See also
 
-> [`State::substates`](/source/#state--prototype--substates)
+> [`State::substates`](/source/state.html#state--prototype--substates)
 
 
 #### [addSubstate](#state--methods--add-substate)
@@ -1574,7 +1574,7 @@ If a substate with the same `stateName` already exists, it is first destroyed an
 
 ###### See also
 
-> [`State::addSubstate`](/source/#state--prototype--add-substate)
+> [`State::addSubstate`](/source/state.html#state--prototype--add-substate)
 
 
 #### [removeSubstate](#state--methods--remove-substate)
@@ -1601,7 +1601,7 @@ If the owner object is in the midst of a transition involving the state targeted
 
 ###### See also
 
-> [`State::removeSubstate`](/source/#state--prototype--remove-substate)
+> [`State::removeSubstate`](/source/state.html#state--prototype--remove-substate)
 
 
 #### [transition](#state--methods--transition)

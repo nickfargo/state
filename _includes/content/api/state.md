@@ -13,7 +13,7 @@ In addition, a state also recognizes the owner object’s prototypal inheritance
 > [**Overview**](/docs/#overview)
 > [States](/docs/#concepts--states)
 > [Inheritance](/docs/#concepts--inheritance)
-> [`State`](/source/#state)
+> [`State`](/source/state.html)
 
 <div class="local-toc"></div>
 

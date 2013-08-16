@@ -57,9 +57,9 @@ If a new transition is started while a transition is already in progress, an `ab
 
 ###### See also
 
-> [`Transition`](/source/#transition)
-> [`TransitionExpression`](/source/#transition-expression)
-> [`RootState::change`](/source/#root-state--prototype--change)
+> [`Transition`](/source/transition.html)
+> [`TransitionExpression`](/source/transition-expression.html)
+> [`RootState::change`](/source/root-state.html#root-state--prototype--change)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--transitions">Transitions</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

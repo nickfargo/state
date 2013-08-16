@@ -25,7 +25,7 @@ The root state also acts as the *default method store* for the object’s state 
 [**Dispatcher methods**](#concepts--methods--dispatchers)
 
 > [root](/api/#state--methods--root)
-> [`State::root`](/source/#state--prototype--root)
+> [`State::root`](/source/state.html#state--prototype--root)
 
 #### [Superstates and substates](#concepts--inheritance--superstates-and-substates)
 
@@ -93,10 +93,10 @@ When an accessor method (`person.state`) is called, it first checks the context 
 
 When an inheritor adopts a protostate as its current state, the currency is borne by a temporary, lightweight **virtual epistate** that is created in the inheritor’s state tree. Virtual states exist only so long as they are active and necessary; once the object transitions elsewhere, any virtual states consequently rendered inactive are automatically destroyed.
 
-> [`createAccessor`](/source/#state-controller--private--create-accessor)
+> [`createAccessor`](/source/root-state.html#root-state--private--create-accessor)
 
-> [`State` constructor](/source/#state--constructor)
-> [`State::protostate`](/source/#state--prototype--protostate)
+> [`State` constructor](/source/state.html#state--constructor)
+> [`State::protostate`](/source/state.html#state--prototype--protostate)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--inheritance">Inheritance</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

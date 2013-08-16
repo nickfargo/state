@@ -182,7 +182,7 @@ The `default` attribute is inherited from protostates.
 > [`defaultSubstate`](#state--methods--default-substate)
 
 > [Abstraction attributes](/docs/#concepts--attributes--abstraction)
-> [`State::defaultSubstate`](/source/#state--prototype--default-substate)
+> [`State::defaultSubstate`](/source/state.html#state--prototype--default-substate)
 
 
 #### [initial](#state--attributes--initial)
@@ -211,7 +211,7 @@ The `initial` attribute is inherited from protostates.
 > [`initialSubstate`](#state--methods--initial-substate)
 
 > [Destination attributes](/docs/#concepts--attributes--destination)
-> [`State::initialSubstate`](/source/#state--prototype--initial-substate)
+> [`State::initialSubstate`](/source/state.html#state--prototype--initial-substate)
 
 
 #### [conclusive](#state--attributes--conclusive)

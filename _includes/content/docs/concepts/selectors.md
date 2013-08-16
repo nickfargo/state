@@ -26,7 +26,7 @@ Selectors are similarly put to use elsewhere as well: a [transition](#concepts--
 
 > [query](/api/#state--methods--query)
 > [$](/api/#state--methods--dollarsign)
-> [`State::query`](/source/#state--prototype--query)
+> [`State::query`](/source/state.html#state--prototype--query)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--selectors">Selectors</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

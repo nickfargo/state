@@ -199,7 +199,7 @@ Listeners receive the contents of the `mutation` experienced by the state, the `
 
 > [`mutate` (method)](#state--methods--mutate)
 
-> [`State::mutate`](/source/#state--prototype--mutate)
+> [`State::mutate`](/source/state.html#state--prototype--mutate)
 
 
 #### [noSuchMethod](#state--events--no-such-method)
@@ -227,7 +227,7 @@ Listeners receive the `methodName` of the method that was called, and an `args` 
 
 ###### See also
 
-> [`State::apply`](/source/#state--prototype--apply)
+> [`State::apply`](/source/state.html#state--prototype--apply)
 
 
 #### [noSuchMethod:name](#state--events--no-such-method-name)
@@ -254,4 +254,4 @@ Listeners receive the arguments as they were passed to the call.
 
 ###### See also
 
-> [`State::apply`](/source/#state--prototype--apply)
+> [`State::apply`](/source/state.html#state--prototype--apply)

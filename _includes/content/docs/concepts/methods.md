@@ -22,8 +22,8 @@ The dispatcher’s job is to redirect all invocations to the owner’s current s
 
 ###### See also
 
-> [`State createDispatcher`](/source/#state--private--create-dispatcher)
-> [`State::addMethod`](/source/#state--prototype--add-method)
+> [`State createDispatcher`](/source/state.html#state--private--create-dispatcher)
+> [`State::addMethod`](/source/state.html#state--prototype--add-method)
 
 
 
@@ -52,10 +52,10 @@ Worth noting here is the significant difference distinguishing these `apply` and
 > [apply](/api/#state--methods--apply)
 > [call](/api/#state--methods--call)
 
-> [`state.bind`](/source/#state-function--bind)
-> [`State::method`](/source/#state--prototype--method)
-> [`State::apply`](/source/#state--prototype--apply)
-> [`State::call`](/source/#state--prototype--call)
+> [`state.bind`](/source/state-function.html#state-function--bind)
+> [`State::method`](/source/state.html#state--prototype--method)
+> [`State::apply`](/source/state.html#state--prototype--apply)
+> [`State::call`](/source/state.html#state--prototype--call)
 
 
 
@@ -93,7 +93,7 @@ In such a case the distinction and relationship between `autostate` and `this` i
 ###### See also
 
 > [state.fix](/api/#state-function--fix)
-> [`state.fix`](/source/#state-function--fix)
+> [`state.fix`](/source/state-function.html#state-function--fix)
 
 > [Lexical bindings in state methods](/blog/#lexical-bindings-in-state-methods)
 
@@ -120,7 +120,7 @@ Also emitted is a specific [`noSuchMethod:name`](/api/#state--events--no-such-me
 > [noSuchMethod](/api/#state--events--no-such-method)
 > [noSuchMethod:name](/api/#state--events--no-such-method-name)
 > [apply](/api/#state--methods--apply)
-> [`State::apply`](/source/#state--prototype--apply)
+> [`State::apply`](/source/state.html#state--prototype--apply)
 
 
 
