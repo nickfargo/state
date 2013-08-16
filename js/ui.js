@@ -318,7 +318,7 @@ $( function () {
   0&&
   ( function () {
     var $li = $('<li class="back">');
-    $('<a href="#">')
+    $('<a href="javascript:void(0)">')
       .on( 'click', function ( event ) {
         event.preventDefault();
         window.history.back();
@@ -330,7 +330,7 @@ $( function () {
   0&&
   ( function () {
     var $li = $('<li class="forward">');
-    $('<a href="#">')
+    $('<a href="javascript:void(0)">')
       .on( 'click', function ( event ) {
         event.preventDefault();
         window.history.forward();
@@ -341,7 +341,7 @@ $( function () {
 
   ( function () {
     var $li = $('<li class="reload">');
-    $('<a href="#">')
+    $('<a href="javascript:void(0)">')
       .on( 'click', function ( event ) {
         event.preventDefault();
         window.location.reload( true );
@@ -368,7 +368,7 @@ $( function () {
 
       function hide () { $toc.addClass('hidden'); }
 
-      $('<a href="#">')
+      $('<a href="javascript:void(0)">')
         .on( 'click', function ( event ) {
           event.preventDefault();
 
@@ -493,7 +493,7 @@ $( function () {
 
   function $item ( className ) {
     return $('<li class="' + className + ' inactive">')
-      .append( $('<a href="#">') );
+      .append( $('<a href="javascript:void(0)">') );
   }
 
   function makeListenerFor ( activeLanguage ) {
@@ -940,7 +940,13 @@ $( function () {
     if ( /^[\[\]]$/.test( $this.text() ) ) $this.addClass('sb');
     if ( /^[\{\}]$/.test( $this.text() ) ) $this.addClass('cb');
   });
-
 });
+
+
+// Hide ToC initially (applicable only when body width < 960)
+$( function () {
+  $('.toc').addClass('hidden');
+});
+
 
 }( jQuery ) );

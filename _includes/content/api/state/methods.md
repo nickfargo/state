@@ -404,14 +404,14 @@ A boolean indicating whether `this` state is a superstate of the provided `other
 > [`State::isSuperstateOf`](/source/#state--prototype--is-superstate-of)
 
 
-#### [protostate](#state--methods--protostate)
+#### [getProtostate](#state--methods--getProtostate)
 
 Identifies the `State` analogous to `this` owned by a prototype of the `owner`.
 
 ###### Syntax
 
 {% highlight javascript %}
-this.protostate()
+this.getProtostate()
 {% endhighlight %}
 
 ###### Returns
@@ -433,12 +433,12 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 ###### See also
 
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
-> [`State::protostate`](/source/#state--prototype--protostate)
+> [`State::getProtostate`](/source/#state--prototype--getProtostate)
 
 
 #### [isProtostateOf](#state--methods--is-protostate-of)
 
-Asserts prototypal ancestry.
+Asserts prototypal ancestry of an `other` `State` relative to `this`; i.e., whether an `other` `State` has an identical `path` to `this` and the `owner` of `other` is a prototype of the `owner` of `this`.
 
 ###### Syntax
 

@@ -31,7 +31,7 @@
 {% endhighlight %}
 
 
-[State methods](/docs/#concepts--methods) express or override behavior of the owner object. Method definitions can be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which they act, and can also be decorated with [fixed bindings](/docs/#concepts--methods--lexical-bindings) that describe the method’s precise [state–lexical environment](/blog/lexical-binding-in-state-methods).
+[State methods](/docs/#concepts--methods) express or override behavior of the **owner**. Methods are normally invoked in the context of the owner, however, a method definition can instead be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which it acts, or also decorated with a [fixed binding](/docs/#concepts--methods--lexical-bindings) to the `State` in which it is defined.
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}
@@ -53,7 +53,7 @@
 {% endhighlight %}
 
 
-To facilitate determinism, [`State`](/api/#state) instances are [immutable by default](/docs/#concepts--attributes--mutability), but they may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
+[`State`](/api/#state) instances are [immutable by default](/docs/#concepts--attributes--mutability), but they may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
 
 {% highlight javascript %}
 {% include examples/index--mutability.js %}
@@ -89,12 +89,10 @@ To facilitate determinism, [`State`](/api/#state) instances are [immutable by de
 
 ### [API reference](/api/)
 
-> [`state()`](/api/#module)
+> [`state()`](/api/#state-function)
 > [`State`](/api/#state)
 > [`Transition`](/api/#transition)
 
 ### [Annotated source](/source/)
-
-### [Unit tests](/tests/)
 
 ### [View on GitHub](http://github.com/nickfargo/state)
