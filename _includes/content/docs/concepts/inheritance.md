@@ -20,7 +20,7 @@ All stateful objects bear a single **root state**, whose `name` is always and un
 
 The root state also acts as the *default method store* for the object’s state implementation, containing any methods originally defined on the object itself for which now exist one or more stateful reimplementations elsewhere within the state tree.
 
-###### See also
+###### SEE ALSO
 
 [**Dispatcher methods**](#concepts--methods--dispatchers)
 

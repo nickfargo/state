@@ -20,7 +20,7 @@ The dispatcher’s job is to redirect all invocations to the owner’s current s
 {% include examples/docs/methods--dispatchers.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`State createDispatcher`](/source/state.html#state--private--create-dispatcher)
 > [`State::addMethod`](/source/state.html#state--prototype--add-method)
@@ -45,7 +45,7 @@ In this way delegation to a superstate’s method is facilitated by the `apply` 
 
 Worth noting here is the significant difference distinguishing these `apply` and `call` methods from their familiar `Function.prototype` counterparts: whereas for a function, the first argument accepted by `apply` and `call` is a context object, for the `State::apply` and `State::call` methods, the first argument is a string that names a method on that state to be invoked.
 
-###### See also
+###### SEE ALSO
 
 > [state.bind](/api/#state-function--bind)
 > [method](/api/#state--methods--method)
@@ -90,12 +90,10 @@ Should a function require insight into both its calling context and its state-le
 
 In such a case the distinction and relationship between `autostate` and `this` is important: if a function is inherited from a protostate, then `autostate` will accordingly be a protostate of `this`; if the function is not inherited, then `autostate` and `this` are identical.
 
-###### See also
+###### SEE ALSO
 
 > [state.fix](/api/#state-function--fix)
 > [`state.fix`](/source/state-function.html#state-function--fix)
-
-> [Lexical bindings in state methods](/blog/#lexical-bindings-in-state-methods)
 
 
 
@@ -115,7 +113,7 @@ Also emitted is a specific [`noSuchMethod:name`](/api/#state--events--no-such-me
 {% include examples/docs/methods--nonexistent.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [noSuchMethod](/api/#state--events--no-such-method)
 > [noSuchMethod:name](/api/#state--events--no-such-method-name)

@@ -2,7 +2,7 @@
 
 #### [construct](#state--events--construct)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( expression ) {}
@@ -12,11 +12,11 @@ function ( expression ) {}
 ( expression ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `expression` : ( `StateExpression` | object )
 
-###### Description
+###### DESCRIPTION
 
 Immediately after a `State` instance has been fully constructed, it emits a `construct` event.
 
@@ -24,7 +24,7 @@ Listeners receive the `expression` object from which the state was constructed.
 
 Since construction is not complete until the state’s substates have themselves been constructed, the full `construct` event sequence of a state tree proceeds bottom-up.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/events--construct.js %}
@@ -34,14 +34,14 @@ Since construction is not complete until the state’s substates have themselves
 {% include examples/api/state/events--construct.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [Existential events](/docs/#concepts--events--existential)
 
 
 #### [destroy](#state--events--destroy)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function () {}
@@ -51,20 +51,20 @@ function () {}
 () ->
 {% endhighlight %}
 
-###### Description
+###### DESCRIPTION
 
 A state is properly deallocated with a call to the [`destroy` method](#state--methods--destroy) of either itself or a superstate. The `destroy` event is emitted immediately prior to the state and its contents being cleared.
 
 Listeners of `destroy` are called with no arguments.
 
-###### See also
+###### SEE ALSO
 
 > [Existential events](/docs/#concepts--events--existential)
 
 
 #### [depart](#state--events--depart)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( transition ) {}
@@ -74,24 +74,24 @@ function ( transition ) {}
 ( transition ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `transition` : `Transition`
 
-###### Description
+###### DESCRIPTION
 
 At the beginning of a transition, exactly one `depart` event is always emitted by the state from which the transition originates.
 
 Listeners receive a reference to the involved `transition`.
 
-###### See also
+###### SEE ALSO
 
 > [Transitional events](/docs/#concepts--events--transitional)
 
 
 #### [exit](#state--events--exit)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( transition ) {}
@@ -101,24 +101,24 @@ function ( transition ) {}
 ( transition ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `transition` : `Transition`
 
-###### Description
+###### DESCRIPTION
 
 During the *ascending phase* of a transition, an `exit` event is emitted by the origin state and any of its superstates that will no longer be active as a result of the transition.
 
 Listeners receive a reference to the involved `transition`.
 
-###### See also
+###### SEE ALSO
 
 > [Transitional events](/docs/#concepts--events--transitional)
 
 
 #### [enter](#state--events--enter)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( transition ) {}
@@ -128,24 +128,24 @@ function ( transition ) {}
 ( transition ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `transition` : `Transition`
 
-###### Description
+###### DESCRIPTION
 
 During the *descending phase* of a transition, an `enter` event is emitted by each state that will become newly active, including the target state.
 
 Listeners receive a reference to the involved `transition`.
 
-###### See also
+###### SEE ALSO
 
 > [Transitional events](/docs/#concepts--events--transitional)
 
 
 #### [arrive](#state--events--arrive)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( transition ) {}
@@ -155,24 +155,24 @@ function ( transition ) {}
 ( transition ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `transition` : `Transition`
 
-###### Description
+###### DESCRIPTION
 
 At the end of a transition, exactly one `arrive` event is always emitted by the transition’s target state.
 
 Listeners receive a reference to the involved `transition`.
 
-###### See also
+###### SEE ALSO
 
 > [Transitional events](/docs/#concepts--events--transitional)
 
 
 #### [mutate](#state--events--mutate)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( mutation, residue, before, after ) {}
@@ -182,20 +182,20 @@ function ( mutation, residue, before, after ) {}
 ( mutation, residue, before, after ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `mutation` : object
 * `residue` : object
 * `before` : object
 * `after` : object
 
-###### Description
+###### DESCRIPTION
 
 When a state’s contents are altered, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
 Listeners receive the contents of the `mutation` experienced by the state, the `residue` containing the contents displaced by the mutation, and a full expression of the state’s contents both `before` and `after` the mutation.
 
-###### See also
+###### SEE ALSO
 
 > [`mutate` (method)](#state--methods--mutate)
 
@@ -204,7 +204,7 @@ Listeners receive the contents of the `mutation` experienced by the state, the `
 
 #### [noSuchMethod](#state--events--no-such-method)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( methodName, args ) {}
@@ -214,25 +214,25 @@ function ( methodName, args ) {}
 ( methodName, args ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `methodName` : string
 * `args` : `Array`
 
-###### Description
+###### DESCRIPTION
 
 When a method is called on an object for which no implementation exists given its current state, a `noSuchMethod` event is emitted.
 
 Listeners receive the `methodName` of the method that was called, and an `args` array of the arguments that were passed to the call.
 
-###### See also
+###### SEE ALSO
 
 > [`State::apply`](/source/state.html#state--prototype--apply)
 
 
 #### [noSuchMethod:name](#state--events--no-such-method-name)
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 function ( arg0, arg1, ... ) {}
@@ -242,16 +242,16 @@ function ( arg0, arg1, ... ) {}
 ( args... ) ->
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `argN` : `var`
 
-###### Description
+###### DESCRIPTION
 
 A generic [`noSuchMethod`](#state--events--no-such-method) event is immediately followed by the emission of a specific `noSuchMethod:name` event, where `name` specifies the method that was called.
 
 Listeners receive the arguments as they were passed to the call.
 
-###### See also
+###### SEE ALSO
 
 > [`State::apply`](/source/state.html#state--prototype--apply)

@@ -945,7 +945,7 @@ $( function () {
 
 // Hide ToC initially (applicable only when body width < 960)
 $( function () {
-  $('.toc').addClass('hidden');
+  $('.toc').addClass('toggled-hidden hidden');
 });
 
 

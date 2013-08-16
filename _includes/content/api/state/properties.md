@@ -5,13 +5,13 @@
 
 The string name of `this` state.
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 this.name
 {% endhighlight %}
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/properties--name.js %}
@@ -21,7 +21,7 @@ this.name
 {% include examples/api/state/properties--name.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [**path**](#state--methods--path)
 
@@ -32,13 +32,13 @@ this.name
 
 References the object that is the **owner** of `this` state.
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 this.owner
 {% endhighlight %}
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/properties--owner.js %}
@@ -48,7 +48,7 @@ this.owner
 {% include examples/api/state/properties--owner.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`State` constructor](/source/state.html#state--constructor)
 
@@ -57,13 +57,13 @@ this.owner
 
 References the `RootState` of the state tree to which `this` state belongs.
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 this.root
 {% endhighlight %}
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/properties--root.js %}
@@ -73,7 +73,7 @@ this.root
 {% include examples/api/state/properties--root.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [The root state](/docs/#concepts--inheritance--the-root-state)
 > [`State` constructor](/source/state.html#state--constructor)
@@ -83,13 +83,13 @@ this.root
 
 References the `State` that is `this` state’s immediate superstate.
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 this.superstate
 {% endhighlight %}
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/properties--superstate.js %}
@@ -99,7 +99,7 @@ this.superstate
 {% include examples/api/state/properties--superstate.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
 > [`State` constructor](/source/state.html#state--constructor)
@@ -109,13 +109,13 @@ this.superstate
 
 References the `State` that is `this` state’s immediate protostate.
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 this.protostate
 {% endhighlight %}
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/properties--protostate.js %}
@@ -125,7 +125,7 @@ this.protostate
 {% include examples/api/state/properties--protostate.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [`State` constructor](/source/state.html#state--constructor)

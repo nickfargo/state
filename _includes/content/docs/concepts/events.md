@@ -49,7 +49,7 @@ During a transition’s traversal from its origin state to its target state, the
 `State` : [**arrive**](/api/#state--events--arrive) — Finally, an `arrive` event will occur exactly once, specifically at the target state, marking the end of the transition.
 
 
-###### See also
+###### SEE ALSO
 
 [**The transition lifecycle**](#concepts--transitions--lifecycle)
 

@@ -153,6 +153,7 @@ h6 {
   margin-left: -6px;
   margin-top: 1em;
   padding: 0 6px;
+  text-shadow: 0 1px 0px rgba(255,255,255,0.9);
 }
 
 h1 a, h1 code, h1 a code,
@@ -1105,6 +1106,14 @@ footer {
   width: 640px;
   margin-top: 120px;
   font-size: 12px;
+  opacity: 0.3;
+  -webkit-transition: opacity 0.6s ease-out;
+     -moz-transition: opacity 0.6s ease-out;
+       -o-transition: opacity 0.6s ease-out;
+          transition: opacity 0.6s ease-out;
+}
+footer:hover {
+  opacity: 1;
 }
   footer ul {
     position: relative;

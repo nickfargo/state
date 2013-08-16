@@ -8,7 +8,7 @@ States are structured as a rooted tree, where **substates** inherit from a singl
 
 In addition, a state also recognizes the owner object’s prototypal inheritance, identifying an identically named and positioned state in the prototype as its **protostate**. Stateful behavior is inherited from protostates first, then from superstates.
 
-###### See also
+###### SEE ALSO
 
 > [**Overview**](/docs/#overview)
 > [States](/docs/#concepts--states)

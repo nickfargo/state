@@ -2,7 +2,7 @@
 
 State attributes are added to a state expression by preceding the `expression` argument of a call to [`state()`](#module) with a space-delimited string argument that names the attributes to be applied.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/docs/attributes.js %}
@@ -12,7 +12,7 @@ State attributes are added to a state expression by preceding the `expression` a
 {% include examples/docs/attributes.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [Attributes](/docs/#concepts--attributes)
 
@@ -21,11 +21,11 @@ State attributes are added to a state expression by preceding the `expression` a
 
 By default, states are **weakly immutable** — their data, methods, guards, substates, and transitions cannot be altered once the state has been constructed. Applying the `mutable` attribute lifts the restriction of immutability, allowing the use of methods such as [`mutate`](#state--methods--mutate), [`addMethod`](#state--methods--add-method), [`addSubstate`](#state--methods--add-substate), etc., which can be used to alter the contents of the state.
 
-###### Notes
+###### NOTES
 
 The `mutable` attribute is inherited from both superstates and protostates, unless any also bear the [`immutable`](#state--attributes--immutable) attribute.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--mutable.js %}
@@ -37,7 +37,7 @@ The `mutable` attribute is inherited from both superstates and protostates, unle
 
 {% include captions/api/state/attributes--mutable.md %}
 
-###### See also
+###### SEE ALSO
 
 > [`isMutable`](#state--methods--is-mutable),
 > [`mutate` (method)](#state--methods--mutate),
@@ -50,11 +50,11 @@ The `mutable` attribute is inherited from both superstates and protostates, unle
 
 Declaring a state `finite` guarantees its hierarchical structure by disabling its `addSubstate` and `removeSubstate` methods after the state has been constructed.
 
-###### Notes
+###### NOTES
 
 The `finite` attribute is inherited from both superstates and protostates, and is imposed with higher precedence than [`mutable`](#state--attributes--mutable).
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--finite.js %}
@@ -66,7 +66,7 @@ The `finite` attribute is inherited from both superstates and protostates, and i
 
 {% include captions/api/state/attributes--finite.md %}
 
-###### See also
+###### SEE ALSO
 
 > [`isFinite`](#state--methods--is-finite)
 
@@ -77,13 +77,13 @@ The `finite` attribute is inherited from both superstates and protostates, and i
 
 Adding `immutable` makes a state **strongly immutable**, whereupon immutability is permanent and absolute: `immutable` contradicts and overrules `mutable`, and implies `finite`, irrespective of whether any of the attributes are literal or inherited.
 
-###### Notes
+###### NOTES
 
 The `immutable` attribute is inherited from both superstates and protostates, and has top precedence over [`mutable`](#state--attributes--mutable) and [`finite`](#state--attributes--finite).
 
 An inheriting owner object may still extend the state implementation of its prototype with states that are new, or that extend protostates, but any of these that inherit from an `immutable` state will implicitly also bear the `immutable` attribute themselves.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--immutable.js %}
@@ -95,7 +95,7 @@ An inheriting owner object may still extend the state implementation of its prot
 
 {% include captions/api/state/attributes--immutable.md %}
 
-###### See also
+###### SEE ALSO
 
 > [`isImmutable`](#state--methods--is-immutable)
 
@@ -110,11 +110,11 @@ The redirection target of an `abstract` state is determined by seeking its first
 
 > As object keys are not strictly ordered, it is a best practice to ensure that, whether literally or via inheritance, exactly one substate of an `abstract` state is always named as its `default`.
 
-###### Notes
+###### NOTES
 
 The `abstract` attribute is inherited from protostates.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--abstract.js %}
@@ -124,7 +124,7 @@ The `abstract` attribute is inherited from protostates.
 {% include examples/api/state/attributes--abstract.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`isAbstract`](#state--methods--is-abstract)
 
@@ -137,11 +137,11 @@ Including the `concrete` attribute will override the [`abstract`](#state--attrib
 
 Any state that is not abstract is by definition concrete, even if not literally attributed as such, and will return `true` in a call to [`isConcrete`](#state--methods--is-concrete).
 
-###### Notes
+###### NOTES
 
 The `concrete` attribute is inherited from protostates.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--concrete.js %}
@@ -151,7 +151,7 @@ The `concrete` attribute is inherited from protostates.
 {% include examples/api/state/attributes--concrete.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`isConcrete`](#state--methods--is-concrete)
 
@@ -162,11 +162,11 @@ The `concrete` attribute is inherited from protostates.
 
 Marking a state `default` designates it as the intended redirection target for any transition that has targeted its [`abstract`](#state--attributes--abstract) superstate.
 
-###### Notes
+###### NOTES
 
 The `default` attribute is inherited from protostates.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--default.js %}
@@ -176,7 +176,7 @@ The `default` attribute is inherited from protostates.
 {% include examples/api/state/attributes--default.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`isDefault`](#state--methods--is-default),
 > [`defaultSubstate`](#state--methods--default-substate)
@@ -191,11 +191,11 @@ Marking a state `initial` specifies which state is to be assumed immediately fol
 
 For an object that inherits its entire state implementation from its prototype, the inheritor’s initial state will be set to the prototype’s current state.
 
-###### Notes
+###### NOTES
 
 The `initial` attribute is inherited from protostates.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--initial.js %}
@@ -205,7 +205,7 @@ The `initial` attribute is inherited from protostates.
 {% include examples/api/state/attributes--initial.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`isInitial`](#state--methods--is-initial),
 > [`initialSubstate`](#state--methods--initial-substate)
@@ -218,11 +218,11 @@ The `initial` attribute is inherited from protostates.
 
 Once a `conclusive` state is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
-###### Notes
+###### NOTES
 
 The `conclusive` attribute is inherited from protostates.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--conclusive.js %}
@@ -232,7 +232,7 @@ The `conclusive` attribute is inherited from protostates.
 {% include examples/api/state/attributes--conclusive.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`isConclusive`](#state--methods--is-conclusive)
 
@@ -245,11 +245,11 @@ Once an object’s currency arrives at a `final` state, no further transitions a
 
 A `final` state is not necessarily [`conclusive`](#state--attributes--conclusive): a transition may [enter](#state--events--enter) a `final` state on its way to a descendant, and still [exit](#state--events--exit) from it later, so long as it never [arrive](#state--events--arrive)s at the `final` state.
 
-###### Notes
+###### NOTES
 
 The `final` attribute is inherited from protostates.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state/attributes--final.js %}
@@ -259,7 +259,7 @@ The `final` attribute is inherited from protostates.
 {% include examples/api/state/attributes--final.coffee %}
 {% endhighlight %}
 
-###### See also
+###### SEE ALSO
 
 > [`isFinal`](#state--methods--is-final)
 

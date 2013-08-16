@@ -2,7 +2,7 @@
 
 The **State** module is exported as a function named `state`. This is used either **(1)** to apply a working state implementation to any **owner** object; or **(2)** to define a **state expression** that declares the content for a [`State`](#state).
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 state( owner, expression )
@@ -13,19 +13,19 @@ state( attributes, expression )
 state( attributes )
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * [`owner`] : object
 * [`attributes`] : string
 * [`expression`] : ( object | `StateExpression` )
 
-###### Returns
+###### RETURNS
 
 If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new state implementation based on the supplied `expression` and [`attributes`](#state--attributes), and returns the owner’s initial `State`.
 
 If no `owner` is provided, `state()` creates and returns a formal `StateExpression` based on the contents of `expression` and `attributes`.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state-function.js %}
@@ -35,39 +35,39 @@ If no `owner` is provided, `state()` creates and returns a formal `StateExpressi
 {% include examples/api/state-function.coffee %}
 {% endhighlight %}
 
-###### Discussion
+###### DISCUSSION
 
 When expressing a substate within a state expression, calling `state` with a lone object literal as `expression` evaluates identically to including just the object itself. It follows then that calling `state` with no arguments expresses an empty `StateExpression`, as would an empty object literal `{}` reference; however, the ideal way to express “empty state” is simply a reference to the `state` function, which is interpreted equivalently while avoiding the extra invocation and/or allocation.
 
-###### See also
+###### SEE ALSO
 
 > [Getting started: The `state` function](/docs/#getting-started--the-state-function)
 > [`state()`](/source/state-function.html)
 
 
-#### [state.bind](#state-function--bind)
 
-Causes a function to be contextually bound to the `State` in which it acts.
+### [Utility functions](#state-function--utility-functions)
 
-###### Syntax
+
+#### [bind](#state-function--bind)
+
+Causes a function to be contextually bound to the `State` in which it acts, providing the means to reliably reference the **superstate** from within that function.
+
+###### SYNTAX
 
 {% highlight javascript %}
 state.bind( fn )
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `fn` : function
 
-###### Description
-
-Wrapping a state method, event listener, etc. provides the means to reliably reference the **superstate** from within that function.
-
-###### Returns
+###### RETURNS
 
 An object that boxes `fn`, marked with a `type` of `state-bound-function`.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state-function--bind.js %}
@@ -77,7 +77,7 @@ An object that boxes `fn`, marked with a `type` of `state-bound-function`.
 {% include examples/api/state-function--bind.coffee %}
 {% endhighlight %}
 
-###### Discussion
+###### DISCUSSION
 
 Normally a state method or event listener will be invoked in the context of the **owner** object. However, certain patterns may require a function to have a static reference to the `State` for which it acts: for example, if a state method wishes to inherit more generic behavior from an implementation located higher in the state tree.
 
@@ -89,34 +89,31 @@ The owner object, meanwhile, although no longer referenced directly as `this`, i
 
 If a state-bound method, event listener, etc. is inherited from a **protostate**, then the prevailing `State` will be the inheriting **epistate**. To capture a reference to the precise `State` in which a function is defined, it must be wrapped with `state.fix`.
 
-###### See also
+###### SEE ALSO
 
+> [Method context](/docs/#concepts--methods--context)
 > [`state.fix`](#state-function--fix)
 
 
-#### [state.fix](#state-function--fix)
+#### [fix](#state-function--fix)
 
-Causes a function to be decorated with fixed bindings that indicate the precise `State` in which it is defined.
+Causes a function to be decorated with fixed bindings that indicate the precise `State` in which it is defined, providing the means to reliably reference the **protostate** from within that function.
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 state.fix( combinator )
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `combinator` : function :: ( `autostate`, [`protostate`] ) → ( `fn` : function )
 
-###### Returns
+###### RETURNS
 
 An object that boxes `fn`, marked with a `type` of `state-fixed-function`.
 
-###### Description
-
-Wrapping a state method, event listener, etc. in `state.fix` provides the means to reliably reference the **protostate** from within that function.
-
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state-function--fix.js %}
@@ -126,7 +123,7 @@ Wrapping a state method, event listener, etc. in `state.fix` provides the means 
 {% include examples/api/state-function--fix.coffee %}
 {% endhighlight %}
 
-###### Discussion
+###### DISCUSSION
 
 For a function to reliably access either the `State` in which it is defined, or important related `State`s such as its protostate, the function must be **lexically bound** to its host `State` by enclosing it within a **decorator**, and wrapping this in a call to `state.fix`.
 
@@ -134,36 +131,37 @@ The decorator is provided as a function that defines parameters `autostate` and 
 
 The fixed, enclosed `fn` is thusly bestowed with full lexical awareness of the particular `State` environment in which it exists.
 
-###### See also
+###### SEE ALSO
 
+> [Lexical bindings](/docs/#concepts--methods--lexical-bindings)
 > [`state.bind`](#state-function--bind)
 
 
-#### [state.own](#state-function--own)
+#### [own](#state-function--own)
 
 Ensures that, for a given `owner`, the `State` returned by a queried `selector` is both *real* and not an inherited protostate.
 
-###### Syntax
+###### SYNTAX
 
 {% highlight javascript %}
 state.own( owner, selector, expr )
 {% endhighlight %}
 
-###### Parameters
+###### PARAMETERS
 
 * `owner` : object
 * `selector` : string
 * [`expr`] : object | `StateExpression`
 
-###### Returns
+###### RETURNS
 
 Either the new real epistate, or `null` if `selector` does not identify a `State` that is heritable by `owner`.
 
-###### Description
+###### DESCRIPTION
 
 Causes the inherited protostate or virtual epistate identified by `selector` to be realized, if necessary, within the state tree of `owner`. If a realization does occur, the new epistate can be augmented by the optional `expr`.
 
-###### Example
+###### EXAMPLE
 
 {% highlight javascript %}
 {% include examples/api/state-function--own.js %}
@@ -177,7 +175,7 @@ Causes the inherited protostate or virtual epistate identified by `selector` to 
 
 > 2. Calling `state.own(o,'A')` instead of `o.state('A')` ensures that the returned `State` is **real** (not *virtual*) and that its `owner` is `o` (not a prototype). The event listener will be held in the state tree of `o`, as expected.
 
-###### See also
+###### SEE ALSO
 
 > [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
