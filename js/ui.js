@@ -888,7 +888,7 @@ $( function () {
   // split trailing assignment operator from `nv|vi`
   $( 'span.nv, span.vi, span.vf', $pre = $('.highlight pre') ).each( function () {
     var $this = $(this);
-    var match = /(@?[$A-Za-z][$\w]*)(\s*)=(\s*)$/.exec( $this.text() );
+    var match = /(.*?)(\s*)=(\s*)$/.exec( $this.text() );
     if ( match ) {
       $this
         .text( match[1] )
@@ -919,6 +919,27 @@ $( function () {
   })
     .add( $( 'span.k:contains("for")', $pre ).next('span.nx:contains("own")') )
     .addClass('k').removeClass('nx');
+
+  // split punctuators into distinct `span`s
+  $( 'span.p', $pre )
+    .filter( function () { return $(this).text().length > 1; })
+    .each( function () {
+      var $this = $(this);
+      var chars = $this.text().split('');
+      var i = 0, l = chars.length, html = '';
+      while ( i < l ) {
+        html += '<span class="p">' + chars[i] + '</span>';
+        i++;
+      }
+      $this.replaceWith( html );
+    });
+
+  // classify paired punctuators
+  $( 'span.p', $pre ).each( function () {
+    var $this = $(this);
+    if ( /^[\[\]]$/.test( $this.text() ) ) $this.addClass('sb');
+    if ( /^[\{\}]$/.test( $this.text() ) ) $this.addClass('cb');
+  });
 
 });
 

@@ -2000,7 +2000,16 @@ pre .tex .formula {
 .err { border: 1px none #FF0000 }           /* Error */
 .k   { color: #0C65EC; font-weight: bold }  /* Keyword */
 .o   { color: #26ADB9; font-weight: bold }  /* Operator */
-.p   { color: #30455A; font-weight: bold }  /* Punctuation */
+.p   { color: #113355; font-weight: bold }  /* Punctuation */
+.p.sb /* Punctuation: Square Bracket */ {
+  color: #887F00;
+  text-shadow: 0 0 2px rgba(255, 240, 0, 0.4);
+  background: rgba(255, 240, 0, 0.1);
+}
+.p.cb /* Punctuation: Curly Brace */ {
+  color: #554F00;
+  text-shadow: 0 0 2px rgba(255, 240, 0, 0.2);
+}
 .cm  { color: #558585; font-style: italic } /* Comment.Multiline */
 .cp  { color: #BC7A00 }                     /* Comment.Preproc */
 .c1  { color: #658585; font-style: italic } /* Comment.Single */
@@ -2028,8 +2037,7 @@ pre .tex .formula {
 .nd  { color: #AA22FF }                     /* Name.Decorator */
 .ni  { color: #999999; font-weight: bold }  /* Name.Entity */
 .ne  { color: #D2413A; font-weight: bold }  /* Name.Exception */
-.nf  {
-  /* Name.Function */
+.nf /* Name.Function */ {
   color: #705;
   font-weight: bold;
   font-style: italic;
@@ -2041,8 +2049,7 @@ pre .tex .formula {
 .nl  { color: #A0A000 }                     /* Name.Label */
 .nn  { color: #0000FF; font-weight: bold }  /* Name.Namespace */
 .nt  { color: #954121; font-weight: bold }  /* Name.Tag */
-.nv  {
-  /* Name.Variable */
+.nv /* Name.Variable */ {
   color: #08A36B;
   text-shadow: 0 0 1px rgba(8,163,107,0.3);
 }
@@ -2067,8 +2074,7 @@ pre .tex .formula {
 .ss  { color: #19469D }                     /* Literal.String.Symbol */
 .bp  { color: #954121 }                     /* Name.Builtin.Pseudo */
 .vc  { color: #19469D }                     /* Name.Variable.Class */
-.vf  {
-  /* Name.Variable.Function */
+.vf /* Name.Variable.Function */ {
   color: #54B309;
   font-weight: bold;
   background: rgba(84, 179, 9, 0.07);
@@ -2076,8 +2082,7 @@ pre .tex .formula {
   margin: 0 -2px;
 }
 .vg  { color: #19469D }                     /* Name.Variable.Global */
-.vi  {
-  /* Name.Variable.Instance */
+.vi /* Name.Variable.Instance */ {
   color: #44966E;
   font-weight: bold;
   background: rgba(70, 150, 110, 0.05);
