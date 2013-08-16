@@ -1353,12 +1353,7 @@ body.source .source-content {
 body.source .controls ul.languages {
   display: none;
 }
-body.source .content .body {
-  left: 0;
-  width: auto;
-}
 body.source .text {
-  width: 360px;
   min-height: 1px;
   font-size: 14px;
   line-height: 20px;
@@ -1369,11 +1364,6 @@ body.source .text p {
 }
 body.source .text a code {
   font-weight: bold;
-}
-body.source .text h3,
-body.source .text h4,
-body.source .text h5 {
-  margin: 0 0 0.25em;
 }
 body.source .text h3 {
   font-size: 21px;
@@ -1392,7 +1382,6 @@ body.source .text h6 {
 }
 
 body.source .code {
-  width: 560px;
 }
 body.source .code pre {
   padding: 12px 0;
@@ -2002,9 +1991,8 @@ pre .tex .formula {
 .o   { color: #26ADB9; font-weight: bold }  /* Operator */
 .p   { color: #113355; font-weight: bold }  /* Punctuation */
 .p.sb /* Punctuation: Square Bracket */ {
-  color: #887F00;
-  text-shadow: 0 0 2px rgba(255, 240, 0, 0.4);
-  background: rgba(255, 240, 0, 0.1);
+  color: #7F7700;
+  text-shadow: 0 0 2px rgba(255, 239, 0, 0.8);
 }
 .p.cb /* Punctuation: Curly Brace */ {
   color: #554F00;

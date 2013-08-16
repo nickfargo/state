@@ -1,35 +1,35 @@
 <div class="source-content">
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre><span class="nv">global = </span><span class="k">this</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>This function will be applied to the package’s exported <code>state</code> function.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre><span class="nv">module.exports = </span><span class="o">-&gt;</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3>Package metadata</h3>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@VERSION = </span><span class="s1">&#39;0.1.2&#39;</span>
 
   <span class="vi">@options =</span>
@@ -39,40 +39,40 @@
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3>Imports</h3>
 <p><strong>State</strong> uses <a href="https://github.com/nickfargo/omicron">Omicron</a> to assist with object manipulation tasks, such as
 differential operations.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@O = </span><span class="p">{</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p><code>env</code> is a set of variables that describe the platform environment.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nx">@env</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>The <code>NIL</code> identity is a sentinel used by diff/patch operations to indicate
 the deletion or nonexistence of a property.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nx">@NIL</span>
 
   <span class="p">}</span> <span class="o">=</span> <span class="nx">require</span> <span class="s1">&#39;omicron&#39;</span></pre></div>
@@ -80,14 +80,14 @@ the deletion or nonexistence of a property.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3>Utility functions</h3>
 <h4>noConflict</h4>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@noConflict = </span><span class="nx">do</span> <span class="o">-&gt;</span>
     <span class="nv">original = </span><span class="nx">global</span><span class="p">.</span><span class="nx">state</span>
     <span class="o">-&gt;</span> <span class="nv">global.state = </span><span class="nx">original</span><span class="p">;</span> <span class="k">this</span></pre></div>
@@ -95,8 +95,8 @@ the deletion or nonexistence of a property.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4>bitfield</h4>
 <p>Creates a bit field map on a given <code>object</code> by associating each string in a
@@ -104,7 +104,7 @@ list of <code>names</code> as a key to a single-bit integer value. Bit values ar
 to keys in order, increasing from <code>1 &lt;&lt; offset</code> onward.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@bitfield = </span><span class="nf">( object = {}, names, offset = 0 ) -&gt;</span>
     <span class="nv">names = </span><span class="nx">names</span><span class="p">.</span><span class="nx">split</span> <span class="sr">/\s+/</span> <span class="k">if</span> <span class="k">typeof</span> <span class="nx">names</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span>
     <span class="nx">object</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="nx">index</span> <span class="o">+</span> <span class="nx">offset</span> <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">index</span> <span class="k">in</span> <span class="nx">names</span>
@@ -113,20 +113,20 @@ to keys in order, increasing from <code>1 &lt;&lt; offset</code> onward.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4>debug</h4>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@debug = </span><span class="o">=&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">.</span><span class="nx">apply</span> <span class="nx">console</span><span class="p">,</span> <span class="nx">arguments</span> <span class="k">if</span> <span class="nx">@env</span><span class="p">.</span><span class="nx">debug</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4>bind</h4>
 <ul>
@@ -140,7 +140,7 @@ to the corresponding <strong>epistate</strong> of that <code>State</code>.</p>
 been the <code>owner</code>, still retain a reference thereto via <code>this.owner</code>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@bind = </span><span class="nx">do</span> <span class="o">-&gt;</span>
     <span class="nv">bind = </span><span class="nf">( fn ) -&gt;</span> <span class="k">new</span> <span class="nx">StateBoundFunction</span> <span class="nx">fn</span>
     <span class="nv">bind.class = </span><span class="k">class</span> <span class="nx">StateBoundFunction</span>
@@ -151,8 +151,8 @@ been the <code>owner</code>, still retain a reference thereto via <code>this.own
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4>fix</h4>
 <ul>
@@ -166,7 +166,7 @@ which the combinator’s returned function will belong, and a reference to
 lexical awareness of, the particular <code>State</code> environment in which it exists.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@fix = </span><span class="nx">do</span> <span class="o">-&gt;</span>
     <span class="nv">fix = </span><span class="nf">( combinator ) -&gt;</span> <span class="k">new</span> <span class="nx">StateFixedFunction</span> <span class="nx">combinator</span>
     <span class="nv">fix.class = </span><span class="k">class</span> <span class="nx">StateFixedFunction</span>
@@ -177,8 +177,8 @@ lexical awareness of, the particular <code>State</code> environment in which it 
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4>own</h4>
 <p>Causes <code>owner</code> to realize and take ownership of the protostate or virtual
@@ -186,7 +186,7 @@ epistate returned by <code>selector</code>. Returns the incipient or extant “o
 augmented with any <code>StateExpression</code> content supplied by the optional <code>expr</code>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@own = </span><span class="nx">do</span> <span class="o">-&gt;</span>
     <span class="nv">rxAccessor = </span><span class="sr">/([$_A-Za-z][$\w]*)::(.*)/</span>
 
@@ -203,13 +203,13 @@ augmented with any <code>StateExpression</code> content supplied by the optional
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3>Miscellaneous constants</h3>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@rxTransitionArrow = </span><span class="sr">/^\s*([\-|=]&gt;)\s*(.*)/</span>
   <span class="vi">@transitionArrowMethods =</span>
     <span class="s1">&#39;-&gt;&#39;</span><span class="o">:</span> <span class="s1">&#39;change&#39;</span>
@@ -218,8 +218,8 @@ augmented with any <code>StateExpression</code> content supplied by the optional
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3>Name sets</h3>
 <p>The <strong>state attribute modifiers</strong> are the subset of attribute names that are
@@ -227,7 +227,7 @@ valid or reserved keywords for the <code>attributes</code> argument in a call to
 exported <code>state()</code> function.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@STATE_ATTRIBUTE_MODIFIERS = </span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    mutable finite static immutable</span>
 <span class="s2">    initial conclusive final</span>
@@ -258,8 +258,8 @@ exported <code>state()</code> function.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3>Bit field enums</h3>
 <h4>State attributes</h4>
@@ -267,7 +267,7 @@ exported <code>state()</code> function.</p>
 of which are included in the constants enumerated here.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@STATE_ATTRIBUTES = </span><span class="nx">@bitfield</span> <span class="p">{</span> <span class="nv">NORMAL: </span><span class="mi">0</span> <span class="p">},</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    INCIPIENT</span>
 <span class="s2">    ATOMIC</span>
@@ -278,14 +278,14 @@ of which are included in the constants enumerated here.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4>Traversal flags</h4>
 <p>Tree-traversal operations use these flags to restrict their recursive scope.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="vi">@TRAVERSAL_FLAGS = </span><span class="nx">@bitfield</span> <span class="p">{</span> <span class="nv">VIA_NONE: </span><span class="mi">0</span><span class="p">,</span> <span class="nv">VIA_ALL: </span><span class="o">~</span><span class="mi">0</span> <span class="p">},</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    VIA_SUB</span>
 <span class="s2">    VIA_SUPER</span>
@@ -299,12 +299,12 @@ of which are included in the constants enumerated here.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre></pre></div>
       </div>
     </div>

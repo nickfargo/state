@@ -107,7 +107,7 @@ $( function () {
   var $fg = $('.toc .fg');
   if ( $fg.children().length ) return;
 
-  var $h = $('.content .body').children('h1, h2, h3, h4, h5');
+  var $h = $('.content .body').find('h1, h2, h3, h4, h5');
   l = $h.length;
   if ( !l ) return;
 

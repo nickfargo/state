@@ -51,11 +51,11 @@
 <div class="source-content">
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre><span class="nv">O                     = </span><span class="nx">require</span> <span class="s1">&#39;omicron&#39;</span>
 <span class="nv">state                 = </span><span class="nx">require</span> <span class="s1">&#39;./state-function&#39;</span>
 <span class="nv">State                 = </span><span class="nx">require</span> <span class="s1">&#39;./state&#39;</span>
@@ -68,8 +68,8 @@
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h2><a href="#root-state">RootState</a></h2>
 <p>A <strong>root state</strong> is the top-level <code>State</code> which holds the authoritative
@@ -77,7 +77,7 @@ reference to the <strong>owner</strong>’s <code>current</code> state, and whic
 of <strong>transitions</strong> that traverse its <strong>state tree</strong>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre><span class="k">class</span> <span class="nx">RootState</span> <span class="k">extends</span> <span class="nx">State</span>
 
   <span class="p">{</span> <span class="nx">rxTransitionArrow</span><span class="p">,</span> <span class="nx">transitionArrowMethods</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">state</span>
@@ -90,8 +90,8 @@ of <strong>transitions</strong> that traverse its <strong>state tree</strong>.</
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3><a href="#root-state--constructor">Constructor</a></h3>
 <p>Creates a working <strong>state tree</strong> based on a single <strong>root state</strong> as directed
@@ -118,105 +118,105 @@ the exported <code>state</code> function.</p>
 <h6>SOURCE</h6>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">( owner = {}, expression, accessorName, initialState ) -&gt;</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Assign to <code>owner</code> an <strong>accessor</strong> to its state implementation.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="vi">@accessorName = </span><span class="nx">accessorName</span> <span class="o">?=</span> <span class="s1">&#39;state&#39;</span>
     <span class="nx">owner</span><span class="p">[</span> <span class="nx">accessorName</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">createAccessor</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">accessorName</span><span class="p">,</span> <span class="k">this</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>A root state’s <code>name</code> by definition is the empty-string.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="k">super</span> <span class="nx">owner</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nx">expression</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Determine the initial state, and set the <code>current</code> state to that.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">current = </span><span class="p">(</span> <span class="k">if</span> <span class="nx">initialState</span><span class="o">?</span> <span class="k">then</span> <span class="nx">@query</span> <span class="nx">initialState</span> <span class="k">else</span>
       <span class="nx">@initialSubstate</span><span class="p">()</span> <span class="p">)</span> <span class="o">?</span> <span class="k">this</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>The initial state may be <code>abstract</code>, in which case the <code>current</code> reference must
 snap to the abstract state’s default <code>concrete</code> substate.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="k">if</span> <span class="nx">current</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">ABSTRACT</span>
       <span class="nv">current = </span><span class="nx">current</span><span class="p">.</span><span class="nx">defaultSubstate</span><span class="p">()</span> <span class="o">?</span> <span class="nx">current</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>The previous redirections may have left <code>current</code> pointing to a protostate, in
 which case a virtual state must be created in <code>this</code> root’s tree.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">current = </span><span class="nx">current</span><span class="p">.</span><span class="nx">virtualize</span> <span class="k">this</span> <span class="k">if</span> <span class="nx">current</span><span class="p">.</span><span class="nx">root</span> <span class="o">isnt</span> <span class="k">this</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>With <code>current</code> now resolved, the authoritative reference to it is held here.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="vi">@_current = </span><span class="nx">current</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>While a <code>Transition</code> is underway, <code>_current</code> will be a reference to that
 transition. To further distinguish this condition, an identical reference is
 also held at <code>_transition</code>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="vi">@_transition = </span><span class="kc">null</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3><a href="#root-state--private">Private functions</a></h3>
 <h4><a href="#root-state--private--create-accessor">createAccessor</a></h4>
@@ -224,7 +224,7 @@ also held at <code>_transition</code>.</p>
 to its state implementation.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="nv">createAccessor = </span><span class="nf">( owner, name, root ) -&gt;</span>
 
     <span class="nv">accessor = </span><span class="nf">( input, args... ) -&gt;</span>
@@ -244,15 +244,15 @@ to its state implementation.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Calling the accessor of a prototype means that <code>this</code> requires its own accessor
 and root state. Creating a new <code>RootState</code> will have the desired side-effect of
 also creating the object’s new accessor, to which the call is then forwarded.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span> <span class="nx">owner</span><span class="p">.</span><span class="nx">isPrototypeOf</span> <span class="k">this</span> <span class="p">)</span> <span class="o">and</span>
           <span class="p">(</span> <span class="p">(</span> <span class="o">not</span> <span class="nx">hasOwn</span><span class="p">.</span><span class="nx">call</span> <span class="k">this</span><span class="p">,</span> <span class="nx">name</span> <span class="p">)</span> <span class="o">or</span> <span class="err">@</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span> <span class="o">is</span> <span class="nx">owner</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span> <span class="p">)</span>
         <span class="k">new</span> <span class="nx">RootState</span> <span class="k">this</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">current</span><span class="p">.</span><span class="nx">path</span><span class="p">()</span>
@@ -269,15 +269,15 @@ also creating the object’s new accessor, to which the call is then forwarded.<
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4><a href="#root-state--private--evaluate-guard">evaluateGuard</a></h4>
 <p>Returns the boolean result of a <code>guard</code> function in the <code>context</code> of a <code>State</code>,
 as evaluated <code>against</code> another <code>State</code>. Defaults to <code>true</code> if no guard exists.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="nv">evaluateGuard = </span><span class="nf">( context, guard, against ) -&gt;</span>
     <span class="nv">guard = </span><span class="nx">context</span><span class="p">.</span><span class="nx">guard</span> <span class="nx">guard</span> <span class="k">if</span> <span class="k">typeof</span> <span class="nx">guard</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span>
     <span class="k">return</span> <span class="kc">true</span> <span class="nx">unless</span> <span class="nx">guard</span>
@@ -295,8 +295,8 @@ as evaluated <code>against</code> another <code>State</code>. Defaults to <code>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3><a href="#root-state--methods">Methods</a></h3>
 <h4><a href="#root-state--prototype--get-transition-expression">getTransitionExpression</a></h4>
@@ -311,7 +311,7 @@ ancestors, a generic actionless transition expression for the pair is returned.<
 <h6>SOURCE</h6>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="nv">getTransitionExpression: </span><span class="nx">do</span> <span class="o">-&gt;</span>
 
     <span class="nv">search = </span><span class="nf">( target, origin, subject, ceiling ) -&gt;</span>
@@ -346,8 +346,8 @@ ancestors, a generic actionless transition expression for the pair is returned.<
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h4><a href="#root-state--prototype--change">change</a></h4>
 <p>Attempts to execute a state <strong>transition</strong>.</p>
@@ -372,7 +372,7 @@ attempt is blocked by a guard.</li>
 <h6>SOURCE</h6>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>  <span class="nv">change: </span><span class="nf">( target, options ) -&gt;</span>
     <span class="p">{</span> <span class="nx">root</span><span class="p">,</span> <span class="nx">owner</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
     <span class="nv">current = </span><span class="nx">@_current</span>
@@ -381,38 +381,38 @@ attempt is blocked by a guard.</li>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>The <code>origin</code> is defined as the controller’s most recently current state that is
 not a <code>Transition</code>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">origin = </span><span class="nx">transition</span><span class="o">?</span><span class="p">.</span><span class="nx">origin</span> <span class="o">or</span> <span class="nx">current</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Departures are not allowed from a state that is <code>final</code>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="k">return</span> <span class="kc">null</span> <span class="k">if</span> <span class="nx">origin</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">FINAL</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Ensure that <code>target</code> is a valid <code>State</code>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nx">unless</span> <span class="nx">target</span> <span class="k">instanceof</span> <span class="nx">State</span>
       <span class="nv">target = </span><span class="k">if</span> <span class="nx">target</span> <span class="k">then</span> <span class="nx">origin</span><span class="p">.</span><span class="nx">query</span> <span class="nx">target</span> <span class="k">else</span> <span class="nx">root</span>
     <span class="k">return</span> <span class="kc">null</span> <span class="nx">unless</span> <span class="nx">target</span>
@@ -423,13 +423,13 @@ not a <code>Transition</code>.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Extract <code>args</code> from <code>options</code> and resolve <code>options</code> to an object if necessary.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="k">if</span> <span class="nx">options</span><span class="o">?</span>
       <span class="nv">args = </span><span class="k">if</span> <span class="p">(</span> <span class="nx">isArray</span> <span class="nx">options</span> <span class="p">)</span> <span class="o">or</span> <span class="nx">type</span><span class="p">(</span> <span class="nx">options</span> <span class="p">)</span> <span class="o">is</span> <span class="s1">&#39;arguments&#39;</span>
       <span class="k">then</span> <span class="nx">options</span>
@@ -439,28 +439,28 @@ not a <code>Transition</code>.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>A transition cannot target an abstract state directly, so <code>target</code> must be
 reassigned to the appropriate concrete substate.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="k">while</span> <span class="nx">target</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">ABSTRACT</span>
       <span class="k">return</span> <span class="kc">null</span> <span class="nx">unless</span> <span class="nv">target = </span><span class="nx">target</span><span class="p">.</span><span class="nx">defaultSubstate</span><span class="p">()</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>If any guards are in place for the given <code>origin</code> and <code>target</code>, both of those
 states must consent to the transition.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nx">unless</span> <span class="nx">options</span><span class="o">?</span><span class="p">.</span><span class="nx">forced</span>
       <span class="nv">released = </span><span class="nx">evaluateGuard</span> <span class="nx">origin</span><span class="p">,</span> <span class="s1">&#39;release&#39;</span><span class="p">,</span> <span class="nx">target</span>
       <span class="nv">admitted = </span><span class="nx">evaluateGuard</span> <span class="nx">target</span><span class="p">,</span> <span class="s1">&#39;admit&#39;</span><span class="p">,</span> <span class="nx">origin</span>
@@ -471,52 +471,52 @@ states must consent to the transition.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>If <code>target</code> is a protostate, then the protostate must be virtualized locally
 and <code>target</code> must be reassigned to the new virtual state.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">target = </span><span class="nx">target</span><span class="p">.</span><span class="nx">virtualize</span> <span class="k">this</span> <span class="nx">unless</span> <span class="nx">target</span><span class="o">?</span><span class="p">.</span><span class="nx">root</span> <span class="o">is</span> <span class="nx">root</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>A reference is held to the previously current state, or abortive transition.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">source = </span><span class="nx">current</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>The upcoming transition will start from its <code>source</code> and proceed within the
 <code>domain</code> of the least common ancestor between <code>source</code> and <code>target</code>.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">domain = </span><span class="nx">source</span><span class="p">.</span><span class="nx">common</span> <span class="nx">target</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Conclusivity is enforced by checking each state that will be exited against the
 <code>conclusive</code> attributes.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">s = </span><span class="nx">source</span><span class="p">;</span> <span class="nx">until</span> <span class="nx">s</span> <span class="o">is</span> <span class="nx">domain</span>
       <span class="k">return</span> <span class="kc">null</span> <span class="k">if</span> <span class="nx">s</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">CONCLUSIVE</span>
       <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span></pre></div>
@@ -524,42 +524,42 @@ and <code>target</code> must be reassigned to the new virtual state.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>If a previously initiated transition is still underway, it needs to be notified
 that it will not finish.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nx">transition</span><span class="o">?</span><span class="p">.</span><span class="nx">abort</span><span class="p">()</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Retrieve the appropriate transition expression for this origin/target pairing.
 If none is defined, then an actionless default transition will be created and
 applied, causing the callback to return immediately.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="vi">@_transition = </span><span class="nv">transition = </span><span class="k">new</span> <span class="nx">Transition</span> <span class="nx">target</span><span class="p">,</span> <span class="nx">source</span><span class="p">,</span>
       <span class="nx">@getTransitionExpression</span> <span class="nx">target</span><span class="p">,</span> <span class="nx">origin</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Preparation for the transition begins by emitting a <code>depart</code> event on the
 <code>source</code> state.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">eventArgs = </span><span class="p">[</span> <span class="nx">transition</span><span class="p">,</span> <span class="nx">args</span> <span class="p">]</span>
     <span class="nx">source</span><span class="p">.</span><span class="nx">emit</span> <span class="s1">&#39;depart&#39;</span><span class="p">,</span> <span class="nx">eventArgs</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
     <span class="vi">@_transition = </span><span class="nv">transition = </span><span class="kc">null</span> <span class="k">if</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">aborted</span></pre></div>
@@ -567,13 +567,13 @@ applied, causing the callback to return immediately.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Enter into the transition state.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="k">if</span> <span class="nx">transition</span>
       <span class="vi">@_current = </span><span class="nx">transition</span>
       <span class="nx">transition</span><span class="p">.</span><span class="nx">emit</span> <span class="s1">&#39;enter&#39;</span><span class="p">,</span> <span class="nx">VIA_NONE</span>
@@ -582,14 +582,14 @@ applied, causing the callback to return immediately.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Walk up to the top of the domain, emitting <code>exit</code> events for each state along
 the way.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nv">s = </span><span class="nx">source</span><span class="p">;</span> <span class="k">while</span> <span class="nx">transition</span> <span class="o">and</span> <span class="nx">s</span> <span class="o">isnt</span> <span class="nx">domain</span>
       <span class="nx">s</span><span class="p">.</span><span class="nx">emit</span> <span class="s1">&#39;exit&#39;</span><span class="p">,</span> <span class="nx">eventArgs</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
       <span class="nv">transition.superstate = s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
@@ -598,27 +598,27 @@ the way.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>A callback will be invoked from <code>transition.end()</code> to conclude the transition.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="nx">transition</span><span class="o">?</span><span class="p">.</span><span class="nv">callback = </span><span class="o">-&gt;</span>
       <span class="nv">transition = </span><span class="kc">null</span> <span class="k">if</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">aborted</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Trace a path from <code>target</code> up to <code>domain</code>, then walk down it, emitting <code>enter</code>
 events for each state along the way.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">transition</span>
         <span class="nv">s = </span><span class="nx">target</span><span class="p">;</span> <span class="nv">pathToState = </span><span class="p">[];</span> <span class="k">while</span> <span class="nx">s</span> <span class="o">isnt</span> <span class="nx">domain</span>
           <span class="nx">pathToState</span><span class="p">.</span><span class="nx">push</span> <span class="nx">s</span>
@@ -632,13 +632,13 @@ events for each state along the way.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Exit from the transition state.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">transition</span>
         <span class="nx">transition</span><span class="p">.</span><span class="nx">emit</span> <span class="s1">&#39;exit&#39;</span><span class="p">,</span> <span class="nx">VIA_NONE</span>
         <span class="nv">transition = </span><span class="kc">null</span> <span class="k">if</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">aborted</span></pre></div>
@@ -646,13 +646,13 @@ events for each state along the way.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Terminate the transition with an <code>arrive</code> event on the targeted state.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">transition</span>
         <span class="vi">@_current = </span><span class="nx">target</span>
         <span class="nx">target</span><span class="p">.</span><span class="nx">emit</span> <span class="s1">&#39;arrive&#39;</span><span class="p">,</span> <span class="nx">eventArgs</span><span class="p">,</span> <span class="nx">VIA_PROTO</span></pre></div>
@@ -660,13 +660,13 @@ events for each state along the way.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Any virtual states that were previously active may now be discarded.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>        <span class="nv">s = </span><span class="nx">origin</span><span class="p">;</span> <span class="k">while</span> <span class="nx">s</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span>
           <span class="nv">ss = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
           <span class="nx">do</span> <span class="nx">s</span><span class="p">.</span><span class="nx">destroy</span>
@@ -675,13 +675,13 @@ events for each state along the way.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>Now complete, the <code>Transition</code> instance can be discarded.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>        <span class="nx">do</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">destroy</span>
         <span class="vi">@_transition = </span><span class="nv">transition = </span><span class="kc">null</span>
 
@@ -694,26 +694,26 @@ events for each state along the way.</p>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <p>At this point the transition is attached to the <code>domain</code> state and is ready to
 proceed.</p>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre>    <span class="k">return</span> <span class="nx">transition</span><span class="o">?</span><span class="p">.</span><span class="nx">start</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span> <span class="nx">transition</span><span class="p">,</span> <span class="nx">args</span> <span class="p">)</span> <span class="o">or</span> <span class="nx">@_current</span></pre></div>
       </div>
     </div>
   
     
-    <div class="row">
-      <div class="text span5">
+    <div class="pair">
+      <div class="text">
         
 <h3>Forward imports</h3>
 
       </div>
-      <div class="code span11">
+      <div class="code">
         <div class="highlight"><pre><span class="nv">StateExpression       = </span><span class="nx">require</span> <span class="s1">&#39;./state-expression&#39;</span>
 <span class="nv">Transition            = </span><span class="nx">require</span> <span class="s1">&#39;./transition&#39;</span>
 <span class="nv">TransitionExpression  = </span><span class="nx">require</span> <span class="s1">&#39;./transition-expression&#39;</span>
