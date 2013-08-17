@@ -10,7 +10,7 @@ State content, including methods, events, substates, and transitions, is **[expr
 
 * * *
 
-Visit **[statejs.org][]** for an introduction, complete [documentation][] including a [getting started][] guide and conceptual [overview][], along with the [API][], [annotated source][], and [tests][].
+Visit **[statejs.org][]** for an introduction, complete [documentation][] including a [getting started][] guide and conceptual [overview][], along with the [API][], and [annotated source][].
 
 ### &#x1f44b;
 
@@ -31,4 +31,3 @@ Visit **[statejs.org][]** for an introduction, complete [documentation][] includ
 [overview]:          http://statejs.org/docs/#overview
 [API]:               http://statejs.org/api/
 [annotated source]:  http://statejs.org/source/
-[tests]:             http://statejs.org/tests/
