@@ -1,12 +1,14 @@
 # Gruntfile
 
+    path = require 'path'
+
     helpers = require './build/helpers'
 
     { use, prefix, postfix, affix, list } = helpers
 
 
 
-    module.exports = (grunt) ->
+    module.exports = ( grunt ) ->
 
 Import a simplified set of functions for task declarations.
 
@@ -51,10 +53,6 @@ Import a simplified set of functions for task declarations.
             src: 'state.js'
             dest: 'state-min.js'
 
-          omicron:
-            src: '../omicron/omicron.js'
-            dest: 'omicron-min.js'
-
         publish:
           src: postfix '.js', """
             state
@@ -64,7 +62,16 @@ Import a simplified set of functions for task declarations.
           dest: ghPages
 
         docco:
-          dest: ghPages
+          content:
+            src: 'src/*.coffee.md'
+            dest: path.join ghPages, '_includes/content/source/content'
+            template: 'build/source/content.jst'
+
+          full:
+            src: 'src/*.coffee.md'
+            dest: path.join ghPages, '_includes/content/source/full'
+            markdown: path.join ghPages, 'source'
+            template: 'build/source/full.jst'
 
         connect:
           unit: {}
