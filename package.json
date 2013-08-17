@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "coffee-script": "~1.6.3",
+    "docco": "https://github.com/nickfargo/docco/archive/0.7.1.tar.gz",
     "mocha": "*",
     "chai": ">=1.5.0",
     "grunt": "~0.4.1",
