@@ -1,0 +1,27 @@
+<div class="source-title">
+  <a href="javascript:void(0)"><%= title %></a>
+</div>
+
+<div class="source-menu">
+  <ul>
+  <% for (var i=0, l=sources.length; i<l; i++) { %>
+    <% var source = sources[i]; %>
+    <% var href = /(.*?)\.coffee.*/.exec(path.basename(destination(source)))[1]; %>
+    <li><a href="<%= href + '.html' %>"><%= path.basename(source) %></a></li>
+  <% } %>
+  </ul>
+</div>
+
+<div class="source-content">
+  <% for (var i=0, l=sections.length; i<l; i++) { %>
+    <% var section = sections[i]; %>
+    <div class="pair">
+      <div class="text">
+        <%= section.docsHtml %>
+      </div>
+      <div class="code">
+        <%= section.codeHtml %>
+      </div>
+    </div>
+  <% } %>
+</div>

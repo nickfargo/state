@@ -1,0 +1,11 @@
+<div class="source-title">
+  <a href="javascript:void(0)"><%= title %></a>
+</div>
+
+<ul class="source-menu">
+  <% for (var i=0, l=sources.length; i<l; i++) { %>
+    <% var source = sources[i]; %>
+    <% var href = /(.*?)\.coffee.*/.exec(path.basename(destination(source)))[1]; %>
+    <li><a href="<%= href + '.html' %>"><%= path.basename(source) %></a></li>
+  <% } %>
+</ul>

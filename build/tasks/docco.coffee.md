@@ -1,42 +1,47 @@
-    fs      = require 'fs'
-    docco   = require 'docco'
-    helpers = require '../helpers'
+    fs       = require 'fs'
+    path     = require 'path'
+    { exec } = require 'child_process'
 
-    { postfix } = helpers
+    { postfix } = require '../helpers'
 
 
     module.exports = ( grunt ) ->
 
-Generate annotated source HTML and copy to the `_includes` directory of
-the project’s `gh-pages` branch.
+      @registerMultiTask 'docco', "", ->
+        done = @async()
 
-      grunt.registerTask 'docco', "", ->
+        commands = @files.map ({ src, dest, template }) ->
+          command = ['node_modules/docco/bin/docco']
+          command.push "#{ src.join ' ' }" if src?
+          command.push "--output #{ dest }" if dest?
+          command.push "--template #{ template }" if template?
+          command.join ' '
 
-        targetDir = pub + '_includes/content/source'
+        exec commands.join(' && '), ( error, stdout, stderr ) ->
+          done if error? then error else stdout.toString()
 
-        start = ->
-          exec 'docco state.js -t build/source.jst', mkdir
+For each source file, create a front-mattered `/source/<filename>.md`
+that `include`s its generated html.
 
-        mkdir = ( err ) ->
-          fs.exists targetDir, ( exists ) ->
-            if exists then do move else fs.mkdir targetDir, move
+> _includes/content/source/full/index.coffee.md -> source/index.html
 
-        move = ( err ) ->
-          console.error "docco move", err if err
-          source = "docs/state.html"
-          target = targetDir + "/index.html"
+        @files.map ({ src, dest, markdown }) ->
+          return unless markdown
+          markdown = path.resolve markdown
+          dest = /_includes\/(.*)/.exec( dest )[1]
 
-          fs.exists target, ( exists ) ->
-            if exists then fs.unlink target, rename else do rename
+          rtrim = ( str ) -> /(.*?)(?:\.coffee.md)?$/.exec( str )[1]
 
-          rename = -> fs.rename source, target, unlink
+          src.map ( file ) ->
+            file = rtrim /^src\/(.*)/.exec( file )[1]
+            include = rtrim path.join dest, file
+            target = path.join markdown, "#{file}.md"
 
-        unlink = ( err ) ->
-          console.error "docco unlink", err if err
-          fs.unlink 'docs/docco.css', rmdir
+            fs.writeFileSync target, """
+            ---
+            layout: source
+            title: Source - State.js
+            ---
 
-        rmdir = ( err ) ->
-          console.error "docco rmdir", err if err
-          fs.rmdir 'docs'
-
-        do start
+            <div>{% include #{ include }.coffee.html %}</div>
+            """
