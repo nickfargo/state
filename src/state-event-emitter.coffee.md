@@ -32,7 +32,7 @@ named by the string.
 
 
 
-### [Prototype methods](#state-event-emitter--prototype-methods)
+### [Methods](#state-event-emitter--methods)
 
 
 #### [get](#state-event-emitter--prototype--get)

@@ -2,7 +2,7 @@ Copyright (C) 2011-2013 Nick Fargo. [License][] MIT.
 
 
 
-## index
+## [index](#index)
 
     module.exports = state = require './state-function'
 
@@ -17,4 +17,4 @@ Copyright (C) 2011-2013 Nick Fargo. [License][] MIT.
 
 
 
-[License]: ../LICENSE
+[License]: http://github.com/nickfargo/state/blob/master/LICENSE

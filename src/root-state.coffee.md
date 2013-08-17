@@ -388,7 +388,7 @@ proceed.
 
 
 
-### Forward imports
+### [Forward imports](#root-state--forward-imports)
 
     StateExpression       = require './state-expression'
     Transition            = require './transition'

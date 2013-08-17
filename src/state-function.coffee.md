@@ -11,7 +11,25 @@ Invoking the exported `state` function is the primary point of entry into the
 module. The `state` function is used either to:
 
 1. generate a formal `StateExpression` object; or
-2. bestow an arbitrary `owner` object with a working state implementation.
+2. bestow any given `owner` object with a working state implementation.
+
+###### PARAMETERS
+
+* [`owner`] : object
+
+* [`attributes`] : string — A whitespace-delimited set of attribute keywords.
+
+* [`expression`] : object | `StateExpression`
+
+* [`options`] : object — A map that includes any of the following properties:
+
+  * `name` : string — A name to be given to the **accessor** method that will
+    be added to `owner`. Defaults to `'state'`.
+
+  * `initial` : string — A selector that names a specific `State`. Providing
+    this option overrides any `initial` attributes borne by `owner`’s states.
+
+###### DISCUSSION
 
 All arguments are optional. If only one `object`-typed argument is provided,
 it is assigned to the `expression` parameter. If no `owner` is present,
@@ -24,9 +42,14 @@ the owner’s initial `State`.
 The `attributes` argument may include any of the words defined in
 `STATE_ATTRIBUTE_MODIFIERS`, which are encoded into the provided `expression`.
 
-> See also: `STATE_ATTRIBUTES`
+###### SEE ALSO
+
+> `STATE_ATTRIBUTES`
+
 > [`state()`](/api/#state-function)
 > [The `state` function](/docs/#getting-started--the-state-function)
+
+###### SOURCE
 
     state = ( owner, attributes, expression, options ) ->
       if arguments.length < 2
@@ -50,18 +73,18 @@ Formalize the provided `expression` (even if `expression` is already a formal
 
       expression = new StateExpression attributes, expression
 
-With an `owner` present, the inferred intent is to *implement* `expression`
-into `owner`; otherwise the inference is only to *formalize* the `expression`
-as a `StateExpression`.
+If `owner` is absent, the inferred intent is only to return the formalized
+`expression`; otherwise the inference is to implement `expression` into
+`owner`.
 
       if owner
-        { name, initialState } = options if options
-        ( new RootState owner, expression, name, initialState )._current
+        { name, initial } = options if options
+        ( new RootState owner, expression, name, initial )._current
       else expression
 
 
 
-### Static includes
+### [Static includes](#state-function--static-includes)
 
 A set of package-global metadata and functions are included as properties of
 the exported `state` function.
@@ -72,7 +95,7 @@ the exported `state` function.
 
 
 
-### Forward imports
+### [Forward imports](#state-function--forward-imports)
 
     RootState        = require './root-state'
     StateExpression  = require './state-expression'

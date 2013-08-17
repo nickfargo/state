@@ -7,7 +7,7 @@ This function will be applied to the package’s exported `state` function.
     module.exports = ->
 
 
-### Package metadata
+### [Package metadata](#package-metadata)
 
       @VERSION = '0.1.2'
 
@@ -17,7 +17,7 @@ This function will be applied to the package’s exported `state` function.
 
 
 
-### Imports
+### [Imports](#imports)
 
 **State** uses [Omicron][] to assist with object manipulation tasks, such as
 differential operations.
@@ -37,17 +37,17 @@ the deletion or nonexistence of a property.
 
 
 
-### Utility functions
+### [Utility functions](#utility-functions)
 
 
-#### noConflict
+#### [noConflict](#utility-functions--no-conflict)
 
       @noConflict = do ->
         original = global.state
         -> global.state = original; this
 
 
-#### bitfield
+#### [bitfield](#utility-functions--bitfield)
 
 Creates a bit field map on a given `object` by associating each string in a
 list of `names` as a key to a single-bit integer value. Bit values are applied
@@ -59,12 +59,12 @@ to keys in order, increasing from `1 << offset` onward.
         object
 
 
-#### debug
+#### [debug](#utility-functions--debug)
 
       @debug = => console.log.apply console, arguments if @env.debug
 
 
-#### bind
+#### [bind](#utility-functions--bind)
 
 * `fn` : ( any… ) → any
 
@@ -84,7 +84,7 @@ been the `owner`, still retain a reference thereto via `this.owner`.
         bind
 
 
-#### fix
+#### [fix](#utility-functions--fix)
 
 * `fn` : ( autostate, protostate ) → ( any… ) → any
 
@@ -104,7 +104,7 @@ lexical awareness of, the particular `State` environment in which it exists.
         fix
 
 
-#### own
+#### [own](#utility-functions--own)
 
 Causes `owner` to realize and take ownership of the protostate or virtual
 epistate returned by `selector`. Returns the incipient or extant “own” state,
@@ -125,7 +125,7 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
 
 
 
-### Miscellaneous constants
+### [Miscellaneous constants](#miscellaneous-constants)
 
       @rxTransitionArrow = /^\s*([\-|=]>)\s*(.*)/
       @transitionArrowMethods =
@@ -134,7 +134,7 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
 
 
 
-### Name sets
+### [Name sets](#name-sets)
 
 The **state attribute modifiers** are the subset of attribute names that are
 valid or reserved keywords for the `attributes` argument in a call to the
@@ -169,10 +169,10 @@ exported `state()` function.
 
 
 
-### Bit field enums
+### [Bit field enums](#bit-field-enums)
 
 
-#### State attributes
+#### [State attributes](#bit-field-enums--state-attributes)
 
 `State` instances use a bit field to store their attributes, the encoded values
 of which are included in the constants enumerated here.
@@ -185,7 +185,7 @@ of which are included in the constants enumerated here.
       """ + ' ' + @STATE_ATTRIBUTE_MODIFIERS.toUpperCase()
 
 
-#### Traversal flags
+#### [Traversal flags](#bit-field-enums--traversal-flags)
 
 Tree-traversal operations use these flags to restrict their recursive scope.
 
