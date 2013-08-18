@@ -92,7 +92,16 @@ at the end of this class definition.
 
 ### [Constructor](#state--constructor)
 
+The constructor is limited to setting the references that define `this`
+`State`’s relations, and then computing its `attributes` bit mask based on
+those relations and the intrinsic heritability of each attribute.
+
+Only afterward is the `State`’s `Content`, as defined in a provided
+`expression`, then `initialize`d into the instance, if necessary.
+
       constructor: ( base, @name, expression ) ->
+
+###### Relation definitions
 
 The `base` argument can specify either a `superstate` from which to inherit,
 or an `owner` for which to act as a new `root` state.
@@ -188,6 +197,7 @@ corresponding virtual state in the local state tree. For methods relocated to
 the root state as described above, however, the context appropriately remains
 bound to the owner object.
 
+> [`addMethod`](#state--prototype--add-method)
 > [Dispatchers](/docs/#concepts--methods--dispatchers)
 
       createDispatcher = do ->
@@ -208,8 +218,7 @@ bound to the owner object.
 
 Builds out the state’s members based on the expression provided.
 
-> See also:
-> `Constructor`
+> [Constructor](#state--constructor)
 
       initialize: ( expression ) ->
         { attributes } = this
@@ -229,9 +238,8 @@ Transforms an incipient or **virtual** `State` into a **real** state.
 Initialization of a `State`’s contents is offloaded from the
 [constructor](#state--constructor) to here.
 
-> `initialize`
-> `virtualize`
-
+> [`initialize`](#state--prototype--initialize)
+> [`virtualize`](#state--prototype--virtualize)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 
       realize: ( expression ) ->
@@ -366,7 +374,7 @@ A non-root state must remove itself from its superstate.
 
 
 
-### [Expression and mutation](#state--expression-and-mutation)
+### [Content methods](#state--content-methods)
 
 
 #### [express](#state--prototype--express)
@@ -567,7 +575,7 @@ which is emitted as part of a `mutate` event.
 
 
 
-### [Attributes](#state--attributes)
+### [Attribute methods](#state--attribute-methods)
 
 Methods that inspect a state’s attributes.
 
@@ -593,7 +601,7 @@ Methods that inspect a state’s attributes.
 
 
 
-### [Object model](#state--object-model)
+### [Relational methods](#state--relational-methods)
 
 
 #### [derivation](#state--prototype--derivation)
@@ -651,6 +659,115 @@ ancestor of `other`, or vice versa, then that ancestor is returned.
         null
 
 
+#### [substate](#state--prototype--substate)
+
+Retrieves the named substate of `this` state. If no such substate exists in the
+local state, any identically named substate held on a protostate will be
+returned.
+
+> [substate](/api/#state--methods--substate)
+
+      substate: ( name, via = VIA_PROTO ) ->
+
+First scan for any virtual active substates in the local state tree.
+
+        s = @root._current
+        while s?.attributes & VIRTUAL and ss = s.superstate
+          return s if ss is this and s.name is name
+          s = ss
+
+Otherwise retrieve a real substate, either locally or from a protostate.
+
+        @_?.substates?[ name ] or
+        via & VIA_PROTO and @protostate?.substate name
+
+
+#### [substates](#state--prototype--substates)
+
+Returns an `Array` of this state’s substates. If the boolean `deep` argument is
+`true`, returns a depth-first flattened array containing all of this state’s
+descendant states.
+
+> [substates](/api/#state--methods--substates)
+
+      substates: ( deep, virtual ) ->
+        result = []
+
+Include virtual substates in the returned set, if any are present.
+
+        if virtual and ( s = @root._current ) and s.attributes & VIRTUAL and
+            @isSuperstateOf s
+          while s and s isnt this and s.attributes & VIRTUAL and
+              ss = s.superstate
+            result.unshift s if deep or ss is this
+            s = ss
+
+Include real substates.
+
+        for own name, substate of @_?.substates
+          result.push substate
+          result = result.concat substate.substates yes if deep
+
+        result
+
+
+#### [addSubstate](#state--prototype--add-substate)
+
+Creates a state from the supplied `expression` and adds it as a substate of
+this state. If a substate with the same `name` already exists, that state is
+first destroyed and then displaced.
+
+> [addSubstate](/api/#state--methods--add-substate)
+
+      addSubstate: ( name, expression ) ->
+        { attributes } = this
+        unless attributes & INCIPIENT
+          return if attributes & FINITE
+          return unless attributes & MUTABLE
+        do @realize if attributes & VIRTUAL
+
+        substates = @_.substates or = {}
+        do substate.destroy if substate = substates[ name ]
+
+        substate = if expression instanceof State
+        then expression.realize() if expression.superstate is this
+        else new State this, name, expression
+
+        return null unless substate
+
+        substates[ name ] = substate
+
+
+#### [removeSubstate](#state--prototype--remove-substate)
+
+Removes the named substate from the local state, if possible.
+
+> [removeSubstate](/api/#state--methods--remove-substate)
+
+      removeSubstate: ( name ) ->
+        { attributes } = this
+        return if attributes & VIRTUAL
+
+        substates = @_?.substates
+        return unless substate = substates?[ name ]
+        return unless attributes & MUTABLE or substate?.attributes & DESTROYED
+
+If a transition is underway involving `substate`, the removal must fail.
+
+        return no if ( transition = @root._transition ) and (
+          substate.isSuperstateOf( transition ) or
+          substate is transition.origin or substate is transition.target
+        )
+
+Currency must be evacuated before the state can be removed.
+
+        @change this, forced: yes if @root._current.isIn substate
+
+        delete substates[ name ]
+
+        substate
+
+
 #### [is](#state--prototype--is)
 
 Determines whether `this` is `other`.
@@ -687,6 +804,42 @@ Determines whether `this` is a superstate of `other`.
         if superstate = other.superstate
           this is superstate or @isSuperstateOf superstate
         else no
+
+
+#### [defaultSubstate](#state--prototype--default-substate)
+
+Returns the first substate marked `default`, or simply the first substate.
+Recursion continues into the protostate only if no local substates are marked
+`default`.
+
+> [defaultSubstate](/api/#state--methods--default-substate)
+
+      defaultSubstate: ( via = VIA_PROTO, first ) ->
+        for s in substates = @substates()
+          return s if s.attributes & DEFAULT
+        first or substates.length and first = substates[0]
+        if via & VIA_PROTO and protostate = @protostate
+          return protostate.defaultSubstate VIA_PROTO
+        first
+
+
+#### [initialSubstate](#state--prototype--initial-substate)
+
+Performs a “depth-within-breadth-first” recursive search to locate the most
+deeply nested `initial` state by way of the greatest `initial` descendant
+state. Recursion continues into the protostate only if no local descendant
+states are marked `initial`.
+
+> [initialSubstate](/api/#state--methods--initial-substate)
+
+      initialSubstate: ( via = VIA_PROTO ) ->
+        i = 0; queue = [ this ]
+        while subject = queue[ i++ ]
+          for s in substates = subject.substates VIA_PROTO
+            return s.initialSubstate( VIA_NONE ) or s if s.attributes & INITIAL
+            queue.push s
+        if via & VIA_PROTO and protostate = @protostate
+          return protostate.initialSubstate VIA_PROTO
 
 
 #### [getProtostate](#state--prototype--get-protostate)
@@ -731,42 +884,6 @@ prototype chain of `state`’s owner.
         if protostate = other.protostate
           this is protostate or @isProtostateOf protostate
         else no
-
-
-#### [defaultSubstate](#state--prototype--default-substate)
-
-Returns the first substate marked `default`, or simply the first substate.
-Recursion continues into the protostate only if no local substates are marked
-`default`.
-
-> [defaultSubstate](/api/#state--methods--default-substate)
-
-      defaultSubstate: ( via = VIA_PROTO, first ) ->
-        for s in substates = @substates()
-          return s if s.attributes & DEFAULT
-        first or substates.length and first = substates[0]
-        if via & VIA_PROTO and protostate = @protostate
-          return protostate.defaultSubstate VIA_PROTO
-        first
-
-
-#### [initialSubstate](#state--prototype--initial-substate)
-
-Performs a “depth-within-breadth-first” recursive search to locate the most
-deeply nested `initial` state by way of the greatest `initial` descendant
-state. Recursion continues into the protostate only if no local descendant
-states are marked `initial`.
-
-> [initialSubstate](/api/#state--methods--initial-substate)
-
-      initialSubstate: ( via = VIA_PROTO ) ->
-        i = 0; queue = [ this ]
-        while subject = queue[ i++ ]
-          for s in substates = subject.substates VIA_PROTO
-            return s.initialSubstate( VIA_NONE ) or s if s.attributes & INITIAL
-            queue.push s
-        if via & VIA_PROTO and protostate = @protostate
-          return protostate.initialSubstate VIA_PROTO
 
 
 #### [query](#state--prototype--query)
@@ -905,7 +1022,7 @@ Convenience method that either aliases to `change` if passed a function for the
 first argument, or aliases to `query` if passed a string — thereby mimicking
 the behavior of the object’s accessor method.
 
-> See also: `createAccessor`
+> [`createAccessor`](/source/root-state.html#root-state--private--create-accessor)
 
       $: ( expr, args... ) ->
         if typeof expr is 'function'
@@ -919,7 +1036,7 @@ the behavior of the object’s accessor method.
 
 
 
-### [Currency](#state--currency)
+### [Currency methods](#state--currency-methods)
 
 Methods that inspect or affect the owner’s current state.
 
@@ -969,24 +1086,8 @@ arguments implicitly directs the root to change to `this` state.
       be: @::change
 
 
-#### [changeTo](#state--prototype--change-to)
 
-> Not yet implemented.
-
-Calls `change` without regard to a `target`’s retained internal state.
-
-*Aliases:* **goTo**, **goto**
-
-> See also: [`State::change`](#state--prototype--change)
-
-      changeTo: ( target, options ) ->
-
-      goTo: @::changeTo
-      goto: @::goTo
-
-
-
-### [Data](#state--data)
+### [Data methods](#state--data-methods)
 
 
 #### [data](#state--prototype--data)
@@ -1058,8 +1159,7 @@ inherited `via` superstates and protostates, unless directed otherwise.
 Assigns a `value` to a `key` within `this` state’s `data` storage. If no such
 key already exists, it is added.
 
-> See also: `set`
-
+> [`set`](#state--prototype--set)
 > [let](/api/#state--methods--let)
 
       let: ( key, value ) ->
@@ -1118,7 +1218,7 @@ to a `let`.
 
 
 
-### [Methods](#state--methods)
+### [Method methods](#state--method-methods)
 
 
 #### [method](#state--prototype--method)
@@ -1228,8 +1328,8 @@ If a method called `methodName` does not already exist in the state tree, then
 the owner is provided a *dispatcher* to accommodate calls to the appropriate
 state’s implementation of this method.
 
-> See also: `state.bind`, `state.fix`
-
+> [`state.bind`](/source/export-static.html#utility-functions--bind)
+> [`state.fix`](/source/export-static.html#utility-functions--fix)
 > [addMethod](/api/#state--methods--add-method)
 
       addMethod: ( methodName, fn ) ->
@@ -1355,7 +1455,7 @@ Variadic `apply`.
 
 
 
-### [Events](#state--events)
+### [Event methods](#state--event-methods)
 
 
 #### [event](#state--prototype--event)
@@ -1458,7 +1558,7 @@ protostates, but is dynamic along the superstate chain.
 
 
 
-### [Guards](#state--guards)
+### [Guard methods](#state--guard-methods)
 
 
 #### [guard](#state--prototype--guard)
@@ -1470,7 +1570,7 @@ applied.
 
 Guards are inherited from protostates, but not from superstates.
 
-> See also: [`evaluateGuard`](#state--private--evaluate-guard)
+> [`evaluateGuard`](#state--private--evaluate-guard)
 > [guard](/api/#state--methods--guard)
 
       guard: ( guardType ) ->
@@ -1513,120 +1613,7 @@ guard.
 
 
 
-### [Substates](#state--substates)
-
-
-#### [substate](#state--prototype--substate)
-
-Retrieves the named substate of `this` state. If no such substate exists in the
-local state, any identically named substate held on a protostate will be
-returned.
-
-> [substate](/api/#state--methods--substate)
-
-      substate: ( name, via = VIA_PROTO ) ->
-
-First scan for any virtual active substates in the local state tree.
-
-        s = @root._current
-        while s?.attributes & VIRTUAL and ss = s.superstate
-          return s if ss is this and s.name is name
-          s = ss
-
-Otherwise retrieve a real substate, either locally or from a protostate.
-
-        @_?.substates?[ name ] or
-        via & VIA_PROTO and @protostate?.substate name
-
-
-#### [substates](#state--prototype--substates)
-
-Returns an `Array` of this state’s substates. If the boolean `deep` argument is
-`true`, returns a depth-first flattened array containing all of this state’s
-descendant states.
-
-> [substates](/api/#state--methods--substates)
-
-      substates: ( deep, virtual ) ->
-        result = []
-
-Include virtual substates in the returned set, if any are present.
-
-        if virtual and ( s = @root._current ) and s.attributes & VIRTUAL and
-            @isSuperstateOf s
-          while s and s isnt this and s.attributes & VIRTUAL and
-              ss = s.superstate
-            result.unshift s if deep or ss is this
-            s = ss
-
-Include real substates.
-
-        for own name, substate of @_?.substates
-          result.push substate
-          result = result.concat substate.substates yes if deep
-
-        result
-
-
-#### [addSubstate](#state--prototype--add-substate)
-
-Creates a state from the supplied `expression` and adds it as a substate of
-this state. If a substate with the same `name` already exists, that state is
-first destroyed and then displaced.
-
-> [addSubstate](/api/#state--methods--add-substate)
-
-      addSubstate: ( name, expression ) ->
-        { attributes } = this
-        unless attributes & INCIPIENT
-          return if attributes & FINITE
-          return unless attributes & MUTABLE
-        do @realize if attributes & VIRTUAL
-
-        substates = @_.substates or = {}
-        do substate.destroy if substate = substates[ name ]
-
-        substate = if expression instanceof State
-        then expression.realize() if expression.superstate is this
-        else new State this, name, expression
-
-        return null unless substate
-
-        substates[ name ] = substate
-
-
-#### [removeSubstate](#state--prototype--remove-substate)
-
-Removes the named substate from the local state, if possible.
-
-> [removeSubstate](/api/#state--methods--remove-substate)
-
-      removeSubstate: ( name ) ->
-        { attributes } = this
-        return if attributes & VIRTUAL
-
-        substates = @_?.substates
-        return unless substate = substates?[ name ]
-        return unless attributes & MUTABLE or substate?.attributes & DESTROYED
-
-If a transition is underway involving `substate`, the removal must fail.
-
-        return no if ( transition = @root._transition ) and (
-          substate.isSuperstateOf( transition ) or
-          substate is transition.origin or substate is transition.target
-        )
-
-Currency must be evacuated before the state can be removed.
-
-        @change this, forced: yes if @root._current.isIn substate
-
-        delete substates[ name ]
-
-        substate
-
-
-
-### [Transitions](#state--transitions)
+### [Transition methods](#state--transition-methods)
 
 A `State` may hold **transition expressions** that describe a `Transition`
 involving itself or any descendant `State`.

@@ -15,13 +15,11 @@
 <div class="source-content">
   <% for (var i=0, l=sections.length; i<l; i++) { %>
     <% var section = sections[i]; %>
-    <div class="pair">
-      <div class="text">
-        <%= section.docsHtml %>
-      </div>
-      <div class="code">
-        <%= section.codeHtml %>
-      </div>
+    <div class="text">
+      <%= section.docsHtml %>
+    </div>
+    <div class="code">
+      <%= section.codeHtml %>
     </div>
   <% } %>
 </div>

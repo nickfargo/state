@@ -38,7 +38,7 @@ provided `owner`.
 * `expression` : `StateExpression` | object — A plain object will be coerced
   and interpreted if necessary into a formal `StateExpression`.
 
-* `accessorName` : string – The property name on `owner` at which the
+* `accessorName` : string — The property name on `owner` at which the
   generated **accessor** function will appear. Defaults to `'state'`.
 
 * `initialState` : string — A state name or path. If present, supersedes the
@@ -223,11 +223,9 @@ evaluated from the context of the most recently current state.
 
 The `options` parameter is an optional map that may include:
 
-  * `args` : `Array` — arguments to be passed to a transition’s `action`.
-  * `success` : `Function` — callback to be executed upon successful completion
-    of the transition.
-  * `failure` : `Function` — callback to be executed if the transition
-    attempt is blocked by a guard.
+  * `args` : array — arguments to be passed to a transition’s `action`.
+  * `success` : function — invoked if the transition attempt succeeds.
+  * `failure` : function — invoked if the transition attempt fails.
 
 ###### SOURCE
 
