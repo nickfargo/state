@@ -43,5 +43,5 @@
 * [About this project](#about)
   * [Design goals](#about--design-goals)
   * [Roadmap](#about--roadmap)
-    * [Features](#about--roadmap--features)
+    * [Proposed features](#about--roadmap--proposed-features)
     * [Optimization](#about--roadmap--optimization)

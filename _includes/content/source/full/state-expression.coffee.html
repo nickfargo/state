@@ -51,12 +51,11 @@
 <div class="source-content">
   
     
-    <div class="pair">
-      <div class="text">
-        
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="nv">O                    = </span><span class="nx">require</span> <span class="s1">&#39;omicron&#39;</span>
+    <div class="text">
+      
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="nv">O                    = </span><span class="nx">require</span> <span class="s1">&#39;omicron&#39;</span>
 <span class="nv">state                = </span><span class="nx">require</span> <span class="s1">&#39;./state-function&#39;</span>
 <span class="nv">State                = </span><span class="nx">require</span> <span class="s1">&#39;./state&#39;</span>
 <span class="nv">TransitionExpression = </span><span class="nx">require</span> <span class="s1">&#39;./transition-expression&#39;</span>
@@ -71,13 +70,11 @@
     <span class="nx">state</span>
 
 <span class="nv">module.exports =</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h2><a href="#state-expression">StateExpression</a></h2>
 <p>A <strong>state expression</strong> is a data structure that formalizes a definition of
 a state’s contents.</p>
@@ -86,9 +83,9 @@ passing it a descriptive plain object map. This input may be expressed in a
 shorthand format, in which case it is rewritten into an unambiguous long form
 that is used internally to create <code>State</code> instances.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="k">class</span> <span class="nx">StateExpression</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="k">class</span> <span class="nx">StateExpression</span>
 
   <span class="p">{</span> <span class="nx">NIL</span><span class="p">,</span> <span class="nx">isNumber</span><span class="p">,</span> <span class="nx">isPlainObject</span><span class="p">,</span> <span class="nx">isArray</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">O</span>
   <span class="p">{</span> <span class="nx">assign</span><span class="p">,</span> <span class="nx">edit</span><span class="p">,</span> <span class="nx">clone</span><span class="p">,</span> <span class="nx">invert</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">O</span>
@@ -107,18 +104,16 @@ that is used internally to create <code>State</code> instances.</p>
   <span class="nv">categoryMap  = </span><span class="nx">assign</span> <span class="nx">STATE_EXPRESSION_CATEGORIES</span>
   <span class="nv">eventTypes   = </span><span class="nx">assign</span> <span class="nx">STATE_EVENT_TYPES</span>
   <span class="nv">guardActions = </span><span class="nx">assign</span> <span class="nx">GUARD_ACTIONS</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h3><a href="#state-expression--constructor">Constructor</a></h3>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">( attributes, map ) -&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">( attributes, map ) -&gt;</span>
     <span class="k">if</span> <span class="k">typeof</span> <span class="nx">attributes</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span> <span class="k">then</span> <span class="nx">map</span> <span class="o">or</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">else</span> <span class="nx">unless</span> <span class="nx">map</span>
       <span class="nv">map = </span><span class="nx">attributes</span><span class="p">;</span> <span class="nv">attributes = </span><span class="kc">undefined</span>
@@ -131,91 +126,79 @@ that is used internally to create <code>State</code> instances.</p>
     <span class="k">else</span> <span class="p">{</span> <span class="nx">attributes</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">map</span> <span class="k">if</span> <span class="nx">map</span>
 
     <span class="vi">@attributes = </span><span class="nx">attributes</span> <span class="o">or</span> <span class="nx">NORMAL</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h3><a href="#state-expression--private">Private functions</a></h3>
 <h4><a href="#state-expression--private--interpret">interpret</a></h4>
 <p>Transforms a plain object map into a well-formed <code>StateExpression</code>, making the
 appropriate type inferences for any shorthand notation encountered.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">interpret = </span><span class="nf">( map ) -&gt;</span></pre></div>
-      </div>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">interpret = </span><span class="nf">( map ) -&gt;</span></pre></div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>Start with a null-valued map keyed with the category names.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>    <span class="nv">result = </span><span class="nx">assign</span> <span class="nx">STATE_EXPRESSION_CATEGORIES</span><span class="p">,</span> <span class="kc">null</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nv">result = </span><span class="nx">assign</span> <span class="nx">STATE_EXPRESSION_CATEGORIES</span><span class="p">,</span> <span class="kc">null</span>
 
     <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">map</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>If <code>value</code> is just a reference to the exported <code>state</code> function, interpret that
 as an empty state expression.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>      <span class="nv">value = </span><span class="k">new</span> <span class="nx">StateExpression</span> <span class="k">if</span> <span class="nx">value</span> <span class="o">is</span> <span class="nx">state</span></pre></div>
-      </div>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>      <span class="nv">value = </span><span class="k">new</span> <span class="nx">StateExpression</span> <span class="k">if</span> <span class="nx">value</span> <span class="o">is</span> <span class="nx">state</span></pre></div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h6>Categorization</h6>
 <p><strong>Priority 1:</strong> Do a nominative type match for explicit expression instances.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>      <span class="nv">category =</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>      <span class="nv">category =</span>
         <span class="k">if</span> <span class="nx">value</span> <span class="k">instanceof</span> <span class="nx">StateExpression</span> <span class="k">then</span> <span class="s1">&#39;states&#39;</span>
         <span class="k">else</span> <span class="k">if</span> <span class="nx">value</span> <span class="k">instanceof</span> <span class="nx">TransitionExpression</span> <span class="k">then</span> <span class="s1">&#39;transitions&#39;</span>
       <span class="k">if</span> <span class="nx">category</span>
         <span class="nv">item = </span><span class="nx">result</span><span class="p">[</span> <span class="nx">category</span> <span class="p">]</span> <span class="o">or</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nx">item</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">value</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p><strong>Priority 2:</strong> Recognize an explicitly named category object.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>      <span class="k">else</span> <span class="k">if</span> <span class="nx">categoryMap</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span><span class="o">?</span> <span class="o">and</span> <span class="nx">value</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>      <span class="k">else</span> <span class="k">if</span> <span class="nx">categoryMap</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span><span class="o">?</span> <span class="o">and</span> <span class="nx">value</span>
         <span class="nx">result</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">clone</span> <span class="nx">result</span><span class="p">[</span> <span class="nx">key</span> <span class="p">],</span> <span class="nx">value</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p><strong>Priority 3:</strong> Use keys and value types to infer implicit categorization.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>      <span class="k">else</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>      <span class="k">else</span>
         <span class="nv">category =</span>
           <span class="k">if</span> <span class="nx">eventTypes</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span><span class="o">?</span> <span class="o">or</span> <span class="k">typeof</span> <span class="nx">value</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span>
             <span class="s1">&#39;events&#39;</span>
@@ -230,123 +213,108 @@ as an empty state expression.</p>
         <span class="k">if</span> <span class="nx">category</span>
           <span class="nv">item = </span><span class="nx">result</span><span class="p">[</span> <span class="nx">category</span> <span class="p">]</span> <span class="o">or</span> <span class="o">=</span> <span class="p">{}</span>
           <span class="nx">item</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">value</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h6>Coersion</h6>
 <p>Event values are coerced into an array.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">events</span> <span class="k">when</span> <span class="o">not</span> <span class="nx">isArray</span> <span class="nx">value</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">events</span> <span class="k">when</span> <span class="o">not</span> <span class="nx">isArray</span> <span class="nx">value</span>
       <span class="nx">object</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="nx">value</span> <span class="p">]</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>Guards are represented as an object keyed by selector, so non-object values are
 coerced into a single-element object with the value keyed to the wildcard
 selector <code>*</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">guards</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">guards</span>
       <span class="nx">object</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span><span class="o">:</span> <span class="nx">value</span> <span class="nx">unless</span> <span class="nx">isPlainObject</span> <span class="nx">value</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>Transition values must be a <code>TransitionExpression</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">transitions</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">transitions</span>
       <span class="nx">unless</span> <span class="nx">value</span> <span class="o">is</span> <span class="nx">NIL</span> <span class="o">or</span> <span class="nx">value</span> <span class="k">instanceof</span> <span class="nx">TransitionExpression</span>
         <span class="nx">object</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">TransitionExpression</span> <span class="nx">value</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>State values must resolve to a <code>StateExpression</code>. They may be supplied as a
 plain object, or as a live <code>State</code> instance, which is automatically <code>express</code>ed
 to a formal <code>StateExpression</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">states</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nv">object = </span><span class="nx">result</span><span class="p">.</span><span class="nx">states</span>
       <span class="k">if</span> <span class="nx">value</span> <span class="k">instanceof</span> <span class="nx">State</span>
         <span class="nx">object</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">express</span> <span class="kc">true</span>
       <span class="k">else</span> <span class="nx">unless</span> <span class="nx">value</span> <span class="o">is</span> <span class="nx">NIL</span> <span class="o">or</span> <span class="nx">value</span> <span class="k">instanceof</span> <span class="nx">StateExpression</span>
         <span class="nx">object</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">StateExpression</span> <span class="nx">value</span>
 
     <span class="nx">result</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h3><a href="#state-expression--class-methods">Class methods</a></h3>
 <h4><a href="#state-expression--class--encode-attributes">encodeAttributes</a></h4>
 <p>Returns the bit-field integer represented by the provided set of <code>attributes</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="vi">@encodeAttributes = </span><span class="nv">encodeAttributes = </span><span class="nf">( attributes ) -&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="vi">@encodeAttributes = </span><span class="nv">encodeAttributes = </span><span class="nf">( attributes ) -&gt;</span>
     <span class="nv">attributes = </span><span class="nx">assign</span> <span class="nx">attributes</span> <span class="k">if</span> <span class="k">typeof</span> <span class="nx">attributes</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span>
     <span class="nv">result = </span><span class="nx">NORMAL</span>
     <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">attributes</span> <span class="k">when</span> <span class="nx">key</span> <span class="k">of</span> <span class="nx">attributeMap</span>
       <span class="nx">result</span> <span class="o">|=</span> <span class="nx">STATE_ATTRIBUTES</span><span class="p">[</span> <span class="nx">attributeMap</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="p">]</span>
     <span class="nx">result</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h4><a href="#state-expression--class--decode-attributes">decodeAttributes</a></h4>
 <p>Returns the space-delimited set of attribute names represented by the provided
 bit-field integer <code>number</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="vi">@decodeAttributes = </span><span class="nv">decodeAttributes = </span><span class="nf">( number ) -&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="vi">@decodeAttributes = </span><span class="nv">decodeAttributes = </span><span class="nf">( number ) -&gt;</span>
     <span class="p">(</span> <span class="nx">value</span> <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">attributeFlags</span> <span class="k">when</span> <span class="nx">number</span> <span class="o">&amp;</span> <span class="nx">key</span> <span class="p">).</span><span class="nx">join</span> <span class="s1">&#39; &#39;</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h4><a href="#state-expression--class-methods--untype">untype</a></h4>
 <p>Returns the <code>StateExpression</code> provided by <code>expr</code> as a plain-<code>Object</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="vi">@untype = </span><span class="nv">untype = </span><span class="nf">( expr ) -&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="vi">@untype = </span><span class="nv">untype = </span><span class="nf">( expr ) -&gt;</span>
     <span class="nv">result = </span><span class="p">{}</span>
     <span class="nx">result</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">value</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">expr</span>
     <span class="nx">s</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">untype</span> <span class="nx">subexpr</span> <span class="k">for</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">subexpr</span> <span class="k">of</span> <span class="nv">s = </span><span class="nx">result</span><span class="p">.</span><span class="nx">states</span>
     <span class="nx">result</span>
 
 </pre></div>
-      </div>
     </div>
   
 </div>

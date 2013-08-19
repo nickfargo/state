@@ -26,29 +26,7 @@
 
     <noscript><style> .highlight pre { display: block; } </style></noscript>
 
-    <script>
-      // As a mobile web app, force internal navigation for internal links. This
-      // must be done early to catch interactions that precede document-ready.
-      ( function () {
-        if ( !navigator.standalone ) return;
-
-        var location, rx;
-        location = document.location;
-        rxA = /^html|a$/i;
-        rxHttp = /^https?:\/\//;
-        rxJS = /.*\.js$/;
-        document.addEventListener( 'click', function ( e ) {
-          var el, href;
-          for ( el = e.target; !rxA.test( el.nodeName ); el = el.parentNode );
-          href = el.href;
-          if ( typeof href !== 'string' ) return;
-          if ( rxHttp.test( href ) && !~href.indexOf( location.host ) ) return;
-          if ( rxJS.test( href ) ) return;
-          e.preventDefault();
-          location.href = href;
-        });
-      }() );
-    </script>
+    <script src="/js/preload.js"></script>
   </head>
 
   <body class="{{ page.section }}">
@@ -101,13 +79,13 @@
       </div>
 
       <footer>
-        <hr style="visibility: visible" />
+        <hr/>
         <ul>
           <li class="title"><strong>{{ site.meta.site_title }}</strong>  v{{ site.packages.state.version }}</li>
-          <li class="license"><a href="{{ site.meta.license_url }}">License {{ site.meta.license }}</a></li>
           <li class="copyright">&copy; 2011-2013 {{ site.meta.author.full_name }}</li>
-          <li class="github"><a href="http://github.com/{{ site.meta.author.github }}"><span class="icon-blacktocat" style="line-height: 1"></span>/{{ site.meta.author.github }}</a></li>
+          <li class="license"><a href="{{ site.meta.license_url }}">License {{ site.meta.license }}</a></li>
           <li class="twitter"><a href="http://twitter.com/{{ site.meta.author.twitter }}">@{{ site.meta.author.twitter }}</a></li>
+          <li class="github"><a href="http://github.com/{{ site.meta.author.github }}"><span class="icon-blacktocat" style="line-height: 1"></span>/~</a></li>
           <li class="howdy">&#x1f44b;</li>
         </ul>
       </footer>

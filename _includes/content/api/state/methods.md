@@ -270,6 +270,115 @@ The `State` that is the nearest common ancestor of both `this` state and the pro
 > [`State::common`](/source/state.html#state--prototype--common)
 
 
+#### [substate](#state--methods--substate)
+
+Identifies a named substate of `this`.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.substate( stateName, via )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* `stateName` : string
+* [`via = VIA_PROTO`] : boolean
+
+###### RETURNS
+
+The substate of `this` state named `stateName`. If no such substate exists locally within `this`, and the `VIA_PROTO` bit of `via` is set, then the nearest identically named substate held on a protostate will be returned.
+
+###### SEE ALSO
+
+> [`State::substate`](/source/state.html#state--prototype--substate)
+
+
+#### [substates](#state--methods--substates)
+
+Generates a collection of substates of `this`.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.substates( deep, virtual )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* [`deep = false`] : boolean
+* [`virtual = false`] : boolean
+
+###### RETURNS
+
+An `Array` of `this` state’s substates.
+
+###### NOTES
+
+If `deep` is `true`, the returned array is a depth-first flattened list of all of this state’s descendant states.
+
+If `virtual` is `true`, the returned array may include any active virtual states held by an owner object that is inheriting currency from a prototype.
+
+###### SEE ALSO
+
+> [`State::substates`](/source/state.html#state--prototype--substates)
+
+
+#### [addSubstate](#state--methods--add-substate)
+
+Creates a `State` based on the provided `stateExpression`, adds it as a substate of `this` state.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.addSubstate( stateName, stateExpression )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* `stateName` : string
+* `stateExpression` : ( `StateExpression` | object | `State` )
+
+###### RETURNS
+
+The new `State`.
+
+###### NOTES
+
+If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
+
+###### SEE ALSO
+
+> [`State::addSubstate`](/source/state.html#state--prototype--add-substate)
+
+
+#### [removeSubstate](#state--methods--remove-substate)
+
+Removes the substate named by `stateName` from `this` state, if possible.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.removeSubstate( stateName )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* `stateName` : string
+
+###### RETURNS
+
+The removed `State`.
+
+###### NOTES
+
+If the owner object is in the midst of a transition involving the state targeted for removal, then the removal will fail, returning `false`.
+
+###### SEE ALSO
+
+> [`State::removeSubstate`](/source/state.html#state--prototype--remove-substate)
+
+
 #### [is](#state--methods--is)
 
 Asserts identity.
@@ -404,6 +513,62 @@ A boolean indicating whether `this` state is a superstate of the provided `other
 > [`State::isSuperstateOf`](/source/state.html#state--prototype--is-superstate-of)
 
 
+#### [defaultSubstate](#state--methods--default-substate)
+
+Resolves the proper concretion for an abstract state.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.defaultSubstate( via )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* [`via = VIA_PROTO`] : number
+
+###### RETURNS
+
+The `State` that is `this` state’s first substate bearing the `default` attribute, or just the first substate if none are found.
+
+###### EXAMPLE
+
+{% highlight javascript %}
+{% include examples/api/state/methods--default-substate.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state/methods--default-substate.coffee %}
+{% endhighlight %}
+
+> 1. `Moving` is explicitly marked `default`.
+
+> 2. Since `Moving`, which is itself abstract, has no descendant states marked `default`, its first substate `Walking` serves as its default state.
+
+> 3. A transition targeting the root state will fall through to `Walking`, since both the root and its default state `Moving` are abstract.
+
+###### SEE ALSO
+
+> [`State::defaultSubstate`](/source/state.html#state--prototype--default-substate)
+
+
+#### [initialSubstate](#state--methods--initial-substate)
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.initialSubstate()
+{% endhighlight %}
+
+###### RETURNS
+
+The `State` that is `this` state’s most deeply nested state bearing the `initial` attribute, by way of its greatest `initial` descendant state.
+
+###### SEE ALSO
+
+> [`State::initialSubstate`](/source/state.html#state--prototype--initial-substate)
+
+
 #### [getProtostate](#state--methods--get-protostate)
 
 Identifies the `State` analogous to `this` owned by a prototype of the `owner`.
@@ -472,69 +637,9 @@ A boolean indicating whether `this` state is a **protostate** of the provided `o
 > [`State::isProtostateOf`](/source/state.html#state--prototype--is-prototstate-of)
 
 
-#### [defaultSubstate](#state--methods--default-substate)
-
-Resolves the proper concretion for an abstract state.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.defaultSubstate( via )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* [`via = VIA_PROTO`] : number
-
-###### RETURNS
-
-The `State` that is `this` state’s first substate bearing the `default` attribute, or just the first substate if none are found.
-
-###### EXAMPLE
-
-{% highlight javascript %}
-{% include examples/api/state/methods--default-substate.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/api/state/methods--default-substate.coffee %}
-{% endhighlight %}
-
-> 1. `Moving` is explicitly marked `default`.
-
-> 2. Since `Moving`, which is itself abstract, has no descendant states marked `default`, its first substate `Walking` serves as its default state.
-
-> 3. A transition targeting the root state will fall through to `Walking`, since both the root and its default state `Moving` are abstract.
-
-###### SEE ALSO
-
-> [`State::defaultSubstate`](/source/state.html#state--prototype--default-substate)
-
-
-#### [initialSubstate](#state--methods--initial-substate)
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.initialSubstate()
-{% endhighlight %}
-
-###### RETURNS
-
-The `State` that is `this` state’s most deeply nested state bearing the `initial` attribute, by way of its greatest `initial` descendant state.
-
-###### SEE ALSO
-
-> [`State::initialSubstate`](/source/state.html#state--prototype--initial-substate)
-
-
 #### [query](#state--methods--query)
 
 Matches a `selector` string with the state or states it represents in the context of `this` state.
-
-###### Aliases
-
-**match**
 
 ###### SYNTAX
 
@@ -655,7 +760,7 @@ Boolean.
 
 Attempts to execute a state transition.
 
-###### Aliases
+###### ALIASES
 
 **go**, **be**
 
@@ -678,7 +783,7 @@ The `options` parameter is an optional map that may include:
 * `success` : function — callback to be executed upon successful completion of the transition.
 * `failure` : function — callback to be executed if the transition attempt is blocked by a guard.
 
-###### Discussion
+###### DISCUSSION
 
 Handles asynchronous transitions, generation of appropriate events, and construction of any necessary temporary virtual states. Respects guards supplied in both the origin and `target` states.
 
@@ -697,7 +802,7 @@ this.isVirtual()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 A **virtual state** is a lightweight inheritor of a **protostate** located higher in the owner object’s prototype chain. Notably, as virtual states are created automatically, no modifier keyword exists for the `virtual` attribute.
 
@@ -734,7 +839,7 @@ this.isMutable()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 By default, states are **weakly immutable**; i.e., once a `State` has been constructed, its declared data, methods, guards, substates, and transitions cannot be altered. By including the `mutable` attribute in the state’s expression, this restriction is lifted. Mutability is also inherited from any of a state’s superstates or protostates.
 
@@ -757,7 +862,7 @@ this.isFinite()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 If a state is declared `finite`, no substates or descendant states may be added, nor may any be removed without also destroying the state itself.
 
@@ -780,7 +885,7 @@ this.isImmutable()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 A literal or inherited `immutable` attribute causes a state to become **strongly immutable**, wherein it guarantees immutability absolutely, throughout all inheriting states. The `immutable` attribute also implies `finite`, and contradicts and overrides any literal or inherited `mutable` attribute.
 
@@ -803,7 +908,7 @@ this.isAbstract()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 An `abstract` state is used only as a source of inheritance, and cannot itself be current. A transition that directly targets an abstract state will be automatically redirected to one of its substates.
 
@@ -826,7 +931,7 @@ this.isConcrete()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 All non-abstract states are concrete. Marking a state with the `concrete` attribute in a state expression will override any `abstract` attribute, particularly such as would otherwise be inherited from a protostate.
 
@@ -849,7 +954,7 @@ this.isDefault()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 Marking a state `default` designates it as the specific redirection target for any transition that targets its abstract superstate.
 
@@ -873,7 +978,7 @@ this.isInitial()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 Marking a state `initial` specifies which state a newly stateful object should assume.
 
@@ -899,7 +1004,7 @@ this.isConclusive()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 Once a state marked `conclusive` is entered, it cannot be exited, although transitions may still freely traverse within its substates.
 
@@ -922,7 +1027,7 @@ this.isFinal()
 
 Boolean.
 
-###### Discussion
+###### DISCUSSION
 
 Once a state marked `final` is entered, no further outbound transitions within its local region are allowed.
 
@@ -1084,7 +1189,7 @@ this.set( key, value )
 
 The assigned `value`.
 
-###### Discussion
+###### DISCUSSION
 
 If the property is inherited from a `mutable` superstate, then the property is updated in place, equivalent to calling `let` on that superstate. If the data property does not yet exist in the superstate chain, it is created on `this`. Properties inherited from protostates are not affected.
 
@@ -1142,7 +1247,7 @@ this.method( methodName, via, out )
 
 The function that is the method held on `this` state whose name is `methodName`.
 
-###### Discussion
+###### DISCUSSION
 
 If the named method does not exist on `this` state, then it will be inherited, in order, first from protostates of `this` (if the `VIA_PROTO` bit of `via` is set), and if no such method exists there, then from superstates of `this` (if the `VIA_SUPER` bit of `via` is set).
 
@@ -1278,7 +1383,7 @@ this.apply( methodName, args )
 
 The value returned by the invocation of the named method, or `undefined` if no such method can be invoked.
 
-###### Discussion
+###### DISCUSSION
 
 If the state method named by `methodName` exists locally or can be inherited via protostate or superstate, that function is applied with the provided `args` in the appropriate context, and its result is returned.
 
@@ -1339,7 +1444,7 @@ If an `id` as returned by [`addEvent`](#state--add-event) is provided, the event
 
 Binds an event listener `fn` to the specified `eventType`.
 
-###### Aliases
+###### ALIASES
 
 **on**, **bind**
 
@@ -1368,7 +1473,7 @@ A unique identifier for the listener.
 
 Unbinds the event listener with the specified `id` that was supplied by `addEvent`.
 
-###### Aliases
+###### ALIASES
 
 **off**, **unbind**
 
@@ -1392,7 +1497,7 @@ this.removeEvent( eventType, id )
 
 Invokes all listeners bound to the given `eventType`.
 
-###### Aliases
+###### ALIASES
 
 **trigger**
 
@@ -1440,7 +1545,7 @@ this.guard( guardType )
 
 An object containing the guard predicates and/or expressions for the specified `guardType` held on `this` state.
 
-###### Discussion
+###### DISCUSSION
 
 A **guard** is a map of functions or values that will be evaluated as either a predicate or boolean expression, respectively, to provide a determination of whether the owner’s currency will be admitted into or released from the state to which the guard is applied.
 
@@ -1493,115 +1598,6 @@ this.removeGuard( guardType, keys )
 ###### SEE ALSO
 
 > [`State::removeGuard`](/source/state.html#state--prototype--remove-guard)
-
-
-#### [substate](#state--methods--substate)
-
-Identifies a named substate of `this`.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.substate( stateName, via )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* `stateName` : string
-* [`via = VIA_PROTO`] : boolean
-
-###### RETURNS
-
-The substate of `this` state named `stateName`. If no such substate exists locally within `this`, and the `VIA_PROTO` bit of `via` is set, then the nearest identically named substate held on a protostate will be returned.
-
-###### SEE ALSO
-
-> [`State::substate`](/source/state.html#state--prototype--substate)
-
-
-#### [substates](#state--methods--substates)
-
-Generates a collection of substates of `this`.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.substates( deep, virtual )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* [`deep = false`] : boolean
-* [`virtual = false`] : boolean
-
-###### RETURNS
-
-An `Array` of `this` state’s substates.
-
-###### NOTES
-
-If `deep` is `true`, the returned array is a depth-first flattened list of all of this state’s descendant states.
-
-If `virtual` is `true`, the returned array may include any active virtual states held by an owner object that is inheriting currency from a prototype.
-
-###### SEE ALSO
-
-> [`State::substates`](/source/state.html#state--prototype--substates)
-
-
-#### [addSubstate](#state--methods--add-substate)
-
-Creates a `State` based on the provided `stateExpression`, adds it as a substate of `this` state.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.addSubstate( stateName, stateExpression )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* `stateName` : string
-* `stateExpression` : ( `StateExpression` | object | `State` )
-
-###### RETURNS
-
-The new `State`.
-
-###### NOTES
-
-If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
-
-###### SEE ALSO
-
-> [`State::addSubstate`](/source/state.html#state--prototype--add-substate)
-
-
-#### [removeSubstate](#state--methods--remove-substate)
-
-Removes the substate named by `stateName` from `this` state, if possible.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.removeSubstate( stateName )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* `stateName` : string
-
-###### RETURNS
-
-The removed `State`.
-
-###### NOTES
-
-If the owner object is in the midst of a transition involving the state targeted for removal, then the removal will fail, returning `false`.
-
-###### SEE ALSO
-
-> [`State::removeSubstate`](/source/state.html#state--prototype--remove-substate)
 
 
 #### [transition](#state--methods--transition)

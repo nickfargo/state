@@ -257,32 +257,38 @@ $( function () {
     var $body = $('body');
 
     function action () {
-      var self = this;
-      function end () { self.end(); }
-      this.data({ handle: setTimeout( end, this.data().delay ) });
+      var transition = this;
+      function end () { transition.end(); }
+      transition.set( 'handle', setTimeout( end, transition.get('delay') ) );
     }
 
-    function abort () { clearTimeout( this.data().handle ); }
+    function abort () {
+      clearTimeout( this.get('handle') );
+    }
 
     var chrome = {};
     state( chrome, 'abstract', {
       data: { delay: 400 },
 
-      Visible: state( 'default', {
+      Visible: state( 'initial default', {
         enter: function () {
           $body.removeClass('chrome-revealing')
                .addClass('chrome-visible');
         },
-        toggle: function () { this.go('Hidden'); }
+        toggle: function () {
+          this.state('-> Hidden');
+        }
       }),
 
-      Hidden: {
+      Hidden: state({
         enter: function () {
           $body.removeClass('chrome-hiding')
                .addClass('chrome-hidden');
         },
-        toggle: function () { this.go('Visible'); }
-      },
+        toggle: function () {
+          this.state('-> Visible');
+        }
+      }),
 
       transitions: {
         Revealing: {
@@ -291,7 +297,9 @@ $( function () {
             $body.removeClass('chrome-hidden chrome-hiding')
                  .addClass('chrome-revealing');
           },
-          toggle: function () { this.go('Hidden'); }
+          toggle: function () {
+            this.state('-> Hidden');
+          }
         },
         Hiding: {
           target: 'Hidden', action: action, abort: abort,
@@ -299,7 +307,9 @@ $( function () {
             $body.removeClass('chrome-visible chrome-revealing')
                  .addClass('chrome-hiding');
           },
-          toggle: function () { this.go('Visible'); }
+          toggle: function () {
+            this.state('-> Visible');
+          }
         }
       }
     });
@@ -671,6 +681,7 @@ $( function () {
     if ( $fg.children().length === 0 ) return;
 
     $a = $( 'li a', $toc );
+    if ( $a.length < 2 ) return;
 
     cachedLocationData = {};
     frags = [];
@@ -914,25 +925,59 @@ $( function () {
     .addClass('vi').removeClass('nx');
 
   // classify coffee keywords correctly
-  $( 'span.nx', $pre ).filter( function () {
-    return /^do|when|unless$/.test( $(this).text() );
-  })
+  $( 'span.nx', $pre )
+    .filter( function () {
+      return /^(do|loop|when|unless|until)$/.test( $(this).text() );
+    })
     .add( $( 'span.k:contains("for")', $pre ).next('span.nx:contains("own")') )
     .addClass('k').removeClass('nx');
 
+  // classify word operators correctly
+  ( function () {
+    var rx = /^(new|typeof|void|delete|of|in|instanceof|yield)$/;
+    $( 'span.k', $pre )
+      .filter( function () {
+        return rx.test( $(this).text() );
+      })
+      .addClass('o').removeClass('k');
+  }() );
+
   // split punctuators into distinct `span`s
-  $( 'span.p', $pre )
-    .filter( function () { return $(this).text().length > 1; })
-    .each( function () {
+  $( 'span.p', $pre ).each( function () {
+    var $this = $(this);
+    var text = $this.text();
+    if ( text.length < 2 ) return;
+    var chars = text.split('');
+    var i = 0, l = chars.length, html = '';
+    while ( i < l ) {
+      html += '<span class="p">' + chars[i] + '</span>';
+      i++;
+    }
+    $this.replaceWith( html );
+  });
+
+  // classify member-access square brackets as operators instead of punctuators
+  ( function () {
+    var stack = [];
+
+    $( 'span.p', $pre ).each( function () {
       var $this = $(this);
-      var chars = $this.text().split('');
-      var i = 0, l = chars.length, html = '';
-      while ( i < l ) {
-        html += '<span class="p">' + chars[i] + '</span>';
-        i++;
+      var text = $this.text();
+      var isMemberOperator;
+
+      if ( text === '[' ) {
+        isMemberOperator = this.previousSibling.nodeType !== 3 &&
+          /[@$\)\]\}\w\?]$/.test( $this.prev().text() );
+        stack.push( isMemberOperator );
+      } else if ( text === ']' ) {
+        isMemberOperator = stack.pop();
+      } else return;
+
+      if ( isMemberOperator ) {
+        $this.addClass('o').removeClass('p');
       }
-      $this.replaceWith( html );
     });
+  }() );
 
   // classify paired punctuators
   $( 'span.p', $pre ).each( function () {
@@ -940,6 +985,60 @@ $( function () {
     if ( /^[\[\]]$/.test( $this.text() ) ) $this.addClass('sb');
     if ( /^[\{\}]$/.test( $this.text() ) ) $this.addClass('cb');
   });
+
+
+
+  // classify operators by precedence
+  ( function () {
+    var table = {
+      'mem' : /^[\.\[\]]$/,
+      'new' : /^new$/,
+      'inv' : /^[()]$/,
+      'inc' : /^(\+\+|\-\-)$/,
+      'una' : /^(\?|\!+|not|\~|\+|\-|typeof|delete)$/,
+      'ar1' : /^(\*|\/|%)$/,
+      'ar2' : /^[+-]$/,
+      'bws' : /^(<<|>>>?)$/,
+      'rel' : /^(<|<=|>|>=|of|in|instanceof)$/,
+      'equ' : /^(is|isnt)$/,
+      'bwa' : /^\&$/,
+      'bwx' : /^\^$/,
+      'bwo' : /^\|$/,
+      'lga' : /^(&&|and)$/,
+      'lgo' : /^(\|\||or)$/,
+      'exi' : /^\?$/,
+      'asn' : /^(=|\?=|\+=|\-=|\*=|\/=|%=|<<=|>>>?=|&=|\^=|\|=)$/,
+      'fna' : /^[\-=]>$/
+    };
+    var sel = 'body.source .highlight pre, .highlight pre code.coffeescript';
+    $( 'span.o', $(sel) ).each( function () {
+      var key, regex;
+      var $this = $(this);
+      var text = $this.text();
+      var previousElement, previous, next;
+      var ws = /\s+/;
+      for ( key in table ) if ( ( regex = table[key] ).test( text ) ) {
+        if ( key === 'una' ) {
+          previous = this.previousSibling;
+          next = this.nextSibling;
+          previousElement = this.previousElementSibling;
+
+          // distinguish unary +/- from arithmetic +/-
+          if ( table.ar2.test() && next.nodeType === 3 ) {
+            key = 'ar2';
+          }
+
+          // distinguish unary postfix existential ? from infix ?
+          if ( text === '?' && previous.nodeType === 3 &&
+              ws.test( previous.textContent ) ) {
+            key = 'exi';
+          }
+        }
+        $this.addClass(key);
+        break;
+      }
+    });
+  }() );
 });
 
 

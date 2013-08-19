@@ -1,21 +1,18 @@
 <div class="source-content">
   
     
-    <div class="pair">
-      <div class="text">
-        
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="nv">State = </span><span class="nx">require</span> <span class="s1">&#39;./state&#39;</span>
+    <div class="text">
+      
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="nv">State = </span><span class="nx">require</span> <span class="s1">&#39;./state&#39;</span>
 
 <span class="nv">module.exports =</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h2><a href="#transition">Transition</a></h2>
 <p>A <code>Transition</code> is a transient <code>State</code> which acts as a “vehicle” for the
 <code>RootState</code>’s currency, carrying it from one proper <code>State</code> to another.</p>
@@ -36,38 +33,34 @@ events in the familiar fashion, until the <code>action</code> is concluded, upon
 <a href="/api/#transition">Transition</a></p>
 </blockquote>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="k">class</span> <span class="nx">Transition</span> <span class="k">extends</span> <span class="nx">State</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="k">class</span> <span class="nx">Transition</span> <span class="k">extends</span> <span class="nx">State</span>
 
   <span class="p">{</span> <span class="nx">VIA_PROTO</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h3><a href="#transition--constructor">Constructor</a></h3>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">( target, source, expression, callback ) -&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">constructor: </span><span class="nf">( target, source, expression, callback ) -&gt;</span>
     <span class="vi">@name = </span><span class="nx">expression</span><span class="p">.</span><span class="nx">name</span> <span class="o">or</span> <span class="kc">null</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>Unlike a proper <code>State</code>, a transition’s <code>superstate</code> is inherently dynamic, as
 it tracks the transition’s progression as it traverses from <code>source</code> through
 the domain and on to <code>target</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>    <span class="vi">@superstate = </span><span class="nx">source</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="vi">@superstate = </span><span class="nx">source</span>
 
     <span class="nv">root = </span><span class="nx">source</span><span class="p">.</span><span class="nx">root</span>
     <span class="k">throw</span> <span class="nx">ReferenceError</span> <span class="nx">unless</span> <span class="nx">target</span><span class="p">.</span><span class="nx">root</span> <span class="o">is</span> <span class="nx">root</span>
@@ -82,99 +75,88 @@ the domain and on to <code>target</code>.</p>
     <span class="k">else</span> <span class="nx">source</span>
 
     <span class="vi">@callback = </span><span class="nx">callback</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>The <code>action</code>, if provided, is responsible for calling <code>end</code>, either in the same
 turn to complete a synchronous transition, or at some point in the future for
 an asynchronous transition.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>    <span class="vi">@action = </span><span class="nx">expression</span><span class="p">.</span><span class="nx">action</span> <span class="o">or</span> <span class="kc">null</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="vi">@action = </span><span class="nx">expression</span><span class="p">.</span><span class="nx">action</span> <span class="o">or</span> <span class="kc">null</span>
 
     <span class="vi">@_ = </span><span class="k">new</span> <span class="nx">@Content</span>
 
     <span class="vi">@aborted = </span><span class="kc">no</span>
 
     <span class="nx">@initialize</span> <span class="nx">expression</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h3><a href="#transition--methods">Methods</a></h3>
 <h4><a href="#transition--prototype--start">start</a></h4>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">start: </span><span class="o">-&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">start: </span><span class="o">-&gt;</span>
     <span class="vi">@aborted = </span><span class="kc">no</span>
     <span class="nx">@emit</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
     <span class="k">if</span> <span class="nv">action = </span><span class="nx">@action</span> <span class="k">then</span> <span class="nx">action</span><span class="p">.</span><span class="nx">apply</span> <span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">;</span> <span class="k">this</span>
     <span class="k">else</span> <span class="nx">@end</span><span class="p">.</span><span class="nx">apply</span> <span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h4><a href="#transition--prototype--abort">abort</a></h4>
 <p>Indicates that <code>this</code> transition will not reach its <code>target</code>. Currency may be
 delegated to a new <code>Transition</code>, in which case <code>this</code> will be retained as the
 <code>source</code> of the new transition.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">abort: </span><span class="o">-&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">abort: </span><span class="o">-&gt;</span>
     <span class="vi">@aborted = </span><span class="kc">yes</span>
     <span class="vi">@callback = </span><span class="kc">null</span>
     <span class="nx">@emit</span> <span class="s1">&#39;abort&#39;</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
     <span class="k">this</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h4><a href="#transition--prototype--end">end</a></h4>
 <p>Indicates that <code>this</code> transition has completed and has reached its intended
 <code>target</code>. The transition is retired by its <code>root</code>, and any preceding aborted
 transitions along the <code>source</code> chain are discarded as well.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">end: </span><span class="o">-&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">end: </span><span class="o">-&gt;</span>
     <span class="nx">unless</span> <span class="nx">@aborted</span>
       <span class="nx">@emit</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
       <span class="nx">@callback</span><span class="o">?</span><span class="p">.</span><span class="nx">apply</span> <span class="nx">@root</span><span class="p">,</span> <span class="nx">arguments</span>
     <span class="nx">do</span> <span class="nx">@destroy</span>
     <span class="nx">@target</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h4><a href="#transition--prototype--destroy">destroy</a></h4>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">destroy: </span><span class="o">-&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">destroy: </span><span class="o">-&gt;</span>
     <span class="nx">do</span> <span class="nx">@source</span><span class="p">.</span><span class="nx">destroy</span> <span class="k">if</span> <span class="nx">@source</span> <span class="k">instanceof</span> <span class="nx">Transition</span>
     <span class="vi">@target = @superstate = @root = </span><span class="kc">null</span>
 
 </pre></div>
-      </div>
     </div>
   
 </div>

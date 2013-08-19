@@ -51,25 +51,22 @@
 <div class="source-content">
   
     
-    <div class="pair">
-      <div class="text">
-        
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="nv">RootState        = </span><span class="kc">null</span>
+    <div class="text">
+      
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="nv">RootState        = </span><span class="kc">null</span>
 <span class="nv">StateExpression  = </span><span class="kc">null</span>
 
 <span class="nv">module.exports =</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h2><a href="#state-function">state()</a></h2>
-<p>Invoking the exported <code>state</code> function is the primary point of entry into the
-module. The <code>state</code> function is used either to:</p>
+<p>The primary point of entry into the module is to invoke the exported <code>state</code>
+function. This is used either to:</p>
 <ol>
 <li>generate a formal <code>StateExpression</code> object; or</li>
 <li>bestow any given <code>owner</code> object with a working state implementation.</li>
@@ -111,9 +108,9 @@ the owner’s initial <code>State</code>.</p>
 </blockquote>
 <h6>SOURCE</h6>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="nv">state = </span><span class="nf">( owner, attributes, expression, options ) -&gt;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="nv">state = </span><span class="nf">( owner, attributes, expression, options ) -&gt;</span>
   <span class="k">if</span> <span class="nx">arguments</span><span class="p">.</span><span class="nx">length</span> <span class="o">&lt;</span> <span class="mi">2</span>
     <span class="k">if</span> <span class="k">typeof</span> <span class="nx">owner</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span>
     <span class="k">then</span> <span class="nv">attributes = </span><span class="nx">owner</span>
@@ -129,43 +126,37 @@ the owner’s initial <code>State</code>.</p>
       <span class="nv">options = </span><span class="nx">expression</span>
       <span class="nv">expression = </span><span class="nx">attributes</span>
       <span class="nv">attributes = </span><span class="kc">undefined</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>Formalize the provided <code>expression</code> (even if <code>expression</code> is already a formal
 <code>StateExpression</code>), incorporating any provided <code>attributes</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="nv">expression = </span><span class="k">new</span> <span class="nx">StateExpression</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">expression</span></pre></div>
-      </div>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">expression = </span><span class="k">new</span> <span class="nx">StateExpression</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">expression</span></pre></div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <p>If <code>owner</code> is absent, the inferred intent is only to return the formalized
 <code>expression</code>; otherwise the inference is to implement <code>expression</code> into
 <code>owner</code>.</p>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre>  <span class="k">if</span> <span class="nx">owner</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="k">if</span> <span class="nx">owner</span>
     <span class="p">{</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">initial</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">options</span> <span class="k">if</span> <span class="nx">options</span>
     <span class="p">(</span> <span class="k">new</span> <span class="nx">RootState</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">expression</span><span class="p">,</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">initial</span> <span class="p">).</span><span class="nx">_current</span>
   <span class="k">else</span> <span class="nx">expression</span></pre></div>
-      </div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h3><a href="#state-function--static-includes">Static includes</a></h3>
 <p>A set of package-global metadata and functions are included as properties of
 the exported <code>state</code> function.</p>
@@ -173,25 +164,22 @@ the exported <code>state</code> function.</p>
 <p>These must be required ahead of the forward imports.</p>
 </blockquote>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="p">(</span> <span class="nx">require</span> <span class="s1">&#39;./export-static&#39;</span> <span class="p">).</span><span class="nx">apply</span> <span class="nx">state</span></pre></div>
-      </div>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="p">(</span> <span class="nx">require</span> <span class="s1">&#39;./export-static&#39;</span> <span class="p">).</span><span class="nx">apply</span> <span class="nx">state</span></pre></div>
     </div>
   
     
-    <div class="pair">
-      <div class="text">
-        
+    <div class="text">
+      
 <h3><a href="#state-function--forward-imports">Forward imports</a></h3>
 
-      </div>
-      <div class="code">
-        <div class="highlight"><pre><span class="nv">RootState        = </span><span class="nx">require</span> <span class="s1">&#39;./root-state&#39;</span>
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="nv">RootState        = </span><span class="nx">require</span> <span class="s1">&#39;./root-state&#39;</span>
 <span class="nv">StateExpression  = </span><span class="nx">require</span> <span class="s1">&#39;./state-expression&#39;</span>
 
 </pre></div>
-      </div>
     </div>
   
 </div>

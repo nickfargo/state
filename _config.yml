@@ -16,8 +16,8 @@ meta:
 tag_dir: tag
 pygments: true
 markdown: rdiscount
-permalink: /blog/:title
-exclude: art/*, diagrams/*
+permalink: /blog/:year/:month/:day/:title
+exclude: [ art, diagrams ]
 
 packages:
   state:

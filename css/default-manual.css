@@ -1103,10 +1103,10 @@ blockquote ol {
 
 footer {
   float: right;
-  width: 640px;
   margin-top: 120px;
+  text-align: center;
   font-size: 12px;
-  opacity: 0.3;
+  opacity: 0.44;
   -webkit-transition: opacity 0.6s ease-out;
      -moz-transition: opacity 0.6s ease-out;
        -o-transition: opacity 0.6s ease-out;
@@ -1115,11 +1115,13 @@ footer {
 footer:hover {
   opacity: 1;
 }
+  footer hr {
+    visibility: visible;
+  }
   footer ul {
     position: relative;
     display: inline-block;
-    float: right;
-    margin: 0;
+    margin: 0 0 0 36px;
   }
   footer ul li {
     display: block;
@@ -1370,6 +1372,7 @@ body.source .text {
 body.source .text p {
   font-size: 14px;
   line-height: 20px;
+  margin: 0.5em 0;
 }
 body.source .text a code {
   font-weight: bold;
@@ -1445,19 +1448,26 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
       left: 50%;
       margin-left: -18px;
     }
-  body.chrome-visible    .controls {
-  }
-  body.chrome-hiding     .controls {
+  body.chrome-hiding            .controls,
+  body.chrome-hiding.source     .container .body.docco .source-title,
+  body.chrome-hiding.source     .container .body.docco .source-menu {
     opacity: 0;
     -webkit-transition: opacity 0.4s ease-out;
   }
-  body.chrome-hidden     .controls {
+  body.chrome-hidden            .controls,
+  body.chrome-hidden.source     .container .body.docco .source-title,
+  body.chrome-hidden.source     .container .body.docco .source-menu {
     visibility: hidden;
     opacity: 0;
   }
-  body.chrome-revealing  .controls {
+  body.chrome-revealing         .controls {
     -webkit-transition: opacity 0.4s ease-out;
   }
+  body.chrome-revealing.source  .container .body.docco .source-title,
+  body.chrome-revealing.source  .container .body.docco .source-menu {
+    -webkit-transition: opacity 0.4s ease-out 0.4s;
+  }
+
 
   body > .container,
   body > .topbar .container {
@@ -1557,6 +1567,9 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 
   body.source .text {
     width: auto;
+  }
+  body.source .source-menu {
+    bottom: 52px;
   }
 }
 
@@ -1811,6 +1824,9 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   body.source .source-menu {
     top: 75px;
   }
+  body.source .code pre {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 400px) {
@@ -1847,145 +1863,6 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 
 /*---------------------- Syntax Highlighting -----------------------------*/
 
-/* highlight.js */
-
-td.linenos { background-color: #f0f0f0; padding-right: 10px; }
-span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
-/*
-
-github.com style (c) Vasily Polovnyov <vast@whiteants.net>
-
-*/
-
-pre code {
-  display: block; padding: 0.5em;
-  line-height: 18px;
-}
-
-pre .comment,
-pre .template_comment,
-pre .diff .header,
-pre .javadoc {
-  color: #408080;
-  font-style: italic
-}
-
-pre .keyword,
-pre .assignment,
-pre .literal,
-pre .css .rule .keyword,
-pre .winutils,
-pre .javascript .title,
-pre .lisp .title,
-pre .subst {
-  color: #954121;
-  /*font-weight: bold*/
-}
-
-pre .number,
-pre .hexcolor {
-  color: #40a070
-}
-
-pre .string,
-pre .tag .value,
-pre .phpdoc,
-pre .tex .formula {
-  color: #219161;
-}
-
-pre .title,
-pre .id {
-  color: #19469D;
-}
-pre .params {
-  color: #00F;
-}
-
-pre .javascript .title,
-pre .lisp .title,
-pre .subst {
-  font-weight: normal
-}
-
-pre .class .title,
-pre .haskell .label,
-pre .tex .command {
-  color: #458;
-  font-weight: bold
-}
-
-pre .tag,
-pre .tag .title,
-pre .rules .property,
-pre .django .tag .keyword {
-  color: #000080;
-  font-weight: normal
-}
-
-pre .attribute,
-pre .variable,
-pre .instancevar,
-pre .lisp .body {
-  color: #008080
-}
-
-pre .regexp {
-  color: #B68
-}
-
-pre .class {
-  color: #458;
-  font-weight: bold
-}
-
-pre .symbol,
-pre .ruby .symbol .string,
-pre .ruby .symbol .keyword,
-pre .ruby .symbol .keymethods,
-pre .lisp .keyword,
-pre .tex .special,
-pre .input_number {
-  color: #990073
-}
-
-pre .builtin,
-pre .constructor,
-pre .built_in,
-pre .lisp .title {
-  color: #0086b3
-}
-
-pre .preprocessor,
-pre .pi,
-pre .doctype,
-pre .shebang,
-pre .cdata {
-  color: #999;
-  font-weight: bold
-}
-
-pre .deletion {
-  background: #fdd
-}
-
-pre .addition {
-  background: #dfd
-}
-
-pre .diff .change {
-  background: #0086b3
-}
-
-pre .chunk {
-  color: #aaa
-}
-
-pre .tex .formula {
-  opacity: 0.5;
-}
-
-
 /* pygments */
 
 .hll { background-color: #ffffcc }
@@ -1993,15 +1870,36 @@ pre .tex .formula {
 .err { border: 1px none #FF0000 }           /* Error */
 .k   { color: #0C65EC; font-weight: bold }  /* Keyword */
 .o   { color: #26ADB9; font-weight: bold }  /* Operator */
+    /* operator precedence gradient */
+    .o.mem { color: #222222; }
+    .o.new { color: #222B2C; }
+    .o.inv { color: #223436; }
+    .o.inc { color: #223D40; }
+    .o.una { color: #22464A; }
+    .o.ar1 { color: #224F54; }
+    .o.ar2 { color: #22585E; }
+    .o.bws { color: #226168; }
+    .o.rel { color: #226A72; }
+    .o.equ { color: #22737C; }
+    .o.bwa { color: #227C86; }
+    .o.bwx { color: #228590; }
+    .o.bwo { color: #228E9A; }
+    .o.lga { color: #2297A4; }
+    .o.lgo { color: #22A0AE; }
+    .o.cnd { color: #22A9B8; }
+    .o.yld { color: #22B2C2; }
+    .o.asn { color: #22BBCC; }
+    .o.cma { color: #222222; }
+    .o.fna { color: #770055; }
 .p   { color: #113355; font-weight: bold }  /* Punctuation */
-.p.sb /* Punctuation: Square Bracket */ {
-  color: #7F7700;
-  text-shadow: 0 0 2px rgba(255, 239, 0, 0.8);
-}
-.p.cb /* Punctuation: Curly Brace */ {
-  color: #554F00;
-  text-shadow: 0 0 2px rgba(255, 240, 0, 0.2);
-}
+    .p.sb /* Punctuation: Square Bracket */ {
+      color: #7F7700;
+      text-shadow: 0 0 2px rgba(255, 239, 0, 0.8);
+    }
+    .p.cb /* Punctuation: Curly Brace */ {
+      color: #554F00;
+      text-shadow: 0 0 2px rgba(255, 240, 0, 0.2);
+    }
 .cm  { color: #558585; font-style: italic } /* Comment.Multiline */
 .cp  { color: #BC7A00 }                     /* Comment.Preproc */
 .c1  { color: #658585; font-style: italic } /* Comment.Single */
@@ -2042,7 +1940,7 @@ pre .tex .formula {
 .nn  { color: #0000FF; font-weight: bold }  /* Name.Namespace */
 .nt  { color: #954121; font-weight: bold }  /* Name.Tag */
 .nv /* Name.Variable */ {
-  color: #08A36B;
+  color: #08A352;
   text-shadow: 0 0 1px rgba(8,163,107,0.3);
 }
 .ow  { color: #AA22FF; font-weight: bold }  /* Operator.Word */
@@ -2062,7 +1960,12 @@ pre .tex .formula {
 .sh  { color: #219161 }                     /* Literal.String.Heredoc */
 .si  { color: #BB6688; font-weight: bold }  /* Literal.String.Interpol */
 .sx  { color: #954121 }                     /* Literal.String.Other */
-.sr  { color: #BB6688 }                     /* Literal.String.Regex */
+.sr /* Literal.String.Regex */ {
+  color: #997755;
+  background: rgba(153,119,85,0.1);
+  padding: 1px 2px;
+  margin: 0 -2px;
+}
 .ss  { color: #19469D }                     /* Literal.String.Symbol */
 .bp  { color: #954121 }                     /* Name.Builtin.Pseudo */
 .vc  { color: #19469D }                     /* Name.Variable.Class */

@@ -9,11 +9,13 @@ The **State** module is exported as a function named [`state`](/api/#module), wh
 ##### Implementing state into an object
 
 {% highlight javascript %}
-state( owner, [attributes], expression )
+state( owner, attributes, expression )
+state( owner, expression )
 {% endhighlight %}
 
 {% highlight coffeescript %}
-state( owner, [attributes], expression )
+state( owner, attributes, expression )
+state( owner, expression )
 {% endhighlight %}
 
 Given two object-typed arguments `owner` and `expression`, calling `state` will augment `owner` with its own working state implementation based on the contents of `expression` (and any keywords included in the optional [`attributes`](#concepts--attributes) string). The newly stateful `owner`’s [**initial state**](#concepts--attributes--destination) is returned.
@@ -21,11 +23,15 @@ Given two object-typed arguments `owner` and `expression`, calling `state` will 
 ##### Expressing a state’s content
 
 {% highlight javascript %}
-state( [attributes], expression )
+state( attributes, expression )
+state( expression )
+state( attributes )
 {% endhighlight %}
 
 {% highlight coffeescript %}
-state( [attributes], expression )
+state( attributes, expression )
+state( expression )
+state( attributes )
 {% endhighlight %}
 
 Given a single `expression` object (and optional `attributes`), calling `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call, to define constituent [**substates**](#concepts--inheritance--superstates-and-substates).
