@@ -1,34 +1,18 @@
-class Sophisticate extends Person
+class Avenger
   constructor: (@name) ->
 
+  greet: -> "Hello."
+
   state @::, 'abstract',
-    Formal: state 'default initial',
-      Cordial:
-        greet: state.bind (person) ->
-          greeting = @superstate.call 'greet'
-          if name = person?.name
-          then "Hello #{name}. #{greeting}"
-          else greeting
-    Casual:
-      greet: state.fix (autostate, protostate) -> (person) ->
-        name = person?.name
-        return "How’s it hanging?" if name is 'Lane'
-        return "Hi #{name}." if name
-        protostate.call 'greet'
+    Terse: state 'default'
+    Verbose: state
+      greet: state.bind ->
+        "#{@superstate.call 'greet'} My name is #{@owner.name}."
 
 
-[ sterling, cooper, draper, pryce ] =
-  new Sophisticate n for n in ['Roger', 'Bert', 'Don', 'Lane']
+person = new Avenger 'Inigo'
+person.state()              # >>> State 'Terse'
+person.greet()              # >>> "Hello."
 
-draper.state()              # >>> State 'Formal'
-draper.greet new Person     # >>> "How do you do?"
-
-draper.state '-> Cordial'
-draper.greet new Person     # >>> "How do you do?"
-draper.greet cooper         # >>> "Hello Bert. How do you do?"
-draper.greet sterling       # >>> "Hello Roger. How do you do?"
-
-draper.state '-> Casual'
-draper.greet new Person     # >>> "Hi!"
-draper.greet sterling       # >>> "Hi Roger."
-draper.greet pryce          # >>> "How’s it hanging?"
+person.state '-> Verbose'   # >>> State 'Verbose'
+person.greet()              # >>> "Hello. My name is Inigo."

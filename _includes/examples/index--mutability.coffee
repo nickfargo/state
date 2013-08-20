@@ -1,15 +1,19 @@
-theRomansDo =
-  Formal:
-    greet: -> "Quid agis?"
-  Casual:
-    greet: -> "Salve!"
-
-doAs = (behavior) -> state.bind -> @mutate behavior
-
 
 class Traveler extends Person
+
+  # A bit of behavior
+  theRomansDo =
+    Casual:
+      greet: -> "Salve!"
+    Formal:
+      greet: -> "Quid agis?"
+
+  # Returns a function that instills an enclosed behavior, boxed
+  # inside an object typed as a 'state-bound-function'
+  doAs = (behavior) -> state.bind -> @mutate behavior; return
+
   state @::, 'mutable abstract',
-    goTo: state.bind (place) -> @emit "in#{place}"
+    travelTo: state.bind (place) -> @emit "in#{place}"
 
     events:
       inRome: doAs theRomansDo
@@ -20,8 +24,8 @@ class Traveler extends Person
 traveler = new Traveler
 traveler.greet()              # >>> "How do you do?"
 
-traveler.goTo 'Rome'
+traveler.travelTo 'Rome'
 
 traveler.greet()              # >>> "Quid agis?"
-traveler.state '-> Casual'
+traveler.state '-> Casual'    # >>> State 'Casual'
 traveler.greet()              # >>> "Salve!"

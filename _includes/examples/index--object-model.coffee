@@ -1,20 +1,17 @@
 class Person
   state @::,
-    Formal:
-      greet: -> "How do you do?"
-      Highbrow:
-        greet: -> "Enchanté."
     Casual:
       greet: -> "Hi!"
+    Formal:
+      greet: -> "How do you do?"
 
 
-person = new Person
-friend = new Person
+bloke = new Person
+dandy = new Person
 
-person.hasOwnProperty 'state'     # >>> false
+# Instigate a transition to a particular State
+bloke.state '-> Casual'    # >>> State 'Casual'
+dandy.state '-> Formal'    # >>> State 'Formal'
 
-person.state '-> Highbrow'
-friend.state '-> Casual'
-
-person.greet()                    # >>> "Enchanté."
-friend.greet()                    # >>> "Hi!"
+bloke.greet()              # >>> "Hi!"
+dandy.greet()              # >>> "How do you do?"

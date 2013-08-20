@@ -6,6 +6,7 @@ An owner object’s state tree is further heritable by any prototypal inheritors
 
 <div class="local-toc"></div>
 
+
 #### [The root state](#concepts--inheritance--the-root-state)
 
 All stateful objects bear a single **root state**, whose `name` is always and uniquely the empty string `''`. Either an empty-string selector or naked transition arrow may be used to change an object’s current state to the root state, causing the object to exhibit its default behavior.
@@ -27,6 +28,7 @@ The root state also acts as the *default method store* for the object’s state 
 > [root](/api/#state--methods--root)
 > [`State::root`](/source/state.html#state--prototype--root)
 
+
 #### [Superstates and substates](#concepts--inheritance--superstates-and-substates)
 
 An owner object’s expressed behavior is *specified* by substates, and conversely *generalized* by superstates. Currency is not necessarily confined to “leaf” states: an object is free both to exhibit specific behavior by transitioning to a state nested deep within the tree, and to exhibit more generic behavior by transitioning to a [concrete](#concepts--attributes--abstraction) interior superstate.
@@ -42,6 +44,7 @@ An owner object’s expressed behavior is *specified* by substates, and converse
 {% highlight coffeescript %}
 {% include examples/docs/inheritance--superstates-and-substates.coffee %}
 {% endhighlight %}
+
 
 #### [Protostates and epistates](#concepts--inheritance--protostates-and-epistates)
 
@@ -85,7 +88,9 @@ Henceforth `person` will automatically inherit all content from its protostates,
 
 This system of protostates and epistates confers the benefits of language-level prototypal reuse patterns to an object’s `State`s, but without entangling them in any extraneous prototypal relationships themselves.
 
-> [protostate](/api/#state--methods--protostate)
+> [protostate](/api/#state--properties--protostate)
+> [getProtostate](/api/#state--methods--get-protostate)
+
 
 #### [Virtual epistates](#concepts--inheritance--virtual-epistates)
 
@@ -93,10 +98,9 @@ When an accessor method (`person.state`) is called, it first checks the context 
 
 When an inheritor adopts a protostate as its current state, the currency is borne by a temporary, lightweight **virtual epistate** that is created in the inheritor’s state tree. Virtual states exist only so long as they are active and necessary; once the object transitions elsewhere, any virtual states consequently rendered inactive are automatically destroyed.
 
-> [`createAccessor`](/source/root-state.html#root-state--private--create-accessor)
-
+> [`RootState createAccessor`](/source/root-state.html#root-state--private--create-accessor)
 > [`State` constructor](/source/state.html#state--constructor)
-> [`State::protostate`](/source/state.html#state--prototype--protostate)
+> [`State::getProtostate`](/source/state.html#state--prototype--get-protostate)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--inheritance">Inheritance</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

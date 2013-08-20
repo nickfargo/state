@@ -1,25 +1,20 @@
 function Person () {}
 state( Person.prototype, {
-    Formal: {
-        greet: function () { return "How do you do?"; },
-        
-        Highbrow: {
-            greet: function () { return "Enchanté."; }
-        }
-    },
     Casual: {
         greet: function () { return "Hi!"; }
+    },
+    Formal: {
+        greet: function () { return "How do you do?"; }
     }
 });
 
 
-var person = new Person;
-var friend = new Person;
+var bloke = new Person;
+var dandy = new Person;
 
-person.hasOwnProperty('state');   // >>> false
+// Instigate a transition to a particular State
+bloke.state('-> Casual');   // >>> State 'Casual'
+dandy.state('-> Formal');   // >>> State 'Formal'
 
-person.state('-> Highbrow');
-friend.state('-> Casual');
-
-person.greet();                   // >>> "Enchanté."
-friend.greet();                   // >>> "Hi!"
+bloke.greet();              // >>> "Hi!"
+dandy.greet();              // >>> "How do you do?"

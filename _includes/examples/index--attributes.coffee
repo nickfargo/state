@@ -1,21 +1,17 @@
-class Person
+class Developer
   state @::, 'abstract',
-    Formal: state 'default initial',
-      greet: -> "How do you do?"
-    Casual: state 'final',
-      greet: -> "Hi!"
+    Juvenile: state 'initial',
+      greet: -> "Sup."
+    Mature: state 'default final',
+      greet: -> "Hello."
 
 
-person = new Person
+person = new Developer
+person.state()                    # >>> State 'Juvenile'
+person.greet()                    # >>> "Sup."
 
-person.greet()                    # >>> "How do you do?"
+person.state '->'                 # >>> State 'Mature'
+person.greet()                    # >>> "Hello."
 
-person.state '->'
-person.state()                    # >>> State 'Formal'
-person.greet()                    # >>> "How do you do?"
-
-person.state '-> Casual'
-person.greet()                    # >>> "Hi!"
-
-person.state '-> Formal'
-person.state()                    # >>> State 'Casual'
+person.state '-> Juvenile'        # >>> State 'Mature'
+person.greet()                    # >>> "Hello."

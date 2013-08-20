@@ -1,3 +1,8 @@
+function Traveler () {}
+Traveler.prototype = Object.create( Person );
+Traveler.prototype.constructor = Traveler;
+
+// A bit of behavior
 var theRomansDo = {
     Formal: {
         greet: function () { return "Quid agis?"; }
@@ -7,17 +12,16 @@ var theRomansDo = {
     }
 };
 
+// Returns a function that instills an enclosed behavior, boxed
+// inside an object typed as a 'state-bound-function'
 function doAs ( behavior ) {
     return state.bind( function () {
-        return this.mutate( behavior );
+        this.mutate( behavior );
     });
 }
 
-
-inherit( Traveler, Person );
-function Traveler () {}
 state( Traveler.prototype, 'mutable abstract', {
-    goTo: state.bind( function ( place ) {
+    travelTo: state.bind( function ( place ) {
         this.emit( 'in' + place );
     }),
 
@@ -32,8 +36,8 @@ state( Traveler.prototype, 'mutable abstract', {
 var traveler = new Traveler;
 traveler.greet();             // >>> "How do you do?"
 
-traveler.goTo('Rome');
+traveler.travelTo('Rome');
 
 traveler.greet();             // >>> "Quid agis?"
-traveler.state('-> Casual');
+traveler.state('-> Casual');  // >>> State 'Casual'
 traveler.greet();             // >>> "Salve!"

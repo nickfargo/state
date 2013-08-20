@@ -1,15 +1,4 @@
-**State.js** outfits JavaScript objects with a subjective behavior model, powered by a [hierarchical](/docs/#concepts--inheritance--superstates-and-substates) and [prototypal](/docs/#concepts--inheritance--protostates-and-epistates) graph of [states](/docs/#concepts--states).
-
-{% highlight javascript %}
-{% include examples/index--intro.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/index--intro.coffee %}
-{% endhighlight %}
-
-
-[`State` instances](/api/#state) define subsets of behavior for an **owner** object. They have a distinct [object model](/docs/#concepts--inheritance), which allows them both to be [hierarchically nested](/docs/#concepts--inheritance--superstates-and-substates), and to [inherit from `State`s held by prototypes](/docs/#concepts--inheritance--protostates-and-epistates) of their owner.
+**State.js** is a JavaScript library for implementing a system of [hierarchical states](/docs/#concepts--inheritance--superstates-and-substates) in the context of an **owner** object, where the [`State`](/api/#state)s of an owner may [inherit from the `State`s of its prototypes](/docs/#concepts--inheritance--protostates-and-epistates).
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}

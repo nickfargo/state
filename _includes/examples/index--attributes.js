@@ -1,24 +1,20 @@
-function Person () {}
-state( Person.prototype, 'abstract', {
-    Formal: state( 'default initial', {
-        greet: function () { return "How do you do?"; }
+function Developer () {}
+state( Developer.prototype, 'abstract', {
+    Juvenile: state( 'initial', {
+        greet: function () { return "Sup."; }
     }),
-    Casual: state( 'final', {
-        greet: function () { return "Hi!"; }
+    Mature: state( 'default final', {
+        greet: function () { return "Hello."; }
     })
 });
 
 
-var person = new Person;
+var person = new Developer;
+person.state();                   // >>> State 'Juvenile'
+person.greet();                   // >>> "Sup."
 
-person.greet();                   // >>> "How do you do?"
+person.state('->');               // >>> State 'Mature'
+person.greet();                   // >>> "Hello."
 
-person.state('->');
-person.state();                   // >>> State 'Formal'
-person.greet();                   // >>> "How do you do?"
-
-person.state('-> Casual')
-person.greet();                   // >>> "Hi!"
-
-person.state('-> Formal')
-person.state();                   // >>> State 'Casual'
+person.state('-> Juvenile');      // >>> State 'Mature'
+person.greet();                   // >>> "Hello."

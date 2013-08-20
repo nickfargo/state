@@ -2,14 +2,18 @@
 
 The **State** module is exported as a function named `state`. This is used either **(1)** to apply a working state implementation to any **owner** object; or **(2)** to define a **state expression** that declares the content for a [`State`](#state).
 
-###### SYNTAX
+###### SYNTAX 1
 
 {% highlight javascript %}
-state( owner, expression )
-state( expression )
-
 state( owner, attributes, expression )
+state( owner, expression )
+{% endhighlight %}
+
+###### SYNTAX 2
+
+{% highlight javascript %}
 state( attributes, expression )
+state( expression )
 state( attributes )
 {% endhighlight %}
 
