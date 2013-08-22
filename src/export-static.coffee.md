@@ -88,16 +88,16 @@ been the `owner`, still retain a reference thereto via `this.owner`.
 
 * `fn` : ( autostate, protostate ) → ( any… ) → any
 
-Used inside a state expression, a `combinator` wrapped with `state.fix` will
+Used inside a state expression, a function `fn` wrapped with `state.fix` will
 be partially applied with a reference to `autostate`, the precise `State` to
-which the combinator’s returned function will belong, and a reference to
-`protostate`, the immediate **protostate** of `autostate`.
+which `fn`’s returned function will belong, and a reference to `protostate`,
+the immediate **protostate** of `autostate`.
 
 A method, event listener, etc. that is `fix`ed thusly has access to, and full
 lexical awareness of, the particular `State` environment in which it exists.
 
       @fix = do ->
-        fix = ( combinator ) -> new StateFixedFunction combinator
+        fix = ( fn ) -> new StateFixedFunction fn
         fix.class = class StateFixedFunction
           type: 'state-fixed-function'
           constructor: ( @fn ) ->
