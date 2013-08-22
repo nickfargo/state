@@ -127,7 +127,7 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
 
 ### [Miscellaneous constants](#miscellaneous-constants)
 
-      @rxTransitionArrow = /^\s*([\-|=]>)\s*(.*)/
+      @rxTransitionArrow = /^\s*([\-=]>)\s*(.*)/
       @transitionArrowMethods =
         '->': 'change'
         '=>': 'changeTo'
