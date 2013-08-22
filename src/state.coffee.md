@@ -611,61 +611,6 @@ Methods that inspect a state’s attributes.
 ### [Relational methods](#state--relational-methods)
 
 
-#### [derivation](#state--prototype--derivation)
-
-Returns a `State` array of this state’s superstate chain, starting after the
-root state and ending at `this`. If `byName` is set to `true`, a string array
-of the states’ names is returned instead.
-
-> [derivation](/api/#state--methods--derivation)
-
-      derivation: ( byName ) ->
-        results = []; ss = this; while ( s = ss ) and ss = s.superstate
-          results.push if byName then s.name or '' else s
-        results.reverse()
-
-
-#### [path](#state--prototype--path)
-
-Returns this state’s fully qualified name.
-
-*Alias:* **toString**
-
-> [path](/api/#state--methods--path)
-
-      path: -> @derivation( yes ).join '.'
-      toString: @::path
-
-
-#### [depth](#state--prototype--depth)
-
-Returns the number of superstates this state has. The root state returns `0`,
-its immediate substates return `1`, etc.
-
-> [depth](/api/#state--methods--depth)
-
-      depth: ->
-        n = 0; s = this
-        n += 1 while s = s.superstate
-        n
-
-
-#### [common](#state--prototype--common)
-
-Returns the least common ancestor of `this` and `other`. If `this` is itself an
-ancestor of `other`, or vice versa, then that ancestor is returned.
-
-> [common](/api/#state--methods--common)
-
-      common: ( other ) ->
-        other = @query other unless other instanceof State
-        if @depth() > other.depth() then s = other; other = this else s = this
-        while s
-          return s if s is other or s.isSuperstateOf other
-          s = s.superstate
-        null
-
-
 #### [substate](#state--prototype--substate)
 
 Retrieves the named substate of `this` state. If no such substate exists in the
@@ -713,7 +658,7 @@ Include real substates.
 
         for own name, substate of @_?.substates
           result.push substate
-          result = result.concat substate.substates yes if deep
+          result = result.concat substate.substates undefined, yes if deep
 
         result
 
@@ -785,6 +730,61 @@ Currency must be evacuated before the state can be removed.
         substate
 
 
+#### [derivation](#state--prototype--derivation)
+
+Returns a `State` array of this state’s superstate chain, starting after the
+root state and ending at `this`. If `byName` is set to `true`, a string array
+of the states’ names is returned instead.
+
+> [derivation](/api/#state--methods--derivation)
+
+      derivation: ( byName ) ->
+        results = []; ss = this; while ( s = ss ) and ss = s.superstate
+          results.push if byName then s.name or '' else s
+        results.reverse()
+
+
+#### [path](#state--prototype--path)
+
+Returns this state’s fully qualified name.
+
+*Alias:* **toString**
+
+> [path](/api/#state--methods--path)
+
+      path: -> @derivation( yes ).join '.'
+      toString: @::path
+
+
+#### [depth](#state--prototype--depth)
+
+Returns the number of superstates this state has. The root state returns `0`,
+its immediate substates return `1`, etc.
+
+> [depth](/api/#state--methods--depth)
+
+      depth: ->
+        n = 0; s = this
+        n += 1 while s = s.superstate
+        n
+
+
+#### [common](#state--prototype--common)
+
+Returns the least common ancestor of `this` and `other`. If `this` is itself an
+ancestor of `other`, or vice versa, then that ancestor is returned.
+
+> [common](/api/#state--methods--common)
+
+      common: ( other ) ->
+        other = @query other unless other instanceof State
+        if @depth() > other.depth() then s = other; other = this else s = this
+        while s
+          return s if s is other or s.isSuperstateOf other
+          s = s.superstate
+        null
+
+
 #### [is](#state--prototype--is)
 
 Determines whether `this` is `other`.
@@ -852,7 +852,7 @@ states are marked `initial`.
       initialSubstate: ( via = VIA_PROTO ) ->
         i = 0; queue = [ this ]
         while subject = queue[ i++ ]
-          for s in substates = subject.substates VIA_PROTO
+          for s in substates = subject.substates undefined, !!VIA_PROTO
             return s.initialSubstate( VIA_NONE ) or s if s.attributes & INITIAL
             queue.push s
         if via & VIA_PROTO and protostate = @protostate
@@ -986,7 +986,7 @@ Interpret a **double wildcard** as any descendant state of the `cursor` state
 parsed thus far.
 
           if name is '**'
-            return cursor.substates yes unless against
+            return cursor.substates undefined, yes unless against
             return yes if cursor.isSuperstateOf against
             break
 
@@ -1010,7 +1010,7 @@ different context.
         if via & VIA_SUB
           i = 0; queue = [ this ]
           while subject = queue[ i++ ]
-            for substate in subject.substates no, yes
+            for substate in subject.substates yes
               continue if substate is toBeSkipped
               result = substate.query selector, against, VIA_NONE
               return result if result
