@@ -588,11 +588,11 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 ###### EXAMPLE
 
 {% highlight javascript %}
-{% include examples/api/state/methods--protostate.js %}
+{% include examples/api/state/methods--get-protostate.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/api/state/methods--protostate.coffee %}
+{% include examples/api/state/methods--get-protostate.coffee %}
 {% endhighlight %}
 
 ###### SEE ALSO

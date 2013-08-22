@@ -639,6 +639,7 @@ specified by the expression provided in <code>expr</code>.</p>
     
     <div class="text">
       
+<h6>Preparation steps</h6>
 <p>Booleans to determine whether mutation of particular categories is permissible;
 all content is mutable for the special case of a state being initialized.</p>
 
@@ -646,19 +647,18 @@ all content is mutable for the special case of a state being initialized.</p>
     <div class="code">
       <div class="highlight"><pre>      <span class="nv">incipient = </span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">INCIPIENT</span>
       <span class="k">return</span> <span class="k">if</span> <span class="o">not</span> <span class="nx">incipient</span> <span class="o">and</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">IMMUTABLE</span>
-      <span class="nv">mutable = </span><span class="nx">incipient</span> <span class="o">or</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span>
-
-      <span class="nx">do</span> <span class="nx">@realize</span> <span class="k">if</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span></pre></div>
+      <span class="nv">mutable = </span><span class="nx">incipient</span> <span class="o">or</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span></pre></div>
     </div>
   
     
     <div class="text">
       
-<p>Load the category collections.</p>
+<p>Realize <code>this</code> state if necessary, then load the category collections.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>      <span class="p">{</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">guards</span><span class="p">,</span> <span class="nx">substates</span><span class="p">,</span> <span class="nx">transitions</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">@_</span></pre></div>
+      <div class="highlight"><pre>      <span class="nx">do</span> <span class="nx">@realize</span> <span class="k">if</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span>
+      <span class="p">{</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">guards</span><span class="p">,</span> <span class="nx">substates</span><span class="p">,</span> <span class="nx">transitions</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">@_</span></pre></div>
     </div>
   
     
@@ -674,8 +674,10 @@ all content is mutable for the special case of a state being initialized.</p>
     
     <div class="text">
       
-<p>The <code>initialize</code> method uses <code>mutate</code> for a real state’s initial build, but
-with the resultant <code>mutate</code> event suppressed.</p>
+<p>Hold onto an expression of a state’s contents <code>before</code> the mutation, to be used
+for comparison later on the <code>mutate</code> event. This step does not pertain to an
+<code>incipient</code> state, which will be “mutating” against nothing, and so will
+suppress the emission of a <code>mutate</code> event.</p>
 
     </div>
     <div class="code">
@@ -697,7 +699,7 @@ usual emission of a <code>mutate</code> event.</p>
     
     <div class="text">
       
-<h6>Data</h6>
+<h6>Data mutations</h6>
 <p>Data is already set up to handle differentials that contain <code>NIL</code> values.</p>
 
     </div>
@@ -708,7 +710,7 @@ usual emission of a <code>mutate</code> event.</p>
     
     <div class="text">
       
-<h6>Methods</h6>
+<h6>Method mutations</h6>
 <p>Methods are stored as a simple key mapping, and <code>addMethod</code> can be used both to
 create an entry and to update an existing entry, without any additional
 side-effects, so method expressions can simply be compared against the <code>NIL</code>
@@ -725,7 +727,7 @@ value.</p>
     
     <div class="text">
       
-<h6>Events</h6>
+<h6>Event mutations</h6>
 <p>Event listeners for a given event type might be expressed as either:</p>
 <ul>
 <li>a simple <code>Array</code> of items to be added;</li>
@@ -768,7 +770,7 @@ for this event type, then one must be created.</p>
     
     <div class="text">
       
-<h6>Guards</h6>
+<h6>Guard mutations</h6>
 <p>Guards are stored as simple objects, and altering them causes no side-effects,
 so a deep <code>edit</code> is sufficient.</p>
 
@@ -782,7 +784,7 @@ so a deep <code>edit</code> is sufficient.</p>
     
     <div class="text">
       
-<h6>Substates</h6>
+<h6>Substate mutations</h6>
 <p>Substates are instances of <code>State</code>, which are either created, destroyed, or
 recursively updated in place, as specified by <code>expr.states</code>.</p>
 <p>By default, a state is <strong>weakly immutable</strong>, in which case its <em>direct</em>
@@ -803,7 +805,7 @@ corresponding substates.</p>
     
     <div class="text">
       
-<h6>Transitions</h6>
+<h6>Transition mutations</h6>
 <p>Transitions, as held by a <code>State</code>, are instances of <code>TransitionExpression</code>,
 which are either created, deleted, or replaced, as specified by
 <code>expr.transitions</code>.</p>
@@ -822,6 +824,7 @@ which are either created, deleted, or replaced, as specified by
     
     <div class="text">
       
+<h6>Cleanup and export</h6>
 <p>The transaction is complete, so clear <code>ATOMIC</code> to signal the <code>add...</code> methods
 to emit individual <code>mutate</code> events as usual.</p>
 

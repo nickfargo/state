@@ -57,8 +57,6 @@ During a transition’s traversal from its origin state to its target state, the
 
 #### [Mutation events](#concepts--events--mutation)
 
-> [mutate](/api/#state--events--mutate)
-
 When a state’s contents are altered, it emits a `mutate` event containing the changes made relative to its immediately prior condition.
 
 Listeners receive four objects as arguments: the contents of the `mutation` experienced by the state, a `delta` object containing the contents displaced by the mutation, and a full expression of the state’s contents both `before` and `after` the mutation.
@@ -70,7 +68,8 @@ Listeners receive four objects as arguments: the contents of the `mutation` expe
 {% include examples/docs/events--mutation.coffee %}
 {% endhighlight %}
 
-> [`state/mutation.js`](/source/state.html#state--mutation.js)
+> [mutate](/api/#state--events--mutate)
+> [`State::mutate`](/source/state.html#state--prototype--mutate)
 
 #### [Custom event types](#concepts--events--custom)
 
@@ -83,7 +82,7 @@ A state’s `emit` method allows any type of event to be broadcast and consumed.
 {% include examples/docs/events--custom.coffee %}
 {% endhighlight %}
 
-> [`State.privileged.emit`](/source/state.html#state--privileged--emit)
+> [`State::emit`](/source/state.html#state--prototype--emit)
 
 #### [Using events to express simple determinism](#concepts--events--expressing-determinism)
 

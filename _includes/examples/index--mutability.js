@@ -2,7 +2,7 @@ function Traveler () {}
 Traveler.prototype = Object.create( Person );
 Traveler.prototype.constructor = Traveler;
 
-// A bit of behavior
+// A bit of behavior.
 var theRomansDo = {
     Formal: {
         greet: function () { return "Quid agis?"; }
@@ -12,8 +12,7 @@ var theRomansDo = {
     }
 };
 
-// Returns a function that instills an enclosed behavior, boxed
-// inside an object typed as a 'state-bound-function'
+// Returns a boxed function that instills an enclosed behavior.
 function doAs ( behavior ) {
     return state.bind( function () {
         this.mutate( behavior );

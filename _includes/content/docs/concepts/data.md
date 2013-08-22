@@ -17,7 +17,7 @@ Arbitrary **data** can be attached to a state, and inherited accordingly through
 > [set](/api/#state--methods--set)
 > [delete](/api/#state--methods--delete)
 
-> [`State.privileged.data`](/source/state.html#state--privileged--data)
+> [`State::data`](/source/state.html#state--prototype--data)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--data">Data</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

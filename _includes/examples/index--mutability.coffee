@@ -1,15 +1,14 @@
 
 class Traveler extends Person
 
-  # A bit of behavior
+  # A bit of behavior.
   theRomansDo =
     Casual:
       greet: -> "Salve!"
     Formal:
       greet: -> "Quid agis?"
 
-  # Returns a function that instills an enclosed behavior, boxed
-  # inside an object typed as a 'state-bound-function'
+  # Returns a boxed function that instills an enclosed behavior.
   doAs = (behavior) -> state.bind -> @mutate behavior; return
 
   state @::, 'mutable abstract',

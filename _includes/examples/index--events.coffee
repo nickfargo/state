@@ -16,7 +16,7 @@ class Mover
         for event in events
           do ( substate, event ) ->
             substate.on event, state.bind ->
-              console.log "#{e} #{@name}"
+              console.log "#{event} #{@name}"
 
 
 m = new Mover

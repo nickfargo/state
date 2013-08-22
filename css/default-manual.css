@@ -790,8 +790,11 @@ blockquote ol {
 }
   .content .body {
     position: relative;
-    width: 620px;
+    width: 640px;
     left: 300px;
+  }
+  .content .body img {
+    max-width: 100%;
   }
   body.modal.chrome-visible    .content > .body {
     -webkit-filter: grayscale(0.9);
@@ -1372,7 +1375,10 @@ body.source .text {
 body.source .text p {
   font-size: 14px;
   line-height: 20px;
-  margin: 0.5em 0;
+  margin: 1em 0;
+}
+body.source .text blockquote p {
+  margin: 0.25em 0;
 }
 body.source .text a code {
   font-weight: bold;
@@ -1390,14 +1396,14 @@ body.source .text h5 {
   font-size: 16px;
 }
 body.source .text h6 {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 body.source .code {
 }
 body.source .code pre {
-  padding: 12px 0;
-  margin: 0;
+  padding: 0;
+  margin: 0 0 16px;
   font-size: 12px;
   line-height: 16px;
   background: transparent;

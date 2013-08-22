@@ -13,8 +13,8 @@ State expressions may include a space-delimited set of **attributes**, provided 
 An expression’s attributes modify any `State` instance constructed from the expression, so as to enable certain features or impose useful constraints on the state.
 
 > [Attributes](/api/#state--attributes)
-> [`state/attributes`](/source/state.html#state--attributes.js)
-> [`State.privileged.attributes`](/source/state.html#state--privileged--attributes)
+> [`State` constructor](/source/state.html#state--constructor)
+> [`State` attribute methods](/source/state.html#state--attribute-methods)
 
 <div class="local-toc"></div>
 
