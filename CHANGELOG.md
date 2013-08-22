@@ -6,6 +6,10 @@
 
 * **(breaking)** — Renamed `State::protostate` method to `getProtostate`, changed it to a pure “getter” (with no memoization side-effects), and renamed the pseudo-private `@_protostate` to simply `@protostate`. This achieves API consistency with the related property `@superstate`.
 
+* Added `State::descendants` method as a cleaner alternative to calling `substates` with a `true` argument for the `deep` parameter.
+
+* **(breaking)** — Changed order of parameters for `State::substates` from `( deep, virtual )` to `( virtual, deep )`; public usage of the `deep` parameter is deprecated in favor of `State::descendants`.
+
 
 
 ### 0.1.2 *(released)*

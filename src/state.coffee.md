@@ -691,13 +691,13 @@ Otherwise retrieve a real substate, either locally or from a protostate.
 
 #### [substates](#state--prototype--substates)
 
-Returns an `Array` of this state’s substates. If the boolean `deep` argument is
-`true`, returns a depth-first flattened array containing all of this state’s
-descendant states.
+Returns an array of this state’s immediate substates. If the boolean `virtual`
+is `true`, any active virtual epistates will be included as well.
 
 > [substates](/api/#state--methods--substates)
+> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 
-      substates: ( deep, virtual ) ->
+      substates: ( virtual, deep ) ->
         result = []
 
 Include virtual substates in the returned set, if any are present.
@@ -716,6 +716,16 @@ Include real substates.
           result = result.concat substate.substates yes if deep
 
         result
+
+
+#### [descendants](#state--prototype--descendants)
+
+Returns a depth-first flattened array containing all of this state’s descendant
+substates.
+
+> [descendants](/api/#state--methods--descendants)
+
+      descendants: ( virtual ) -> @substates virtual, yes
 
 
 #### [addSubstate](#state--prototype--add-substate)
