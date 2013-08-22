@@ -1121,7 +1121,8 @@ matching keys in the state’s data are deleted. If the operation results in a
 change to the state’s data, a `mutate` event is emitted for this state.
 
 > [Data](/docs/#concepts--data)
-> [data](/api/#state--methods--data)
+> [data (read)](/api/#state--methods--data--read)
+> [data (write)](/api/#state--methods--data--write)
 
       data: ( via = VIA_ALL ) ->
 
