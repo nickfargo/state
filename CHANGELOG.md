@@ -2,7 +2,7 @@
 
 
 
-### 0.1.3 *(edge)*
+### *(edge)*
 
 * **(breaking)** — Renamed `State::protostate` method to `getProtostate`, changed it to a pure “getter” (with no memoization side-effects), and renamed the pseudo-private `@_protostate` to simply `@protostate`. This achieves API consistency with the related property `@superstate`.
 
