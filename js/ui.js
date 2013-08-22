@@ -960,32 +960,12 @@ $( function () {
   // classify word operators correctly
   ( function () {
     var rx = /^(new|typeof|void|delete|of|in|instanceof|yield)$/;
-    var $$ = $( 'span.k', $pre );
-    var d = $.Deferred();
-    var i, l;
-    function asyncEach ( fn ) {
-      var d = $.Deferred();
-      var $$ = this;
-      var index = 0;
-      function ffn () {
-        var result = fn.call( $$[ index ], index, $$[ index ] );
-        index++;
-        if ( result === false ) {
-          d.reject();
-        } else if ( index < $$.length ) {
-          setTimeout( ffn, 0 );
-        } else {
-          d.resolve();
-        }
-      }
-      return d.promise();
-    }
-    function fix () {
+    $( 'span.k', $pre ).each( function () {
       var $this = $(this);
       if ( rx.test( $this.text() ) ) {
         $this.addClass('o').removeClass('k');
       }
-    }
+    });
   }() );
   profile["word operators"] = timeElapsed();
 
