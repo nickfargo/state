@@ -7,8 +7,8 @@
 
 ## [state()](#state-function)
 
-Invoking the exported `state` function is the primary point of entry into the
-module. The `state` function is used either to:
+The primary point of entry into the module is to invoke the exported `state`
+function. This is used either to:
 
 1. generate a formal `StateExpression` object; or
 2. bestow any given `owner` object with a working state implementation.
@@ -44,7 +44,7 @@ The `attributes` argument may include any of the words defined in
 
 ###### SEE ALSO
 
-> `STATE_ATTRIBUTES`
+> [`STATE_ATTRIBUTES`](./export-static.html#bit-field-enums--state-attributes)
 
 > [`state()`](/api/#state-function)
 > [The `state` function](/docs/#getting-started--the-state-function)

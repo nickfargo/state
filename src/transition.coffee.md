@@ -18,14 +18,13 @@ If a transition includes an `action` function, this will be invoked when the
 `Transition` has ascended to the top of its *domain*, defined as the least
 common ancestor `State` between its `origin` and `target` states. The `action`
 may be asynchronous, during which time the `Transition` continues to behave as
-if it were a substate the domain, inheriting method calls and propagating
+if it were a substate of the domain, inheriting method calls and propagating
 events in the familiar fashion, until the `action` is concluded, upon which the
 `Transition` resumes its descent to its `target`.
 
-> See also: `State::change`
-
 > [Transitions](/docs/#concepts--transitions)
 > [Transition](/api/#transition)
+> [`RootState::change`](/source/root-state.html#root-state--prototype--change)
 
     class Transition extends State
 

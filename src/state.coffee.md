@@ -14,9 +14,10 @@
 
 A **state** defines a subset of behavior for its **owner** object. Each
 [`State`](/api/#state) holds a reference to a `superstate`, from which it may
-inherit more generic behavior, forming a *state tree* rooted by a single
+inherit more generic behavior, forming a **state tree** rooted by a single
 `RootState`.
 
+> [States](/docs/#concepts--states)
 > [Inheritance](/docs/#concepts--inheritance)
 > [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
 
@@ -240,6 +241,7 @@ Initialization of a `State`’s contents is offloaded from the
 
 > [`initialize`](#state--prototype--initialize)
 > [`virtualize`](#state--prototype--virtualize)
+> [realize](/api/#state--methods--realize)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 
       realize: ( expression ) ->
@@ -440,6 +442,8 @@ specified by the expression provided in `expr`.
         ( expr ) ->
           { attributes, Expression } = this
 
+###### Preparation steps
+
 Booleans to determine whether mutation of particular categories is permissible;
 all content is mutable for the special case of a state being initialized.
 
@@ -447,18 +451,19 @@ all content is mutable for the special case of a state being initialized.
           return if not incipient and attributes & IMMUTABLE
           mutable = incipient or attributes & MUTABLE
 
+Realize `this` state if necessary, then load the category collections.
+
           do @realize if attributes & VIRTUAL
-
-Load the category collections.
-
           { data, methods, events, guards, substates, transitions } = @_
 
 Validate the provided state expression.
 
           expr = new Expression expr unless expr instanceof Expression
 
-The `initialize` method uses `mutate` for a real state’s initial build, but
-with the resultant `mutate` event suppressed.
+Hold onto an expression of a state’s contents `before` the mutation, to be used
+for comparison later on the `mutate` event. This step does not pertain to an
+`incipient` state, which will be “mutating” against nothing, and so will
+suppress the emission of a `mutate` event.
 
           before = @express() unless incipient
 
@@ -468,13 +473,13 @@ usual emission of a `mutate` event.
 
           @attributes |= ATOMIC
 
-###### Data
+###### Data mutations
 
 Data is already set up to handle differentials that contain `NIL` values.
 
           @data expr.data if expr.data
 
-###### Methods
+###### Method mutations
 
 Methods are stored as a simple key mapping, and `addMethod` can be used both to
 create an entry and to update an existing entry, without any additional
@@ -486,7 +491,7 @@ value.
             then @addMethod name, method
             else @removeMethod name
 
-###### Events
+###### Event mutations
 
 Event listeners for a given event type might be expressed as either:
 
@@ -517,7 +522,7 @@ for this event type, then one must be created.
               do emitter.destroy
               delete events[ type ]
 
-###### Guards
+###### Guard mutations
 
 Guards are stored as simple objects, and altering them causes no side-effects,
 so a deep `edit` is sufficient.
@@ -526,7 +531,7 @@ so a deep `edit` is sufficient.
             guards or = @_.guards or = {}
             edit 'deep', guards, expr.guards
 
-###### Substates
+###### Substate mutations
 
 Substates are instances of `State`, which are either created, destroyed, or
 recursively updated in place, as specified by `expr.states`.
@@ -543,7 +548,7 @@ corresponding substates.
               else substates[ name ].mutate stateExpr
             else @addSubstate name, stateExpr if stateExpr isnt NIL
 
-###### Transitions
+###### Transition mutations
 
 Transitions, as held by a `State`, are instances of `TransitionExpression`,
 which are either created, deleted, or replaced, as specified by
@@ -556,6 +561,8 @@ which are either created, deleted, or replaced, as specified by
               else transitions[ name ] =
                 new TransitionExpression transitionExpr
             else @addTransition name, transitionExpr if transitionExpr isnt NIL
+
+###### Cleanup and export
 
 The transaction is complete, so clear `ATOMIC` to signal the `add...` methods
 to emit individual `mutate` events as usual.

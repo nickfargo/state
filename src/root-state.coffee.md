@@ -255,7 +255,7 @@ Ensure that `target` is a valid `State`.
 Extract `args` from `options` and resolve `options` to an object if necessary.
 
         if options?
-          args = if ( isArray options ) or type( options ) is 'arguments'
+          args = if ( isArray options ) or ( type options ) is 'arguments'
           then options
           else options.args
           args = slice.call args if args?
