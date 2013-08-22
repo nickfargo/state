@@ -74,13 +74,13 @@ traverses the state tree from its <code>origin</code> to its <code>target</code>
 <code>Transition</code> has ascended to the top of its <em>domain</em>, defined as the least
 common ancestor <code>State</code> between its <code>origin</code> and <code>target</code> states. The <code>action</code>
 may be asynchronous, during which time the <code>Transition</code> continues to behave as
-if it were a substate the domain, inheriting method calls and propagating
+if it were a substate of the domain, inheriting method calls and propagating
 events in the familiar fashion, until the <code>action</code> is concluded, upon which the
 <code>Transition</code> resumes its descent to its <code>target</code>.</p>
 <blockquote>
-<p>See also: <code>State::change</code></p>
 <p><a href="/docs/#concepts--transitions">Transitions</a>
-<a href="/api/#transition">Transition</a></p>
+<a href="/api/#transition">Transition</a>
+<a href="/source/root-state.html#root-state--prototype--change"><code>RootState::change</code></a></p>
 </blockquote>
 
     </div>

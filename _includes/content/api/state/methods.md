@@ -571,7 +571,7 @@ The `State` that is `this` state’s most deeply nested state bearing the `initi
 
 #### [getProtostate](#state--methods--get-protostate)
 
-Identifies the `State` analogous to `this` owned by a prototype of the `owner`.
+Performs the lookup to identify the `State` analogous to `this` that is owned by a prototype of the `owner`.
 
 ###### SYNTAX
 
@@ -631,7 +631,7 @@ A boolean indicating whether `this` state is a **protostate** of the provided `o
 
 ###### SEE ALSO
 
-> [**protostate**](#state--protostate)
+> [**protostate**](#state--properties--protostate)
 
 > [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
 > [`State::isProtostateOf`](/source/state.html#state--prototype--is-prototstate-of)
