@@ -1,8 +1,8 @@
 # State.js
 
-**[State][0]** is a library for implementing a system of **[hierarchical states][1]** directly into objects **[and inherently across prototypes][2]**.
+**[State][0]** is a library for implementing a system of **[hierarchical states][1]** in the context of an **owner** object, where the `State`s of an owner may inherit **[from the `State`s of its prototypes][2]**.
 
-An object’s behavior, exhibited via its **[methods][3]**, may be defined or overridden within its `State`s. The method dispatch system of **State** allows it to impose minimally on a host object’s interface while also keeping its implementation transparent to consumers.
+The owner’s behavior, exhibited via its **[methods][3]**, may be defined or overridden within its `State`s. The method dispatch system of **State** allows it to impose minimally on a host object’s interface while also keeping its implementation transparent to consumers.
 
 Changes to an object’s behavior are facilitated by **[evented][4]** state **[transitions][5]**.
 
