@@ -915,9 +915,7 @@ $( function () {
   // according to whether the string is enclosed with single- or double-quotes.
   $('code.coffeescript span.s').each( function () {
     var $this = $(this);
-    var text = $this.text();
-    if ( /^'.*'$/.test( text ) ) $this.addClass('s1');
-    if ( /^".*"$/.test( text ) ) $this.addClass('s2');
+    $this.addClass( /^'.*'$/.test( $this.text() ) ? 's1' : 's2' );
   });
   profile["pygments: coffee `s1`/`s2`"] = timeElapsed();
 
