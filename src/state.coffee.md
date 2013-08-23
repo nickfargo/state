@@ -237,10 +237,11 @@ Builds out the state’s members based on the expression provided.
 Transforms an incipient or **virtual** `State` into a **real** state.
 
 Initialization of a `State`’s contents is offloaded from the
-[constructor](#state--constructor) to here.
+[constructor](#state--constructor) via
+[`initialize`](#state--prototype--initialize) to here.
 
-> [`initialize`](#state--prototype--initialize)
 > [`virtualize`](#state--prototype--virtualize)
+
 > [realize](/api/#state--methods--realize)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 
