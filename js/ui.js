@@ -1,5 +1,22 @@
 ;( function ( $ ) {
 
+var profile = {};
+var timeElapsed = ( function () {
+  var lastTime;
+  var timeSource = window.performance || Date;
+  if ( typeof timeSource.now !== 'function' ) {
+    timeSource.now = function () { return ( new Date ).getTime(); };
+  }
+  function timeElapsed () {
+    var t = lastTime;
+    lastTime = timeSource.now();
+    return lastTime - t;
+  }
+  timeElapsed();
+  return timeElapsed;
+}() );
+
+
 var $page = $('html, body');
 
 
@@ -73,6 +90,8 @@ $( function () {
   $( window ).on( 'hashchange', scroll );
   $('.toc, .content .body, #source .text')
     .on( 'click', 'a[href^="#"]', scroll );
+
+  profile["autoscroll"] = timeElapsed();
 });
 
 
@@ -89,6 +108,8 @@ $( function () {
     var id = $this.attr('href').replace( rx, "$1" );
     $this.parent().attr( 'id', id );
   });
+
+  profile["anchored headings"] = timeElapsed();
 });
 
 
@@ -164,6 +185,8 @@ $( function () {
   }
 
   $fg.append( $ul );
+
+  profile["ToC autogen"] = timeElapsed();
 });
 
 
@@ -208,6 +231,8 @@ $( function () {
       });
       $ul.appendTo( $this );
     });
+
+  profile["local ToC"] = timeElapsed();
 });
 
 
@@ -316,6 +341,8 @@ $( function () {
 
     return chrome;
   }() );
+
+  profile["chrome toggle on touch"] = timeElapsed();
 });
 
 // ### Navigation buttons
@@ -361,6 +388,8 @@ $( function () {
   }() );
 
   $ul.appendTo('.controls');
+
+  profile["navigation buttons"] = timeElapsed();
 })
 
 
@@ -401,6 +430,8 @@ $( function () {
   }() );
 
   $ul.appendTo('.controls');
+
+  profile["switch buttons"] = timeElapsed();
 });
 
 
@@ -451,6 +482,8 @@ $( function () {
 
   // Display all unpaired `pre` blocks.
   $('.highlight pre').not('.polyglot pre').show();
+
+  profile["polyglot"] = timeElapsed();
 });
 
 
@@ -596,6 +629,8 @@ $( function () {
 
   // Simulate a `click` event to initialize the UI and code blocks.
   language[ language.selected ].$control.click();
+
+  profile["language preferences"] = timeElapsed();
 });
 
 
@@ -631,6 +666,8 @@ $( function () {
       .on( 'mouseleave touchend touchcancel', data, removeIndicatedClass )
     ;
   }
+
+  profile["lightsticks"] = timeElapsed();
 }() );
 
 
@@ -841,23 +878,9 @@ $( function () {
 
     refresh();
   }
+
+  profile["ToC viewport"] = timeElapsed();
 }() );
-
-
-// ### Fix CoffeeScript syntax highlighting for strings
-//
-// The pygments module used by gh-pages appears to render CoffeeScript strings
-// with a generic span class of `s` rather than `s1` or `s2` according to
-// whether the string is enclosed with single- or double-quotes. This inspects
-// the text node of all such elements and replaces `s` with the proper class.
-$( function () {
-  function search ( rx ) {
-    return function () { return ~$(this).text().search( rx ); }
-  }
-  var $strings = $('code.coffeescript span.s');
-  $strings.filter( search( /^'.*'$/ ) ).addClass('s1').removeClass('s');
-  $strings.filter( search( /^".*"$/ ) ).addClass('s2').removeClass('s');
-});
 
 
 // ### Source file-picker menu
@@ -878,23 +901,25 @@ $( function () {
     $sourceMenu.toggle();
     if ( !navigator.standalone ) event.stopPropagation();
   });
+
+  profile["source file menu"] = timeElapsed();
 });
 
-// ### Corrections and enhancements to pygments
+
+// ### Corrections and enhancements to pygments classifications
 //
 $( function () {
-  var profile = {};
-  var timeElapsed = ( function () {
-    var lastTime;
-    var timeSource = window.performance || Date;
-    return function () {
-      var t = lastTime;
-      lastTime = timeSource.now();
-      return lastTime - t;
-    };
-  }() );
 
-  timeElapsed();
+  // The pygments module used by gh-pages appears to render CoffeeScript
+  // strings with a generic span class of `s`, rather than `s1` or `s2`
+  // according to whether the string is enclosed with single- or double-quotes.
+  $('code.coffeescript span.s').each( function () {
+    var $this = $(this);
+    var text = $this.text();
+    if ( /^'.*'$/.test( text ) ) $this.addClass('s1');
+    if ( /^".*"$/.test( text ) ) $this.addClass('s2');
+  });
+  profile["pygments: coffee `s1`/`s2`"] = timeElapsed();
 
   var $pre = $('.highlight pre');
   if ( !$pre.length ) return;
@@ -902,20 +927,20 @@ $( function () {
   // The pygments corrections are largely cosmetic, and can be expensive on low
   // powered devices when rendering very large pages, so use a profile of the
   // `$pre` query as a heuristic to determine whether or not to proceed.
-  profile["initial query"] = timeElapsed();
-  if ( profile["initial query"] > 2.0 ) return;
+  profile["pygments: initial query"] = timeElapsed();
+  if ( profile["pygments: initial query"] > 2.0 ) return;
 
   // classify param-less arrows as functions
   $( 'span.o:contains("->"), span.o:contains("=>")', $pre )
     .addClass('nf');
-  profile["arrows to `nf`"] = timeElapsed();
+  profile["pygments: arrows to `nf`"] = timeElapsed();
 
   // classify identifier or key (`nv`) preceding function (`nf`) as `vf`
   $( 'span.nf', $pre ).prev('span.nv').filter( function () {
     return /[\w$]\s*=\s*$|[\w$'"]:\s+$/.test( $(this).text() );
   })
     .addClass('vf').removeClass('nv');
-  profile["function names"] = timeElapsed();
+  profile["pygments: function names"] = timeElapsed();
 
   // split trailing assignment operator from `nv|vi`
   $( 'span.nv, span.vi, span.vf', $pre = $('.highlight pre') ).each( function () {
@@ -927,7 +952,7 @@ $( function () {
         .after( match[2] + '<span class="o">=</span>' + match[3] );
     }
   });
-  profile["split asn op"] = timeElapsed();
+  profile["pygments: split asn op"] = timeElapsed();
 
   // trim trailing whitespace from identifiers
   $( 'span.nf, span.vi, span.vf', $pre ).each( function () {
@@ -935,7 +960,7 @@ $( function () {
     var match = /(.*?)(\s*)$/.exec( $this.text() );
     if ( match ) $this.text( match[1] ).after( match[2] );
   });
-  profile["trim whitespace"] = timeElapsed();
+  profile["pygments: trim whitespace"] = timeElapsed();
 
   // classify `this` and @-sigil expressions as instance variables
   $( 'span.k:contains("this")', $pre )
@@ -946,7 +971,7 @@ $( function () {
     return /^@/.test( $(this).text() );
   })
     .addClass('vi').removeClass('nx');
-  profile["this/@ as ivar"] = timeElapsed();
+  profile["pygments: this/@ as ivar"] = timeElapsed();
 
   // classify coffee keywords correctly
   $( 'span.nx', $pre )
@@ -955,7 +980,7 @@ $( function () {
     })
     .add( $( 'span.k:contains("for")', $pre ).next('span.nx:contains("own")') )
     .addClass('k').removeClass('nx');
-  profile["coffee keywords"] = timeElapsed();
+  profile["pygments: coffee keywords"] = timeElapsed();
 
   // classify word operators correctly
   ( function () {
@@ -967,7 +992,7 @@ $( function () {
       }
     });
   }() );
-  profile["word operators"] = timeElapsed();
+  profile["pygments: word operators"] = timeElapsed();
 
   // split punctuators into distinct `span`s
   $( 'span.p', $pre ).each( function () {
@@ -982,7 +1007,7 @@ $( function () {
     }
     $this.replaceWith( html );
   });
-  profile["split punctuators"] = timeElapsed();
+  profile["pygments: split punctuators"] = timeElapsed();
 
   // classify member-access square brackets as operators instead of punctuators
   ( function () {
@@ -1006,7 +1031,7 @@ $( function () {
       }
     });
   }() );
-  profile["member square brackets"] = timeElapsed();
+  profile["pygments: member square brackets"] = timeElapsed();
 
   // classify paired punctuators
   $( 'span.p', $pre ).each( function () {
@@ -1014,7 +1039,7 @@ $( function () {
     if ( /^[\[\]]$/.test( $this.text() ) ) $this.addClass('sb');
     if ( /^[\{\}]$/.test( $this.text() ) ) $this.addClass('cb');
   });
-  profile["paired punctuators"] = timeElapsed();
+  profile["pygments: paired punctuators"] = timeElapsed();
 
 
 
@@ -1069,7 +1094,7 @@ $( function () {
       }
     });
   }() );
-  profile["operator precedence"] = timeElapsed();
+  profile["pygments: operator precedence"] = timeElapsed();
 
   console.log( profile );
 });
