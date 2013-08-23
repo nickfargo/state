@@ -26,6 +26,7 @@ The root state also acts as the *default method store* for the object’s state 
 [**Dispatcher methods**](#concepts--methods--dispatchers)
 
 > [root](/api/#state--methods--root)
+> [`RootState`](/source/root-state.html)
 > [`State::root`](/source/state.html#state--prototype--root)
 
 
