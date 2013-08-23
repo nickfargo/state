@@ -1970,20 +1970,36 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 .mi  { color: #730D2F; font-weight: bold }  /* Literal.Number.Integer */
 .mo  { color: #730D2F; font-weight: bold }  /* Literal.Number.Oct */
 .s   { color: #219161 }                     /* Literal.String */
-.s1  { color: #299306 }                     /* Literal.String.Single */
-.s2  { color: #1C7D24 }                     /* Literal.String.Double */
+.s1 /* Literal.String.Single */ {
+  padding: 1px 2px;
+  margin: 0 -2px;
+  background-color:    hsla(105, 92%, 30%, 0.1);
+  text-shadow: 0 0 1px hsla(105, 92%, 30%, 0.4);
+  color: #299306;
+}
+.s2 /* Literal.String.Double */ {
+  padding: 1px 0;
+  background-color:    hsla(105, 92%, 30%, 0.05);
+  color: #1C7D24;
+}
 .sb  { color: #219161 }                     /* Literal.String.Backtick */
 .sc  { color: #219161 }                     /* Literal.String.Char */
 .sd  { color: #219161; font-style: italic } /* Literal.String.Doc */
 .se  { color: #BB6622; font-weight: bold }  /* Literal.String.Escape */
 .sh  { color: #219161 }                     /* Literal.String.Heredoc */
-.si  { color: #BB6688; font-weight: bold }  /* Literal.String.Interpol */
+.si /* Literal.String.Interpol */ {
+  padding: 1px 0;
+  background-color:    hsla(105, 92%, 30%, 0.05);
+  text-shadow: 0 0 1px #463;
+  color: #463;
+  font-weight: bold;
+}
 .sx  { color: #954121 }                     /* Literal.String.Other */
 .sr /* Literal.String.Regex */ {
   padding: 1px 2px;
   margin: 0 -2px;
   color: #997755;
-  background: rgba(153,119,85,0.1);
+  background-color: rgba(153,119,85,0.1);
 }
 .ss  { color: #19469D }                     /* Literal.String.Symbol */
 .bp  { color: #954121 }                     /* Name.Builtin.Pseudo */
@@ -1991,28 +2007,16 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 .vf /* Name.Variable.Function */ {
   padding: 1px 2px;
   margin: 0 -2px;
+  background-color: rgba(84, 179, 9, 0.03);
   color: #54B309;
   font-weight: bold;
-  background: rgba(84, 179, 9, 0.03);
 }
 .vg  { color: #19469D }                     /* Name.Variable.Global */
 .vi /* Name.Variable.Instance */ {
   padding: 1px 2px;
   margin: 0 -2px;
+  background-color: rgba(70, 150, 110, 0.05);
   color: #44966E;
   font-weight: bold;
-  background: rgba(70, 150, 110, 0.05);
 }
 .il  { color: #666666 }                     /* Literal.Number.Integer.Long */
-
-.s1 {
-  padding: 1px 2px;
-  margin: 0 -2px;
-  text-shadow: 0 0 1px hsla(105, 92%, 30%, 0.4);
-  background-color:    hsla(105, 92%, 30%, 0.08);
-}
-.s2 {
-  padding: 1px 2px;
-  margin: 0 -2px;
-  background-color:    hsla(105, 92%, 30%, 0.03);
-}
