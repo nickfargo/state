@@ -12,7 +12,7 @@ class Mover
     # set up all of the states to log their transitional events.
     construct: state.bind ->
       events = ['depart', 'exit', 'enter', 'arrive']
-      for substate in [this].concat @substates true
+      for substate in [this].concat @descendants()
         for event in events
           do ( substate, event ) ->
             substate.on event, state.bind ->

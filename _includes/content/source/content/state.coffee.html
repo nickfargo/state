@@ -336,11 +336,11 @@ bound to the owner object.</p>
 <h4><a href="#state--prototype--realize">realize</a></h4>
 <p>Transforms an incipient or <strong>virtual</strong> <code>State</code> into a <strong>real</strong> state.</p>
 <p>Initialization of a <code>State</code>’s contents is offloaded from the
-<a href="#state--constructor">constructor</a> to here.</p>
+<a href="#state--constructor">constructor</a> via
+<a href="#state--prototype--initialize"><code>initialize</code></a> to here.</p>
 <blockquote>
-<p><a href="#state--prototype--initialize"><code>initialize</code></a>
-<a href="#state--prototype--virtualize"><code>virtualize</code></a>
-<a href="/api/#state--methods--realize">realize</a>
+<p><a href="#state--prototype--virtualize"><code>virtualize</code></a></p>
+<p><a href="/api/#state--methods--realize">realize</a>
 <a href="/docs/#concepts--inheritance--virtual-epistates">Virtual epistates</a></p>
 </blockquote>
 
@@ -884,80 +884,6 @@ which is emitted as part of a <code>mutate</code> event.</p>
     <div class="text">
       
 <h3><a href="#state--relational-methods">Relational methods</a></h3>
-<h4><a href="#state--prototype--derivation">derivation</a></h4>
-<p>Returns a <code>State</code> array of this state’s superstate chain, starting after the
-root state and ending at <code>this</code>. If <code>byName</code> is set to <code>true</code>, a string array
-of the states’ names is returned instead.</p>
-<blockquote>
-<p><a href="/api/#state--methods--derivation">derivation</a></p>
-</blockquote>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>  <span class="nv">derivation: </span><span class="nf">( byName ) -&gt;</span>
-    <span class="nv">results = </span><span class="p">[];</span> <span class="nv">ss = </span><span class="k">this</span><span class="p">;</span> <span class="k">while</span> <span class="p">(</span> <span class="nv">s = </span><span class="nx">ss</span> <span class="p">)</span> <span class="o">and</span> <span class="nv">ss = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
-      <span class="nx">results</span><span class="p">.</span><span class="nx">push</span> <span class="k">if</span> <span class="nx">byName</span> <span class="k">then</span> <span class="nx">s</span><span class="p">.</span><span class="nx">name</span> <span class="o">or</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nx">s</span>
-    <span class="nx">results</span><span class="p">.</span><span class="nx">reverse</span><span class="p">()</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<h4><a href="#state--prototype--path">path</a></h4>
-<p>Returns this state’s fully qualified name.</p>
-<p><em>Alias:</em> <strong>toString</strong></p>
-<blockquote>
-<p><a href="/api/#state--methods--path">path</a></p>
-</blockquote>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>  <span class="nv">path: </span><span class="o">-&gt;</span> <span class="nx">@derivation</span><span class="p">(</span> <span class="kc">yes</span> <span class="p">).</span><span class="nx">join</span> <span class="s1">&#39;.&#39;</span>
-  <span class="nv">toString: </span><span class="err">@</span><span class="o">::</span><span class="nx">path</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<h4><a href="#state--prototype--depth">depth</a></h4>
-<p>Returns the number of superstates this state has. The root state returns <code>0</code>,
-its immediate substates return <code>1</code>, etc.</p>
-<blockquote>
-<p><a href="/api/#state--methods--depth">depth</a></p>
-</blockquote>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>  <span class="nv">depth: </span><span class="o">-&gt;</span>
-    <span class="nv">n = </span><span class="mi">0</span><span class="p">;</span> <span class="nv">s = </span><span class="k">this</span>
-    <span class="nx">n</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">while</span> <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
-    <span class="nx">n</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<h4><a href="#state--prototype--common">common</a></h4>
-<p>Returns the least common ancestor of <code>this</code> and <code>other</code>. If <code>this</code> is itself an
-ancestor of <code>other</code>, or vice versa, then that ancestor is returned.</p>
-<blockquote>
-<p><a href="/api/#state--methods--common">common</a></p>
-</blockquote>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>  <span class="nv">common: </span><span class="nf">( other ) -&gt;</span>
-    <span class="nv">other = </span><span class="nx">@query</span> <span class="nx">other</span> <span class="nx">unless</span> <span class="nx">other</span> <span class="k">instanceof</span> <span class="nx">State</span>
-    <span class="k">if</span> <span class="nx">@depth</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nx">other</span><span class="p">.</span><span class="nx">depth</span><span class="p">()</span> <span class="k">then</span> <span class="nv">s = </span><span class="nx">other</span><span class="p">;</span> <span class="nv">other = </span><span class="k">this</span> <span class="k">else</span> <span class="nv">s = </span><span class="k">this</span>
-    <span class="k">while</span> <span class="nx">s</span>
-      <span class="k">return</span> <span class="nx">s</span> <span class="k">if</span> <span class="nx">s</span> <span class="o">is</span> <span class="nx">other</span> <span class="o">or</span> <span class="nx">s</span><span class="p">.</span><span class="nx">isSuperstateOf</span> <span class="nx">other</span>
-      <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
-    <span class="kc">null</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
 <h4><a href="#state--prototype--substate">substate</a></h4>
 <p>Retrieves the named substate of <code>this</code> state. If no such substate exists in the
 local state, any identically named substate held on a protostate will be
@@ -999,16 +925,16 @@ returned.</p>
     <div class="text">
       
 <h4><a href="#state--prototype--substates">substates</a></h4>
-<p>Returns an <code>Array</code> of this state’s substates. If the boolean <code>deep</code> argument is
-<code>true</code>, returns a depth-first flattened array containing all of this state’s
-descendant states.</p>
+<p>Returns an array of this state’s immediate substates. If the boolean <code>virtual</code>
+is <code>true</code>, any active virtual epistates will be included as well.</p>
 <blockquote>
-<p><a href="/api/#state--methods--substates">substates</a></p>
+<p><a href="/api/#state--methods--substates">substates</a>
+<a href="/docs/#concepts--inheritance--virtual-epistates">Virtual epistates</a></p>
 </blockquote>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>  <span class="nv">substates: </span><span class="nf">( deep, virtual ) -&gt;</span>
+      <div class="highlight"><pre>  <span class="nv">substates: </span><span class="nf">( virtual, deep ) -&gt;</span>
     <span class="nv">result = </span><span class="p">[]</span></pre></div>
     </div>
   
@@ -1036,9 +962,24 @@ descendant states.</p>
     <div class="code">
       <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">own</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">substate</span> <span class="k">of</span> <span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">substates</span>
       <span class="nx">result</span><span class="p">.</span><span class="nx">push</span> <span class="nx">substate</span>
-      <span class="nv">result = </span><span class="nx">result</span><span class="p">.</span><span class="nx">concat</span> <span class="nx">substate</span><span class="p">.</span><span class="nx">substates</span> <span class="kc">yes</span> <span class="k">if</span> <span class="nx">deep</span>
+      <span class="nv">result = </span><span class="nx">result</span><span class="p">.</span><span class="nx">concat</span> <span class="nx">substate</span><span class="p">.</span><span class="nx">substates</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">yes</span> <span class="k">if</span> <span class="nx">deep</span>
 
     <span class="nx">result</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h4><a href="#state--prototype--descendants">descendants</a></h4>
+<p>Returns a depth-first flattened array containing all of this state’s descendant
+substates.</p>
+<blockquote>
+<p><a href="/api/#state--methods--descendants">descendants</a></p>
+</blockquote>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">descendants: </span><span class="nf">( virtual ) -&gt;</span> <span class="nx">@substates</span> <span class="nx">virtual</span><span class="p">,</span> <span class="kc">yes</span></pre></div>
     </div>
   
     
@@ -1118,6 +1059,80 @@ first destroyed and then displaced.</p>
     <span class="k">delete</span> <span class="nx">substates</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span>
 
     <span class="nx">substate</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h4><a href="#state--prototype--derivation">derivation</a></h4>
+<p>Returns a <code>State</code> array of this state’s superstate chain, starting after the
+root state and ending at <code>this</code>. If <code>byName</code> is set to <code>true</code>, a string array
+of the states’ names is returned instead.</p>
+<blockquote>
+<p><a href="/api/#state--methods--derivation">derivation</a></p>
+</blockquote>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">derivation: </span><span class="nf">( byName ) -&gt;</span>
+    <span class="nv">results = </span><span class="p">[];</span> <span class="nv">ss = </span><span class="k">this</span><span class="p">;</span> <span class="k">while</span> <span class="p">(</span> <span class="nv">s = </span><span class="nx">ss</span> <span class="p">)</span> <span class="o">and</span> <span class="nv">ss = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
+      <span class="nx">results</span><span class="p">.</span><span class="nx">push</span> <span class="k">if</span> <span class="nx">byName</span> <span class="k">then</span> <span class="nx">s</span><span class="p">.</span><span class="nx">name</span> <span class="o">or</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="nx">s</span>
+    <span class="nx">results</span><span class="p">.</span><span class="nx">reverse</span><span class="p">()</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h4><a href="#state--prototype--path">path</a></h4>
+<p>Returns this state’s fully qualified name.</p>
+<p><em>Alias:</em> <strong>toString</strong></p>
+<blockquote>
+<p><a href="/api/#state--methods--path">path</a></p>
+</blockquote>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">path: </span><span class="o">-&gt;</span> <span class="nx">@derivation</span><span class="p">(</span> <span class="kc">yes</span> <span class="p">).</span><span class="nx">join</span> <span class="s1">&#39;.&#39;</span>
+  <span class="nv">toString: </span><span class="err">@</span><span class="o">::</span><span class="nx">path</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h4><a href="#state--prototype--depth">depth</a></h4>
+<p>Returns the number of superstates this state has. The root state returns <code>0</code>,
+its immediate substates return <code>1</code>, etc.</p>
+<blockquote>
+<p><a href="/api/#state--methods--depth">depth</a></p>
+</blockquote>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">depth: </span><span class="o">-&gt;</span>
+    <span class="nv">n = </span><span class="mi">0</span><span class="p">;</span> <span class="nv">s = </span><span class="k">this</span>
+    <span class="nx">n</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">while</span> <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
+    <span class="nx">n</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h4><a href="#state--prototype--common">common</a></h4>
+<p>Returns the least common ancestor of <code>this</code> and <code>other</code>. If <code>this</code> is itself an
+ancestor of <code>other</code>, or vice versa, then that ancestor is returned.</p>
+<blockquote>
+<p><a href="/api/#state--methods--common">common</a></p>
+</blockquote>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">common: </span><span class="nf">( other ) -&gt;</span>
+    <span class="nv">other = </span><span class="nx">@query</span> <span class="nx">other</span> <span class="nx">unless</span> <span class="nx">other</span> <span class="k">instanceof</span> <span class="nx">State</span>
+    <span class="k">if</span> <span class="nx">@depth</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nx">other</span><span class="p">.</span><span class="nx">depth</span><span class="p">()</span> <span class="k">then</span> <span class="nv">s = </span><span class="nx">other</span><span class="p">;</span> <span class="nv">other = </span><span class="k">this</span> <span class="k">else</span> <span class="nv">s = </span><span class="k">this</span>
+    <span class="k">while</span> <span class="nx">s</span>
+      <span class="k">return</span> <span class="nx">s</span> <span class="k">if</span> <span class="nx">s</span> <span class="o">is</span> <span class="nx">other</span> <span class="o">or</span> <span class="nx">s</span><span class="p">.</span><span class="nx">isSuperstateOf</span> <span class="nx">other</span>
+      <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span>
+    <span class="kc">null</span></pre></div>
     </div>
   
     
@@ -1213,7 +1228,7 @@ states are marked <code>initial</code>.</p>
       <div class="highlight"><pre>  <span class="nv">initialSubstate: </span><span class="nf">( via = VIA_PROTO ) -&gt;</span>
     <span class="nv">i = </span><span class="mi">0</span><span class="p">;</span> <span class="nv">queue = </span><span class="p">[</span> <span class="k">this</span> <span class="p">]</span>
     <span class="k">while</span> <span class="nv">subject = </span><span class="nx">queue</span><span class="p">[</span> <span class="nx">i</span><span class="o">++</span> <span class="p">]</span>
-      <span class="k">for</span> <span class="nx">s</span> <span class="k">in</span> <span class="nv">substates = </span><span class="nx">subject</span><span class="p">.</span><span class="nx">substates</span> <span class="nx">VIA_PROTO</span>
+      <span class="k">for</span> <span class="nx">s</span> <span class="k">in</span> <span class="nv">substates = </span><span class="nx">subject</span><span class="p">.</span><span class="nx">substates</span> <span class="kc">undefined</span><span class="p">,</span> <span class="o">!!</span><span class="nx">VIA_PROTO</span>
         <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">initialSubstate</span><span class="p">(</span> <span class="nx">VIA_NONE</span> <span class="p">)</span> <span class="o">or</span> <span class="nx">s</span> <span class="k">if</span> <span class="nx">s</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">INITIAL</span>
         <span class="nx">queue</span><span class="p">.</span><span class="nx">push</span> <span class="nx">s</span>
     <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span> <span class="o">and</span> <span class="nv">protostate = </span><span class="nx">@protostate</span>
@@ -1426,7 +1441,7 @@ parsed thus far.</p>
     </div>
     <div class="code">
       <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">name</span> <span class="o">is</span> <span class="s1">&#39;**&#39;</span>
-        <span class="k">return</span> <span class="nx">cursor</span><span class="p">.</span><span class="nx">substates</span> <span class="kc">yes</span> <span class="nx">unless</span> <span class="nx">against</span>
+        <span class="k">return</span> <span class="nx">cursor</span><span class="p">.</span><span class="nx">substates</span> <span class="kc">undefined</span><span class="p">,</span> <span class="kc">yes</span> <span class="nx">unless</span> <span class="nx">against</span>
         <span class="k">return</span> <span class="kc">yes</span> <span class="k">if</span> <span class="nx">cursor</span><span class="p">.</span><span class="nx">isSuperstateOf</span> <span class="nx">against</span>
         <span class="k">break</span></pre></div>
     </div>
@@ -1474,7 +1489,7 @@ different context.</p>
       <div class="highlight"><pre>    <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUB</span>
       <span class="nv">i = </span><span class="mi">0</span><span class="p">;</span> <span class="nv">queue = </span><span class="p">[</span> <span class="k">this</span> <span class="p">]</span>
       <span class="k">while</span> <span class="nv">subject = </span><span class="nx">queue</span><span class="p">[</span> <span class="nx">i</span><span class="o">++</span> <span class="p">]</span>
-        <span class="k">for</span> <span class="nx">substate</span> <span class="k">in</span> <span class="nx">subject</span><span class="p">.</span><span class="nx">substates</span> <span class="kc">no</span><span class="p">,</span> <span class="kc">yes</span>
+        <span class="k">for</span> <span class="nx">substate</span> <span class="k">in</span> <span class="nx">subject</span><span class="p">.</span><span class="nx">substates</span> <span class="kc">yes</span>
           <span class="k">continue</span> <span class="k">if</span> <span class="nx">substate</span> <span class="o">is</span> <span class="nx">toBeSkipped</span>
           <span class="nv">result = </span><span class="nx">substate</span><span class="p">.</span><span class="nx">query</span> <span class="nx">selector</span><span class="p">,</span> <span class="nx">against</span><span class="p">,</span> <span class="nx">VIA_NONE</span>
           <span class="k">return</span> <span class="nx">result</span> <span class="k">if</span> <span class="nx">result</span>
@@ -1620,7 +1635,8 @@ matching keys in the state’s data are deleted. If the operation results in a
 change to the state’s data, a <code>mutate</code> event is emitted for this state.</p>
 <blockquote>
 <p><a href="/docs/#concepts--data">Data</a>
-<a href="/api/#state--methods--data">data</a></p>
+<a href="/api/#state--methods--data--read">data (read)</a>
+<a href="/api/#state--methods--data--write">data (write)</a></p>
 </blockquote>
 
     </div>

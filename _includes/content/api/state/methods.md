@@ -144,6 +144,139 @@ If the transaction causes a mutation, `this` emits a [`mutate` event](#state--ev
 > [`State::mutate`](/source/state.html#state--prototype--mutate)
 
 
+#### [substate](#state--methods--substate)
+
+Identifies a named substate of `this`.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.substate( stateName, via )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* `stateName` : string
+* [`via = VIA_PROTO`] : boolean
+
+###### RETURNS
+
+The substate of `this` state named `stateName`. If no such substate exists locally within `this`, and the `VIA_PROTO` bit of `via` is set, then the nearest identically named substate held on a protostate will be returned.
+
+###### SEE ALSO
+
+> [`State::substate`](/source/state.html#state--prototype--substate)
+
+
+#### [substates](#state--methods--substates)
+
+Generates a collection of the immediate substates of `this`.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.substates( virtual )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* [`virtual = false`] : boolean
+
+###### RETURNS
+
+An `Array` of `this` state’s substates.
+
+###### NOTES
+
+If `virtual` is `true`, the returned array may include any active virtual states held by an owner object that is inheriting currency from a prototype.
+
+###### SEE ALSO
+
+> [`State::substates`](/source/state.html#state--prototype--substates)
+
+
+#### [descendants](#state--methods--descendants)
+
+Generates a depth-first flattened collection of `this` state’s substates, their respective substates, etc.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.descendants( virtual )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* [`virtual = false`] : boolean
+
+###### RETURNS
+
+An `Array` that includes all of `this` state’s descendant states.
+
+###### NOTES
+
+If `virtual` is `true`, the returned array may include any active virtual states held by an owner object that is inheriting currency from a prototype.
+
+###### SEE ALSO
+
+> [`State::descendants`](/source/state.html#state--prototype--descendants)
+
+
+#### [addSubstate](#state--methods--add-substate)
+
+Creates a `State` based on the provided `stateExpression`, adds it as a substate of `this` state.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.addSubstate( stateName, stateExpression )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* `stateName` : string
+* `stateExpression` : ( `StateExpression` | object | `State` )
+
+###### RETURNS
+
+The new `State`.
+
+###### NOTES
+
+If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
+
+###### SEE ALSO
+
+> [`State::addSubstate`](/source/state.html#state--prototype--add-substate)
+
+
+#### [removeSubstate](#state--methods--remove-substate)
+
+Removes the substate named by `stateName` from `this` state, if possible.
+
+###### SYNTAX
+
+{% highlight javascript %}
+this.removeSubstate( stateName )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* `stateName` : string
+
+###### RETURNS
+
+The removed `State`.
+
+###### NOTES
+
+If the owner object is in the midst of a transition involving the state targeted for removal, then the removal will fail, returning `false`.
+
+###### SEE ALSO
+
+> [`State::removeSubstate`](/source/state.html#state--prototype--remove-substate)
+
+
 #### [derivation](#state--methods--derivation)
 
 Describes the superstate chain of `this` as an array.
@@ -268,115 +401,6 @@ The `State` that is the nearest common ancestor of both `this` state and the pro
 ###### SEE ALSO
 
 > [`State::common`](/source/state.html#state--prototype--common)
-
-
-#### [substate](#state--methods--substate)
-
-Identifies a named substate of `this`.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.substate( stateName, via )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* `stateName` : string
-* [`via = VIA_PROTO`] : boolean
-
-###### RETURNS
-
-The substate of `this` state named `stateName`. If no such substate exists locally within `this`, and the `VIA_PROTO` bit of `via` is set, then the nearest identically named substate held on a protostate will be returned.
-
-###### SEE ALSO
-
-> [`State::substate`](/source/state.html#state--prototype--substate)
-
-
-#### [substates](#state--methods--substates)
-
-Generates a collection of substates of `this`.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.substates( deep, virtual )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* [`deep = false`] : boolean
-* [`virtual = false`] : boolean
-
-###### RETURNS
-
-An `Array` of `this` state’s substates.
-
-###### NOTES
-
-If `deep` is `true`, the returned array is a depth-first flattened list of all of this state’s descendant states.
-
-If `virtual` is `true`, the returned array may include any active virtual states held by an owner object that is inheriting currency from a prototype.
-
-###### SEE ALSO
-
-> [`State::substates`](/source/state.html#state--prototype--substates)
-
-
-#### [addSubstate](#state--methods--add-substate)
-
-Creates a `State` based on the provided `stateExpression`, adds it as a substate of `this` state.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.addSubstate( stateName, stateExpression )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* `stateName` : string
-* `stateExpression` : ( `StateExpression` | object | `State` )
-
-###### RETURNS
-
-The new `State`.
-
-###### NOTES
-
-If a substate with the same `stateName` already exists, it is first destroyed and then replaced.
-
-###### SEE ALSO
-
-> [`State::addSubstate`](/source/state.html#state--prototype--add-substate)
-
-
-#### [removeSubstate](#state--methods--remove-substate)
-
-Removes the substate named by `stateName` from `this` state, if possible.
-
-###### SYNTAX
-
-{% highlight javascript %}
-this.removeSubstate( stateName )
-{% endhighlight %}
-
-###### PARAMETERS
-
-* `stateName` : string
-
-###### RETURNS
-
-The removed `State`.
-
-###### NOTES
-
-If the owner object is in the midst of a transition involving the state targeted for removal, then the removal will fail, returning `false`.
-
-###### SEE ALSO
-
-> [`State::removeSubstate`](/source/state.html#state--prototype--remove-substate)
 
 
 #### [is](#state--methods--is)

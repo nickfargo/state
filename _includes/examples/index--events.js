@@ -23,7 +23,7 @@ state( Mover.prototype, {
             }));
         }
 
-        states = [ this ].concat( this.substates( true ) );
+        states = [ this ].concat( this.descendants() );
         events = ['depart', 'exit', 'enter', 'arrive'];
 
         for ( i = 0, ls = states.length; i < ls; i++ ) {
