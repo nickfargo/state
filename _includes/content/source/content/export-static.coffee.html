@@ -137,17 +137,17 @@ been the <code>owner</code>, still retain a reference thereto via <code>this.own
 <ul>
 <li><code>fn</code> : ( autostate, protostate ) → ( any… ) → any</li>
 </ul>
-<p>Used inside a state expression, a <code>combinator</code> wrapped with <code>state.fix</code> will
+<p>Used inside a state expression, a function <code>fn</code> wrapped with <code>state.fix</code> will
 be partially applied with a reference to <code>autostate</code>, the precise <code>State</code> to
-which the combinator’s returned function will belong, and a reference to
-<code>protostate</code>, the immediate <strong>protostate</strong> of <code>autostate</code>.</p>
+which <code>fn</code>’s returned function will belong, and a reference to <code>protostate</code>,
+the immediate <strong>protostate</strong> of <code>autostate</code>.</p>
 <p>A method, event listener, etc. that is <code>fix</code>ed thusly has access to, and full
 lexical awareness of, the particular <code>State</code> environment in which it exists.</p>
 
     </div>
     <div class="code">
       <div class="highlight"><pre>  <span class="vi">@fix = </span><span class="nx">do</span> <span class="o">-&gt;</span>
-    <span class="nv">fix = </span><span class="nf">( combinator ) -&gt;</span> <span class="k">new</span> <span class="nx">StateFixedFunction</span> <span class="nx">combinator</span>
+    <span class="nv">fix = </span><span class="nf">( fn ) -&gt;</span> <span class="k">new</span> <span class="nx">StateFixedFunction</span> <span class="nx">fn</span>
     <span class="nv">fix.class = </span><span class="k">class</span> <span class="nx">StateFixedFunction</span>
       <span class="nv">type: </span><span class="s1">&#39;state-fixed-function&#39;</span>
       <span class="nv">constructor: </span><span class="nf">( @fn ) -&gt;</span>

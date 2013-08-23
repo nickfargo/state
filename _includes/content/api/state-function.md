@@ -101,21 +101,21 @@ If a state-bound method, event listener, etc. is inherited from a **protostate**
 
 #### [fix](#state-function--fix)
 
-Causes a function to be decorated with fixed bindings that indicate the precise `State` in which it is defined, providing the means to reliably reference the **protostate** from within that function.
+Causes a function to be decorated with fixed bindings that indicate the precise `State` in which the function is defined. This provides a reliable means to reference the lexical **protostate** relative to that function’s definition.
 
 ###### SYNTAX
 
 {% highlight javascript %}
-state.fix( combinator )
+state.fix( fn )
 {% endhighlight %}
 
 ###### PARAMETERS
 
-* `combinator` : function :: ( `autostate`, [`protostate`] ) → ( `fn` : function )
+* `fn` : function :: ( `autostate`, [`protostate`] ) → function
 
 ###### RETURNS
 
-An object that boxes `fn`, marked with a `type` of `state-fixed-function`.
+An object that boxes the decorated function returned by `fn`, marked with a `type` of `state-fixed-function`.
 
 ###### EXAMPLE
 
