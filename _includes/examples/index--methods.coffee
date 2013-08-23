@@ -7,7 +7,7 @@ class Avenger
     Terse: state 'default'
     Verbose: state
       greet: state.bind ->
-        "#{@superstate.call 'greet'} My name is #{@owner.name}."
+        "#{ @superstate.call 'greet' } My name is #{ @owner.name }."
 
 
 person = new Avenger 'Inigo'

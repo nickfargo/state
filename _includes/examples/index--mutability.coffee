@@ -12,7 +12,7 @@ class Traveler extends Person
   doAs = (behavior) -> state.bind -> @mutate behavior; return
 
   state @::, 'mutable abstract',
-    travelTo: state.bind (place) -> @emit "in#{place}"
+    travelTo: state.bind (place) -> @emit "in#{ place }"
 
     events:
       inRome: doAs theRomansDo
