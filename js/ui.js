@@ -1106,7 +1106,7 @@ $( function () {
 
 // Token highlighting
 $( function () {
-  var $tokens = $('.highlight pre span:not(.s,.s1,.s2,.si,.sr,.c,.c1,.cm,.cp,.cs)');
+  var $tokens = $('.highlight pre span:not(.s,.s1,.s2,.si,.sr,.c,.c1,.cm,.cp,.cs,.p)');
   $tokens.on( 'click', function ( event ) {
     var text = $(this).text();
     $tokens
