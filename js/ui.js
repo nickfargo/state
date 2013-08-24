@@ -943,11 +943,11 @@ $( function () {
   // split trailing assignment operator from `nv|vi`
   $( 'span.nv, span.vi, span.vf', $pre = $('.highlight pre') ).each( function () {
     var $this = $(this);
-    var match = /(.*?)(\s*)=(\s*)$/.exec( $this.text() );
+    var match = /(.*?)(\s*)([=:])(\s*)$/.exec( $this.text() );
     if ( match ) {
       $this
         .text( match[1] )
-        .after( match[2] + '<span class="o">=</span>' + match[3] );
+        .after( match[2] + '<span class="o">' + match[3] + '</span>' + match[4] );
     }
   });
   profile["pygments: split asn op"] = timeElapsed();
