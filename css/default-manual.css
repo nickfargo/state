@@ -2024,27 +2024,46 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 
 
 .highlight pre span {
-  -webkit-transition: 0.25s ease-out;
-     -moz-transition: 0.25s ease-out;
-       -o-transition: 0.25s ease-out;
-          transition: 0.25s ease-out;
-  -webkit-transition-property: color, background-color;
-     -moz-transition-property: color, background-color;
-       -o-transition-property: color, background-color;
-          transition-property: color, background-color;
+  -webkit-transition: 0.75s cubic-bezier(0.0, 0.9, 0.9, 1.0);
+     -moz-transition: 0.75s cubic-bezier(0.0, 0.9, 0.9, 1.0);
+       -o-transition: 0.75s cubic-bezier(0.0, 0.9, 0.9, 1.0);
+          transition: 0.75s cubic-bezier(0.0, 0.9, 0.9, 1.0);
+  -webkit-transition-property: color, background-color, box-shadow;
+     -moz-transition-property: color, background-color, box-shadow;
+       -o-transition-property: color, background-color, box-shadow;
+          transition-property: color, background-color, box-shadow;
 }
 .highlight pre span.sought {
   padding: 1px 2px;
   margin: 0 -2px;
   border-radius: 3px;
-  background-color: #fe0;
+  background-color: rgba(255, 238, 0, 0.8);
   color: #000;
-  -webkit-transition: 0.1s ease-out;
-     -moz-transition: 0.1s ease-out;
-       -o-transition: 0.1s ease-out;
-          transition: 0.1s ease-out;
-  -webkit-transition-property: color, background-color;
-     -moz-transition-property: color, background-color;
-       -o-transition-property: color, background-color;
-          transition-property: color, background-color;
+  text-shadow: none;
+  -webkit-transition: 0.2s ease-out;
+     -moz-transition: 0.2s ease-out;
+       -o-transition: 0.2s ease-out;
+          transition: 0.2s ease-out;
+  -webkit-transition-property: padding, margin, color, background-color;
+     -moz-transition-property: padding, margin, color, background-color;
+       -o-transition-property: padding, margin, color, background-color;
+          transition-property: padding, margin, color, background-color;
+}
+.highlight pre span.sought {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2),
+              0 0 3px 0px rgba(255, 238, 0, 0.8),
+              0 0 2px 0px rgba(255, 238, 0, 0.8),
+              0 0 1px 0px rgba(255, 238, 0, 0.8);
+  -webkit-transition-duration: 0.2s;
+     -moz-transition-duration: 0.2s;
+       -o-transition-duration: 0.2s;
+          transition-duration: 0.2s;
+  -webkit-transition-property: box-shadow;
+     -moz-transition-property: box-shadow;
+       -o-transition-property: box-shadow;
+          transition-property: box-shadow;
+  -webkit-transition-timing-function: cubic-bezier(0.0, 2.0, 0.5, 2.0);
+     -moz-transition-timing-function: cubic-bezier(0.0, 2.0, 0.5, 2.0);
+       -o-transition-timing-function: cubic-bezier(0.0, 2.0, 0.5, 2.0);
+          transition-timing-function: cubic-bezier(0.0, 2.0, 0.5, 2.0);
 }
