@@ -2021,3 +2021,30 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   font-weight: bold;
 }
 .il  { color: #666666 }                     /* Literal.Number.Integer.Long */
+
+
+.highlight pre span {
+  -webkit-transition: 0.25s ease-out;
+     -moz-transition: 0.25s ease-out;
+       -o-transition: 0.25s ease-out;
+          transition: 0.25s ease-out;
+  -webkit-transition-property: color, background-color;
+     -moz-transition-property: color, background-color;
+       -o-transition-property: color, background-color;
+          transition-property: color, background-color;
+}
+.highlight pre span.sought {
+  padding: 1px 2px;
+  margin: 0 -2px;
+  border-radius: 3px;
+  background-color: #fe0;
+  color: #000;
+  -webkit-transition: 0.1s ease-out;
+     -moz-transition: 0.1s ease-out;
+       -o-transition: 0.1s ease-out;
+          transition: 0.1s ease-out;
+  -webkit-transition-property: color, background-color;
+     -moz-transition-property: color, background-color;
+       -o-transition-property: color, background-color;
+          transition-property: color, background-color;
+}

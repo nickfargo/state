@@ -1104,4 +1104,24 @@ $( function () {
 });
 
 
+// Token highlighting
+$( function () {
+  var $tokens = $('.highlight pre span:not(.s,.s1,.s2,.si,.sr,.c,.c1,.cm,.cp,.cs)');
+  $tokens.on( 'click', function ( event ) {
+    var text = $(this).text();
+    $tokens
+      .removeClass('sought')
+      .filter( function () {
+        return $(this).text() === text;
+      })
+      .addClass('sought');
+    event.stopPropagation();
+  });
+
+  $(document).on( 'click', function ( event ) {
+    $tokens.removeClass('sought');
+  });
+});
+
+
 }( jQuery ) );
