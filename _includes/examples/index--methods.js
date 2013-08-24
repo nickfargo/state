@@ -9,7 +9,7 @@ state( Avenger.prototype, 'abstract', {
     Verbose: state({
         greet: state.bind( function () {
             return this.superstate.call('greet') +
-                "My name is " + this.owner.name + ".";
+                " My name is " + this.owner.name + ".";
         })
     })
 });
