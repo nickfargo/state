@@ -1974,12 +1974,13 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   padding: 1px 2px;
   margin: 0 -2px;
   background-color:    hsla(105, 92%, 30%, 0.1);
-  text-shadow: 0 0 1px hsla(105, 92%, 30%, 0.4);
+  text-shadow: 0 0 1px hsla(105, 92%, 30%, 0.7);
+
   color: #299306;
 }
 .s2 /* Literal.String.Double */ {
   padding: 1px 0;
-  background-color:    hsla(105, 92%, 30%, 0.05);
+  background-color:    hsla(105, 92%, 30%, 0.1);
   color: #1C7D24;
 }
 .sb  { color: #219161 }                     /* Literal.String.Backtick */
@@ -1989,7 +1990,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 .sh  { color: #219161 }                     /* Literal.String.Heredoc */
 .si /* Literal.String.Interpol */ {
   padding: 1px 0;
-  background-color:    hsla(105, 92%, 30%, 0.05);
+  background-color:    hsla(105, 92%, 30%, 0.1);
   text-shadow: 0 0 1px #463;
   color: #463;
   font-weight: bold;
@@ -1998,7 +1999,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 .sr /* Literal.String.Regex */ {
   padding: 1px 2px;
   margin: 0 -2px;
-  color: #997755;
+  color: #654;
   background-color: rgba(153,119,85,0.1);
 }
 .ss  { color: #19469D }                     /* Literal.String.Symbol */
