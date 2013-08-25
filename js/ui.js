@@ -1167,6 +1167,9 @@ $( function () {
   }() );
   profile["query tokens"] = timeElapsed();
 
+  var $container = $('body > .container');
+  var $locator = $('<div class="token-locator">').appendTo( $container );
+
   var $selection;
   var rxThis       = /^(?:@|this)$/;
   var rxPrototype  = /^(?:::|prototype)$/;
@@ -1179,7 +1182,25 @@ $( function () {
   var rxSquare     = /^[\[\]]$/;
   var rxParen      = /^[()]$/;
 
-  $tokens.on( 'click', function ( event ) {
+  function updateTokenLocator () {
+    if ( $selection == null ) {
+      $locator.removeClass('visible');
+      return;
+    }
+    $locator.empty();
+    var $indicators = $('<div class="indicators">');
+    var containerHeight = $container.height();
+    var i, y;
+    for ( i = 0; i < $selection.length; i++ ) {
+      y = $selection[i].offsetTop / containerHeight;
+      y = ( ( 10000 * y )|0 ) / 100;
+      $('<div class="indicator" style="top:' + y + '%">')
+        .appendTo( $indicators );
+    }
+    $locator.append( $indicators ).addClass('visible');
+  }
+
+  function changeSelection ( event ) {
     var selectedText = $(this).text();
     if ( $selection != null ) $selection.removeClass('sought');
 
@@ -1211,15 +1232,20 @@ $( function () {
     });
 
     $selection.addClass('sought');
+    updateTokenLocator();
     event.stopPropagation();
-  });
+  }
 
-  $(document).on( 'click', function ( event ) {
+  function clearSelection ( event ) {
     if ( $selection != null ) {
       $selection.removeClass('sought');
       $selection = null;
     }
-  });
+    $locator.removeClass('visible');
+  }
+
+  $tokens.on( 'click', changeSelection );
+  $(document).on( 'click', clearSelection );
 });
 
 
