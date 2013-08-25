@@ -1948,10 +1948,16 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 .nf /* Name.Function */ {
   padding: 1px 2px;
   margin: 0 -2px;
+  background-color: rgba(192,0,144,0.1);
   color: #705;
   font-weight: bold;
   font-style: italic;
-  background-color: rgba(192,0,144,0.1);
+  text-shadow: 0 0 2px rgba(192,0,144,0.5);
+}
+.nf > span {
+  color: #705;
+  font-weight: bold;
+  font-style: italic;
   text-shadow: 0 0 2px rgba(192,0,144,0.5);
 }
 .nl  { color: #A0A000 }                     /* Name.Label */
