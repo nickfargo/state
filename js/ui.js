@@ -1050,6 +1050,7 @@ $( function () {
       var text, el, i, match, html, part;
       var rx = /\(\)|\[\]|\{\}|[(){}\[\]@,]|[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
       var allWhitespace = /^\s+$/;
+      var punctuation = /^[,]$/;
       for ( i = 0; i < $fns.length; i++ ) {
         el = $fns[i];
         text = el.textContent;
@@ -1058,6 +1059,8 @@ $( function () {
           part = match[0];
           if ( allWhitespace.test( part ) ) {
             html += part;
+          } else if ( punctuation.test( part ) ) {
+            html += '<span class="p">' + part + '</span>';
           } else {
             html += '<span>' + part + '</span>';
           }
