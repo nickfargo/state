@@ -941,7 +941,8 @@ $( function () {
   profile["pygments: function names"] = timeElapsed();
 
   // split trailing assignment operator from `nv|vi`
-  $( 'span.nv, span.vi, span.vf', $pre = $('.highlight pre') ).each( function () {
+  $pre = $('.highlight pre');
+  $( 'span.nv, span.vi, span.vf', $pre ).each( function () {
     var $this = $(this);
     var match = /(.*?)(\s*)([=:])(\s*)$/.exec( $this.text() );
     if ( match ) {
