@@ -1172,6 +1172,9 @@ $( function () {
   var rxLOr = /^(?:\|\||or)$/;
   var rxEq = /^(?:===|is)$/;
   var rxNEq = /^(?:\!==|isnt)$/;
+  var rxCurly = /^[{}]$/;
+  var rxSquare = /^[\[\]]$/;
+  var rxParen = /^[()]$/;
 
   $tokens.on( 'click', function ( event ) {
     var selectedText = $(this).text();
@@ -1185,6 +1188,12 @@ $( function () {
         tokenText === selectedText ||
         rxThis.test( tokenText ) && rxThis.test( selectedText ) ||
         rxPrototype.test( tokenText ) && rxPrototype.test( selectedText )
+      ) return true;
+
+      if (
+        rxCurly.test( tokenText ) && rxCurly.test( selectedText ) ||
+        rxSquare.test( tokenText ) && rxSquare.test( selectedText ) ||
+        rxParen.test( tokenText ) && rxParen.test( selectedText )
       ) return true;
 
       if ( $this.hasClass('o') ) return (
