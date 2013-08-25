@@ -1168,16 +1168,16 @@ $( function () {
   profile["query tokens"] = timeElapsed();
 
   var $selection;
-  var rxThis = /^(?:@|this)$/;
-  var rxPrototype = /^(?:::|prototype)$/;
-  var rxLNot = /^(?:\!|not)$/;
-  var rxLAnd = /^(?:&&|and)$/;
-  var rxLOr = /^(?:\|\||or)$/;
-  var rxEq = /^(?:===|is)$/;
-  var rxNEq = /^(?:\!==|isnt)$/;
-  var rxCurly = /^[{}]$/;
-  var rxSquare = /^[\[\]]$/;
-  var rxParen = /^[()]$/;
+  var rxThis       = /^(?:@|this)$/;
+  var rxPrototype  = /^(?:::|prototype)$/;
+  var rxLNot       = /^(?:\!|not)$/;
+  var rxLAnd       = /^(?:&&|and)$/;
+  var rxLOr        = /^(?:\|\||or)$/;
+  var rxEq         = /^(?:===|is)$/;
+  var rxNEq        = /^(?:\!==|isnt)$/;
+  var rxCurly      = /^[{}]$/;
+  var rxSquare     = /^[\[\]]$/;
+  var rxParen      = /^[()]$/;
 
   $tokens.on( 'click', function ( event ) {
     var selectedText = $(this).text();
