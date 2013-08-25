@@ -1039,7 +1039,31 @@ $( function () {
   });
   profile["pygments: paired punctuators"] = timeElapsed();
 
-
+  // break apart coffeescript arrow function signatures
+  ( function () {
+    var rx = /@?[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
+    var loneArrow = /^[\-=]>$/;
+    var allWhitespace = /^\s+$/;
+    var $$ = $('body.source .highlight pre, .highlight pre code.coffeescript');
+    var $fns = $( 'span.nf', $$ );
+    var text, el, i, match, html, part;
+    for ( i = 0; i < $fns.length; i++ ) {
+      el = $fns[i];
+      text = el.textContent;
+      if ( loneArrow.test( text ) ) continue;
+      html = '';
+      while ( ( match = rx.exec( text ) ) !== null ) {
+        part = match[0];
+        if ( allWhitespace.test( part ) ) {
+          html += part;
+        } else {
+          html += '<span>' + part + '</span>';
+        }
+      }
+      el.innerHTML = html;
+    }
+  }() );
+  profile["parse arrow signatures"] = timeElapsed();
 
   // classify operators by precedence
   ( function () {
@@ -1112,7 +1136,7 @@ $( function () {
   profile["query spans"] = timeElapsed();
 
   var $tokens = ( function () {
-    var excluded = /\b(s2|si|sr|c|c1|cm|cp|cs|p)\b/;
+    var excluded = /\b(s2|si|sr|c|c1|cm|cp|cs|p|nf)\b/;
     var i, value, out = [];
     for ( i = 0; i < $spans.length; i++ ) {
       value = $spans[i];
