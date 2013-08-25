@@ -2066,3 +2066,6 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
        -o-transition-timing-function: cubic-bezier(0.0, 2.0, 0.5, 2.0);
           transition-timing-function: cubic-bezier(0.0, 2.0, 0.5, 2.0);
 }
+.nv.sought {
+  font-weight: bold;
+}
