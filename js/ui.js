@@ -1048,7 +1048,7 @@ $( function () {
     ( function () {
       var $fns = $( 'span.nf', $$ );
       var text, el, i, match, html, part;
-      var rx = /@|[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
+      var rx = /[()@]|[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
       var allWhitespace = /^\s+$/;
       for ( i = 0; i < $fns.length; i++ ) {
         el = $fns[i];
