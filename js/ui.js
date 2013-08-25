@@ -1106,7 +1106,21 @@ $( function () {
 
 // Token highlighting
 $( function () {
-  var $tokens = $('.highlight pre span:not(.s2,.si,.sr,.c,.c1,.cm,.cp,.cs,.p)');
+  timeElapsed();
+  var $spans = $('.highlight pre span');
+  profile["query spans"] = timeElapsed();
+
+  var $tokens = ( function () {
+    var excluded = /\b(s2|si|sr|c|c1|cm|cp|cs|p)\b/;
+    var i, value, out = [];
+    for ( i = 0; i < $spans.length; i++ ) {
+      value = $spans[i];
+      if ( !excluded.test( value.className ) ) out.push( value );
+    }
+    return $(out);
+  }() );
+  profile["query tokens"] = timeElapsed();
+
   $tokens.on( 'click', function ( event ) {
     var text = $(this).text();
     $tokens
