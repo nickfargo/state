@@ -1053,18 +1053,19 @@ $( function () {
       'ar2' : /^[+-]$/,
       'bws' : /^(<<|>>>?)$/,
       'rel' : /^(<|<=|>|>=|of|in|instanceof)$/,
-      'equ' : /^(is|isnt)$/,
+      'equ' : /^(is|isnt|!==?|===?)$/,
       'bwa' : /^\&$/,
       'bwx' : /^\^$/,
       'bwo' : /^\|$/,
       'lga' : /^(&&|and)$/,
       'lgo' : /^(\|\||or)$/,
       'exi' : /^\?$/,
-      'asn' : /^(=|\?=|\+=|\-=|\*=|\/=|%=|<<=|>>>?=|&=|\^=|\|=)$/,
+      'asn' : /^(=|[\?\+\-\*\/%&\^\|]=|<<=|>>>?=)$/,
+      'cma' : /^,$/,
       'fna' : /^[\-=]>$/
     };
-    var sel = 'body.source .highlight pre, .highlight pre code.coffeescript';
-    $( 'span.o', $(sel) ).each( function () {
+    var $$ = $('body.source .highlight pre, .highlight pre code');
+    $( 'span.o', $$ ).each( function () {
       var key, regex;
       var $this = $(this);
       var text = $this.text();
