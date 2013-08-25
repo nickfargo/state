@@ -1049,12 +1049,10 @@ $( function () {
       var $fns = $( 'span.nf', $$ );
       var text, el, i, match, html, part;
       var rx = /@|[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
-      var loneArrow = /^[\-=]>$/;
       var allWhitespace = /^\s+$/;
       for ( i = 0; i < $fns.length; i++ ) {
         el = $fns[i];
         text = el.textContent;
-        if ( loneArrow.test( text ) ) continue;
         html = '';
         while ( ( match = rx.exec( text ) ) !== null ) {
           part = match[0];
