@@ -1212,7 +1212,10 @@ $( function () {
   });
 
   $(document).on( 'click', function ( event ) {
-    if ( $selection != null ) $selection.removeClass('sought');
+    if ( $selection != null ) {
+      $selection.removeClass('sought');
+      $selection = null;
+    }
   });
 });
 
