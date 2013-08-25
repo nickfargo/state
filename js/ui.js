@@ -1167,12 +1167,17 @@ $( function () {
   profile["query tokens"] = timeElapsed();
 
   var $selection;
+  var rxThis = /^(?:@|this)$/;
 
   $tokens.on( 'click', function ( event ) {
-    var text = $(this).text();
+    var selectedText = $(this).text();
     if ( $selection != null ) $selection.removeClass('sought');
     $selection = $tokens.filter( function () {
-      return $(this).text() === text;
+      var tokenText = $(this).text();
+      return (
+        tokenText === selectedText ||
+        rxThis.test( tokenText ) && rxThis.test( selectedText )
+      );
     });
     $selection.addClass('sought');
     event.stopPropagation();
