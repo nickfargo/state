@@ -1121,19 +1121,20 @@ $( function () {
   }() );
   profile["query tokens"] = timeElapsed();
 
+  var $selection;
+
   $tokens.on( 'click', function ( event ) {
     var text = $(this).text();
-    $tokens
-      .removeClass('sought')
-      .filter( function () {
-        return $(this).text() === text;
-      })
-      .addClass('sought');
+    if ( $selection != null ) $selection.removeClass('sought');
+    $selection = $tokens.filter( function () {
+      return $(this).text() === text;
+    });
+    $selection.addClass('sought');
     event.stopPropagation();
   });
 
   $(document).on( 'click', function ( event ) {
-    $tokens.removeClass('sought');
+    if ( $selection != null ) $selection.removeClass('sought');
   });
 });
 
