@@ -1168,17 +1168,36 @@ $( function () {
 
   var $selection;
   var rxThis = /^(?:@|this)$/;
+  var rxLNot = /^(?:\!|not)$/;
+  var rxLAnd = /^(?:&&|and)$/;
+  var rxLOr = /^(?:\|\||or)$/;
+  var rxEq = /^(?:===|is)$/;
+  var rxNEq = /^(?:\!==|isnt)$/;
 
   $tokens.on( 'click', function ( event ) {
     var selectedText = $(this).text();
     if ( $selection != null ) $selection.removeClass('sought');
+
     $selection = $tokens.filter( function () {
-      var tokenText = $(this).text();
-      return (
+      var $this = $(this);
+      var tokenText = $this.text();
+
+      if (
         tokenText === selectedText ||
         rxThis.test( tokenText ) && rxThis.test( selectedText )
+      ) return true;
+
+      if ( $this.hasClass('o') ) return (
+        rxLNot.test( tokenText ) && rxLNot.test( selectedText ) ||
+        rxLAnd.test( tokenText ) && rxLAnd.test( selectedText ) ||
+         rxLOr.test( tokenText ) &&  rxLOr.test( selectedText ) ||
+          rxEq.test( tokenText ) &&   rxEq.test( selectedText ) ||
+         rxNEq.test( tokenText ) &&  rxNEq.test( selectedText )
       );
+
+      return false;
     });
+
     $selection.addClass('sought');
     event.stopPropagation();
   });
