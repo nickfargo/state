@@ -1040,31 +1040,50 @@ $( function () {
   });
   profile["pygments: paired punctuators"] = timeElapsed();
 
-  // break apart coffeescript arrow function signatures
+  // break apart coffeescript productions
   ( function () {
-    var rx = /@?[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
-    var loneArrow = /^[\-=]>$/;
-    var allWhitespace = /^\s+$/;
     var $$ = $('body.source .highlight pre, .highlight pre code.coffeescript');
-    var $fns = $( 'span.nf', $$ );
-    var text, el, i, match, html, part;
-    for ( i = 0; i < $fns.length; i++ ) {
-      el = $fns[i];
-      text = el.textContent;
-      if ( loneArrow.test( text ) ) continue;
-      html = '';
-      while ( ( match = rx.exec( text ) ) !== null ) {
-        part = match[0];
-        if ( allWhitespace.test( part ) ) {
-          html += part;
-        } else {
-          html += '<span>' + part + '</span>';
+
+    // arrow function signatures
+    ( function () {
+      var $fns = $( 'span.nf', $$ );
+      var text, el, i, match, html, part;
+      var rx = /@|[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
+      var loneArrow = /^[\-=]>$/;
+      var allWhitespace = /^\s+$/;
+      for ( i = 0; i < $fns.length; i++ ) {
+        el = $fns[i];
+        text = el.textContent;
+        if ( loneArrow.test( text ) ) continue;
+        html = '';
+        while ( ( match = rx.exec( text ) ) !== null ) {
+          part = match[0];
+          if ( allWhitespace.test( part ) ) {
+            html += part;
+          } else {
+            html += '<span>' + part + '</span>';
+          }
+        }
+        el.innerHTML = html;
+      }
+    }() );
+    profile["parse arrow signatures"] = timeElapsed();
+
+    // @-sigils
+    ( function () {
+      var $ivars = $( 'span.vi', $$ );
+      var rx = /^(@)(.+)/;
+      var i, el, match;
+      for ( i = 0; i < $ivars.length; i++ ) {
+        el = $ivars[i];
+        match = rx.exec( el.textContent );
+        if ( match != null ) {
+          el.innerHTML = '<span>@</span><span>' + match[2] + '</span>';
         }
       }
-      el.innerHTML = html;
-    }
+    }() );
+    profile["parse @-sigils"] = timeElapsed();
   }() );
-  profile["parse arrow signatures"] = timeElapsed();
 
   // classify operators by precedence
   ( function () {
