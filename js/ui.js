@@ -1168,6 +1168,7 @@ $( function () {
 
   var $selection;
   var rxThis = /^(?:@|this)$/;
+  var rxPrototype = /^(?:::|prototype)$/;
   var rxLNot = /^(?:\!|not)$/;
   var rxLAnd = /^(?:&&|and)$/;
   var rxLOr = /^(?:\|\||or)$/;
@@ -1184,7 +1185,8 @@ $( function () {
 
       if (
         tokenText === selectedText ||
-        rxThis.test( tokenText ) && rxThis.test( selectedText )
+        rxThis.test( tokenText ) && rxThis.test( selectedText ) ||
+        rxPrototype.test( tokenText ) && rxPrototype.test( selectedText )
       ) return true;
 
       if ( $this.hasClass('o') ) return (
