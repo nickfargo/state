@@ -1168,7 +1168,13 @@ $( function () {
   profile["query tokens"] = timeElapsed();
 
   var $container = $('body > .container');
-  var $locator = $('<div class="token-locator">').appendTo( $container );
+  var $locator = $('<canvas class="token-locator">').appendTo( $container );
+  var locatorCanvas = $locator[0];
+  var locatorCanvasContext = locatorCanvas.getContext('2d');
+
+  var INDICATOR_WIDTH = 8.0;
+  var INDICATOR_HEIGHT = 5.0;
+  var INDICATOR_HALF_HEIGHT = INDICATOR_HEIGHT / 2.0;
 
   var $selection;
   var rxThis       = /^(?:@|this)$/;
@@ -1183,21 +1189,32 @@ $( function () {
   var rxParen      = /^[()]$/;
 
   function updateTokenLocator () {
+
+    // Resize to window
+    var cWidth = locatorCanvas.width = INDICATOR_WIDTH;
+    var cHeight = locatorCanvas.height = window.innerHeight;
+
     if ( $selection == null ) {
       $locator.removeClass('visible');
       return;
     }
-    $locator.empty();
-    var $indicators = $('<div class="indicators">');
+
     var containerHeight = $container.height();
+    var c = locatorCanvasContext;
     var i, y;
+
+    c.fillStyle = 'rgba( 255, 238, 0, 0.707 )';
+    c.strokeStyle = 'rgba( 0, 0, 0, 0.1 )';
+    c.clearRect( 0, 0, cWidth, cHeight );
+
     for ( i = 0; i < $selection.length; i++ ) {
-      y = $selection[i].offsetTop / containerHeight;
-      y = ( ( 10000 * y )|0 ) / 100;
-      $('<div class="indicator" style="top:' + y + '%">')
-        .appendTo( $indicators );
+      y = cHeight * $( $selection[i] ).offset().top / containerHeight -
+        INDICATOR_HALF_HEIGHT;
+      c.fillRect( 0, y, INDICATOR_WIDTH, INDICATOR_HEIGHT );
+      c.strokeRect( 0.5, y, INDICATOR_WIDTH, INDICATOR_HEIGHT - 1 );
     }
-    $locator.append( $indicators ).addClass('visible');
+
+    $locator.addClass('visible');
   }
 
   function changeSelection ( event ) {
@@ -1246,6 +1263,7 @@ $( function () {
 
   $tokens.on( 'click', changeSelection );
   $(document).on( 'click', clearSelection );
+  $(window).on( 'resize', updateTokenLocator );
 });
 
 
