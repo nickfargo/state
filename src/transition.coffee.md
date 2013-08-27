@@ -62,7 +62,7 @@ an asynchronous transition.
 
         @action = expression.action or null
 
-        @_ = new @Content
+        @_ = new @Metaobject
 
         @aborted = no
 

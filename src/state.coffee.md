@@ -86,8 +86,8 @@ A bit mask indicates the attributes that can be inherited via protostates.
 These are keyed here as a placeholder, and will be valued with a forward import
 at the end of this class definition.
 
+      Metaobject: null
       Expression: null
-      Content: null
 
 
 
@@ -97,7 +97,7 @@ The constructor is limited to setting the references that define `this`
 `State`’s relations, and then computing its `attributes` bit mask based on
 those relations and the intrinsic heritability of each attribute.
 
-Only afterward is the `State`’s `Content`, as defined in a provided
+Only afterward is the `State`’s `Metaobject`, as defined in a provided
 `expression`, then `initialize`d into the instance, if necessary.
 
       constructor: ( base, @name, expression ) ->
@@ -260,10 +260,10 @@ realized state to the `substates` collection of its real superstate.
             substates[ name ] = this
           @attributes &= ~VIRTUAL
 
-A `State`’s `Content` is stored in an underscore `_` property; the existence of
-`@_` should always indicate a realized state.
+A `State`’s `Metaobject` is stored in an underscore `_` property; the
+existence of `@_` always implies a realized state.
 
-        @_ or = new @Content
+        @_ or = new @Metaobject
         @mutate expression if expression?
 
 Realizing a root state requires that, for each of the owner’s own methods, if
@@ -377,7 +377,7 @@ A non-root state must remove itself from its superstate.
 
 
 
-### [Content methods](#state--content-methods)
+### [Metaobject methods](#state--metaobject-methods)
 
 
 #### [express](#state--prototype--express)
@@ -1692,7 +1692,7 @@ Removes a transition expression from this state.
 
 ### [Forward imports](#state--forward-imports)
 
-    State::Content        = require './state-content'
+    State::Metaobject     = require './state-metaobject'
     State::Expression =
     StateExpression       = require './state-expression'
     StateEventEmitter     = require './state-event-emitter'

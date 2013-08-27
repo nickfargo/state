@@ -4,9 +4,9 @@
 
 
 
-## [StateContent](#state-content)
+## [StateMetaobject](#state-metaobject)
 
-    class StateContent
+    class StateMetaobject
 
       { useDispatchTables } = state.options
 
