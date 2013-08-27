@@ -933,13 +933,6 @@ $( function () {
     .addClass('nf');
   profile["pygments: arrows to `nf`"] = timeElapsed();
 
-  // classify identifier or key (`nv`) preceding function (`nf`) as `vf`
-  $( 'span.nf', $pre ).prev('span.nv').filter( function () {
-    return /[\w$]\s*=\s*$|[\w$'"]:\s+$/.test( $(this).text() );
-  })
-    .addClass('vf').removeClass('nv');
-  profile["pygments: function names"] = timeElapsed();
-
   // split trailing assignment operator from `nv|vi`
   $pre = $('.highlight pre');
   $( 'span.nv, span.vi, span.vf', $pre ).each( function () {
@@ -1084,6 +1077,68 @@ $( function () {
       }
     }() );
     profile["parse @-sigils"] = timeElapsed();
+
+    // property assignments
+    ( function () {
+      var lexer = /(?:[$_A-Za-z][$\w]*|[\.:]|\s+|[\+\-\*\/%&\|\^]?=)/g;
+      var rxTable = {
+        'nx'    : /^[$_A-Za-z][$\w]*$/,
+        'o mem' : /^\.$/,
+        'p'     : /^:$/,
+        ''      : /^\s+$/,
+        'o asn' : /^[\+\-\*\/%&\|\^]?=$/
+      };
+      var $nv = $( 'span.nv', $$ );
+      var i, el, text, tokens, match, length, tags, j, token, key, seq, html, tag;
+
+      for ( i = 0; i < $nv.length; i++ ) {
+        el = $nv[i];
+        text = el.textContent;
+
+        // lex out the tokens (including contiguous whitespace blocks)
+        tokens = [];
+        while ( match = lexer.exec( text ) ) tokens.push( match[0] );
+        length = tokens.length;
+        if ( length < 2 ) continue;
+
+        // do preliminary class-tagging of tokens
+        tags = [];
+        for ( j = 0; j < length; j++ ) {
+          token = tokens[j];
+          for ( key in rxTable ) if ( rxTable[ key ].test( token ) ) {
+            tags.push( key );
+            break;
+          }
+        }
+
+        // reclassify identifier tokens
+        for ( j = 0; j < length; j++ ) {
+          // create a tag sequence of [lookbehind, tag, lookahead]
+          seq = ( j > 0 ? tags[ j - 1 ] : '' ) + ',' +
+                ( tag = tags[j] ) + ',' +
+                ( j < length - 1 ? tags[ j + 1 ] : '' );
+          if ( /^,nx,$/.test( seq ) ) {
+            tags[j] = 'nv';
+          } else if ( /^o mem,nx,/.test( seq ) ) {
+            tags[j] = 'np';
+          }
+        }
+
+        // compile html string from tokens and tagged class attributes
+        html = '';
+        for ( j = 0; j < length; j++ ) {
+          tag = tags[j];
+          if ( tag ) {
+            html += '<span class="' + tag + '">' + tokens[j] + '</span>';
+          } else {
+            html += tokens[j];
+          }
+        }
+        if ( html ) $(el).replaceWith( $(html) );
+      }
+    }() );
+    profile["property assignments"] = timeElapsed();
+
   }() );
 
   // classify operators by precedence
@@ -1105,7 +1160,7 @@ $( function () {
       'lga' : /^(&&|and)$/,
       'lgo' : /^(\|\||or)$/,
       'exi' : /^\?$/,
-      'asn' : /^(=|[\?\+\-\*\/%&\^\|]=|<<=|>>>?=)$/,
+      'asn' : /^([\?\+\-\*\/%&\^\|]?=|<<=|>>>?=|::?)$/,
       'cma' : /^,$/,
       'fna' : /^[\-=]>$/
     };
@@ -1139,6 +1194,15 @@ $( function () {
     });
   }() );
   profile["pygments: operator precedence"] = timeElapsed();
+
+
+  // classify identifier or key (`nv`) preceding function (`nf`) as `vf`
+  $( '.highlight pre span.nf' )
+    .prev('span.o.asn')
+    .prev('span.nv, span.np')
+    .addClass('vf').removeClass('nv np');
+  profile["pygments: function names"] = timeElapsed();
+
 
   console.log( profile );
 });
@@ -1191,8 +1255,8 @@ $( function () {
   function updateTokenLocator () {
 
     // Resize to window
-    var cWidth = locatorCanvas.width = INDICATOR_WIDTH;
-    var cHeight = locatorCanvas.height = window.innerHeight;
+    var canvasWidth = locatorCanvas.width = INDICATOR_WIDTH;
+    var canvasHeight = locatorCanvas.height = window.innerHeight;
 
     if ( $selection == null ) {
       $locator.removeClass('visible');
@@ -1205,11 +1269,12 @@ $( function () {
 
     c.fillStyle = 'rgba( 255, 238, 0, 0.707 )';
     c.strokeStyle = 'rgba( 0, 0, 0, 0.1 )';
-    c.clearRect( 0, 0, cWidth, cHeight );
+    c.clearRect( 0, 0, canvasWidth, canvasHeight );
 
     for ( i = 0; i < $selection.length; i++ ) {
-      y = cHeight * $( $selection[i] ).offset().top / containerHeight -
-        INDICATOR_HALF_HEIGHT;
+      y = $( $selection[i] ).offset().top;
+      if ( !y ) continue;
+      y = canvasHeight * y / containerHeight - INDICATOR_HALF_HEIGHT;
       c.fillRect( 0, y, INDICATOR_WIDTH, INDICATOR_HEIGHT );
       c.strokeRect( 0.5, y, INDICATOR_WIDTH, INDICATOR_HEIGHT - 1 );
     }

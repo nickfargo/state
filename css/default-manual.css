@@ -1963,9 +1963,13 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
 .nl  { color: #A0A000 }                     /* Name.Label */
 .nn  { color: #0000FF; font-weight: bold }  /* Name.Namespace */
 .nt  { color: #954121; font-weight: bold }  /* Name.Tag */
+.np /* Name.Property */ {
+  color: #44966E;
+  text-shadow: 0 0 1px rgba(68,150,110,0.5);
+}
 .nv /* Name.Variable */ {
   color: #08A352;
-  text-shadow: 0 0 1px rgba(8,163,107,0.3);
+  text-shadow: 0 0 1px rgba(8,163,82,0.5);
 }
 .ow  { color: #AA22FF; font-weight: bold }  /* Operator.Word */
 .w   { color: #bbbbbb }                     /* Text.Whitespace */
