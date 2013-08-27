@@ -5,14 +5,27 @@ var spawn = require('child_process').spawn;
 start();
 
 
-function start () { mocha(0); }
+function start () { coffee(0); }
+
+function coffee ( exitcode ) {
+  if ( exitcode ) process.exit( exitcode );
+  var cmd = 'coffee';
+  var args = [
+      "-o test/lib/",
+      "-c test/src/"
+    ].join(' ').split(' ');
+  var child = spawn( cmd, args );
+  child.stdout.pipe( process.stdout, { end: false } );
+  child.stderr.pipe( process.stderr, { end: false } );
+  child.on( 'exit', mocha );
+}
 
 function mocha ( exitcode ) {
   if ( exitcode ) process.exit( exitcode );
   var cmd = 'mocha';
   var args = [
-      "--compilers coffee:coffee-script,coffee.md:coffee-script",
-      "--colors"
+      "--colors",
+      "--recursive"
     ].join(' ').split(' ').concat( process.argv.slice(2) );
   var child = spawn( cmd, args );
   child.stdout.pipe( process.stdout, { end: false } );
