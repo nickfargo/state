@@ -320,66 +320,6 @@ add virtual states to it until the whole superstate chain is represented.
         s
 
 
-#### [destroy](#state--prototype--destroy)
-
-Attempts to cleanly destroy this state and all of its substates. A `destroy`
-event is issued to each state after it has been destroyed.
-
-> [destroy (method)](/api/#state--methods--destroy)
-> [destroy (event)](/api/#state--events--destroy)
-
-      destroy: ->
-        { owner, root, superstate, _ } = this
-        { methods, events, substates } = _ if _
-
-If a transition is underway that involves any state other than the root, then
-the state cannot be destroyed.
-
-        if transition = root._transition
-          if this is root then do transition.abort
-          else return no if ( transition.origin.isIn( this ) or
-            transition.target.isIn( this ) )
-
-Descendant states are destroyed bottom-up.
-
-        do substate.destroy for own name, substate of substates
-
-The final event emitted is `destroy`.
-
-        @emit 'destroy', VIA_PROTO
-        if events then for key, event of events
-          do event.destroy
-          delete events[ key ]
-
-When the root state is destroyed, the owner gets back its original methods, and
-the corresponding dispatcher for each such method is destroyed, along with the
-owner’s accessor method.
-
-        if this is root
-          for name of methods when dispatcher = owner[ name ]
-            continue unless dispatcher.isDispatcher
-            if ownerMethod = dispatcher.original
-            then owner[ name ] = ownerMethod
-            else delete owner[ name ]
-          delete owner[ @accessorName ]
-
-A flag is set that can be observed later by anything retaining a reference to
-this state (e.g. a memoization) which would be withholding it from being
-garbage-collected.
-
-        @attributes |= DESTROYED
-
-A non-root state must remove itself from its superstate.
-
-        superstate?.removeSubstate @name
-
-        yes
-
-
-
-### [Metaobject methods](#state--metaobject-methods)
-
-
 #### [express](#state--prototype--express)
 
 Returns an **expression** of `this` state — a data structure that contains an
@@ -580,6 +520,62 @@ which is emitted as part of a `mutate` event.
               @emit 'mutate', [ expr, residue, before, after ], VIA_PROTO
 
           this
+
+
+#### [destroy](#state--prototype--destroy)
+
+Attempts to cleanly destroy this state and all of its substates. A `destroy`
+event is issued to each state after it has been destroyed.
+
+> [destroy (method)](/api/#state--methods--destroy)
+> [destroy (event)](/api/#state--events--destroy)
+
+      destroy: ->
+        { owner, root, superstate, _ } = this
+        { methods, events, substates } = _ if _
+
+If a transition is underway that involves any state other than the root, then
+the state cannot be destroyed.
+
+        if transition = root._transition
+          if this is root then do transition.abort
+          else return no if ( transition.origin.isIn( this ) or
+            transition.target.isIn( this ) )
+
+Descendant states are destroyed bottom-up.
+
+        do substate.destroy for own name, substate of substates
+
+The final event emitted is `destroy`.
+
+        @emit 'destroy', VIA_PROTO
+        if events then for key, event of events
+          do event.destroy
+          delete events[ key ]
+
+When the root state is destroyed, the owner gets back its original methods, and
+the corresponding dispatcher for each such method is destroyed, along with the
+owner’s accessor method.
+
+        if this is root
+          for name of methods when dispatcher = owner[ name ]
+            continue unless dispatcher.isDispatcher
+            if ownerMethod = dispatcher.original
+            then owner[ name ] = ownerMethod
+            else delete owner[ name ]
+          delete owner[ @accessorName ]
+
+A flag is set that can be observed later by anything retaining a reference to
+this state (e.g. a memoization) which would be withholding it from being
+garbage-collected.
+
+        @attributes |= DESTROYED
+
+A non-root state must remove itself from its superstate.
+
+        superstate?.removeSubstate @name
+
+        yes
 
 
 
