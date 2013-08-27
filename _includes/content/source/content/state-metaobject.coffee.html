@@ -1,0 +1,37 @@
+<div class="source-content">
+  
+    
+    <div class="text">
+      
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="nv">state = </span><span class="nx">require</span> <span class="s1">&#39;./state-function&#39;</span>
+
+<span class="nv">module.exports =</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h2><a href="#state-metaobject">StateMetaobject</a></h2>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre><span class="k">class</span> <span class="nx">StateMetaobject</span>
+
+  <span class="p">{</span> <span class="nx">useDispatchTables</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">state</span><span class="p">.</span><span class="nx">options</span>
+
+  <span class="nv">constructor: </span><span class="o">-&gt;</span>
+    <span class="vi">@data         = </span><span class="kc">null</span>
+    <span class="vi">@methods      = </span><span class="kc">null</span>
+    <span class="vi">@events       = </span><span class="kc">null</span>
+    <span class="vi">@guards       = </span><span class="kc">null</span>
+    <span class="vi">@substates    = </span><span class="kc">null</span>
+    <span class="vi">@transitions  = </span><span class="kc">null</span>
+
+    <span class="vi">@__dispatch_table__ = </span><span class="kc">null</span> <span class="k">if</span> <span class="nx">useDispatchTables</span>
+
+</pre></div>
+    </div>
+  
+</div>

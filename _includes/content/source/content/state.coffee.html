@@ -123,8 +123,8 @@ at the end of this class definition.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>  <span class="nv">Expression: </span><span class="kc">null</span>
-  <span class="nv">Content: </span><span class="kc">null</span></pre></div>
+      <div class="highlight"><pre>  <span class="nv">Metaobject: </span><span class="kc">null</span>
+  <span class="nv">Expression: </span><span class="kc">null</span></pre></div>
     </div>
   
     
@@ -134,7 +134,7 @@ at the end of this class definition.</p>
 <p>The constructor is limited to setting the references that define <code>this</code>
 <code>State</code>’s relations, and then computing its <code>attributes</code> bit mask based on
 those relations and the intrinsic heritability of each attribute.</p>
-<p>Only afterward is the <code>State</code>’s <code>Content</code>, as defined in a provided
+<p>Only afterward is the <code>State</code>’s <code>Metaobject</code>, as defined in a provided
 <code>expression</code>, then <code>initialize</code>d into the instance, if necessary.</p>
 
     </div>
@@ -371,12 +371,12 @@ realized state to the <code>substates</code> collection of its real superstate.<
     
     <div class="text">
       
-<p>A <code>State</code>’s <code>Content</code> is stored in an underscore <code>_</code> property; the existence of
-<code>@_</code> should always indicate a realized state.</p>
+<p>A <code>State</code>’s <code>Metaobject</code> is stored in an underscore <code>_</code> property; the
+existence of <code>@_</code> always implies a realized state.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>    <span class="nx">@_</span> <span class="o">or</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">@Content</span>
+      <div class="highlight"><pre>    <span class="nx">@_</span> <span class="o">or</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">@Metaobject</span>
     <span class="nx">@mutate</span> <span class="nx">expression</span> <span class="k">if</span> <span class="nx">expression</span><span class="o">?</span></pre></div>
     </div>
   
@@ -470,104 +470,6 @@ add virtual states to it until the whole superstate chain is represented.</p>
     
     <div class="text">
       
-<h4><a href="#state--prototype--destroy">destroy</a></h4>
-<p>Attempts to cleanly destroy this state and all of its substates. A <code>destroy</code>
-event is issued to each state after it has been destroyed.</p>
-<blockquote>
-<p><a href="/api/#state--methods--destroy">destroy (method)</a>
-<a href="/api/#state--events--destroy">destroy (event)</a></p>
-</blockquote>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>  <span class="nv">destroy: </span><span class="o">-&gt;</span>
-    <span class="p">{</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">root</span><span class="p">,</span> <span class="nx">superstate</span><span class="p">,</span> <span class="nx">_</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
-    <span class="p">{</span> <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">substates</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">_</span> <span class="k">if</span> <span class="nx">_</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>If a transition is underway that involves any state other than the root, then
-the state cannot be destroyed.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>    <span class="k">if</span> <span class="nv">transition = </span><span class="nx">root</span><span class="p">.</span><span class="nx">_transition</span>
-      <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">root</span> <span class="k">then</span> <span class="nx">do</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">abort</span>
-      <span class="k">else</span> <span class="k">return</span> <span class="kc">no</span> <span class="k">if</span> <span class="p">(</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">origin</span><span class="p">.</span><span class="nx">isIn</span><span class="p">(</span> <span class="k">this</span> <span class="p">)</span> <span class="o">or</span>
-        <span class="nx">transition</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">isIn</span><span class="p">(</span> <span class="k">this</span> <span class="p">)</span> <span class="p">)</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>Descendant states are destroyed bottom-up.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>    <span class="nx">do</span> <span class="nx">substate</span><span class="p">.</span><span class="nx">destroy</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">substate</span> <span class="k">of</span> <span class="nx">substates</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>The final event emitted is <code>destroy</code>.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>    <span class="nx">@emit</span> <span class="s1">&#39;destroy&#39;</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
-    <span class="k">if</span> <span class="nx">events</span> <span class="k">then</span> <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">event</span> <span class="k">of</span> <span class="nx">events</span>
-      <span class="nx">do</span> <span class="nx">event</span><span class="p">.</span><span class="nx">destroy</span>
-      <span class="k">delete</span> <span class="nx">events</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>When the root state is destroyed, the owner gets back its original methods, and
-the corresponding dispatcher for each such method is destroyed, along with the
-owner’s accessor method.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>    <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">root</span>
-      <span class="k">for</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">methods</span> <span class="k">when</span> <span class="nv">dispatcher = </span><span class="nx">owner</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span>
-        <span class="k">continue</span> <span class="nx">unless</span> <span class="nx">dispatcher</span><span class="p">.</span><span class="nx">isDispatcher</span>
-        <span class="k">if</span> <span class="nv">ownerMethod = </span><span class="nx">dispatcher</span><span class="p">.</span><span class="nx">original</span>
-        <span class="k">then</span> <span class="nx">owner</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">ownerMethod</span>
-        <span class="k">else</span> <span class="k">delete</span> <span class="nx">owner</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span>
-      <span class="k">delete</span> <span class="nx">owner</span><span class="p">[</span> <span class="nx">@accessorName</span> <span class="p">]</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>A flag is set that can be observed later by anything retaining a reference to
-this state (e.g. a memoization) which would be withholding it from being
-garbage-collected.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>    <span class="nx">@attributes</span> <span class="o">|=</span> <span class="nx">DESTROYED</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>A non-root state must remove itself from its superstate.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>    <span class="nx">superstate</span><span class="o">?</span><span class="p">.</span><span class="nx">removeSubstate</span> <span class="nx">@name</span>
-
-    <span class="kc">yes</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<h3><a href="#state--content-methods">Content methods</a></h3>
 <h4><a href="#state--prototype--express">express</a></h4>
 <p>Returns an <strong>expression</strong> of <code>this</code> state — a data structure that contains an
 exported snapshot of the state’s own contents.</p>
@@ -848,6 +750,103 @@ which is emitted as part of a <code>mutate</code> event.</p>
           <span class="nx">@emit</span> <span class="s1">&#39;mutate&#39;</span><span class="p">,</span> <span class="p">[</span> <span class="nx">expr</span><span class="p">,</span> <span class="nx">residue</span><span class="p">,</span> <span class="nx">before</span><span class="p">,</span> <span class="nx">after</span> <span class="p">],</span> <span class="nx">VIA_PROTO</span>
 
       <span class="k">this</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h4><a href="#state--prototype--destroy">destroy</a></h4>
+<p>Attempts to cleanly destroy this state and all of its substates. A <code>destroy</code>
+event is issued to each state after it has been destroyed.</p>
+<blockquote>
+<p><a href="/api/#state--methods--destroy">destroy (method)</a>
+<a href="/api/#state--events--destroy">destroy (event)</a></p>
+</blockquote>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">destroy: </span><span class="o">-&gt;</span>
+    <span class="p">{</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">root</span><span class="p">,</span> <span class="nx">superstate</span><span class="p">,</span> <span class="nx">_</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+    <span class="p">{</span> <span class="nx">methods</span><span class="p">,</span> <span class="nx">events</span><span class="p">,</span> <span class="nx">substates</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">_</span> <span class="k">if</span> <span class="nx">_</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>If a transition is underway that involves any state other than the root, then
+the state cannot be destroyed.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="nv">transition = </span><span class="nx">root</span><span class="p">.</span><span class="nx">_transition</span>
+      <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">root</span> <span class="k">then</span> <span class="nx">do</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">abort</span>
+      <span class="k">else</span> <span class="k">return</span> <span class="kc">no</span> <span class="k">if</span> <span class="p">(</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">origin</span><span class="p">.</span><span class="nx">isIn</span><span class="p">(</span> <span class="k">this</span> <span class="p">)</span> <span class="o">or</span>
+        <span class="nx">transition</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">isIn</span><span class="p">(</span> <span class="k">this</span> <span class="p">)</span> <span class="p">)</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>Descendant states are destroyed bottom-up.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nx">do</span> <span class="nx">substate</span><span class="p">.</span><span class="nx">destroy</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">substate</span> <span class="k">of</span> <span class="nx">substates</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>The final event emitted is <code>destroy</code>.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nx">@emit</span> <span class="s1">&#39;destroy&#39;</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
+    <span class="k">if</span> <span class="nx">events</span> <span class="k">then</span> <span class="k">for</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">event</span> <span class="k">of</span> <span class="nx">events</span>
+      <span class="nx">do</span> <span class="nx">event</span><span class="p">.</span><span class="nx">destroy</span>
+      <span class="k">delete</span> <span class="nx">events</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>When the root state is destroyed, the owner gets back its original methods, and
+the corresponding dispatcher for each such method is destroyed, along with the
+owner’s accessor method.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">root</span>
+      <span class="k">for</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">methods</span> <span class="k">when</span> <span class="nv">dispatcher = </span><span class="nx">owner</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span>
+        <span class="k">continue</span> <span class="nx">unless</span> <span class="nx">dispatcher</span><span class="p">.</span><span class="nx">isDispatcher</span>
+        <span class="k">if</span> <span class="nv">ownerMethod = </span><span class="nx">dispatcher</span><span class="p">.</span><span class="nx">original</span>
+        <span class="k">then</span> <span class="nx">owner</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">ownerMethod</span>
+        <span class="k">else</span> <span class="k">delete</span> <span class="nx">owner</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span>
+      <span class="k">delete</span> <span class="nx">owner</span><span class="p">[</span> <span class="nx">@accessorName</span> <span class="p">]</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>A flag is set that can be observed later by anything retaining a reference to
+this state (e.g. a memoization) which would be withholding it from being
+garbage-collected.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nx">@attributes</span> <span class="o">|=</span> <span class="nx">DESTROYED</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>A non-root state must remove itself from its superstate.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nx">superstate</span><span class="o">?</span><span class="p">.</span><span class="nx">removeSubstate</span> <span class="nx">@name</span>
+
+    <span class="kc">yes</span></pre></div>
     </div>
   
     
@@ -2449,7 +2448,7 @@ on this state.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre><span class="nv">State::Content        = </span><span class="nx">require</span> <span class="s1">&#39;./state-content&#39;</span>
+      <div class="highlight"><pre><span class="nv">State::Metaobject     = </span><span class="nx">require</span> <span class="s1">&#39;./state-metaobject&#39;</span>
 <span class="nv">State::Expression =</span>
 <span class="nv">StateExpression       = </span><span class="nx">require</span> <span class="s1">&#39;./state-expression&#39;</span>
 <span class="nv">StateEventEmitter     = </span><span class="nx">require</span> <span class="s1">&#39;./state-event-emitter&#39;</span>
