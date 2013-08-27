@@ -29,7 +29,7 @@ Here we observe state guards imposing the following restrictions:
 The result is that `object` is initially constrained to a progression from state `A` to `C` or its descendant states; exiting the `C` domain is initially only possible by transitioning to `D`; from `D` it can only transition back into `C`, however on this and subsequent visits to `C`, it has the option of transitioning to either `B` or `D`, while `B` insists on directly returning the object’s state only to one of its siblings `C` or `D`.
 
 > [`RootState evaluateGuard`](/source/root-state.html#root-state--private--evaluate-guard)
-> [`RootState::getTransitionExpressionFor`](/source/root-state.html#root-state--prototype--get-transition-expression-for)
+> [`RootState::getTransitionExpression`](/source/root-state.html#root-state--prototype--get-transition-expression)
 
 #### [Transition guards](#concepts--guards--transition-guards)
 
@@ -44,7 +44,7 @@ Transition expressions may also include `admit` and `release` guards. Transition
 {% endhighlight %}
 
 > [`RootState evaluateGuard`](/source/root-state.html#root-state--private--evaluate-guard)
-> [`RootState::getTransitionExpressionFor`](/source/root-state.html#root-state--prototype--get-transition-expression-for)
+> [`RootState::getTransitionExpression`](/source/root-state.html#root-state--prototype--get-transition-expression)
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--guards">Guards</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>
