@@ -10,6 +10,8 @@
 
 * **(breaking)** — Changed order of parameters for `State::substates` from `( deep, virtual )` to `( virtual, deep )`; public usage of the `deep` parameter is deprecated in favor of `State::descendants`.
 
+* Renamed `StateContent` to `StateMetaobject`.
+
 
 
 ### 0.1.2 *(released)*
