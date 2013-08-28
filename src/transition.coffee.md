@@ -41,19 +41,12 @@ it tracks the transition’s progression as it traverses from `source` through
 the domain and on to `target`.
 
         @superstate = source
-
-        root = source.root
+        @root = root = source.root
         throw ReferenceError unless target.root is root
-        @root = root
-
         @owner = root.owner
-
         @target = target
         @source = source
-        @origin = if source instanceof Transition
-        then source.origin
-        else source
-
+        @origin = source.origin ? source
         @callback = callback
 
 The `action`, if provided, is responsible for calling `end`, either in the same
@@ -63,9 +56,7 @@ an asynchronous transition.
         @action = expression.action or null
 
         @_ = new @Metaobject
-
         @aborted = no
-
         @initialize expression
 
 
