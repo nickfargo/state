@@ -41,6 +41,7 @@ it tracks the transition’s progression as it traverses from `source` through
 the domain and on to `target`.
 
         @superstate = source
+
         @root = root = source.root
         throw ReferenceError unless target.root is root
         @owner = root.owner
