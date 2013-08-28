@@ -1,4 +1,4 @@
-**State.js** is a JavaScript library for implementing a system of [hierarchical states](/docs/#concepts--inheritance--superstates-and-substates) in the context of an **owner** object, where the [`State`](/api/#state)s of an owner may [inherit from the `State`s of its prototypes](/docs/#concepts--inheritance--protostates-and-epistates).
+**State.js** is a JavaScript library for implementing a system of [hierarchical states](/docs/#concepts--inheritance--superstates-and-substates) in the context of an **owner** object, where the [`State`](/api/#state)s of an owner may [inherit from the `State`s of its prototypes](/docs/#concepts--inheritance--protostates-and-epistates), and each owner may **transition** independently between its own and inherited `State`s.
 
 {% highlight javascript %}
 {% include examples/index--object-model.js %}
