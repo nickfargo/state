@@ -184,19 +184,7 @@ For each method defined in any of the owner’s states, a **dispatcher** must be
 created and assigned on the owner itself at the `methodName` key. Calls to
 `owner.methodName` are then delegated by the dispatcher to the owner’s current
 state, from which the appropriate implementation for the method will be located
-and applied, and its result returned back to the original caller.
-
-When `addMethod` is called, if an identically named method is already present
-on the owner, that function is added as a method of the owner’s root state. In
-this way the owner’s original implementation remains accessible as the “default
-behavior” should no current or active state contain an implementation for that
-method.
-
-Stateful methods are applied in the context of the `State` to which they
-belong, or, if a method is inherited from a protostate, the context will be the
-corresponding virtual state in the local state tree. For methods relocated to
-the root state as described above, however, the context appropriately remains
-bound to the owner object.
+and applied, and its result returned to the call site.
 
 > [`addMethod`](#state--prototype--add-method)
 > [Dispatchers](/docs/#concepts--methods--dispatchers)
@@ -241,7 +229,6 @@ Initialization of a `State`’s contents is offloaded from the
 [`initialize`](#state--prototype--initialize) to here.
 
 > [`virtualize`](#state--prototype--virtualize)
-
 > [realize](/api/#state--methods--realize)
 > [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
 
