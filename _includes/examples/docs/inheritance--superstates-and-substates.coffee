@@ -1,22 +1,30 @@
-class Person
-  constructor: ->
-    @give = ( to, what ) -> to.receive this, what; this
-    @receive = ( from, what ) -> this
-    @greet = -> "Hello."
+player = {}
+state player,
+  Alive: state
+    Stationary: state
+      drawWeapon: ->
+        @weapon.state '-> Sighted'
+    Moving: state
+      drawWeapon: ->
+        @weapon.state '-> Drawn'
+      Walking: state
+      Running: state
+        Sprinting: state
+          drawWeapon: ->
+            @weapon.state '-> Held'
+  Dead: state
+    enter: ->
+      do @weapon.drop
 
-    state this,
-      Formal:
-        greet: ( person ) -> "How do you do?"
+weapon = {}
+state weapon,
+  drop: ->
+    @state '-> Dropped'
 
-      Informal:
-        greet: ( person ) -> "Hi!"
-
-        Familiar:
-          hug: ( person ) -> @give person, 'O'
-          greet: ( person ) -> @hug person
-
-          Intimate:
-            kiss: ( person ) -> @give person, 'X'
-            greet: state.bind ( person ) ->
-              @superstate.call 'greet', person
-              @owner.kiss person
+  Stowed: state
+  Holstered: state
+  Held: state
+    Drawn: state
+      Sighted: state
+  Dropped: state
+    drop: -> # no-op
