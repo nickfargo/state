@@ -329,17 +329,7 @@ those attributes out of the protostate before inheriting.</p>
 created and assigned on the owner itself at the <code>methodName</code> key. Calls to
 <code>owner.methodName</code> are then delegated by the dispatcher to the owner’s current
 state, from which the appropriate implementation for the method will be located
-and applied, and its result returned back to the original caller.</p>
-<p>When <code>addMethod</code> is called, if an identically named method is already present
-on the owner, that function is added as a method of the owner’s root state. In
-this way the owner’s original implementation remains accessible as the “default
-behavior” should no current or active state contain an implementation for that
-method.</p>
-<p>Stateful methods are applied in the context of the <code>State</code> to which they
-belong, or, if a method is inherited from a protostate, the context will be the
-corresponding virtual state in the local state tree. For methods relocated to
-the root state as described above, however, the context appropriately remains
-bound to the owner object.</p>
+and applied, and its result returned to the call site.</p>
 <blockquote>
 <p><a href="#state--prototype--add-method"><code>addMethod</code></a>
 <a href="/docs/#concepts--methods--dispatchers">Dispatchers</a></p>
@@ -389,8 +379,8 @@ bound to the owner object.</p>
 <a href="#state--constructor">constructor</a> via
 <a href="#state--prototype--initialize"><code>initialize</code></a> to here.</p>
 <blockquote>
-<p><a href="#state--prototype--virtualize"><code>virtualize</code></a></p>
-<p><a href="/api/#state--methods--realize">realize</a>
+<p><a href="#state--prototype--virtualize"><code>virtualize</code></a>
+<a href="/api/#state--methods--realize">realize</a>
 <a href="/docs/#concepts--inheritance--virtual-epistates">Virtual epistates</a></p>
 </blockquote>
 
