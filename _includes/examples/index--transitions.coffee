@@ -1,4 +1,4 @@
-class ContainerView
+class Container extends View
   state @::, 'abstract',
     Grid: state 'default initial'
     List: state

@@ -1,18 +1,17 @@
+# A bit of predefined behavior.
+theRomansDo =
+  Casual:
+    greet: -> "Salve!"
+  Formal:
+    greet: -> "Quid agis?"
 
-class Traveler extends Person
+# Returns a boxed function that instills an enclosed behavior.
+doAs = ( behavior ) -> state.bind -> @mutate behavior; return
 
-  # A bit of behavior.
-  theRomansDo =
-    Casual:
-      greet: -> "Salve!"
-    Formal:
-      greet: -> "Quid agis?"
 
-  # Returns a boxed function that instills an enclosed behavior.
-  doAs = (behavior) -> state.bind -> @mutate behavior; return
-
+class Traveler extends Actor
   state @::, 'mutable abstract',
-    travelTo: state.bind (place) -> @emit "in#{ place }"
+    travelTo: state.bind ( place ) -> @emit "in#{ place }"
 
     events:
       inRome: doAs theRomansDo

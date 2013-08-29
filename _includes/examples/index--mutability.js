@@ -1,8 +1,4 @@
-function Traveler () {}
-Traveler.prototype = Object.create( Person );
-Traveler.prototype.constructor = Traveler;
-
-// A bit of behavior.
+// A bit of predefined behavior.
 var theRomansDo = {
     Formal: {
         greet: function () { return "Quid agis?"; }
@@ -18,6 +14,11 @@ function doAs ( behavior ) {
         this.mutate( behavior );
     });
 }
+
+
+function Traveler () {}
+Traveler.prototype = Object.create( Actor );
+Traveler.prototype.constructor = Traveler;
 
 state( Traveler.prototype, 'mutable abstract', {
     travelTo: state.bind( function ( place ) {

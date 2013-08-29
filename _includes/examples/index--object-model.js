@@ -1,7 +1,7 @@
-function Person () {}
+function Actor () {}
 
 // Implement a state tree on the constructor’s prototype.
-state( Person.prototype, {
+state( Actor.prototype, {
     Casual: {
         greet: function () { return "Hi!"; }
     },
@@ -10,10 +10,9 @@ state( Person.prototype, {
     }
 });
 
-
-// Constructor instances will inherit the prototype’s state tree.
-var bloke = new Person;
-var dandy = new Person;
+// Instances will inherit states from the prototype’s state tree.
+var bloke = new Actor;
+var dandy = new Actor;
 
 // Each instance independently transitions to a particular State.
 bloke.state('-> Casual');   // >>> State 'Casual'

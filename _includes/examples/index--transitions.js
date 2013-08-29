@@ -1,5 +1,8 @@
-function ContainerView () {}
-state( ContainerView.prototype, 'abstract' {
+function Container () {}
+Container.prototype = Object.create( View );
+Container.prototype.constructor = Container;
+
+state( Container.prototype, 'abstract', {
     Grid: state('default initial'),
     List: state,
 

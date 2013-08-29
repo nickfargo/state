@@ -1,4 +1,4 @@
-class Person
+class Actor
   # Implement a state tree on the constructor’s prototype.
   state @::,
     Casual:
@@ -6,10 +6,9 @@ class Person
     Formal:
       greet: -> "How do you do?"
 
-
-# Constructor instances will inherit the prototype’s state tree.
-bloke = new Person
-dandy = new Person
+# Instances will inherit states from the prototype’s state tree.
+bloke = new Actor
+dandy = new Actor
 
 # Each instance independently transitions to a particular State.
 bloke.state '-> Casual'    # >>> State 'Casual'
