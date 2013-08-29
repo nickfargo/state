@@ -1,6 +1,26 @@
-var player = {};
-state( player, {
+function Player () {
+    this.health = 100;
+    this.weapon = new Weapon;
+}
+state( Player.prototype, {
     Alive: state({
+        setHealth: function ( value ) {
+            if ( 0 < value ) {
+                this.health = value;
+            } else {
+                this.health = 0;
+                this.state('-> Dead');
+            }
+        },
+
+        pickUpWeapon: function ( weapon ) {
+            this.dropWeapon();
+        },
+        dropWeapon: function () {
+            this.weapon.state('-> Dropped');
+            this.weapon = null;
+        },
+
         Stationary: state({
             drawWeapon: function () {
                 this.weapon.state('-> Sighted');
@@ -22,17 +42,13 @@ state( player, {
     }),
     Dead: state({
         enter: function () {
-            this.weapon.drop();
+            this.dropWeapon();
         }
     })
 });
 
-var weapon = {};
-state( weapon, {
-    drop: function () {
-        this.state('-> Dropped');
-    },
-
+function Weapon () {}
+state( Weapon.prototype, {
     Stowed: state,
     Holstered: state,
     Held: state({
@@ -40,7 +56,5 @@ state( weapon, {
             Sighted: state
         })
     }),
-    Dropped: state({
-        drop: function () {} // no-op
-    })
+    Dropped: state
 });

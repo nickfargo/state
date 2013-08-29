@@ -1,30 +1,40 @@
-player = {}
-state player,
-  Alive: state
-    Stationary: state
-      drawWeapon: ->
-        @weapon.state '-> Sighted'
-    Moving: state
-      drawWeapon: ->
-        @weapon.state '-> Drawn'
-      Walking: state
-      Running: state
-        Sprinting: state
-          drawWeapon: ->
-            @weapon.state '-> Held'
-  Dead: state
-    enter: ->
-      do @weapon.drop
+class Player
+  constructor: ->
+    @health = 100
+    @weapon = new Weapon
 
-weapon = {}
-state weapon,
-  drop: ->
-    @state '-> Dropped'
+  state @::, 'abstract',
+    Alive: state 'default',
+      setHealth: ( value ) ->
+        if 0 < value then @health = value
+        else @health = 0; @state '-> Dead'
 
-  Stowed: state
-  Holstered: state
-  Held: state
-    Drawn: state
-      Sighted: state
-  Dropped: state
-    drop: -> # no-op
+      pickUpWeapon: ( weapon ) ->
+        do @dropWeapon
+      dropWeapon: ->
+        @weapon.state '-> Dropped'
+        @weapon = null
+
+      Stationary: state
+        drawWeapon: ->
+          @weapon.state '-> Sighted'
+      Moving: state 'abstract',
+        drawWeapon: ->
+          @weapon.state '-> Drawn'
+        Walking: state
+        Running: state 'default'
+          Sprinting: state
+            drawWeapon: ->
+              @weapon.state '-> Held'
+    Dead: state 'final',
+      enter: ->
+        do @dropWeapon
+
+class Weapon
+  state @::,
+    Stowed: state
+    Holstered: state
+    Held: state
+      Drawn: state
+        Sighted: state
+    Dropped: state
