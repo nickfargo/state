@@ -62,18 +62,12 @@ the domain and on to <code>target</code>.</p>
     <div class="code">
       <div class="highlight"><pre>    <span class="vi">@superstate = </span><span class="nx">source</span>
 
-    <span class="nv">root = </span><span class="nx">source</span><span class="p">.</span><span class="nx">root</span>
+    <span class="vi">@root = </span><span class="nv">root = </span><span class="nx">source</span><span class="p">.</span><span class="nx">root</span>
     <span class="k">throw</span> <span class="nx">ReferenceError</span> <span class="nx">unless</span> <span class="nx">target</span><span class="p">.</span><span class="nx">root</span> <span class="o">is</span> <span class="nx">root</span>
-    <span class="vi">@root = </span><span class="nx">root</span>
-
     <span class="vi">@owner = </span><span class="nx">root</span><span class="p">.</span><span class="nx">owner</span>
-
     <span class="vi">@target = </span><span class="nx">target</span>
     <span class="vi">@source = </span><span class="nx">source</span>
-    <span class="vi">@origin = </span><span class="k">if</span> <span class="nx">source</span> <span class="k">instanceof</span> <span class="nx">Transition</span>
-    <span class="k">then</span> <span class="nx">source</span><span class="p">.</span><span class="nx">origin</span>
-    <span class="k">else</span> <span class="nx">source</span>
-
+    <span class="vi">@origin = </span><span class="nx">source</span><span class="p">.</span><span class="nx">origin</span> <span class="o">?</span> <span class="nx">source</span>
     <span class="vi">@callback = </span><span class="nx">callback</span></pre></div>
     </div>
   
@@ -89,9 +83,7 @@ an asynchronous transition.</p>
       <div class="highlight"><pre>    <span class="vi">@action = </span><span class="nx">expression</span><span class="p">.</span><span class="nx">action</span> <span class="o">or</span> <span class="kc">null</span>
 
     <span class="vi">@_ = </span><span class="k">new</span> <span class="nx">@Metaobject</span>
-
     <span class="vi">@aborted = </span><span class="kc">no</span>
-
     <span class="nx">@initialize</span> <span class="nx">expression</span></pre></div>
     </div>
   
