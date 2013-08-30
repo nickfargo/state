@@ -5,6 +5,8 @@ class Player
 
   state @::, 'abstract',
     Alive: state 'default',
+      exit: -> do @dropWeapon
+
       setHealth: ( value ) ->
         if 0 < value then @health = value
         else @health = 0; @state '-> Dead'
@@ -27,9 +29,7 @@ class Player
           Sprinting: state
             drawWeapon: ->
               @weapon.state '-> Held'
-    Dead: state 'final',
-      enter: ->
-        do @dropWeapon
+    Dead: state 'final'
 
 class Weapon
   state @::,

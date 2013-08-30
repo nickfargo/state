@@ -4,6 +4,10 @@ function Player () {
 }
 state( Player.prototype, {
     Alive: state({
+        exit: function () {
+            this.dropWeapon();
+        },
+
         setHealth: function ( value ) {
             if ( 0 < value ) {
                 this.health = value;
@@ -41,11 +45,7 @@ state( Player.prototype, {
             })
         })
     }),
-    Dead: state({
-        enter: function () {
-            this.dropWeapon();
-        }
-    })
+    Dead: state('final')
 });
 
 function Weapon () {}
