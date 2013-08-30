@@ -526,8 +526,8 @@ the state cannot be destroyed.
 
         if transition = root._transition
           if this is root then do transition.abort
-          else return no if ( transition.origin.isIn( this ) or
-            transition.target.isIn( this ) )
+          else return no if ( transition.origin.isIn this ) or
+            ( transition.target.isIn this )
 
 Descendant states are destroyed bottom-up.
 
