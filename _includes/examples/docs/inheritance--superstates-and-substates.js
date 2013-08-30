@@ -2,8 +2,8 @@ function Player () {
     this.health = 100;
     this.weapon = new Weapon;
 }
-state( Player.prototype, {
-    Alive: state({
+state( Player.prototype, 'abstract', {
+    Alive: state( 'default', {
         exit: function () {
             this.dropWeapon();
         },
@@ -31,12 +31,12 @@ state( Player.prototype, {
                 this.weapon.state('-> Sighted');
             }
         }),
-        Moving: state({
+        Moving: state( 'abstract', {
             drawWeapon: function () {
                 this.weapon.state('-> Drawn');
             },
             Walking: state,
-            Running: state({
+            Running: state( 'default', {
                 Sprinting: state({
                     drawWeapon: function () {
                         this.weapon.state('-> Held');
