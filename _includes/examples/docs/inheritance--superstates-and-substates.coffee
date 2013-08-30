@@ -11,6 +11,7 @@ class Player
 
       pickUpWeapon: ( weapon ) ->
         do @dropWeapon
+        @weapon = weapon
       dropWeapon: ->
         @weapon.state '-> Dropped'
         @weapon = null

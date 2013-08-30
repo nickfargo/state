@@ -15,6 +15,7 @@ state( Player.prototype, {
 
         pickUpWeapon: function ( weapon ) {
             this.dropWeapon();
+            this.weapon = weapon;
         },
         dropWeapon: function () {
             this.weapon.state('-> Dropped');
