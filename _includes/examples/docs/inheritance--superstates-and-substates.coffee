@@ -25,7 +25,7 @@ class Player
         drawWeapon: ->
           @weapon.state '-> Drawn'
         Walking: state
-        Running: state 'default'
+        Running: state 'default',
           Sprinting: state
             drawWeapon: ->
               @weapon.state '-> Held'
