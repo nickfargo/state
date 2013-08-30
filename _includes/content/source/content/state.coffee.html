@@ -770,8 +770,8 @@ the state cannot be destroyed.</p>
     <div class="code">
       <div class="highlight"><pre>    <span class="k">if</span> <span class="nv">transition = </span><span class="nx">root</span><span class="p">.</span><span class="nx">_transition</span>
       <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">root</span> <span class="k">then</span> <span class="nx">do</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">abort</span>
-      <span class="k">else</span> <span class="k">return</span> <span class="kc">no</span> <span class="k">if</span> <span class="p">(</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">origin</span><span class="p">.</span><span class="nx">isIn</span><span class="p">(</span> <span class="k">this</span> <span class="p">)</span> <span class="o">or</span>
-        <span class="nx">transition</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">isIn</span><span class="p">(</span> <span class="k">this</span> <span class="p">)</span> <span class="p">)</span></pre></div>
+      <span class="k">else</span> <span class="k">return</span> <span class="kc">no</span> <span class="k">if</span> <span class="p">(</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">origin</span><span class="p">.</span><span class="nx">isIn</span> <span class="k">this</span> <span class="p">)</span> <span class="o">or</span>
+        <span class="p">(</span> <span class="nx">transition</span><span class="p">.</span><span class="nx">target</span><span class="p">.</span><span class="nx">isIn</span> <span class="k">this</span> <span class="p">)</span></pre></div>
     </div>
   
     
