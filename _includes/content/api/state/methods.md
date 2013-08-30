@@ -1129,7 +1129,7 @@ this.has( key, via )
 
 ###### NOTES
 
-Supports `long.key` lookups for deeply nested properties.
+Supports `long.key.path` lookups for deeply nested properties.
 
 ###### SEE ALSO
 
@@ -1157,7 +1157,7 @@ The value of the `data` property with the given `key` on `this` state, or one in
 
 ###### NOTES
 
-Supports `long.key` lookups for deeply nested properties. Returns `undefined` if `key` cannot be resolved.
+Supports `long.key.path` lookups for deeply nested properties. Returns `undefined` if `key` cannot be resolved.
 
 > [`State::get`](/source/state.html#state--prototype--get)
 
@@ -1187,7 +1187,7 @@ Creates a new data property or updates an existing data property on `this` state
 
 Succeeds only if `this` state is `mutable`.
 
-Supports `long.key` assignments to deeply nested properties.
+Supports `long.key.path` assignments to deeply nested properties.
 
 ###### SEE ALSO
 
@@ -1219,7 +1219,7 @@ If the property is inherited from a `mutable` superstate, then the property is u
 
 ###### NOTES
 
-Supports `long.key` assignments to deeply nested properties.
+Supports `long.key.path` assignments to deeply nested properties.
 
 ###### SEE ALSO
 
@@ -1246,7 +1246,7 @@ Boolean `true` if the deletion was successful or unnecessary, or `false` otherwi
 
 ###### NOTES
 
-Supports `long.key` lookups for deeply nested properties.
+Supports `long.key.path` lookups for deeply nested properties.
 
 ###### SEE ALSO
 
