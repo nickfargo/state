@@ -163,22 +163,18 @@ $( function () {
     // Use the first element’s level as a baseline.
     level || ( level = nextLevel - 1 );
 
-    // If the heading level increases, then open a new nested `ul`.
+    // If the heading level increases, add a new `ul` inside the trailing `li`.
     while ( nextLevel > level ) {
-
-      // Push a new `ul` that is nested inside the trailing `li`.
       ( $ul = $('<ul>') ).appendTo( $li );
       ( $li = $('<li>') ).appendTo( $ul );
       stack.push( $ul );
       level += 1;
     }
 
-    // Alternatively if the heading level decreases, then close the
-    // prevailing `ul`.
+    // Or, if the heading level decreases, then close the prevailing `ul`. If
+    // the root `ul` at the base of the stack is reached prematurely, wrap it
+    // in another `ul`.
     while ( nextLevel < level ) {
-
-      // If the root `ul` at the head of the stack is reached prematurely,
-      // wrap it in another `ul`.
       $ul = stack.pop() || $('<ul>').append( $('<li>').append( $ul ) );
       level -= 1;
     }
@@ -928,12 +924,12 @@ $( function () {
   profile["pygments: initial query"] = timeElapsed();
   if ( profile["pygments: initial query"] > 2.0 ) return;
 
-  // classify param-less arrows as functions
+  // classify param-less arrows as functions.
   $( 'span.o:contains("->"), span.o:contains("=>")', $pre )
     .addClass('nf');
   profile["pygments: arrows to `nf`"] = timeElapsed();
 
-  // split trailing assignment operator from `nv|vi`
+  // Split trailing assignment operator from `nv|vi`.
   $pre = $('.highlight pre');
   $( 'span.nv, span.vi, span.vf', $pre ).each( function () {
     var $this = $(this);
@@ -946,7 +942,7 @@ $( function () {
   });
   profile["pygments: split asn op"] = timeElapsed();
 
-  // trim trailing whitespace from identifiers
+  // Trim trailing whitespace from identifiers.
   $( 'span.nf, span.vi, span.vf', $pre ).each( function () {
     var $this = $(this);
     var match = /(.*?)(\s*)$/.exec( $this.text() );
@@ -954,7 +950,7 @@ $( function () {
   });
   profile["pygments: trim whitespace"] = timeElapsed();
 
-  // classify `this` and @-sigil expressions as instance variables
+  // Classify `this` and @-sigil expressions as instance variables.
   $( 'span.k:contains("this")', $pre )
     .addClass('vi').removeClass('k');
   $( 'span.err:contains("@")', $pre )
@@ -965,7 +961,7 @@ $( function () {
     .addClass('vi').removeClass('nx');
   profile["pygments: this/@ as ivar"] = timeElapsed();
 
-  // classify coffee keywords correctly
+  // Classify Coffee-specific keywords correctly.
   $( 'span.nx', $pre )
     .filter( function () {
       return /^(do|loop|when|unless|until)$/.test( $(this).text() );
@@ -974,7 +970,7 @@ $( function () {
     .addClass('k').removeClass('nx');
   profile["pygments: coffee keywords"] = timeElapsed();
 
-  // classify word operators correctly
+  // Classify word operators correctly.
   ( function () {
     var rx = /^(new|typeof|void|delete|of|in|instanceof|yield)$/;
     $( 'span.k', $pre ).each( function () {
@@ -986,7 +982,7 @@ $( function () {
   }() );
   profile["pygments: word operators"] = timeElapsed();
 
-  // split punctuators into distinct `span`s
+  // Split punctuators into distinct `span`s.
   $( 'span.p', $pre ).each( function () {
     var $this = $(this);
     var text = $this.text();
@@ -1001,7 +997,7 @@ $( function () {
   });
   profile["pygments: split punctuators"] = timeElapsed();
 
-  // classify member-access square brackets as operators instead of punctuators
+  // Classify member-access tokens as operators instead of punctuators.
   ( function () {
     var stack = [];
 
@@ -1025,7 +1021,7 @@ $( function () {
   }() );
   profile["pygments: member square brackets"] = timeElapsed();
 
-  // classify paired punctuators
+  // Classify paired punctuators.
   $( 'span.p', $pre ).each( function () {
     var $this = $(this);
     if ( /^[\[\]]$/.test( $this.text() ) ) $this.addClass('sb');
@@ -1033,7 +1029,7 @@ $( function () {
   });
   profile["pygments: paired punctuators"] = timeElapsed();
 
-  // break apart coffeescript productions
+  // Break apart coffeescript productions:
   ( function () {
     var $$ = $('body.source .highlight pre, .highlight pre code.coffeescript');
 
@@ -1140,6 +1136,7 @@ $( function () {
     profile["property assignments"] = timeElapsed();
 
   }() );
+
 
   // classify operators by precedence
   ( function () {
