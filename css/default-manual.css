@@ -1906,6 +1906,11 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
       color: #554F00;
       text-shadow: 0 0 2px rgba(255, 240, 0, 0.2);
     }
+    /* Destructuring Pairs */
+    .p.sb.des,
+    .p.cb.des {
+      color: #22BBCC;
+    }
 .cm  { color: #558585; font-style: italic } /* Comment.Multiline */
 .cp  { color: #BC7A00 }                     /* Comment.Preproc */
 .c1  { color: #658585; font-style: italic } /* Comment.Single */

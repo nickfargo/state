@@ -1203,6 +1203,57 @@ $( function () {
   profile["pygments: function names"] = timeElapsed();
 
 
+  // Destructuring assignments
+  ( function () {
+
+    function scan ( selector, openerChar, closerChar ) {
+      var $pairs = $(
+        'span.p.' + selector,
+        'body.source .highlight pre, .highlight pre code.coffeescript'
+      );
+      var i, el, text, openerIndex, opener, closer, $range;
+      var baseLevel = 0;
+      var stack = [];
+      var regions = [];
+
+      // Match pairs together
+      for ( i = 0; i < $pairs.length; i++ ) {
+        el = $pairs[i];
+        text = el.textContent;
+        if ( text === openerChar ) {
+          stack.push(i);
+        } else if ( text === closerChar ) {
+          openerIndex = stack.pop();
+          if ( openerIndex == null ) continue;
+          next = el.nextElementSibling;
+          if ( stack.length > baseLevel || next && next.textContent === '=' ) {
+            $pairs.eq( openerIndex ).addClass('des');
+            $pairs.eq( i ).addClass('des');
+            if ( !stack.length ) {
+              regions.push( openerIndex, i );
+            }
+          }
+        }
+      }
+      for ( i = 0; i < regions.length; i += 2 ) {
+        opener = $pairs[ regions[i] ];
+        closer = $pairs[ regions[i + 1] ];
+        $range = $( opener ).nextUntil( closer );
+        $range.filter('span.nx').each( function () {
+          var $this = $(this);
+          if ( $this.next().text() !== ':' ) {
+            $this.addClass('nv').removeClass('nx');
+          }
+        });
+      }
+    }
+
+    scan( 'cb', '{', '}' );
+    scan( 'sb', '[', ']' );
+  }() );
+  profile["pygments: destructuring"] = timeElapsed();
+
+
   console.log( profile );
 });
 
