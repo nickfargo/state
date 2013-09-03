@@ -40,7 +40,7 @@ that `include`s its generated html.
             fs.writeFileSync target, """
             ---
             layout: source
-            title: Source - State.js
+            title: #{ file } - Source - State.js
             ---
 
             <div>{% include #{ include }.coffee.html %}</div>
