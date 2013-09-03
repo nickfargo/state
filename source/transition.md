@@ -1,6 +1,6 @@
 ---
 layout: source
-title: Source - State.js
+title: transition - Source - State.js
 ---
 
 <div>{% include content/source/full/transition.coffee.html %}</div>
