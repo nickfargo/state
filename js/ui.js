@@ -999,6 +999,7 @@ $( function () {
 
   // Classify member-access tokens as operators instead of punctuators.
   ( function () {
+    var rx = /[@$\)\]\}\w\?]$/;
     var stack = [];
 
     $( 'span.p', $pre ).each( function () {
@@ -1006,14 +1007,15 @@ $( function () {
       var text = $this.text();
       var isMemberOperator;
 
-      if ( text === '[' ) {
+      if ( text === '.' ) {
+        isMemberOperator = true;
+      } else if ( text === '[' ) {
         isMemberOperator = this.previousSibling.nodeType !== 3 &&
-          /[@$\)\]\}\w\?]$/.test( $this.prev().text() );
+          rx.test( $this.prev().text() );
         stack.push( isMemberOperator );
       } else if ( text === ']' ) {
         isMemberOperator = stack.pop();
-      } else return;
-
+      }
       if ( isMemberOperator ) {
         $this.addClass('o').removeClass('p');
       }
@@ -1141,7 +1143,7 @@ $( function () {
   // classify operators by precedence
   ( function () {
     var table = {
-      'mem' : /^[\.\[\]]$/,
+      'mem' : /^([\.\[\]]|::)$/,
       'new' : /^new$/,
       'inv' : /^[()]$/,
       'inc' : /^(\+\+|\-\-)$/,
@@ -1157,7 +1159,7 @@ $( function () {
       'lga' : /^(&&|and)$/,
       'lgo' : /^(\|\||or)$/,
       'exi' : /^\?$/,
-      'asn' : /^([\?\+\-\*\/%&\^\|]?=|<<=|>>>?=|::?)$/,
+      'asn' : /^([\?\+\-\*\/%&\^\|]?=|<<=|>>>?=|:)$/,
       'cma' : /^,$/,
       'fna' : /^[\-=]>$/
     };
