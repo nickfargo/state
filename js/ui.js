@@ -997,31 +997,35 @@ $( function () {
   });
   profile["pygments: split punctuators"] = timeElapsed();
 
-  // Classify member-access tokens as operators instead of punctuators.
+  // Classify member-access and invocation as operators instead of punctuators.
   ( function () {
-    var rx = /[@$\)\]\}\w\?]$/;
+    var rxLeader = /[@$\)\]\}\w\?]$/;
+    var rxOpener = /[\[\(]/;
+    var rxCloser = /[\]\)]/;
     var stack = [];
 
     $( 'span.p', $pre ).each( function () {
-      var $this = $(this);
-      var text = $this.text();
-      var isMemberOperator;
+      var text = this.textContent;
+      var prev = this.previousSibling;
+      var prevEl = this.previousElementSibling;
+      var isOperator;
 
       if ( text === '.' ) {
-        isMemberOperator = true;
-      } else if ( text === '[' ) {
-        isMemberOperator = this.previousSibling.nodeType !== 3 &&
-          rx.test( $this.prev().text() );
-        stack.push( isMemberOperator );
-      } else if ( text === ']' ) {
-        isMemberOperator = stack.pop();
+        isOperator = true;
+      } else if ( rxOpener.test( text ) ) {
+        isOperator = prev && prev.nodeType !== 3 && prevEl &&
+          rxLeader.test( prevEl.textContent );
+        stack.push( isOperator );
+      } else if ( rxCloser.test( text ) ) {
+        isOperator = stack.pop();
       }
-      if ( isMemberOperator ) {
-        $this.addClass('o').removeClass('p');
+
+      if ( isOperator ) {
+        $(this).addClass('o').removeClass('p');
       }
     });
   }() );
-  profile["pygments: member square brackets"] = timeElapsed();
+  profile["pygments: member-access and invocation"] = timeElapsed();
 
   // Classify paired punctuators.
   $( 'span.p', $pre ).each( function () {
@@ -1037,20 +1041,22 @@ $( function () {
 
     // arrow function signatures
     ( function () {
-      var $fns = $( 'span.nf', $$ );
       var text, el, i, match, html, part;
-      var rx = /\(\)|\[\]|\{\}|[(){}\[\]@,]|[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
-      var allWhitespace = /^\s+$/;
-      var punctuation = /^[,]$/;
+      var rxAllWhitespace = /^\s+$/;
+      var rxPunctuation = /^[\(\),]$/;
+      var rxFunctionSignature =
+        /\(\)|\[\]|\{\}|[(){}\[\]@,]|[$_A-Za-z][$\w]*|[\-=]>\s*|\S+|\s+/g;
+      var $fns = $( 'span.nf', $$ );
+
       for ( i = 0; i < $fns.length; i++ ) {
         el = $fns[i];
         text = el.textContent;
         html = '';
-        while ( ( match = rx.exec( text ) ) !== null ) {
+        while ( ( match = rxFunctionSignature.exec( text ) ) !== null ) {
           part = match[0];
-          if ( allWhitespace.test( part ) ) {
+          if ( rxAllWhitespace.test( part ) ) {
             html += part;
-          } else if ( punctuation.test( part ) ) {
+          } else if ( rxPunctuation.test( part ) ) {
             html += '<span class="p">' + part + '</span>';
           } else {
             html += '<span>' + part + '</span>';
