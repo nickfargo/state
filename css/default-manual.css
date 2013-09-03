@@ -1895,14 +1895,14 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     .o.cnd { color: #22A9B8; }
     .o.yld { color: #22B2C2; }
     .o.asn { color: #22BBCC; }
-    .o.cma { color: #222222; }
+    .o.cma { color: #1191DC; }
     .o.fna { color: #770055; }
 .p   { color: #113355; font-weight: bold }  /* Punctuation */
-    .p.sb /* Punctuation: Square Bracket */ {
+    .p.sb /* Square Bracket */ {
       color: #7F7700;
       text-shadow: 0 0 2px rgba(255, 239, 0, 0.8);
     }
-    .p.cb /* Punctuation: Curly Brace */ {
+    .p.cb /* Curly Brace */ {
       color: #554F00;
       text-shadow: 0 0 2px rgba(255, 240, 0, 0.2);
     }
