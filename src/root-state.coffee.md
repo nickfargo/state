@@ -102,7 +102,7 @@ to its state implementation.
       createAccessor = ( owner, name, root ) ->
 
         accessor = ( input, args... ) ->
-          current = root._current
+          current = root._current or root
 
           if this is owner
             return current unless input?
