@@ -12,6 +12,8 @@
 
 * Renamed `StateContent` to `StateMetaobject`.
 
+* **(breaking)** — Prioritized explicit category-named properties in a `StateExpression` ahead of nominative-type checking for properties with values of type `StateExpression` or `TransitionExpression`. E.g., `state({ data: state() })` will no longer be a valid way to express a substate named `data`.
+
 
 
 ### 0.1.2 *(released)*

@@ -150,7 +150,12 @@ exported `state()` function.
       """
 
       @STATE_EXPRESSION_CATEGORIES =
-        'data methods events guards states transitions'
+        'parastates data methods events guards substates transitions'
+
+      @STATE_EXPRESSION_CATEGORY_SYNONYMS =
+        extend:  'parastates'
+        extends: 'parastates'
+        states:  'substates'
 
       @STATE_EVENT_TYPES =
         'construct depart exit enter arrive destroy mutate noSuchMethod'
@@ -182,6 +187,7 @@ of which are included in the constants enumerated here.
         ATOMIC
         DESTROYED
         VIRTUAL
+        PARASTATIC
       """ + ' ' + @STATE_ATTRIBUTE_MODIFIERS.toUpperCase()
 
 

@@ -1,5 +1,5 @@
     { State, RootState, TransitionExpression } =
-      state = require '../../'
+      state = require '../..'
 
     { NIL } = state.O
     { ABSTRACT, CONCRETE } = State

@@ -1,4 +1,4 @@
-    { State, RootState } = state = require '../../'
+    { State, RootState } = state = require '../..'
     { expect } = require 'chai'
 
 

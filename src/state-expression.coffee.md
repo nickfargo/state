@@ -7,6 +7,7 @@
       STATE_ATTRIBUTES
       STATE_ATTRIBUTE_MODIFIERS
       STATE_EXPRESSION_CATEGORIES
+      STATE_EXPRESSION_CATEGORY_SYNONYMS
       STATE_EVENT_TYPES
       GUARD_ACTIONS
     } =
@@ -43,23 +44,23 @@ that is used internally to create `State` instances.
         object
 
       categoryMap  = assign STATE_EXPRESSION_CATEGORIES
+      synonymMap   = STATE_EXPRESSION_CATEGORY_SYNONYMS
       eventTypes   = assign STATE_EVENT_TYPES
       guardActions = assign GUARD_ACTIONS
 
 
 ### [Constructor](#state-expression--constructor)
 
-      constructor: ( attributes, map ) ->
-        if typeof attributes is 'string' then map or = {}
-        else unless map
-          map = attributes; attributes = undefined
+      constructor: ( attributes, expr ) ->
+        if typeof attributes is 'string' then expr or = {}
+        else unless expr? then expr = attributes; attributes = undefined
 
-        map = interpret map unless map instanceof StateExpression
-        edit 'deep all', this, map
+        expr = interpret expr unless expr instanceof StateExpression
+        edit 'deep all', this, expr
 
         if attributes?
-          attributes = encodeAttributes attributes unless isNumber attributes
-        else { attributes } = map if map
+          attributes = encode attributes unless isNumber attributes
+        else { attributes } = expr if expr
 
         @attributes = attributes or NORMAL
 
@@ -70,55 +71,59 @@ that is used internally to create `State` instances.
 
 #### [interpret](#state-expression--private--interpret)
 
-Transforms a plain object map into a well-formed `StateExpression`, making the
-appropriate type inferences for any shorthand notation encountered.
+Transforms a plain-object `expr` into a well-formed `StateExpression`, making
+the appropriate type inferences for any shorthand notation encountered.
 
-      interpret = ( map ) ->
+      interpret = ( expr ) ->
 
-Start with a null-valued map keyed with the category names.
+Start with a null-valued `result` object keyed with the category names.
 
         result = assign STATE_EXPRESSION_CATEGORIES, null
 
-        for own key, value of map
-
-If `value` is just a reference to the exported `state` function, interpret that
-as an empty state expression.
-
-          value = new StateExpression if value is state
-
 ###### Categorization
 
-**Priority 1:** Do a nominative type match for explicit expression instances.
+        for own key, value of expr
+
+**Priority 1:** Recognize an explicitly named category object.
+
+          category = categoryMap[ key ] or synonymMap[ key ]
+          if category? and value?
+            result[ category ] =
+              if typeof value is 'string' then value
+              else if isArray value then value.slice 0
+              else clone result[ category ], value
+            continue
+
+**Priority 2:** Do a nominative type match for explicit expression instances.
+The `state` function serves as a sentinel `value` indicating empty-expression.
 
           category =
-            if value instanceof StateExpression then 'states'
-            else if value instanceof TransitionExpression then 'transitions'
-          if category
+            if value is state or value instanceof StateExpression
+              'substates'
+            else if value instanceof TransitionExpression
+              'transitions'
+          if category?
             item = result[ category ] or = {}
             item[ key ] = value
-
-**Priority 2:** Recognize an explicitly named category object.
-
-          else if categoryMap[ key ]? and value
-            result[ key ] = clone result[ key ], value
+            continue
 
 **Priority 3:** Use keys and value types to infer implicit categorization.
 
-          else
-            category =
-              if eventTypes[ key ]? or typeof value is 'string'
-                'events'
-              else if guardActions[ key ]?
-                'guards'
-              else if typeof value is 'function' or ( type = value?.type ) and
-                  ( type is 'state-bound-function' or
-                    type is 'state-fixed-function' )
-                'methods'
-              else if value is NIL or isPlainObject value
-                'states'
-            if category
-              item = result[ category ] or = {}
-              item[ key ] = value
+          category =
+            if eventTypes[ key ]? or typeof value is 'string'
+              'events'
+            else if guardActions[ key ]?
+              'guards'
+            else if typeof value is 'function' or ( type = value?.type ) and
+                ( type is 'state-bound-function' or
+                  type is 'state-fixed-function' )
+              'methods'
+            else if value is NIL or isPlainObject value
+              'substates'
+          if category?
+            item = result[ category ] or = {}
+            item[ key ] = value
+            continue
 
 ###### Coersion
 
@@ -144,8 +149,10 @@ State values must resolve to a `StateExpression`. They may be supplied as a
 plain object, or as a live `State` instance, which is automatically `express`ed
 to a formal `StateExpression`.
 
-        for own key, value of object = result.states
-          if value instanceof State
+        for own key, value of object = result.substates
+          if value is state
+            object[ key ] = new StateExpression
+          else if value instanceof State
             object[ key ] = value.express true
           else unless value is NIL or value instanceof StateExpression
             object[ key ] = new StateExpression value
@@ -153,15 +160,11 @@ to a formal `StateExpression`.
         result
 
 
-
-### [Class methods](#state-expression--class-methods)
-
-
-#### [encodeAttributes](#state-expression--class--encode-attributes)
+#### [encode](#state-expression--private--encode)
 
 Returns the bit-field integer represented by the provided set of `attributes`.
 
-      @encodeAttributes = encodeAttributes = ( attributes ) ->
+      encode = ( attributes ) ->
         attributes = assign attributes if typeof attributes is 'string'
         result = NORMAL
         for own key, value of attributes when key of attributeMap
@@ -169,13 +172,17 @@ Returns the bit-field integer represented by the provided set of `attributes`.
         result
 
 
-#### [decodeAttributes](#state-expression--class--decode-attributes)
+#### [decode](#state-expression--private--decode)
 
 Returns the space-delimited set of attribute names represented by the provided
 bit-field integer `number`.
 
-      @decodeAttributes = decodeAttributes = ( number ) ->
+      decode = ( number ) ->
         ( value for key, value of attributeFlags when number & key ).join ' '
+
+
+
+### [Class methods](#state-expression--class-methods)
 
 
 #### [untype](#state-expression--class-methods--untype)
@@ -188,3 +195,12 @@ Returns the `StateExpression` provided by `expr` as a plain-`Object`.
         s[ name ] = untype subexpr for name, subexpr of s = result.states
         result
 
+
+#### [encodeAttributes](#state-expression--class-methods--encode-attributes)
+
+      @encodeAttributes = encode
+
+
+#### [decodeAttributes](#state-expression--class-methods--decode-attributes)
+
+      @decodeAttributes = decode

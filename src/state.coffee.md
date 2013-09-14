@@ -45,6 +45,7 @@ and methods, so make them available as free variables.
       {
         INCIPIENT, ATOMIC, DESTROYED
         VIRTUAL
+        PARASTATIC
         MUTABLE, FINITE, STATIC, IMMUTABLE
         INITIAL, CONCLUSIVE, FINAL
         ABSTRACT, CONCRETE, DEFAULT
@@ -71,6 +72,7 @@ Precompute certain useful attribute combinations.
 A bit mask indicates the attributes that can be inherited via protostates.
 
       PROTO_HERITABLE_ATTRIBUTES =
+        PARASTATIC  |
         MUTABLE     |  FINITE      |  STATIC     |  IMMUTABLE  |
         INITIAL     |  CONCLUSIVE  |  FINAL      |
         ABSTRACT    |  CONCRETE    |  DEFAULT    |
@@ -175,7 +177,7 @@ For easy viewing in the inspector.
 
 
 
-### [Private functions](#state--private)
+### [Private entities](#state--private)
 
 
 #### [createDispatcher](#state--private--create-dispatcher)
@@ -216,6 +218,7 @@ Builds out the state’s members based on the expression provided.
         @attributes |= INCIPIENT
         @realize expression
         @attributes &= ~INCIPIENT
+
         @emit 'construct', expression, VIA_PROTO
         this
 
@@ -236,21 +239,36 @@ Initialization of a `State`’s contents is offloaded from the
         { attributes, name } = this
         return this unless attributes & INCIPIENT_OR_VIRTUAL
 
-Propagate realization up the superstate chain if necessary, adding each newly
-realized state to the `substates` collection of its real superstate.
+Begin realization higher in the superstate chain if necessary, adding each
+newly realized state to the `substates` collection of its real superstate.
 
         if attributes & VIRTUAL
           if ss = @superstate
             do ss.realize if ss.attributes & VIRTUAL
-            substates = ss._.substates or = {}
-            do substates[ name ].destroy if substates[ name ]
+            substates = ss._.substates ?= {}
+            do substates[ name ].destroy if substates[ name ]?
             substates[ name ] = this
           @attributes &= ~VIRTUAL
 
 A `State`’s `Metaobject` is stored in an underscore `_` property; the
-existence of `@_` always implies a realized state.
+existence of `_` in `this` implies that `this` must be a realized state.
 
-        @_ or = new @Metaobject
+        @_ ?= new @Metaobject
+
+Normalize any declarations of `parastates`. These will be used later in the
+outer `realize` function to recursively compute a `linearization` for `this`
+state and for its descendant substates.
+
+        if parastates = expression?.parastates
+          if isArray parastates then parastates = parastates.join ','
+          throw TypeError unless typeof parastates is 'string'
+          parastates = parastates.split /\s*,\s*/
+          if parastates.length
+            @_.parastates = parastates
+            @attributes |= PARASTATIC
+
+Populate the rest of the empty metaobject by “mutating” against `expression`.
+
         @mutate expression if expression?
 
 Realizing a root state requires that, for each of the owner’s own methods, if
@@ -258,11 +276,15 @@ there exists at least one stateful implementation of that method located higher
 in the owner’s prototype chain, then the owner’s implementation of that method
 must be copied into the root, where it defines the owner’s default behavior.
 
-        if this is @root
-          for own key, method of @owner when key isnt 'constructor' and
-              typeof method is 'function' and not method.isDispatcher and
-              @method key, VIA_PROTO
-            @addMethod key, method
+        if this is @root then for own key, method of @owner
+          @addMethod key, method if key isnt 'constructor' and
+            typeof method is 'function' and not method.isDispatcher and
+            @method key, VIA_PROTO
+
+The superstate and parastates of `this` `State` are `linearize`d to define its
+**resolution order**.
+
+        @linearize VIA_SUB if this is @root or ~attributes & INCIPIENT
 
         this
 
@@ -281,7 +303,7 @@ unnecessary, in which case it will be the extant real epistate of `this`.
 
       virtualize: ( inheritor ) ->
 
-Verify that `inheritor`’s owner does indeed inherit from the owner of `this`.
+Verify relation between respective `owner`s of `inheritor` and `this`.
 
         return null unless inheritor instanceof State and
           @owner.isPrototypeOf inheritor.owner
@@ -305,6 +327,100 @@ add virtual states to it until the whole superstate chain is represented.
           s = new State s, name, expr
           name = derivation[ i++ ]
         s
+
+
+#### [linearize](#state--prototype--linearize)
+
+Returns, and computes if necessary, the **resolution order** or `linearization`
+for `this`, as an array of `State`s.
+
+This is an adaptation of the C3 linearization algorithm to the `State` model.
+“Parent” states are defined as the concatenation of the **parastates** and
+**superstate** of `this`, in order, where:
+
+1. parastates are specified by the selector paths contained in the `parastates`
+   array of `this` state’s metaobject (`this._`); and
+
+2. **epistates** inherit any parastate paths defined by their **protostates**,
+   and may override their ordering; together, (1) and (2) guarantee that
+
+3. `this`, its parastates, superstate, and any parastates and superstates
+   thereof are necessarily elements of a common state tree, and likewise share
+   a common `owner`.
+
+      linearize: do ->
+
+##### getParastateDeclarations
+
+Returns the concatenation of `this` `State`’s own and `protostate`-derived
+declarations of `parastates`.
+
+        getParastateDeclarations = ->
+          head = @_?.parastates
+          tail = getParastateDeclarations.call ps if ps = @protostate
+          result = if tail? then head?.concat tail else head
+          result
+
+##### merge
+
+Creates and returns a monotonic ordered set of `State`s from the provided
+`lists`, where `lists` is an array of arrays, consisting of an array of
+“parent” states, preceded by arrays that represent, in order, the linearization
+of each “parent” state.
+
+        merge = ( out, lists ) ->
+          return out unless lists.length
+          for headList, index in lists when headList?
+            head = headList[0]; bad = no
+            for otherList in lists when otherList isnt headList
+              i = 1; while item = otherList[ i++ ]
+                if item is head then bad = yes; break
+              break if bad
+            continue if bad
+            out.push head
+            remainingLists = []; for list in lists
+              do list.shift if list[0] is head
+              remainingLists.push list if list.length
+            return merge out, remainingLists
+          throw new TypeError "Ambiguous resolution order for '#{ out.pop() }'"
+
+##### __linearize__
+
+Computes the linearization of `this` from its named **parastates**, referenced
+**superstate**
+
+        __linearize__ = ->
+          return [this] if this is @root
+          { owner } = this
+
+Determine the ordered set of `State`s from which `this` inherits. By rule any
+**parastates** precede the **superstate**. Declarations of parastates include
+those inherited from **protostates**; all parastates are resolved to unique
+`own` `State`s of the prevailing `owner`’s state tree.
+
+          parents = []
+          if paths = getParastateDeclarations.call this then for path in paths
+            unless parastate = state.own owner, path
+              throw new ReferenceError "Unresolvable parastate '#{ path }'"
+            parents.push parastate unless parastate in parents
+          parents.push @superstate
+
+Create an array of the linearizations for each `parent`, followed by a list of
+the `parents` themselves, then `merge` each of these `lists` to create a single
+ordered set that defines the monotonic linearization of `this`.
+
+          lists = []
+          lists.push parent.linearize() for parent in parents
+          lists.push parents
+          merge [this], lists
+
+##### linearize
+
+        return linearize = ( via = VIA_NONE ) ->
+          return @protostate?.linearize() if @attributes & VIRTUAL
+          linearization = @_.linearization ?= __linearize__.call this
+          if via & VIA_SUB then s.linearize via for own name, s of @_.substates
+          linearization[..]
 
 
 #### [express](#state--prototype--express)
@@ -339,7 +455,7 @@ is truthy, the expression is a formally typed `StateExpression`.
             out[ name ] = substate.express typed
           out
 
-        ( typed ) ->
+        return express = ( typed ) ->
           if _ = @_ then expression = edit {}, {  # Why `edit`???
             @attributes
             data        : cloneCategory   _.data
@@ -367,7 +483,7 @@ specified by the expression provided in `expr`.
             else if value and value isnt items[ key ]
               emitter.set key, value
 
-        ( expr ) ->
+        return mutate = ( expr ) ->
           { attributes, Expression } = this
 
 ###### Preparation steps
@@ -469,7 +585,7 @@ contents cannot be altered, although any of its substates may yet be mutable,
 so any submutations must therefore still be applied recursively to their
 corresponding substates.
 
-          for own name, stateExpr of expr.states
+          for own name, stateExpr of expr.substates
             if substates and name of substates
               if stateExpr is NIL
               then @removeSubstate name
@@ -551,6 +667,13 @@ owner’s accessor method.
             then owner[ name ] = ownerMethod
             else delete owner[ name ]
           delete owner[ @accessorName ]
+
+The metaobject should be cleared explicitly, as it may contain a cyclical
+reference to `this` at the head of its `linearization` array. This should be
+sufficient to allow garbage-collection since only `this` should ever hold a
+reference to the metaobject.
+
+        @_ = null
 
 A flag is set that can be observed later by anything retaining a reference to
 this state (e.g. a memoization) which would be withholding it from being

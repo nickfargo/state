@@ -2,7 +2,6 @@
     { expect } = require 'chai'
 
 
-
     describe "`State::mutate`", ->
       { NIL } = O
 
@@ -73,15 +72,14 @@
         ]
 
 
-      o = {}
-      state o, unit.expression
-      unit.mutations.forEach ( mutation, index ) ->
-        it "performed mutation #{ index } properly", ->
-          o.state('').mutate mutation
-          expect( unit.expectations[ index ] o ).to.be.ok
-
-
       describe "a virtual state", ->
+
+        o = {}
+        state o, unit.expression
+        unit.mutations.forEach ( mutation, index ) ->
+          it "performed mutation #{ index } properly", ->
+            o.state('').mutate mutation
+            expect( unit.expectations[ index ] o ).to.be.ok
 
         class Class
           state @::,
