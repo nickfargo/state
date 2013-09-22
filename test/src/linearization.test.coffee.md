@@ -62,7 +62,7 @@ yield the same linearization as the expression above.
         expect( orderOf o.state 'E' ).to.equal 'E C A D B <ROOT>'
 
 
-      it "computes monotonic order equivalently from protostates", ->
+      it "computes monotonic order equivalently via protostates", ->
         class Class
           state @::, expressions['long diamond']
 
@@ -74,6 +74,19 @@ yield the same linearization as the expression above.
         expect( orderOf o.state 'C' ).to.equal 'C A <ROOT>'
         expect( orderOf o.state 'D' ).to.equal 'D B <ROOT>'
         expect( orderOf o.state 'E' ).to.equal 'E C A D B <ROOT>'
+
+
+      it "computes order via protostates, parastates, and superstates", ->
+        class Class
+          state @::, expressions['hierarchical TTD']
+
+        o = new Class
+        state o, C: E: G: state.extend 'D'
+        expect( orderOf o.state 'G' ).to.equal 'G D B E A C <ROOT>'
+
+        o = new Class
+        state o, C: E: G: H: state.extend 'D'
+        expect( orderOf o.state 'H' ).to.equal 'H D B G E A C <ROOT>'
 
 
       it "resolves the folded-triple-diamond formation", ->
@@ -89,7 +102,3 @@ yield the same linearization as the expression above.
       it "preserves monotonicity with parastates-precede-superstate rule", ->
         state o = {}, expressions['hierarchical TTD']
         expect( orderOf o.state 'F' ).to.equal 'F D B E A C <ROOT>'
-
-
-
-    describe "Resolution", ->
