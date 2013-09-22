@@ -117,3 +117,21 @@
 
           expect( f ).to.equal o.f
           expect( m ).to.equal o.m
+
+
+      describe "Parastate resolution:", ->
+
+        class Class
+          state @::,
+            A: state
+              m: -> 'A'
+              D: state.extend 'B'
+            B: state
+            C: state
+              E: state.extend 'A',
+                F: state.extend 'D'
+
+        it "works", ->
+          o = new Class
+          o.state '-> F'
+          expect( o.m() ).to.equal 'A'
