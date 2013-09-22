@@ -72,8 +72,8 @@
         methods =
           normal: -> this
           bound: bind -> this
-          fixed: fix ( autostate, protostate ) -> -> this
-          both: fix ( autostate, protostate ) -> bind -> this
+          fixed: fix -> -> this
+          both: fix -> bind -> this
 
         test = (o) ->
           it "works for normal functions", ->
