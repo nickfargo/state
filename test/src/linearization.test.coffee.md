@@ -3,7 +3,7 @@
 
 
 
-    describe "linearization:", ->
+    describe "Linearization:", ->
 
       reducer = ( out, s ) ->
         if out then out += ' '
@@ -14,16 +14,16 @@
 
       expressions =
 
-        longDiamond: state              #    <ROOT>
-          A: state                      #     / \
-          B: state                      #    A   B
-          C: state extends: 'A'         #    |   |
-          D: state extends: 'B'         #    C   D
-          E: state extends: 'C, D'      #     \ /
-                                        #      E
+        longDiamond: state              #      <ROOT>
+          A: state                      #       / \
+          B: state                      #      A   B
+          C: state extends: 'A'         #      |   |
+          D: state extends: 'B'         #      C   D
+          E: state extends: 'C, D'      #       \ /
+                                        #        E
 
         foldedTripleDiamond: state      #      <ROOT>
-          A: state                      #     /   |  \
+          A: state                      #     /   | \
           B: state                      #    A_   B  C
           C: state                      #     \`–/  /
           D: state extends: 'A, B'      #      D `–E
@@ -90,3 +90,7 @@ yield the same linearization as the expression above.
       it "preserves monotonicity with parastates-precede-superstate rule", ->
         state o = {}, expressions.paraSuperStateMixOfTTD
         expect( orderOf o.state 'F' ).to.equal 'F D B E A C <ROOT>'
+
+
+
+    describe "Resolution", ->
