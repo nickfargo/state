@@ -358,8 +358,7 @@ declarations of `parastates`.
         getParastateDeclarations = ->
           head = @_?.parastates
           tail = getParastateDeclarations.call ps if ps = @protostate
-          result = if tail? then head?.concat tail else head
-          result
+          if tail? then ( head?.concat tail ) ? tail else head
 
 ##### merge
 
