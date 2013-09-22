@@ -65,6 +65,16 @@ an asynchronous transition.
 ### [Methods](#transition--methods)
 
 
+#### [linearize](#transition--prototype--linearize)
+
+A `Transition` instance inherits only from the `superstate` to which it is
+attached.
+
+      linearize: ->
+        { superstate } = this
+        superstate.order?[..] ? superstate.linearize()
+
+
 #### [start](#transition--prototype--start)
 
       start: ->
