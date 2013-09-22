@@ -1368,42 +1368,48 @@ property of `out`; if included, `context` is confined to the local state tree.
 > [method](/api/#state--methods--method)
 
       method: ( methodName, via = VIA_ALL, out, boxed ) ->
-        realized = ~@attributes & VIRTUAL
+        { attributes } = this
+        realized = ~attributes & VIRTUAL
 
 > During the pseudo-loop block, the `context` reference should be considered
   provisional, because its potential value is in part a product of the manner
   in which its accompanying `method` was retrieved. After `break`ing out of the
-  block, `method` can be type-checked and `context` may be kept or discarded as
-  appropriate.
+  block, if `method` is a state-bound function, then `context` will be either
+  kept and exported via `out`, or discarded otherwise.
 
         loop # once
 
-First seek the named method locally.
+First seek a local or memoized inherited implementation of the named method.
 
           if realized
-            method = @_?.methods?[ methodName ]
-            if method? then context = this
-            else if record = @_?.__dispatch_table__?[ methodName ]
+            if method = @_?.methods?[ methodName ]
+              context = this
+              break
+            if record = @_?.__dispatch_table__?[ methodName ]
               [ method, context ] = record
+              break if method?
+
+If an implementation is not available locally, seek an inherited method along
+the protostate chain. If this succeeds, the provisional `context` will be the
+*epistate* that inherits the method.
+
+          if viaProto = via & VIA_PROTO
+            if method = @protostate?.method methodName, VIA_PROTO, out, yes
+              context = this
+              inherited = yes
+              break
+
+If no local or protostatic method exists, seek an inherited method along the
+linearization path. If this succeeds, the provisional `context` will be the
+*superstate or parastate* from which the method is inherited.
+
+          if via & VIA_SUPER
+            for parent in @order ? @linearize() when parent isnt this
+              if method = parent.method methodName, viaProto, out, yes
+                context = out?.context ? null
+                inherited = yes
+                break
             break if method?
-
-If no method is held locally, start traversing, first up the protostate chain.
-If this succeeds, the provisional `context` *must be the epistate* inheriting
-the method (constrast with the `VIA_SUPER` case).
-
-          if ( viaProto = via & VIA_PROTO ) and
-              method = @protostate?.method methodName, VIA_PROTO, out, yes
-            context = this
-            inherited = yes; break
-
-If no method is found yet, continue traversing up the superstate chain. If this
-succeeds, the provisional `context` *must be the superstate* from which the
-method is inherited.
-
-          if via & VIA_SUPER and method = @superstate?.method \
-              methodName, VIA_SUPER | viaProto, out, yes
-            { context } = out if out?
-            inherited = yes; break
 
 The method cannot be found.
 
