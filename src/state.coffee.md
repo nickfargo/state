@@ -1367,7 +1367,7 @@ property of `out`; if included, `context` is confined to the local state tree.
 
 > [method](/api/#state--methods--method)
 
-      method: ( methodName, via = VIA_ALL, out, boxed ) ->
+      method: ( methodName, via = VIA_ALL, out, returnBoxed ) ->
         { attributes } = this
         realized = ~attributes & VIRTUAL
 
@@ -1432,8 +1432,8 @@ the local dispatch table.
 
 Unbox a state-bound function unless directed otherwise.
 
-          if not boxed and method.type is 'state-bound-function'
-            method = method.fn
+          unless returnBoxed
+            method = method.fn if method.type is 'state-bound-function'
 
 Export `method` and `context` together if the `out` reference was provided.
 
