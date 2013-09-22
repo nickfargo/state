@@ -14,46 +14,45 @@
 
       expressions =
 
-        longDiamond: state              #      <ROOT>
-          A: state                      #       / \
-          B: state                      #      A   B
-          C: state extends: 'A'         #      |   |
-          D: state extends: 'B'         #      C   D
-          E: state extends: 'C, D'      #       \ /
-                                        #        E
+        'long diamond': state               #      <ROOT>
+          A: state                          #       / \
+          B: state                          #      A   B
+          C: state.extend 'A'               #      |   |
+          D: state.extend 'B'               #      C   D
+          E: state.extend 'C, D'            #       \ /
+                                            #        E
 
-        foldedTripleDiamond: state      #      <ROOT>
-          A: state                      #     /   | \
-          B: state                      #    A_   B  C
-          C: state                      #     \`–/  /
-          D: state extends: 'A, B'      #      D `–E
-          E: state extends: 'A, C'      #       \ /
-          F: state extends: 'D, E'      #        F
+        'folded triple diamond': state      #      <ROOT>
+          A: state                          #     /   | \
+          B: state                          #    A_   B  C
+          C: state                          #     \`–/  /
+          D: state.extend 'A, B'            #      D `–E
+          E: state.extend 'A, C'            #       \ /
+          F: state.extend 'D, E'            #        F
 
-        tesselatedTripleDiamond: state  #      <ROOT>
-          A: state                      #     /  |  \
-          B: state                      #    B   A   C
-          C: state                      #     \ / \ /
-          D: state extends: 'B, A'      #      D   E
-          E: state extends: 'A, C'      #       \ /
-          F: state extends: 'D, E'      #        F
+        'tesselated triple diamond': state  #      <ROOT>
+          A: state                          #     /  |  \
+          B: state                          #    B   A   C
+          C: state                          #     \ / \ /
+          D: state.extend 'B, A'            #      D   E
+          E: state.extend 'A, C'            #       \ /
+          F: state.extend 'D, E'            #        F
 
 A state’s parastates precede its superstate in the resolution order. Defining
 states with both hierarchy via superstates and “mixins” via parastates should
 yield the same linearization as the expression above.
 
-        paraSuperStateMixOfTTD: state   #      <ROOT>
-          A: state                      #     /  |  \
-            D: state extends: 'B'       #    B   A   C
-          B: state                      #     \ / \ /
-          C: state                      #      D   E
-            E: state                    #       \ /
-              extends: 'A'              #        F
-              F: state extends: 'D'
+        'hierarchical TTD': state           #      <ROOT>
+          A: state                          #     /  |  \
+            D: state.extend 'B'             #    B   A   C
+          B: state                          #     \ / \ /
+          C: state                          #      D   E
+            E: state.extend 'A',            #       \ /
+              F: state.extend 'D'           #        F
 
 
       it "computes the monotonic order of parastates and superstates", ->
-        state o = {}, expressions.longDiamond
+        state o = {}, expressions['long diamond']
 
         expect( orderOf o.state '' ).to.equal '<ROOT>'
         expect( orderOf o.state 'A' ).to.equal 'A <ROOT>'
@@ -65,7 +64,7 @@ yield the same linearization as the expression above.
 
       it "computes monotonic order equivalently from protostates", ->
         class Class
-          state @::, expressions.longDiamond
+          state @::, expressions['long diamond']
 
         o = new Class
 
@@ -78,17 +77,17 @@ yield the same linearization as the expression above.
 
 
       it "resolves the folded-triple-diamond formation", ->
-        state o = {}, expressions.foldedTripleDiamond
+        state o = {}, expressions['folded triple diamond']
         expect( orderOf o.state 'F' ).to.equal 'F D E A B C <ROOT>'
 
 
       it "resolves the tesselated-triple-diamond formation", ->
-        state o = {}, expressions.tesselatedTripleDiamond
+        state o = {}, expressions['tesselated triple diamond']
         expect( orderOf o.state 'F' ).to.equal 'F D B E A C <ROOT>'
 
 
       it "preserves monotonicity with parastates-precede-superstate rule", ->
-        state o = {}, expressions.paraSuperStateMixOfTTD
+        state o = {}, expressions['hierarchical TTD']
         expect( orderOf o.state 'F' ).to.equal 'F D B E A C <ROOT>'
 
 
