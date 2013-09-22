@@ -1411,7 +1411,7 @@ linearization path. If this succeeds, the provisional `context` will be the
                 break
             break if method?
 
-The method cannot be found.
+The method does not exist.
 
           context = null
           break # always
@@ -1427,7 +1427,7 @@ Iff `this` is a realized `State`, inherited lookup results can be memoized in
 the local dispatch table.
 
           if realized and inherited and useDispatchTables
-            table = @_?.__dispatch_table__ or = {}
+            table = @_.__dispatch_table__ ?= {}
             table[ methodName ] = [ method, context ]
 
 Unbox a state-bound function unless directed otherwise.
