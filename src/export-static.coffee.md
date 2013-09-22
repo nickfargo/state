@@ -4,7 +4,7 @@
 
 This function will be applied to the package’s exported `state` function.
 
-    module.exports = ->
+    module.exports = ( state = this ) ->
 
 
 ### [Package metadata](#package-metadata)
@@ -122,6 +122,17 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
           if instated.owner is owner
           then instated[ instated.isVirtual() and 'realize' or 'mutate' ] expr
           else instated.virtualize( owner[ accessorName ] '' ).realize expr
+
+
+#### [extend](#utility-functions--extend)
+
+      @extend = ( parastates, attributes, expression ) ->
+        if typeof attributes isnt 'string'
+          expression = attributes
+          attributes = ''
+        expression ?= {}
+        expression.parastates = parastates
+        state attributes, expression
 
 
 
