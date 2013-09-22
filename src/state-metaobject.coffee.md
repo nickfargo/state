@@ -12,14 +12,11 @@
 
       constructor: ->
 
-The host state’s `parastates` are a string array of paths to **parastates**
-from which the state inherits. Along with the state’s **superstate**, this list
-corresponds with the list of `State`s referenced at `linearization`, which
-defines the monotonic resolution order for the inheritance exhibited by the
-state within its state tree.
+The host state’s `parastates` are stored here as a string array of paths to
+**parastates** from which the state inherits along with the state’s
+**superstate**.
 
         @parastates     = null
-        @linearization  = null
 
 The host `State`s intrinsic contents.
 

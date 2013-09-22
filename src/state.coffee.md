@@ -118,6 +118,12 @@ or an `owner` for which to act as a new `root` state.
         @superstate = superstate
         @protostate = protostate = @getProtostate() or null
 
+The linearized resolution `order` for `this` will be set later, either when the
+instance is `realize`d, or on demand if a lookup is performed and the `order`
+is not set.
+
+        @order = null
+
 ###### Attribute inheritance masking
 
 Explicitly defined *literal* attributes for `this` state are encoded as a bit
@@ -281,8 +287,11 @@ must be copied into the root, where it defines the owner’s default behavior.
             typeof method is 'function' and not method.isDispatcher and
             @method key, VIA_PROTO
 
-The superstate and parastates of `this` `State` are `linearize`d to define its
-**resolution order**.
+The superstate and parastates of `this` `State` are `linearize`d into a defined
+`order`. Because the `State`s of a state tree are constructed bottom-up, in the
+case of an **incipient** state, the linearization step must be deferred to the
+**root**, which will then recursively `linearize` its descendants from the top
+down, *after* each one has been instantiated and situated in the tree.
 
         @linearize VIA_SUB if this is @root or ~attributes & INCIPIENT
 
@@ -331,12 +340,17 @@ add virtual states to it until the whole superstate chain is represented.
 
 #### [linearize](#state--prototype--linearize)
 
-Returns, and computes if necessary, the **resolution order** or `linearization`
-for `this`, as an array of `State`s.
+Computes, records, and returns the array of `State`s that define the `order` of
+resolution, or **linearization**, for inheritance of `this` amongst itself and
+ancestors that share a common `owner` (and thus inhabit a common state tree).
 
-This is an adaptation of the C3 linearization algorithm to the `State` model.
-“Parent” states are defined as the concatenation of the **parastates** and
-**superstate** of `this`, in order, where:
+This method is an adaptation of the C3 linearization algorithm to the `State`
+model, where the returned list begins with `this` and is followed by a
+monotonic ordering of its ancestors.
+
+By definition a `State`’s **protostates** are excluded from its linearization,
+which orders only its **parastates** and **superstates**. During lookups,
+the protostate chain of each member of the `order` is traversed upward
 
 1. parastates are specified by the selector paths contained in the `parastates`
    array of `this` state’s metaobject (`this._`); and
@@ -383,43 +397,43 @@ of each “parent” state.
             return merge out, remainingLists
           throw new TypeError "Ambiguous resolution order for '#{ out.pop() }'"
 
-##### __linearize__
+##### linearize
 
-Computes the linearization of `this` from its named **parastates**, referenced
-**superstate**
+Computes the linearization of `this` from its named parastates and referenced
+superstate, and saves this array as `this.order`.
 
-        __linearize__ = ->
-          return [this] if this is @root
-          { owner } = this
+        linearize = ( via = VIA_NONE ) ->
+          if this is @root then order = [this] else
 
 Determine the ordered set of `State`s from which `this` inherits. By rule any
-**parastates** precede the **superstate**. Declarations of parastates include
-those inherited from **protostates**; all parastates are resolved to unique
-`own` `State`s of the prevailing `owner`’s state tree.
+parastates precede the superstate. Declarations of parastates include those
+inherited from protostates; all parastates are resolved to unique `own`
+`State`s of the prevailing `owner`’s state tree.
 
-          parents = []
-          if paths = getParastateDeclarations.call this then for path in paths
-            unless parastate = state.own owner, path
-              throw new ReferenceError "Unresolvable parastate '#{ path }'"
-            parents.push parastate unless parastate in parents
-          parents.push @superstate
+            parents = []
+            if paths = getParastateDeclarations.call this
+              { owner } = this
+              for path in paths
+                unless parastate = state.own owner, path
+                  throw new ReferenceError "Unresolvable parastate '#{ path }'"
+                parents.push parastate unless parastate in parents
+            parents.push @superstate
 
 Create an array of the linearizations for each `parent`, followed by a list of
 the `parents` themselves, then `merge` each of these `lists` to create a single
 ordered set that defines the monotonic linearization of `this`.
 
-          lists = []
-          lists.push parent.linearize() for parent in parents
-          lists.push parents
-          merge [this], lists
+            lists = []
+            for parent in parents
+              lists.push parent.order?[..] ? parent.linearize()
+            lists.push parents
+            order = merge [this], lists
 
-##### linearize
+Set the `order`, recurse if necessary, and return a *copy* of the order;
 
-        return linearize = ( via = VIA_NONE ) ->
-          return @protostate?.linearize() if @attributes & VIRTUAL
-          linearization = @_.linearization ?= __linearize__.call this
+          @order = order
           if via & VIA_SUB then s.linearize via for own name, s of @_.substates
-          linearization[..]
+          order[..]
 
 
 #### [express](#state--prototype--express)
