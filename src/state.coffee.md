@@ -1695,15 +1695,15 @@ Normal, unbound callbacks are invoked in the conventional context of `@owner`.
 
         args = [args] if args? and not isArray args
 
-Provisional `context` is confined to the local state tree of `@owner` at the
-recursive origin; i.e., `State` context is inherited transparently via
-protostates, but is dynamic along the superstate chain.
+Provisional `context` is flattened onto `this.owner`’s state tree.
 
         @_?.events?[ eventType ]?.emit args, context or this
         if via & VIA_PROTO
           @protostate?.emit eventType, args, context or this, VIA_PROTO
         if via & VIA_SUPER
-          ( ss = @superstate )?.emit eventType, args, context or ss
+          for relative in @order ? @linearize() when relative isnt this
+            relative.emit eventType, args, context ? relative
+
         return
 
       trigger: @::emit
