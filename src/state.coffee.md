@@ -425,15 +425,17 @@ ordered set that defines the monotonic linearization of `this`.
 
             lists = []
             for parent in parents
-              lists.push parent.order?[..] ? parent.linearize()
+              lists.push ( parent.order ? parent.linearize() )[..]
             lists.push parents
             order = merge [this], lists
 
-Set the `order`, recurse if necessary, and return a *copy* of the order;
+Set the determined `order`, then recurse downward if so directed (e.g., this is
+instigated from the root state as the last step of realization, after all of
+its substates and descendants are in place).
 
           @order = order
-          if via & VIA_SUB then s.linearize via for own name, s of @_.substates
-          order[..]
+          s.linearize via for own name, s of @_.substates if via & VIA_SUB
+          order
 
 
 #### [express](#state--prototype--express)
