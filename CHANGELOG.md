@@ -4,7 +4,7 @@
 
 ### *(edge)*
 
-* **(breaking)** — Renamed `State::protostate` method to `getProtostate`, changed it to a pure “getter” (with no memoization side-effects), and renamed the pseudo-private `@_protostate` to simply `@protostate`. This achieves API consistency with the related property `@superstate`.
+* **(breaking)** — Renamed `State::protostate` method to `getProtostate`, changed it to a pure “getter” (with no memoization side-effects), and renamed the pseudo-private `this._protostate` to simply `this.protostate`. This achieves API consistency with the related property `this.superstate`.
 
 * Added `State::descendants` method as a cleaner alternative to calling `substates` with a `true` argument for the `deep` parameter.
 
