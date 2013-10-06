@@ -32,10 +32,10 @@
 
         'tesselated triple diamond': state  #      <ROOT>
           A: state                          #     /  |  \
-          B: state                          #    B   A   C
+          B: state                          #    A   B   C
           C: state                          #     \ / \ /
-          D: state.extend 'B, A'            #      D   E
-          E: state.extend 'A, C'            #       \ /
+          D: state.extend 'A, B'            #      D   E
+          E: state.extend 'B, C'            #       \ /
           F: state.extend 'D, E'            #        F
 
 A state’s parastates precede its superstate in the resolution order. Defining
@@ -44,10 +44,10 @@ yield the same linearization as the expression above.
 
         'hierarchical TTD': state           #      <ROOT>
           A: state                          #     /  |  \
-            D: state.extend 'B'             #    B   A   C
-          B: state                          #     \ / \ /
+          B: state                          #    A   B   C
+            D: state.extend 'A'             #     \ / \ /
           C: state                          #      D   E
-            E: state.extend 'A',            #       \ /
+            E: state.extend 'B',            #       \ /
               F: state.extend 'D'           #        F
 
 
@@ -82,11 +82,11 @@ yield the same linearization as the expression above.
 
         o = new Class
         state o, C: E: G: state.extend 'D'
-        expect( orderOf o.state 'G' ).to.equal 'G D B E A C <ROOT>'
+        expect( orderOf o.state 'G' ).to.equal 'G D A E B C <ROOT>'
 
         o = new Class
         state o, C: E: G: H: state.extend 'D'
-        expect( orderOf o.state 'H' ).to.equal 'H D B G E A C <ROOT>'
+        expect( orderOf o.state 'H' ).to.equal 'H D A G E B C <ROOT>'
 
 
       it "resolves the folded-triple-diamond formation", ->
@@ -96,9 +96,9 @@ yield the same linearization as the expression above.
 
       it "resolves the tesselated-triple-diamond formation", ->
         state o = {}, expressions['tesselated triple diamond']
-        expect( orderOf o.state 'F' ).to.equal 'F D B E A C <ROOT>'
+        expect( orderOf o.state 'F' ).to.equal 'F D A E B C <ROOT>'
 
 
       it "preserves monotonicity with parastates-precede-superstate rule", ->
         state o = {}, expressions['hierarchical TTD']
-        expect( orderOf o.state 'F' ).to.equal 'F D B E A C <ROOT>'
+        expect( orderOf o.state 'F' ).to.equal 'F D A E B C <ROOT>'
