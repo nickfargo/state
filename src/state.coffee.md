@@ -760,7 +760,7 @@ Returns an array of this state’s immediate substates. If the boolean `virtual`
 is `true`, any active virtual epistates will be included as well.
 
 > [substates](/api/#state--methods--substates)
-> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
+> [Virtual epistates](/docs/#concepts--object-model--virtual-epistates)
 
       substates: ( virtual, deep ) ->
         result = []
