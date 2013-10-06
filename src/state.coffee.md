@@ -1331,12 +1331,12 @@ Assignment proceeds only if the `value` being written is not the same as the
 
 #### [set](#state--prototype--set)
 
-Assigns a `value` to the nearest extant `key` within the `data` storage
-inherited along the superstate chain of `this`.
+Assigns a `value` to an existing `key` within the `data` storage of the nearest
+mutable ancestral parastate or superstate of `this`. Returns the equivalent of
+a `let` operation on `this` if no such ancestor can be affected.
 
-For `let` versus `set`, the notion of a property’s **scope** along the
-superstate chain is comparable to the same at the language level for variable
-bindings within functions being shadowed versus unshadowed, respectively.
+Only `State`s that belong to `this.owner` can be affected by `set`; their
+protostates cannot.
 
 > [let](/api/#state--methods--let)
 > [set](/api/#state--methods--set)
