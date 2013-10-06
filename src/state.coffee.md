@@ -1417,8 +1417,8 @@ linearization path. If this succeeds, the provisional `context` will be the
 *superstate or parastate* from which the method is inherited.
 
           if via & VIA_SUPER
-            for parent in @order ? @linearize() when parent isnt this
-              if method = parent.method methodName, viaProto, out, yes
+            for relative in @order ? @linearize() when relative isnt this
+              if method = relative.method methodName, viaProto, out, yes
                 context = out?.context ? null
                 inherited = yes
                 break
@@ -1684,7 +1684,7 @@ Unless `context` is provided explicitly, a provisional `State` `context` is
 determined for event callbacks that are state-bound functions. This `context`
 will be either `this` or an *epistate* that inherits events from `this`.
 
-Normal, unbound callbacks are invoked in the conventional context of `@owner`.
+Normal, unbound callbacks are invoked in the context of `this.owner` as usual.
 
 *Alias:* **trigger**
 
@@ -1702,9 +1702,9 @@ Normal, unbound callbacks are invoked in the conventional context of `@owner`.
 
 Provisional `context` is flattened onto `this.owner`’s state tree.
 
-        @_?.events?[ eventType ]?.emit args, context or this
+        @_?.events?[ eventType ]?.emit args, context ? this
         if via & VIA_PROTO
-          @protostate?.emit eventType, args, context or this, VIA_PROTO
+          @protostate?.emit eventType, args, context ? this, VIA_PROTO
         if via & VIA_SUPER
           for relative in @order ? @linearize() when relative isnt this
             relative.emit eventType, args, context ? relative
