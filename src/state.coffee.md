@@ -1314,7 +1314,7 @@ key already exists, it is added.
       let: ( key, value ) ->
         { attributes } = this
         return unless attributes & INCIPIENT_OR_MUTABLE  # should warn
-        return @realize().let key, value if attributes & VIRTUAL
+        do @realize if attributes & VIRTUAL
 
 Assignment proceeds only if the `value` being written is not the same as the
 `displaced` data that is being overwritten.
