@@ -2,7 +2,7 @@
 
 
 
-### *(edge)*
+### *edge — (tentative 0.2.0)*
 
 * **(breaking)** — Renamed `State::protostate` method to `getProtostate`, changed it to a pure “getter” (with no memoization side-effects), and renamed the pseudo-private `this._protostate` to simply `this.protostate`. This achieves API consistency with the related property `this.superstate`.
 
@@ -13,6 +13,12 @@
 * Renamed `StateContent` to `StateMetaobject`.
 
 * **(breaking)** — Prioritized explicit category-named properties in a `StateExpression` ahead of nominative-type checking for properties with values of type `StateExpression` or `TransitionExpression`. E.g., `state({ data: state() })` will no longer be a valid way to express a substate named `data`.
+
+* Added category synonyms to state expressions, making e.g. `states` an alias for the `substates` category.
+
+* Added **C3**–linearized **parastates** (compositional “`State` mixins”) to the object model. Monotonic ordering of parastates and superstates is computed by the new `State::linearize` method.
+
+* Added `state.extend` function to facilitate parastate declarations.
 
 
 
