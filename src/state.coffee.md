@@ -18,8 +18,8 @@ inherit more generic behavior, forming a **state tree** rooted by a single
 `RootState`.
 
 > [States](/docs/#concepts--states)
-> [Inheritance](/docs/#concepts--inheritance)
-> [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
+> [Object model](/docs/#concepts--object-model)
+> [Superstates and substates](/docs/#concepts--object-model--superstates-and-substates)
 
 The owner’s `RootState` designates exactly one of the `State`s in its tree as
 its `current` state. This reference may be **transitioned** to a different
@@ -30,7 +30,7 @@ prototype chain. Inheritors of a stateful prototype effectively possess all of
 the prototype’s `State`s, but each inheritor can adopt its own `current` state
 and instigate transitions independently of the prototype.
 
-> [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [Protostates and epistates](/docs/#concepts--object-model--protostates-and-epistates)
 
     class State
 
@@ -239,7 +239,7 @@ Initialization of a `State`’s contents is offloaded from the
 
 > [`virtualize`](#state--prototype--virtualize)
 > [realize](/api/#state--methods--realize)
-> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
+> [Virtual epistates](/docs/#concepts--object-model--virtual-epistates)
 
       realize: ( expression ) ->
         { attributes, name } = this
@@ -308,7 +308,7 @@ Returns the state on `inheritor`’s state tree for which `this` is a protostate
 This will be the newly created virtual state, unless virtualization was
 unnecessary, in which case it will be the extant real epistate of `this`.
 
-> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
+> [Virtual epistates](/docs/#concepts--object-model--virtual-epistates)
 
       virtualize: ( inheritor ) ->
 
