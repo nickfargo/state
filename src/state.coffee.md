@@ -1675,8 +1675,8 @@ Unbinds the event listener with the specified `id` that was supplied by
 #### [emit](#state--prototype--emit)
 
 Invokes all listeners bound to the given event type. Callbacks inherited from
-superstates and protostates are also invoked, unless otherwise directed by the
-traversal flags of `via`.
+protostates, parastates, and superstates are also invoked, unless otherwise
+directed by the traversal flags of `via`.
 
 Arguments to be supplied to callbacks can be passed as an array to `args`.
 
@@ -1725,7 +1725,7 @@ will be evaluated during a transition to determine whether an owner’s currency
 will be *admitted* into or *released* from the `State` to which the guard is
 applied.
 
-Guards are inherited from protostates, but not from superstates.
+Guards are inherited from protostates, but not from parastates or superstates.
 
 > [`evaluateGuard`](#state--private--evaluate-guard)
 > [guard](/api/#state--methods--guard)
