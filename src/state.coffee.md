@@ -1277,6 +1277,10 @@ inherited `via` superstates and protostates, unless directed otherwise.
 
 #### [has](#state--prototype--has)
 
+Determines whether a property with the given `key` is contained within `this`
+state’s `data` storage, or that of an ancestral protostate, parastate, or
+superstate, unless directed otherwise by `via`.
+
       has: ( key, via = VIA_ALL ) ->
         viaSuper = via & VIA_SUPER
         viaProto = via & VIA_PROTO
@@ -1289,6 +1293,10 @@ inherited `via` superstates and protostates, unless directed otherwise.
 
 
 #### [get](#state--prototype--get)
+
+Retrieves the value of a `key` within `this` state’s `data` storage, or from
+that of an ancestral protostate, parastate, or superstate, unless directed
+otherwise by `via`.
 
       get: ( key, via = VIA_ALL ) ->
         viaSuper = via & VIA_SUPER
@@ -1357,6 +1365,9 @@ to `let`.
 
 
 #### [delete](#state--prototype--delete)
+
+Removes a property from `this` state’s `data` storage, provided that `this` is
+mutable.
 
       delete: ( key ) ->
         return unless @attributes & MUTABLE
