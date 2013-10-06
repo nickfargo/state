@@ -348,19 +348,13 @@ This method is an adaptation of the C3 linearization algorithm to the `State`
 model, where the returned list begins with `this` and is followed by a
 monotonic ordering of its ancestors.
 
-By definition a `State`’s **protostates** are excluded from its linearization,
-which orders only its **parastates** and **superstates**. During lookups,
-the protostate chain of each member of the `order` is traversed upward
+By definition a `State`’s **protostates** are excluded from `order`. Traversal
+`VIA_ALL` proceeds over the concatenation of the protostate chains for each
+`State` in `order`; this set inherently preserves the monotonicity of `order`.
 
-1. parastates are specified by the selector paths contained in the `parastates`
-   array of `this` state’s metaobject (`this._`); and
-
-2. **epistates** inherit any parastate paths defined by their **protostates**,
-   and may override their ordering; together, (1) and (2) guarantee that
-
-3. `this`, its parastates, superstate, and any parastates and superstates
-   thereof are necessarily elements of a common state tree, and likewise share
-   a common `owner`.
+Parastates are specified by the selector paths contained in the `parastates`
+array of the metaobject `this._`. **Epistates** inherit any parastate paths
+defined by their **protostates**, and may override their ordering.
 
       linearize: do ->
 
