@@ -1,16 +1,14 @@
 # State.js
 
-**[State][0]** is a library for implementing a system of **[hierarchical states][1]** in the context of an **owner** object, where the `State`s of an owner **[inherit from the `State`s of its prototypes][2]**.
+**[State][0]** is a JavaScript library for implementing **first-class states** on arbitrary **owner** objects.
 
-The owner’s behavior, exhibited via its **[methods][3]**, may be defined or overridden within its `State`s. The method dispatch system of **State** allows it to impose minimally on a host object’s interface while also keeping its implementation transparent to consumers.
+`State`s are modules of [expressed][1] behavior. **State** causes an owner to exhibit the behavior expressed by the owner’s **current state**, automatically dispatching method calls received by the owner to [method][2] implementations defined or inherited by the current state. Behavior of the owner is altered by executing **[transitions][3]** that carry its current state reference from one of its `State` to another.
 
-Changes to an object’s behavior are facilitated by **[evented][4]** state **[transitions][5]**.
-
-State content, including methods, events, substates, and transitions, is **[expressed in a format][6]** that is terse and declarative, encouraging composition, reuse, and ease of reasoning.
+The **State** **[object model][4]** provides for **[hierarchical][5]**, **[compositional][6]**, and **[indirect prototypal][7]** relations between `State`s. These can be used separately or together to facilitate a variety of reuse and modularity patterns.
 
 * * *
 
-Visit **[statejs.org][]** for an introduction, complete [documentation][] including a [getting started][] guide and conceptual [overview][], along with the [API][], and [annotated source][].
+Visit **[statejs.org][]** for a complete introduction, example code, comprehensive [documentation][] including a [getting started][] guide and conceptual [overview][], [API][] reference, and [annotated source][].
 
 ### &#x1f44b;
 
@@ -18,12 +16,13 @@ Visit **[statejs.org][]** for an introduction, complete [documentation][] includ
 
 
 [0]: http://statejs.org/
-[1]: http://statejs.org/docs/#concepts--inheritance--superstates-and-substates
-[2]: http://statejs.org/docs/#concepts--inheritance--protostates
-[3]: http://statejs.org/docs/#concepts--methods
-[4]: http://statejs.org/docs/#concepts--events
-[5]: http://statejs.org/docs/#concepts--transitions
-[6]: http://statejs.org/docs/#concepts--expressions
+[1]: http://statejs.org/docs/#concepts--expressions
+[2]: http://statejs.org/docs/#concepts--methods
+[3]: http://statejs.org/docs/#concepts--transitions
+[4]: http://statejs.org/docs/#concepts--object-model
+[5]: http://statejs.org/docs/#concepts--object-model--superstates-and-substates
+[6]: http://statejs.org/docs/#concepts--object-model--parastates-and-composition
+[7]: http://statejs.org/docs/#concepts--object-model--protostates-and-epistates
 
 [statejs.org]:       http://statejs.org/
 [documentation]:     http://statejs.org/docs/
