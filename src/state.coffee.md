@@ -1246,7 +1246,7 @@ change to the state’s data, a `mutate` event is emitted for this state.
 > [data (read)](/api/#state--methods--data--read)
 > [data (write)](/api/#state--methods--data--write)
 
-      data: ( via = VIA_ALL ) ->
+      data: ( via = VIA_ALL, out ) ->
 
 If the provided `via` argument is not a flags integer mask, and presumably an
 object instead, then interpret this call as a *write* operation, and refer to
@@ -1257,17 +1257,22 @@ the parameter as `mutation`.
           { attributes } = this
           if attributes & INCIPIENT_OR_MUTABLE and not isEmpty mutation
             return @realize().data mutation if attributes & VIRTUAL
-            residue = delta @_.data or = {}, mutation
-            if not ( attributes & ATOMIC ) and residue and not isEmpty residue
+            residue = delta @_.data ?= {}, mutation
+            if ~attributes & ATOMIC and residue and not isEmpty residue
               @emit 'mutate', [ mutation, residue ], VIA_PROTO
           this
 
 Otherwise *read* and return a copy of `this` state’s `data`, including data
 inherited `via` superstates and protostates, unless directed otherwise.
 
-        else clone via & VIA_SUPER and @superstate?.data(),
-                   via & VIA_PROTO and @protostate?.data VIA_PROTO,
-                   @_?.data
+        else
+          out ?= {}
+          for relative in @order ? @linearize() by -1
+            continue unless via & VIA_SUPER or relative is this
+            edit 'deep all', out,
+              ( relative.protostate?.data VIA_PROTO, out if via & VIA_PROTO ),
+              relative._?.data
+          out
 
 
 #### [has](#state--prototype--has)
@@ -1275,12 +1280,12 @@ inherited `via` superstates and protostates, unless directed otherwise.
       has: ( key, via = VIA_ALL ) ->
         viaSuper = via & VIA_SUPER
         viaProto = via & VIA_PROTO
-
-        !!(
-          ( data = @_?.data ) and has( data, key ) or
-          viaProto and @protostate?.has( key, VIA_PROTO ) or
-          viaSuper and @superstate?.has( key, VIA_SUPER | viaProto )
-        )
+        for relative in @order ? @linearize()
+          s = relative; while s?
+            return yes if ( data = s._?.data )? and hasOwn.call data, key
+            if viaProto then s = s.protostate else break
+            continue if viaSuper
+        no
 
 
 #### [get](#state--prototype--get)
@@ -1288,10 +1293,12 @@ inherited `via` superstates and protostates, unless directed otherwise.
       get: ( key, via = VIA_ALL ) ->
         viaSuper = via & VIA_SUPER
         viaProto = via & VIA_PROTO
-
-        ( data = @_?.data ) and lookup( data, key ) or
-        viaProto and @protostate?.get( key, VIA_PROTO ) or
-        viaSuper and @superstate?.get( key, VIA_SUPER | viaProto )
+        for relative in @order ? @linearize()
+          s = relative; while s?
+            if ( data = s._?.data )? and hasOwn.call data, key
+              return data[ key ]
+            if viaProto then s = s.protostate else break
+          continue if viaSuper
 
 
 #### [let](#state--prototype--let)
@@ -1337,16 +1344,15 @@ bindings within functions being shadowed versus unshadowed, respectively.
         return unless attributes & INCIPIENT_OR_MUTABLE
         do @realize if attributes & VIRTUAL
 
-Find the superstate that holds the inherited property and mutate it.
+Find the nearest `State` along the linearization path of `this` whose `data`
+storage contains a property with the given `key`, and mutate that property with
+the given `value` if allowed to do so. If these steps do not complete, delegate
+to `let`.
 
-        s = this; while s
-          if s.attributes & MUTABLE and ( data = s._.data ) and key of data
-            return s.let key, value
-          s = s.superstate
-
-If no mutable property already exists along the superstate chain, then default
-to a `let`.
-
+        for relative in @order ? @linearize()
+          if ( data = relative._?.data )? and hasOwn.call data, key
+            return relative.let key, value if relative.attributes & MUTABLE
+            break
         @let key, value
 
 
