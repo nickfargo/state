@@ -1,5 +1,7 @@
-    { State, RootState } = state = require '../..'
     { expect } = require 'chai'
+    state = require 'state'
+
+    { State, RootState } = state
 
 
     describe "Creating `State` implementations using the `state` function:", ->

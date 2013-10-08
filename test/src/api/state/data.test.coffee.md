@@ -1,6 +1,7 @@
-    state = require '../../../..'
-    { env, bind, fix, State, RootState } = state
     { expect } = require 'chai'
+    state = require 'state'
+
+    { env, bind, fix, State, RootState } = state
 
     { isEmpty, diff } = state.O
 

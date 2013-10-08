@@ -1,5 +1,8 @@
-    { State, RootState } = state = require '../..'
     { expect } = require 'chai'
+    state = require 'state'
+
+    { State, RootState } = state
+
 
 
     describe "Querying `State`s", ->

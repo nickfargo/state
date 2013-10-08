@@ -1,4 +1,6 @@
-    state = require '../..'
+    state = require 'state'
+
+
 
     log = -> console.log.apply console, arguments
 

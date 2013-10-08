@@ -1,5 +1,8 @@
-    { env, bind, fix, State, RootState } = state = require '../..'
     { expect } = require 'chai'
+    state = require 'state'
+
+    { env, bind, fix, State, RootState } = state
+
 
 
     describe "Methods:", ->

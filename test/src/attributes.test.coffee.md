@@ -1,9 +1,10 @@
-    { State, RootState, TransitionExpression } =
-      state = require '../..'
+    { expect } = require 'chai'
+    state = require 'state'
 
     { NIL } = state.O
+    { State, RootState, TransitionExpression } = state
     { ABSTRACT, CONCRETE } = State
-    { expect } = require 'chai'
+
 
 
     describe "Attributes:", ->

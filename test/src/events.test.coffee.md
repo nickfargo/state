@@ -1,5 +1,8 @@
-    { O, env, State, RootState } = state = require '../..'
     { expect } = require 'chai'
+    state = require 'state'
+
+    { O, env, State, RootState } = state
+
 
 
     describe "Events:", ->

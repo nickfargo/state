@@ -1,5 +1,5 @@
-    state = require '../..'
     { expect } = require 'chai'
+    state = require 'state'
 
 
 
