@@ -344,9 +344,9 @@ Computes, records, and returns the array of `State`s that define the `order` of
 resolution, or **linearization**, for inheritance of `this` amongst itself and
 ancestors that share a common `owner` (and thus inhabit a common state tree).
 
-This method is an adaptation of the C3 linearization algorithm to the `State`
-model, where the returned list begins with `this` and is followed by a
-monotonic ordering of its ancestors.
+This method adapts the **C3 linearization algorithm** to the `State` model,
+where the returned list consists of `this` followed by a monotonic ordering of
+its **parastate** and **superstate** ancestors.
 
 By definition a `State`’s **protostates** are excluded from `order`. Traversal
 `VIA_ALL` proceeds over the concatenation of the protostate chains for each
@@ -354,7 +354,7 @@ By definition a `State`’s **protostates** are excluded from `order`. Traversal
 
 Parastates are specified by the selector paths contained in the `parastates`
 array of the metaobject `this._`. **Epistates** inherit any parastate paths
-defined by their **protostates**, and may override their ordering.
+defined by their protostates, and may override their ordering.
 
       linearize: do ->
 

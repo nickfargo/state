@@ -66,7 +66,7 @@ to keys in order, increasing from `1 << offset` onward.
 
 #### [bind](#utility-functions--bind)
 
-* `fn` : ( any… ) → any
+* `fn` : function
 
 Used inside a state expression, a function `fn` wrapped with `state.bind` will
 bind the context of `fn` either to any `State` created from that expression, or
@@ -86,7 +86,7 @@ been the `owner`, still retain a reference thereto via `this.owner`.
 
 #### [fix](#utility-functions--fix)
 
-* `fn` : ( autostate, protostate ) → ( any… ) → any
+* `fn` : ( autostate, protostate ) → function
 
 Used inside a state expression, a function `fn` wrapped with `state.fix` will
 be partially applied with a reference to `autostate`, the precise `State` to
