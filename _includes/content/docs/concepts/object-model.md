@@ -23,7 +23,7 @@ All **State**–affected **owner** objects bear a single **root state**. The roo
 
 By default the owner’s initial **current state** will be set to the root state — unless the root state is marked with the [`abstract` attribute](#concepts--attributes--abstraction), or another `State` in the tree is marked with the [`initial` attribute](#concepts--attributes--destination).
 
-The root state also serves as a store for [methods](#concepts--methods) of the owner which are overridden by any of the owner’s `State`s. Such methods are “swizzled” into the root state, and replaced on the owner with [**dispatchers**](#concepts--methods--dispatchers), which delegate calls received by the owner to the owner’s current state. From this it follows that the owner will exhibit its *default behavior* whenever its root state is *current*.
+The root state also serves as a store for [methods](#concepts--methods) of the owner which are overridden by any of the owner’s `State`s. Such methods are swapped into the root state, and replaced on the owner with [**dispatchers**](#concepts--methods--dispatchers), which delegate calls received by the owner to the owner’s current state. From this it follows that the owner will exhibit its *default behavior* whenever its root state is *current*.
 
 ###### SEE ALSO
 
@@ -99,7 +99,7 @@ A `State` and its parastates must share a common `owner`, however, parastate dec
 
 * The progression of a **transition** is conceptually orthogonal to the parastate relation, and traversal proceeds only over the state tree defined by the superstate–substate relations.
 
-* Parastates provide for compositional reuse of their own or inherited **methods, data, and events**. Attributes, guards, substates, and transitions are not heritable via parastate.
+* Parastates provide for compositional reuse of their own or inherited **methods, data, and custom events**. Built-in events, guards, substates, transitions, and attributes are not heritable via parastate.
 
 
 #### [Protostates and epistates](#concepts--object-model--protostates-and-epistates)
