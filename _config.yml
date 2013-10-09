@@ -21,6 +21,6 @@ exclude: [ art, diagrams ]
 
 packages:
   state:
-    version: 0.1.2
-    size: 97.4kB
-    size_gz: 15.4kB
+    version: 0.2.0
+    size: 104kB
+    size_gz: 16.5kB
