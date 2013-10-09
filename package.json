@@ -1,7 +1,7 @@
 {
   "name": "state",
   "version": "0.2.0",
-  "description": "Subjective, hierarchical and prototypal state",
+  "description": "First-class states",
   "homepage": "http://statejs.org/",
   "keywords": [
     "state",
