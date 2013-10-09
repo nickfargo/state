@@ -519,15 +519,15 @@ add virtual states to it until the whole superstate chain is represented.</p>
 <p>Computes, records, and returns the array of <code>State</code>s that define the <code>order</code> of
 resolution, or <strong>linearization</strong>, for inheritance of <code>this</code> amongst itself and
 ancestors that share a common <code>owner</code> (and thus inhabit a common state tree).</p>
-<p>This method is an adaptation of the C3 linearization algorithm to the <code>State</code>
-model, where the returned list begins with <code>this</code> and is followed by a
-monotonic ordering of its ancestors.</p>
+<p>This method adapts the <strong>C3 linearization algorithm</strong> to the <code>State</code> model,
+where the returned list consists of <code>this</code> followed by a monotonic ordering of
+its <strong>parastate</strong> and <strong>superstate</strong> ancestors.</p>
 <p>By definition a <code>State</code>’s <strong>protostates</strong> are excluded from <code>order</code>. Traversal
 <code>VIA_ALL</code> proceeds over the concatenation of the protostate chains for each
 <code>State</code> in <code>order</code>; this set inherently preserves the monotonicity of <code>order</code>.</p>
 <p>Parastates are specified by the selector paths contained in the <code>parastates</code>
 array of the metaobject <code>this._</code>. <strong>Epistates</strong> inherit any parastate paths
-defined by their <strong>protostates</strong>, and may override their ordering.</p>
+defined by their protostates, and may override their ordering.</p>
 
     </div>
     <div class="code">

@@ -161,7 +161,7 @@ to keys in order, increasing from <code>1 &lt;&lt; offset</code> onward.</p>
       
 <h4><a href="#utility-functions--bind">bind</a></h4>
 <ul>
-<li><code>fn</code> : ( any… ) → any</li>
+<li><code>fn</code> : function</li>
 </ul>
 <p>Used inside a state expression, a function <code>fn</code> wrapped with <code>state.bind</code> will
 bind the context of <code>fn</code> either to any <code>State</code> created from that expression, or
@@ -185,7 +185,7 @@ been the <code>owner</code>, still retain a reference thereto via <code>this.own
       
 <h4><a href="#utility-functions--fix">fix</a></h4>
 <ul>
-<li><code>fn</code> : ( autostate, protostate ) → ( any… ) → any</li>
+<li><code>fn</code> : ( autostate, protostate ) → function</li>
 </ul>
 <p>Used inside a state expression, a function <code>fn</code> wrapped with <code>state.fix</code> will
 be partially applied with a reference to <code>autostate</code>, the precise <code>State</code> to
