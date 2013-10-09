@@ -1,6 +1,6 @@
 {
   "name": "state",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Subjective, hierarchical and prototypal state",
   "homepage": "http://statejs.org/",
   "keywords": [
