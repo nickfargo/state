@@ -3,10 +3,10 @@ owner.m               # >>> undefined
 
 
 state owner, 'abstract',
-  m: -> 'beep!'
+  m: -> "beep!"
 
   A: state 'initial',
-    m: -> 'boop!'
+    m: -> "boop!"
 
 owner.state           # >>> [Function]
 owner.m               # >>> [Function]

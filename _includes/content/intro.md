@@ -1,15 +1,133 @@
-**State.js** is a JavaScript library for implementing a system of [hierarchical states](/docs/#concepts--inheritance--superstates-and-substates) in the context of an **owner** object. An owner’s set of [`State`](/api/#state)s includes and [inherits from the `State`s of the owner’s prototype](/docs/#concepts--inheritance--protostates-and-epistates).
+**State.js** is a JavaScript library for implementing **first-class states** on arbitrary **owner** objects.
 
 {% highlight javascript %}
-{% include examples/index--object-model.js %}
+{% include examples/index--intro--0.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/index--object-model.coffee %}
+{% include examples/index--intro--0.coffee %}
+{% endhighlight %}
+
+> The exported `state` function will be used here in two ways: **(1)** to *define* behavior in formal structures called **state expressions**; and **(2)** to *implement* a composite state expression on an `owner`, producing a tree of [`State`](#states-and-currency)s that belong to the owner.
+
+{% highlight javascript %}
+{% include examples/index--intro--1.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--intro--1.coffee %}
+{% endhighlight %}
+
+> The implementing form causes a `state` method to be added to the owner; this function closes over the new state tree, and will serve as the **accessor** to the owner’s `State`s.
+
+{% highlight javascript %}
+{% include examples/index--intro--2.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--intro--2.coffee %}
 {% endhighlight %}
 
 
-[Attributes](/docs/#concepts--attributes) concisely empower or constrain certain aspects of a [`State`](/api/#state), such as [mutability](/docs/#concepts--attributes--mutability), [abstraction](/docs/#concepts--attributes--abstraction), and [destination](/docs/#concepts--attributes--destination).
+### [States and currency](#states-and-currency)
+
+[`State`](/api/#state) objects are heritable, composable modules of behavior to be exhibited by their **owner** object. The contents of a [`State`](/api/#state) may include [method](#methods) overrides, arbitrary [data](/docs/#concepts--data), [event](#events) listeners, [substates](/docs/#concepts--object-model--superstates-and-substates), [guards](/docs/#concepts--guards), and [transition expressions](/docs/#concepts--transitions).
+
+{% highlight javascript %}
+{% include examples/index--states--0.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--states--0.coffee %}
+{% endhighlight %}
+
+Internally, exactly one `State` is referenced as the owner’s **current state**, whose own and inherited behavior is exhibited by the owner.
+
+{% highlight javascript %}
+{% include examples/index--states--1.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--states--1.coffee %}
+{% endhighlight %}
+
+The owner may alter its exhibited behavior by undergoing **transitions**, which carry the current state reference to a different `State`.
+
+{% highlight javascript %}
+{% include examples/index--states--2.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--states--2.coffee %}
+{% endhighlight %}
+
+
+### [Object model](#object-model)
+
+A `State` and its contents may be [inherited and composed](/docs/#concepts--object-model) from other `State`s. The **State** object model provides for both [hierarchical single-inheritance](/docs/#concepts--object-model--superstates-and-substates) and [compositional multiple-inheritance](/docs/#concepts--object-model--parastates-and-composition) among `State`s that share a common owner. It also provides [indirect prototypal inheritance](/docs/#concepts--object-model--protostates-and-epistates) from `State`s that belong to the owner’s prototypes.
+
+{% highlight javascript %}
+{% include examples/index--object-model--0.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--object-model--0.coffee %}
+{% endhighlight %}
+
+> A **state tree** is implemented on the prototype of a constructor. Here, the **root state** is the **superstate** of its **substates** `Casual` and `Formal`.
+
+{% highlight javascript %}
+{% include examples/index--object-model--1.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--object-model--1.coffee %}
+{% endhighlight %}
+
+> Instances of a **State**–affected prototype such as this commonly do not bear a tree of `State`s themselves, but will inherit the prototype’s `State`s as the instances’ **protostates**.
+
+{% highlight javascript %}
+{% include examples/index--object-model--2.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--object-model--2.coffee %}
+{% endhighlight %}
+
+> Unless specified otherwise, an owner’s initial **current state** will be the root state. The root state defines the owner’s most generic behavior, and as such also subsumes the owner’s default method implementations.
+
+{% highlight javascript %}
+{% include examples/index--object-model--3.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--object-model--3.coffee %}
+{% endhighlight %}
+
+> Even though its `State`s are defined on the prototype, each instance independently executes transitions that may target these inherited protostates.
+
+{% highlight javascript %}
+{% include examples/index--object-model--4.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--object-model--4.coffee %}
+{% endhighlight %}
+
+> Method calls received by the owner are dispatched to implementations defined on (or inherited by) its current state.
+
+{% highlight javascript %}
+{% include examples/index--object-model--5.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--object-model--5.coffee %}
+{% endhighlight %}
+
+
+### [Attributes](#attributes)
+
+[Attributes](/docs/#concepts--attributes) are a set of keyword strings that may precede the body of a state expression. These concisely empower or constrain certain aspects of a [`State`](/api/#state), such as [abstraction](/docs/#concepts--attributes--abstraction), [destination](/docs/#concepts--attributes--destination), and [mutability](/docs/#concepts--attributes--mutability).
 
 {% highlight javascript %}
 {% include examples/index--attributes.js %}
@@ -20,7 +138,11 @@
 {% endhighlight %}
 
 
-[State methods](/docs/#concepts--methods) express or override behavior of the **owner**. Methods are normally invoked in the context of the owner, however, a method definition can instead be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which it acts, or also decorated with a [fixed binding](/docs/#concepts--methods--lexical-bindings) to the `State` in which it is defined.
+### [Methods](#methods)
+
+[State methods](/docs/#concepts--methods) express or override behavior of the **owner**. Method calls received by the owner are dispatched to its **current state**’s own or inherited implementation of the corresponding method.
+
+By default, state methods are invoked in the context of the owner, just like normal methods. To provide insight into its place in the owner’s state tree, a method definition can instead be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which the method acts.
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}
@@ -30,8 +152,12 @@
 {% include examples/index--methods.coffee %}
 {% endhighlight %}
 
+A state method can also be wrapped in a decorator that [fixes the method](/docs/#concepts--methods--lexical-bindings) with bindings to the precise `State` where it is defined.
 
-[Events](/docs/#concepts--events) relate the [progress of a transition](/docs/#concepts--events--transitional), and signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state). They can also be emitted for any [custom event type](/docs/#concepts--events--custom).
+
+### [Events](#events)
+
+**State** provides built-in [events](/docs/#concepts--events) that relate the [progress of a transition](/docs/#concepts--events--transitional) as it traverses the state hierarchy, and that signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state). Events can also be emitted for any [custom event type](/docs/#concepts--events--custom).
 
 {% highlight javascript %}
 {% include examples/index--events.js %}
@@ -42,18 +168,48 @@
 {% endhighlight %}
 
 
-[`State`](/api/#state) instances are [immutable by default](/docs/#concepts--attributes--mutability), but they may optionally be configured as [mutable](/api/#state--attributes--mutable), allowing modular pieces of behavior to be implemented dynamically into a state.
+### [Mutability](#mutability)
+
+[`State`](/api/#state) instances are nominally [immutable by default](/docs/#concepts--attributes--mutability). This restriction forces any changes in the owner’s **State**-based behavior to be expressed in terms of **transitions** between `State`s.
+
+Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--attributes--mutable), such that modular pieces of behavior may be inserted and implemented dynamically into a live `State`, thereby allowing changes in behavior to be exhibited via **mutations** as well.
+
+> A plain object is sufficient to define a loose bit of behavior.
 
 {% highlight javascript %}
-{% include examples/index--mutability.js %}
+{% include examples/index--mutability--0.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/index--mutability.coffee %}
+{% include examples/index--mutability--0.coffee %}
+{% endhighlight %}
+
+> This factory produces a boxed function that will instill an enclosed `behavior` into a receiving `State`.
+
+{% highlight javascript %}
+{% include examples/index--mutability--1.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--mutability--1.coffee %}
+{% endhighlight %}
+
+> A `traveler` adapts to its new surroundings by overwriting any previously defined behavior with the appropriately chosen new behavior.
+
+{% highlight javascript %}
+{% include examples/index--mutability--2.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--mutability--2.coffee %}
 {% endhighlight %}
 
 
-[Transitions](/api/#transition) between states can be [conditionally guarded](/docs/#concepts--guards), defined [generically across multiple states](/docs/#concepts--transitions--expressions), and either [synchronous or asynchronous](/docs/#concepts--transitions--lifecycle).
+### [Transitions](#Transitions)
+
+A [`Transition`](/api/#transition) instance is an ephemeral type of [`State`](/api/#state) that is automatically created and occupied as an owner’s **current state** while it is in the process of moving between `State`s.
+
+[Transitions](/docs/#concepts--transitions) are defined by **transition expressions**, which are an optional component of a state expression. A transition may be defined [generically across multiple states](/docs/#concepts--transitions--expressions), is defined as either [synchronous or asynchronous](/docs/#concepts--transitions--lifecycle), and can be [conditionally guarded](/docs/#concepts--guards).
 
 {% highlight javascript %}
 {% include examples/index--transitions.js %}
@@ -65,6 +221,8 @@
 
 
 * * *
+
+## Further reading
 
 
 ### [Articles](/blog/)

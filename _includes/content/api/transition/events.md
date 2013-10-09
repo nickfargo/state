@@ -7,7 +7,7 @@ function () {}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-() ->
+->
 {% endhighlight %}
 
 Immediately after currency is transferred to the transition from the source state, the transition emits an `enter` event.
@@ -58,7 +58,7 @@ function () {}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-() ->
+->
 {% endhighlight %}
 
 Just before currency is transferred from a transition to its target state, an `exit` event is emitted by the transition.

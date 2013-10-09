@@ -207,7 +207,7 @@ to its state implementation.</p>
       <div class="highlight"><pre>  <span class="nv">createAccessor = </span><span class="nf">( owner, name, root ) -&gt;</span>
 
     <span class="nv">accessor = </span><span class="nf">( input, args... ) -&gt;</span>
-      <span class="nv">current = </span><span class="nx">root</span><span class="p">.</span><span class="nx">_current</span>
+      <span class="nv">current = </span><span class="nx">root</span><span class="p">.</span><span class="nx">_current</span> <span class="o">or</span> <span class="nx">root</span>
 
       <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">owner</span>
         <span class="k">return</span> <span class="nx">current</span> <span class="nx">unless</span> <span class="nx">input</span><span class="o">?</span>

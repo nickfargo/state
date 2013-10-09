@@ -37,5 +37,6 @@ class Weapon
     Holstered: state
     Held: state
       Drawn: state
+        fire: -> "Pew!"
         Sighted: state
     Dropped: state

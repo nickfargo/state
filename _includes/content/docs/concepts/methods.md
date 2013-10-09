@@ -8,7 +8,7 @@ A core feature of **State** is the ability for an object to exhibit any of multi
 
 #### [Dispatchers](#concepts--methods--dispatchers)
 
-When applied to an owner object by calling [`state()`](#getting-started--the-state-function), **State** first identifies any methods already present on the owner for which there exists at least one override somewhere within the provided state expression, and relocates these methods to the new [root state](#concepts--inheritance--the-root-state). For all state methods, a special **dispatcher** method is then instated on the owner at the corresponding key.
+When applied to an owner object by calling [`state()`](#getting-started--the-state-function), **State** first identifies any methods already present on the owner for which there exists at least one override somewhere within the provided state expression, and relocates these methods to the new [root state](#concepts--object-model--the-root-state). For all state methods, a special **dispatcher** method is then instated on the owner at the corresponding key.
 
 The dispatcher’s job is to redirect all invocations to the owner’s current state, from which **State** will then locate and invoke the proper stateful implementation of the method. If no active states contain an implementation for the invoked method, the invocation will be forwarded to the owner’s original implementation of the method, if one exists, or will cause a [`noSuchMethod`](#concepts--methods--nonexistent) [**event**](#concepts--events) otherwise.
 
@@ -29,9 +29,9 @@ The dispatcher’s job is to redirect all invocations to the owner’s current s
 
 #### [Method context](#concepts--methods--context)
 
-By default, state methods are invoked like a normal method, in the context of the owner or inheritor thereof which they serve.
+By default, state methods are invoked just like normal methods, in the context of the **receiving owner**.
 
-A method may also require awareness of the `State` from which it is called, for example, to delegate to a superstate’s implementation of a method. This can be expressed by wrapping a method’s function expression in a call to `state.bind`, which causes the method to be invoked in the context of the `State` rather than the owner. This exposes reliable references to `this.superstate`, `this.root`, and other locations in the state tree. Importantly, the owner object is still available indirectly by referencing `this.owner`.
+However, certain methods may require awareness of the `State` from which it is called, for example, to delegate to a [superstate](#concepts--object-model--superstates-and-substates)’s implementation of a method. This can be expressed by wrapping a method’s function expression in a call to [`state.bind`](/api/#state-function--bind), which causes the method to be invoked in the context of the receiving `State` instead of the receiving owner. This exposes reliable references to `this.superstate`, `this.root`, and any other relative location in the receiving owner’s state tree, along with, importantly, the owner itself via `this.owner`.
 
 In this way delegation to a superstate’s method is facilitated by the `apply` and `call` methods of `State`:
 
@@ -61,9 +61,9 @@ Worth noting here is the significant difference distinguishing these `apply` and
 
 #### [Lexical bindings](#concepts--methods--lexical-bindings)
 
-A state method may require awareness of the precise `State` in which it is defined, which is necessary for introspecting and inheriting along the protostate axis.
+A state method may require awareness of the precise `State` in which it is defined, which is necessary for introspection and delegation along the [protostate axis](#concepts--object-model--protostates-and-epistates).
 
-This can be expressed by enclosing a method’s function expression in a combinator which is then wrapped in a call to `state.fix` — a pattern that **lexically binds** additional `State` context into the method.
+This can be expressed by enclosing a method’s function expression in a decorator, and passing this to [`state.fix`](/api/#state-function--fix) — a pattern that **lexically binds** additional `State` context into the method.
 
 {% highlight javascript %}
 {% include examples/docs/methods--lexical-bindings.js %}
@@ -73,7 +73,7 @@ This can be expressed by enclosing a method’s function expression in a combina
 {% include examples/docs/methods--lexical-bindings.coffee %}
 {% endhighlight %}
 
-The state-lexical references gained by methods transformed by `fix` are:
+Decoration via `fix` provides the state-lexical references:
 
 * `autostate` : the precise `State` in which the method is defined.
 * `protostate` : the protostate of `autostate`.
@@ -122,19 +122,34 @@ Also emitted is a specific [`noSuchMethod:name`](/api/#state--events--no-such-me
 
 
 
-#### [Example](#concepts--methods--example)
+#### [Examples](#concepts--methods--examples)
 
-This example of a simple `Document` demonstrates some of the patterns of state method inheritance. Note the points of interest numbered in the trailing comments and their explanations below:
+These examples demonstrate some of the patterns of state method inheritance. Note the points of interest numbered in the trailing comments and their explanations below:
+
+##### [Document](#concepts--methods--examples--document)
 
 {% highlight javascript %}
-{% include examples/docs/methods--example.js %}
+{% include examples/docs/methods--examples-0.js %}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-{% include examples/docs/methods--example.coffee %}
+{% include examples/docs/methods--examples-0.coffee %}
 {% endhighlight %}
 
-{% include captions/docs/methods--example.md %}
+{% include captions/docs/methods--examples-0.md %}
+
+##### [Shooter](#concepts--methods--examples--shooter)
+
+{% highlight javascript %}
+{% include examples/docs/methods--examples-1.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/docs/methods--examples-1.coffee %}
+{% endhighlight %}
+
+{% include captions/docs/methods--examples-1.md %}
+
 
 <div class="backcrumb">
 ⏎  <a class="section" href="#concepts--methods">Methods</a>  &lt;  <a href="#concepts">Concepts</a>  &lt;  <a href="#overview">Overview</a>

@@ -128,7 +128,7 @@ $( function () {
   var $fg = $('.toc .fg');
   if ( $fg.children().length ) return;
 
-  var $h = $('.content .body').find('h1, h2, h3, h4, h5');
+  var $h = $('.content .body').find('h1, h2, h3, h4, h5').has('a');
   l = $h.length;
   if ( !l ) return;
 
@@ -151,8 +151,8 @@ $( function () {
         .attr( 'href', "#" + ( $el.attr('id') || '' ) )
         .html( $( 'a', $el ).html() || $el.text() );
       $li = $('<li>')
-      $li.append( $a )
-      $li.appendTo( stack[ stack.length - 1 ] );
+        .append( $a )
+        .appendTo( stack[ stack.length - 1 ] );
     }
 
     // Extract the nesting levels based on the heading elements’ numbering.

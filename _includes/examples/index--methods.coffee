@@ -10,9 +10,10 @@ class Avenger
         "#{ @superstate.call 'greet' } My name is #{ @owner.name }..."
 
 
-person = new Avenger 'Inigo'
-person.state()              # >>> State 'Terse'
-person.greet()              # >>> "Hello."
+inigo = new Avenger 'Inigo'
 
-person.state '-> Verbose'   # >>> State 'Verbose'
-person.greet()              # >>> "Hello. My name is Inigo..."
+inigo.state()              # >>> State 'Terse'
+inigo.greet()              # >>> "Hello."
+
+inigo.state '-> Verbose'   # >>> State 'Verbose'
+inigo.greet()              # >>> "Hello. My name is Inigo..."

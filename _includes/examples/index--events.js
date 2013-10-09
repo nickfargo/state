@@ -1,6 +1,6 @@
 function Mover () {}
-state( Mover.prototype, {
 
+state( Mover.prototype, {
     Stationary: {
         Idle: state('initial'),
         Alert: state
@@ -10,31 +10,27 @@ state( Mover.prototype, {
         Running: {
             Sprinting: state
         }
-    },
-
-    // Use the root state’s `construct` event to programmatically
-    // set up all of the states to log their transitional events.
-    construct: state.bind( function () {
-        var states, events, s, e, i, ls, j, le;
-
-        function bindEventToState ( e, s ) {
-            s.on( e, state.bind( function () {
-                console.log( e + " " + this.name );
-            }));
-        }
-
-        states = [ this ].concat( this.descendants() );
-        events = ['depart', 'exit', 'enter', 'arrive'];
-
-        for ( i = 0, ls = states.length; i < ls; i++ ) {
-            s = states[i];
-            for ( j = 0, le = events.length; j < le; j++ ) {
-                e = events[j];
-                bindEventToState( e, s );
-            }
-        }
-    })
+    }
 });
+
+// Set up each state to log its transitional events.
+( function () {
+    var states, eventNames, i, j;
+
+    function bindEventToState ( e, s ) {
+        function log () { console.log( e + " " + s.name ); }
+        s.on( e, log );
+    }
+
+    states = Mover.prototype.state().root.descendants();
+    eventNames = ['depart', 'exit', 'enter', 'arrive'];
+
+    for ( i = 0; i < states.length; i++ ) {
+        for ( j = 0; j < eventNames.length; j++ ) {
+            bindEventToState( eventNames[j], states[i] );
+        }
+    }
+}() );
 
 
 var m = new Mover;

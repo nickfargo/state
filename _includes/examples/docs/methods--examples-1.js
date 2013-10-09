@@ -54,6 +54,7 @@ state( Weapon.prototype, {
     Holstered: state,
     Held: state({
         Drawn: state({
+            fire: function () { return "Pew!"; },
             Sighted: state
         })
     }),

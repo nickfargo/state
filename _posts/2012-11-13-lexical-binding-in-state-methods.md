@@ -7,6 +7,16 @@ tags: [methods, lexical binding]
 lede: When a [state method](/docs/#concepts--methods) is inherited from a [**protostate**](/docs/#concepts--inheritance--protostates), the inheriting [`State`](/api/#state) context from which the method is invoked — as referenced by `this` — offers no idiomatic expression of the precise `State` in which the method is defined. To gain this level of lexical awareness, **decorators** and **method transformation** are used to bind a state method to its complete state–lexical environment.
 ---
 
+
+
+* * *
+
+**This article is obsolete as of version 0.1.0.** The solutions presented here have been obviated by functions [`state.bind`](/api/#state-function--bind) and [`state.fix`](/api/#state-function--fix), which are discussed further in the topics about [method context](/docs/#concepts--methods--context) and [lexical bindings](/docs/#concepts--methods--lexical-bindings), respectively.
+
+* * *
+
+
+
 ## [Serving two masters](#serving-two-masters)
 
 One type of content a [`State`](/api/#state) can hold is [methods](/docs/#concepts--methods). Methods of a `State` serve as [delegation targets](/docs/#concepts--methods--delegators) for the methods of the **owner** object to which the `State` belongs.

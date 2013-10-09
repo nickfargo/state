@@ -1,21 +1,3 @@
-// A bit of predefined behavior.
-var theRomansDo = {
-    Formal: {
-        greet: function () { return "Quid agis?"; }
-    },
-    Casual: {
-        greet: function () { return "Salve!"; }
-    }
-};
-
-// Returns a boxed function that instills an enclosed behavior.
-function doAs ( behavior ) {
-    return state.bind( function () {
-        this.mutate( behavior );
-    });
-}
-
-
 function Traveler () {}
 Traveler.prototype = Object.create( Actor );
 Traveler.prototype.constructor = Traveler;

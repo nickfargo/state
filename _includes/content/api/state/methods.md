@@ -3,13 +3,18 @@
 
 #### [realize](#state--methods--realize)
 
-Transforms `this` [virtual state](/docs/#concepts--inheritance--virtual-epistates) into a “real” state that can bear content of its own.
+Transforms `this` [virtual state](/docs/#concepts--object-model--virtual-epistates) into a “real” state that can bear content of its own.
 
 ###### SYNTAX
 
 {% highlight javascript %}
 this.realize()
+this.realize( expression )
 {% endhighlight %}
+
+###### PARAMETERS
+
+* `expression`*<sub>opt</sub>* : ( object | `StateExpression` )
 
 ###### RETURNS
 
@@ -27,7 +32,7 @@ If `this` is already real instead of virtual, then calling `realize` has no effe
 {% include examples/api/state/methods--realize--1.coffee %}
 {% endhighlight %}
 
-If `this` is both `virtual` and `mutable`, then calling any of its `add...` methods necessarily uses `realize` to transform into a real state before content is added.
+If `this` is both `virtual` and `mutable`, then calling any of its `add*` methods necessarily uses `realize` to transform into a real state before content is added.
 
 {% highlight javascript %}
 {% include examples/api/state/methods--realize--2.js %}
@@ -39,8 +44,8 @@ If `this` is both `virtual` and `mutable`, then calling any of its `add...` meth
 
 ###### SEE ALSO
 
-> [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
-> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
+> [Protostates and epistates](/docs/#concepts--object-model--protostates-and-epistates)
+> [Virtual epistates](/docs/#concepts--object-model--virtual-epistates)
 > [`State realize`](/source/state.html#state--private--realize)
 > [`State::realize`](/source/state.html#state--prototype--realize)
 
@@ -77,12 +82,13 @@ Produces an object containing an expression of the contents of `this` state, suc
 ###### SYNTAX
 
 {% highlight javascript %}
+this.express()
 this.express( typed )
 {% endhighlight %}
 
 ###### PARAMETERS
 
-* [`typed = false`] : boolean
+* `typed = false` : boolean
 
 ###### RETURNS
 
@@ -157,7 +163,7 @@ this.substate( stateName, via )
 ###### PARAMETERS
 
 * `stateName` : string
-* [`via = VIA_PROTO`] : boolean
+* `via = VIA_PROTO` : boolean
 
 ###### RETURNS
 
@@ -180,7 +186,7 @@ this.substates( virtual )
 
 ###### PARAMETERS
 
-* [`virtual = false`] : boolean
+* `virtual = false` : boolean
 
 ###### RETURNS
 
@@ -207,7 +213,7 @@ this.descendants( virtual )
 
 ###### PARAMETERS
 
-* [`virtual = false`] : boolean
+* `virtual = false` : boolean
 
 ###### RETURNS
 
@@ -289,7 +295,7 @@ this.derivation( byName )
 
 ###### PARAMETERS
 
-* [`byName = false`] : boolean
+* `byName = false` : boolean
 
 ###### RETURNS
 
@@ -549,7 +555,7 @@ this.defaultSubstate( via )
 
 ###### PARAMETERS
 
-* [`via = VIA_PROTO`] : number
+* `via = VIA_PROTO` : number
 
 ###### RETURNS
 
@@ -621,7 +627,7 @@ Returns `undefined` if no protostate exists anywhere in the owner’s prototype 
 
 ###### SEE ALSO
 
-> [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [Protostates](/docs/#concepts--object-model--protostates-and-epistates)
 > [`State::getProtostate`](/source/state.html#state--prototype--get-protostate)
 
 
@@ -657,7 +663,7 @@ A boolean indicating whether `this` state is a **protostate** of the provided `o
 
 > [**protostate**](#state--properties--protostate)
 
-> [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [Protostates](/docs/#concepts--object-model--protostates-and-epistates)
 > [`State::isProtostateOf`](/source/state.html#state--prototype--is-prototstate-of)
 
 
@@ -668,14 +674,17 @@ Matches a `selector` string with the state or states it represents in the contex
 ###### SYNTAX
 
 {% highlight javascript %}
-this.query( selector, against, descend, ascend, via )
+this.query( selector )
+this.query( selector, against )
+this.query( selector, against, via )
+this.query( selector, via )
 {% endhighlight %}
 
 ###### PARAMETERS
 
 * `selector` : string
-* [`against`] : `State`
-* [`via = VIA_ALL`] : number
+* `against`*<sub>opt</sub>* : `State`
+* `via = VIA_ALL` : number
 
 The `via` parameter is a bit-field integer comprised of one or more of the `TRAVERSAL_FLAGS` constants: [`VIA_SUB`, `VIA_SUPER`, `VIA_PROTO`].
 
@@ -791,13 +800,14 @@ Attempts to execute a state transition.
 ###### SYNTAX
 
 {% highlight javascript %}
+this.change( target )
 this.change( target, options )
 {% endhighlight %}
 
 ###### PARAMETERS
 
 * `target` : ( `State` | string )
-* [`options`] : object
+* `options`*<sub>opt</sub>* : object
 
 The `target` parameter may be either a `State` object within the purview of this controller, or a string that resolves to a likewise targetable `State` when evaluated from the context of the most recently current state.
 
@@ -846,7 +856,7 @@ A **virtual state** is a lightweight inheritor of a **protostate** located highe
 
 ###### SEE ALSO
 
-> [Protostates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [Protostates](/docs/#concepts--object-model--protostates-and-epistates)
 
 
 #### [isMutable](#state--methods--is-mutable)
@@ -1067,12 +1077,13 @@ Reads a composite of the `data` assigned to `this` state.
 ###### SYNTAX
 
 {% highlight javascript %}
+this.data()
 this.data( via )
 {% endhighlight %}
 
 ###### PARAMETERS
 
-* [`via = VIA_ALL`] : number
+* `via = VIA_ALL` : number
 
 ###### RETURNS
 
@@ -1119,13 +1130,14 @@ Determines whether a `data` property with the given `key` exists on `this` state
 ###### SYNTAX
 
 {% highlight javascript %}
+this.has( key )
 this.has( key, via )
 {% endhighlight %}
 
 ###### PARAMETERS
 
 * `key` : string
-* [`via = VIA_ALL`] : number
+* `via = VIA_ALL` : number
 
 ###### NOTES
 
@@ -1143,13 +1155,14 @@ Reads a `data` item on `this` state.
 ###### SYNTAX
 
 {% highlight javascript %}
+this.get( key )
 this.get( key, via )
 {% endhighlight %}
 
 ###### PARAMETERS
 
 * `key` : string
-* [`via = VIA_ALL`] : number
+* `via = VIA_ALL` : number
 
 ###### RETURNS
 
@@ -1258,14 +1271,16 @@ Supports `long.key.path` lookups for deeply nested properties.
 ###### SYNTAX
 
 {% highlight javascript %}
+this.method( methodName )
+this.method( methodName, via )
 this.method( methodName, via, out )
 {% endhighlight %}
 
 ###### PARAMETERS
 
 * `methodName` : string
-* [`via = VIA_ALL`] : number
-* [`out`] : object
+* `via = VIA_ALL` : number
+* `out`*<sub>opt</sub>* : object
 
 ###### RETURNS
 
@@ -1401,7 +1416,7 @@ this.apply( methodName, args )
 ###### PARAMETERS
 
 * `methodName` : string
-* [`args`] : `Array`
+* `args`*<sub>opt</sub>* : `Array`
 
 ###### RETURNS
 
@@ -1433,7 +1448,7 @@ this.call( methodName, args... )
 ###### PARAMETERS
 
 * `methodName` : string
-* [`args...`] : *individual arguments*
+* `args...` : *individual arguments*
 
 ###### SEE ALSO
 
@@ -1446,12 +1461,13 @@ this.call( methodName, args... )
 
 {% highlight javascript %}
 this.event( eventType, id )
+this.event( eventType )
 {% endhighlight %}
 
 ###### PARAMETERS
 
 * `eventType` : string
-* [`id`] : ( string | number | function )
+* `id`*<sub>opt</sub>* : ( string | number | function )
 
 ###### RETURNS
 
@@ -1475,6 +1491,7 @@ Binds an event listener `fn` to the specified `eventType`.
 ###### SYNTAX
 
 {% highlight javascript %}
+this.addEvent( eventType, fn )
 this.addEvent( eventType, fn, context )
 {% endhighlight %}
 
@@ -1482,7 +1499,7 @@ this.addEvent( eventType, fn, context )
 
 * `eventType` : string
 * `fn` : function
-* [`context = this`] : object
+* `context = this` : object
 
 ###### RETURNS
 
@@ -1495,7 +1512,7 @@ A unique identifier for the listener.
 
 #### [removeEvent](#state--methods--remove-event)
 
-Unbinds the event listener with the specified `id` that was supplied by `addEvent`.
+Unbinds the event listener with either the specified `id` that was supplied by `addEvent`, or a direct reference to that function.
 
 ###### ALIASES
 
@@ -1510,7 +1527,7 @@ this.removeEvent( eventType, id )
 ###### PARAMETERS
 
 * `eventType` : string
-* [`id`] : ( string | number | function )
+* `id` : ( string | number | function )
 
 ###### SEE ALSO
 
@@ -1528,15 +1545,20 @@ Invokes all listeners bound to the given `eventType`.
 ###### SYNTAX
 
 {% highlight javascript %}
+this.emit( eventType )
+this.emit( eventType, via )
+this.emit( eventType, args )
+this.emit( eventType, args, via )
+this.emit( eventType, args, context )
 this.emit( eventType, args, context, via )
 {% endhighlight %}
 
 ###### PARAMETERS
 
 * `eventType` : string
-* [`args = []`] : `Array`
-* [`context = this`] : object
-* [`via = VIA_ALL`] : number
+* `args = []` : `Array`
+* `context = this` : object
+* `via = VIA_ALL` : number
 
 Arguments for the listeners can be passed as an array to the `args` parameter.
 
@@ -1617,7 +1639,7 @@ this.removeGuard( guardType, keys )
 ###### PARAMETERS
 
 * `guardType` : string
-* [`keys`] : ( `Array` | string )
+* `keys`*<sub>opt</sub>* : ( `Array` | string )
 
 ###### SEE ALSO
 

@@ -1,9 +1,9 @@
 var owner = {};
 state( owner, 'abstract', {
-  m: function () { return 'beep!'; },
+  m: function () { return "beep!"; },
 
   A: state( 'initial', {
-    m: function () { return 'boop!'; }
+    m: function () { return "boop!"; }
   }),
   B: state,
   C: state( 'concurrent', {
@@ -26,12 +26,12 @@ state( owner, 'abstract', {
     CA: state({
       CAA: state('initial'),
       CAB: state({
-        m: function () { return 'bleep!'; }
+        m: function () { return "bleep!"; }
       })
     }),
     CB: state({
       CBA: state( 'initial', {
-        m: function () { return 'blorp!'; }
+        m: function () { return "blorp!"; }
       }),
       CBB: state
     })

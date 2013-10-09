@@ -34,7 +34,7 @@ state( expression )
 state( attributes )
 {% endhighlight %}
 
-Given a single `expression` object (and optional `attributes`), calling `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call, to define constituent [**substates**](#concepts--inheritance--superstates-and-substates).
+Given a single `expression` object (and optional `attributes`), calling `state` will create and return a [**state expression**](#concepts--expressions) that describes the intended content of a state. This usage of `state` is most often employed within the `expression` argument of an outer `state` call, to define constituent [**substates**](#concepts--object-model--superstates-and-substates).
 
 
 #### [Step 1 — Building a state expression](#getting-started--building-a-state-expression)
@@ -84,7 +84,7 @@ person.state();  // >>> State ''
 person.state()  # >>> State ''
 {% endhighlight %}
 
-In this case the current state of `person` is its top-level [**root state**](#concepts--inheritance--the-root-state), whose name is always the empty string `''`. While `person` is in this state it will exhibit its default behavior:
+In this case the current state of `person` is its top-level [**root state**](#concepts--object-model--the-root-state), whose name is always the empty string `''`. While `person` is in this state it will exhibit its default behavior:
 
 {% highlight javascript %}
 person.greet();  // >>> "Hello."
@@ -118,6 +118,10 @@ person.state('-> Casual');
 person.state();                   // State 'Casual'
 person.greet();                   // >>> "Hi!"
 
+person.state('-> Formal');
+person.state();                   // State 'Formal'
+person.greet();                   // >>> "How do you do?"
+
 person.state('->');                                           // [1]
 person.state();                   // State ''
 person.greet();                   // >>> "Hello."
@@ -127,6 +131,10 @@ person.greet();                   // >>> "Hello."
 person.state '-> Casual'
 person.state()                  # >>> State 'Casual'
 person.greet()                  # >>> "Hi!"
+
+person.state '-> Formal'
+person.state()                  # >>> State 'Formal'
+person.greet()                  # >>> "How do you do?"
 
 person.state '->'                                             # [1]
 person.state()                  # >>> State ''

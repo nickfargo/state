@@ -3,7 +3,7 @@
 <div class="local-toc"></div>
 
 {% include content/docs/concepts/states.md %}
-{% include content/docs/concepts/inheritance.md %}
+{% include content/docs/concepts/object-model.md %}
 {% include content/docs/concepts/expressions.md %}
 {% include content/docs/concepts/selectors.md %}
 {% include content/docs/concepts/attributes.md %}

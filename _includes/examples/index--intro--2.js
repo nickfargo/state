@@ -1,0 +1,1 @@
+owner.state;                       // >>> [Function]

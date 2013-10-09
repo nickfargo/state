@@ -91,6 +91,20 @@ an asynchronous transition.</p>
     <div class="text">
       
 <h3><a href="#transition--methods">Methods</a></h3>
+<h4><a href="#transition--prototype--linearize">linearize</a></h4>
+<p>A <code>Transition</code> instance inherits only from the <code>superstate</code> to which it is
+attached.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">linearize: </span><span class="o">-&gt;</span>
+    <span class="p">{</span> <span class="nx">superstate</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+    <span class="nx">superstate</span><span class="p">.</span><span class="nx">order</span><span class="o">?</span><span class="p">[..]</span> <span class="o">?</span> <span class="nx">superstate</span><span class="p">.</span><span class="nx">linearize</span><span class="p">()</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
 <h4><a href="#transition--prototype--start">start</a></h4>
 
     </div>

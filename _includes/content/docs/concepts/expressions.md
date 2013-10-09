@@ -58,7 +58,7 @@ Expression input provided to `state()` is interpreted according to the following
 
 4. Otherwise, if an entry’s key matches a [guard action](#concepts--guards) (i.e., `admit`, `release`), interpret the value as a guard condition (or array of guard conditions).
 
-5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--inheritance--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
+5. Otherwise, if an entry’s value is an object, interpret it as a [substate](#concepts--object-model--nesting-states) whose name is the entry’s key, or if the entry’s value is a function, interpret it as a [method](#concepts--methods) whose name is the entry’s key.
 
 > [`StateExpression interpret`](/source/state-expression.html#state-expression--private--interpret)
 

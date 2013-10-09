@@ -76,8 +76,8 @@ inherit more generic behavior, forming a <strong>state tree</strong> rooted by a
 <code>RootState</code>.</p>
 <blockquote>
 <p><a href="/docs/#concepts--states">States</a>
-<a href="/docs/#concepts--inheritance">Inheritance</a>
-<a href="/docs/#concepts--inheritance--superstates-and-substates">Superstates and substates</a></p>
+<a href="/docs/#concepts--object-model">Object model</a>
+<a href="/docs/#concepts--object-model--superstates-and-substates">Superstates and substates</a></p>
 </blockquote>
 <p>The owner’s <code>RootState</code> designates exactly one of the <code>State</code>s in its tree as
 its <code>current</code> state. This reference may be <strong>transitioned</strong> to a different
@@ -87,7 +87,7 @@ prototype chain. Inheritors of a stateful prototype effectively possess all of
 the prototype’s <code>State</code>s, but each inheritor can adopt its own <code>current</code> state
 and instigate transitions independently of the prototype.</p>
 <blockquote>
-<p><a href="/docs/#concepts--inheritance--protostates-and-epistates">Protostates and epistates</a></p>
+<p><a href="/docs/#concepts--object-model--protostates-and-epistates">Protostates and epistates</a></p>
 </blockquote>
 
     </div>
@@ -111,6 +111,7 @@ and methods, so make them available as free variables.</p>
       <div class="highlight"><pre>  <span class="p">{</span>
     <span class="nx">INCIPIENT</span><span class="p">,</span> <span class="nx">ATOMIC</span><span class="p">,</span> <span class="nx">DESTROYED</span>
     <span class="nx">VIRTUAL</span>
+    <span class="nx">PARASTATIC</span>
     <span class="nx">MUTABLE</span><span class="p">,</span> <span class="nx">FINITE</span><span class="p">,</span> <span class="nx">STATIC</span><span class="p">,</span> <span class="nx">IMMUTABLE</span>
     <span class="nx">INITIAL</span><span class="p">,</span> <span class="nx">CONCLUSIVE</span><span class="p">,</span> <span class="nx">FINAL</span>
     <span class="nx">ABSTRACT</span><span class="p">,</span> <span class="nx">CONCRETE</span><span class="p">,</span> <span class="nx">DEFAULT</span>
@@ -155,6 +156,7 @@ through substates, superstates, and protostates.</p>
     </div>
     <div class="code">
       <div class="highlight"><pre>  <span class="nv">PROTO_HERITABLE_ATTRIBUTES =</span>
+    <span class="nx">PARASTATIC</span>  <span class="o">|</span>
     <span class="nx">MUTABLE</span>     <span class="o">|</span>  <span class="nx">FINITE</span>      <span class="o">|</span>  <span class="nx">STATIC</span>     <span class="o">|</span>  <span class="nx">IMMUTABLE</span>  <span class="o">|</span>
     <span class="nx">INITIAL</span>     <span class="o">|</span>  <span class="nx">CONCLUSIVE</span>  <span class="o">|</span>  <span class="nx">FINAL</span>      <span class="o">|</span>
     <span class="nx">ABSTRACT</span>    <span class="o">|</span>  <span class="nx">CONCRETE</span>    <span class="o">|</span>  <span class="nx">DEFAULT</span>    <span class="o">|</span>
@@ -209,6 +211,18 @@ or an <code>owner</code> for which to act as a new <code>root</code> state.</p>
     <span class="vi">@root = </span><span class="nx">root</span>
     <span class="vi">@superstate = </span><span class="nx">superstate</span>
     <span class="vi">@protostate = </span><span class="nv">protostate = </span><span class="nx">@getProtostate</span><span class="p">()</span> <span class="o">or</span> <span class="kc">null</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>The linearized resolution <code>order</code> for <code>this</code> will be set later, either when the
+instance is <code>realize</code>d, or on demand if a lookup is performed and the <code>order</code>
+is not set.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="vi">@order = </span><span class="kc">null</span></pre></div>
     </div>
   
     
@@ -323,7 +337,7 @@ those attributes out of the protostate before inheriting.</p>
     
     <div class="text">
       
-<h3><a href="#state--private">Private functions</a></h3>
+<h3><a href="#state--private">Private entities</a></h3>
 <h4><a href="#state--private--create-dispatcher">createDispatcher</a></h4>
 <p>For each method defined in any of the owner’s states, a <strong>dispatcher</strong> must be
 created and assigned on the owner itself at the <code>methodName</code> key. Calls to
@@ -366,6 +380,7 @@ and applied, and its result returned to the call site.</p>
     <span class="nx">@attributes</span> <span class="o">|=</span> <span class="nx">INCIPIENT</span>
     <span class="nx">@realize</span> <span class="nx">expression</span>
     <span class="nx">@attributes</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="nx">INCIPIENT</span>
+
     <span class="nx">@emit</span> <span class="s1">&#39;construct&#39;</span><span class="p">,</span> <span class="nx">expression</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
     <span class="k">this</span></pre></div>
     </div>
@@ -381,7 +396,7 @@ and applied, and its result returned to the call site.</p>
 <blockquote>
 <p><a href="#state--prototype--virtualize"><code>virtualize</code></a>
 <a href="/api/#state--methods--realize">realize</a>
-<a href="/docs/#concepts--inheritance--virtual-epistates">Virtual epistates</a></p>
+<a href="/docs/#concepts--object-model--virtual-epistates">Virtual epistates</a></p>
 </blockquote>
 
     </div>
@@ -394,16 +409,16 @@ and applied, and its result returned to the call site.</p>
     
     <div class="text">
       
-<p>Propagate realization up the superstate chain if necessary, adding each newly
-realized state to the <code>substates</code> collection of its real superstate.</p>
+<p>Begin realization higher in the superstate chain if necessary, adding each
+newly realized state to the <code>substates</code> collection of its real superstate.</p>
 
     </div>
     <div class="code">
       <div class="highlight"><pre>    <span class="k">if</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span>
       <span class="k">if</span> <span class="nv">ss = </span><span class="nx">@superstate</span>
         <span class="nx">do</span> <span class="nx">ss</span><span class="p">.</span><span class="nx">realize</span> <span class="k">if</span> <span class="nx">ss</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span>
-        <span class="nv">substates = </span><span class="nx">ss</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">substates</span> <span class="o">or</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="nx">do</span> <span class="nx">substates</span><span class="p">[</span> <span class="nx">name</span> <span class="p">].</span><span class="nx">destroy</span> <span class="k">if</span> <span class="nx">substates</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span>
+        <span class="nv">substates = </span><span class="nx">ss</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">substates</span> <span class="o">?=</span> <span class="p">{}</span>
+        <span class="nx">do</span> <span class="nx">substates</span><span class="p">[</span> <span class="nx">name</span> <span class="p">].</span><span class="nx">destroy</span> <span class="k">if</span> <span class="nx">substates</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span><span class="o">?</span>
         <span class="nx">substates</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span> <span class="o">=</span> <span class="k">this</span>
       <span class="nx">@attributes</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="nx">VIRTUAL</span></pre></div>
     </div>
@@ -412,12 +427,39 @@ realized state to the <code>substates</code> collection of its real superstate.<
     <div class="text">
       
 <p>A <code>State</code>’s <code>Metaobject</code> is stored in an underscore <code>_</code> property; the
-existence of <code>@_</code> always implies a realized state.</p>
+existence of <code>_</code> in <code>this</code> implies that <code>this</code> must be a realized state.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>    <span class="nx">@_</span> <span class="o">or</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">@Metaobject</span>
-    <span class="nx">@mutate</span> <span class="nx">expression</span> <span class="k">if</span> <span class="nx">expression</span><span class="o">?</span></pre></div>
+      <div class="highlight"><pre>    <span class="nx">@_</span> <span class="o">?=</span> <span class="k">new</span> <span class="nx">@Metaobject</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>Normalize any declarations of <code>parastates</code>. These will be used later in the
+outer <code>realize</code> function to recursively compute a <code>linearization</code> for <code>this</code>
+state and for its descendant substates.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="nv">parastates = </span><span class="nx">expression</span><span class="o">?</span><span class="p">.</span><span class="nx">parastates</span>
+      <span class="k">if</span> <span class="nx">isArray</span> <span class="nx">parastates</span> <span class="k">then</span> <span class="nv">parastates = </span><span class="nx">parastates</span><span class="p">.</span><span class="nx">join</span> <span class="s1">&#39;,&#39;</span>
+      <span class="k">throw</span> <span class="nx">TypeError</span> <span class="nx">unless</span> <span class="k">typeof</span> <span class="nx">parastates</span> <span class="o">is</span> <span class="s1">&#39;string&#39;</span>
+      <span class="nv">parastates = </span><span class="nx">parastates</span><span class="p">.</span><span class="nx">split</span> <span class="sr">/\s*,\s*/</span>
+      <span class="k">if</span> <span class="nx">parastates</span><span class="p">.</span><span class="nx">length</span>
+        <span class="vi">@_.parastates = </span><span class="nx">parastates</span>
+        <span class="nx">@attributes</span> <span class="o">|=</span> <span class="nx">PARASTATIC</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>Populate the rest of the empty metaobject by “mutating” against <code>expression</code>.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nx">@mutate</span> <span class="nx">expression</span> <span class="k">if</span> <span class="nx">expression</span><span class="o">?</span></pre></div>
     </div>
   
     
@@ -430,11 +472,24 @@ must be copied into the root, where it defines the owner’s default behavior.</
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>    <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">@root</span>
-      <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">method</span> <span class="k">of</span> <span class="nx">@owner</span> <span class="k">when</span> <span class="nx">key</span> <span class="o">isnt</span> <span class="s1">&#39;constructor&#39;</span> <span class="o">and</span>
-          <span class="k">typeof</span> <span class="nx">method</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">method</span><span class="p">.</span><span class="nx">isDispatcher</span> <span class="o">and</span>
-          <span class="nx">@method</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
-        <span class="nx">@addMethod</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">method</span>
+      <div class="highlight"><pre>    <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">@root</span> <span class="k">then</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">method</span> <span class="k">of</span> <span class="nx">@owner</span>
+      <span class="nx">@addMethod</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">method</span> <span class="k">if</span> <span class="nx">key</span> <span class="o">isnt</span> <span class="s1">&#39;constructor&#39;</span> <span class="o">and</span>
+        <span class="k">typeof</span> <span class="nx">method</span> <span class="o">is</span> <span class="s1">&#39;function&#39;</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">method</span><span class="p">.</span><span class="nx">isDispatcher</span> <span class="o">and</span>
+        <span class="nx">@method</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">VIA_PROTO</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>The superstate and parastates of <code>this</code> <code>State</code> are <code>linearize</code>d into a defined
+<code>order</code>. Because the <code>State</code>s of a state tree are constructed bottom-up, in the
+case of an <strong>incipient</strong> state, the linearization step must be deferred to the
+<strong>root</strong>, which will then recursively <code>linearize</code> its descendants from the top
+down, <em>after</em> each one has been instantiated and situated in the tree.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nx">@linearize</span> <span class="nx">VIA_SUB</span> <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">@root</span> <span class="o">or</span> <span class="o">~</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">INCIPIENT</span>
 
     <span class="k">this</span></pre></div>
     </div>
@@ -450,7 +505,7 @@ ancestor superstates as necessary to reach a real <code>State</code> within that
 This will be the newly created virtual state, unless virtualization was
 unnecessary, in which case it will be the extant real epistate of <code>this</code>.</p>
 <blockquote>
-<p><a href="/docs/#concepts--inheritance--virtual-epistates">Virtual epistates</a></p>
+<p><a href="/docs/#concepts--object-model--virtual-epistates">Virtual epistates</a></p>
 </blockquote>
 
     </div>
@@ -461,7 +516,7 @@ unnecessary, in which case it will be the extant real epistate of <code>this</co
     
     <div class="text">
       
-<p>Verify that <code>inheritor</code>’s owner does indeed inherit from the owner of <code>this</code>.</p>
+<p>Verify relation between respective <code>owner</code>s of <code>inheritor</code> and <code>this</code>.</p>
 
     </div>
     <div class="code">
@@ -510,6 +565,134 @@ add virtual states to it until the whole superstate chain is represented.</p>
     
     <div class="text">
       
+<h4><a href="#state--prototype--linearize">linearize</a></h4>
+<p>Computes, records, and returns the array of <code>State</code>s that define the <code>order</code> of
+resolution, or <strong>linearization</strong>, for inheritance of <code>this</code> amongst itself and
+ancestors that share a common <code>owner</code> (and thus inhabit a common state tree).</p>
+<p>This method is an adaptation of the C3 linearization algorithm to the <code>State</code>
+model, where the returned list begins with <code>this</code> and is followed by a
+monotonic ordering of its ancestors.</p>
+<p>By definition a <code>State</code>’s <strong>protostates</strong> are excluded from <code>order</code>. Traversal
+<code>VIA_ALL</code> proceeds over the concatenation of the protostate chains for each
+<code>State</code> in <code>order</code>; this set inherently preserves the monotonicity of <code>order</code>.</p>
+<p>Parastates are specified by the selector paths contained in the <code>parastates</code>
+array of the metaobject <code>this._</code>. <strong>Epistates</strong> inherit any parastate paths
+defined by their <strong>protostates</strong>, and may override their ordering.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="nv">linearize: </span><span class="nx">do</span> <span class="o">-&gt;</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h5>getParastateDeclarations</h5>
+<p>Returns the concatenation of <code>this</code> <code>State</code>’s own and <code>protostate</code>-derived
+declarations of <code>parastates</code>.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nv">getParastateDeclarations = </span><span class="o">-&gt;</span>
+      <span class="nv">head = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">parastates</span>
+      <span class="nv">tail = </span><span class="nx">getParastateDeclarations</span><span class="p">.</span><span class="nx">call</span> <span class="nx">ps</span> <span class="k">if</span> <span class="nv">ps = </span><span class="nx">@protostate</span>
+      <span class="k">if</span> <span class="nx">tail</span><span class="o">?</span> <span class="k">then</span> <span class="p">(</span> <span class="nx">head</span><span class="o">?</span><span class="p">.</span><span class="nx">concat</span> <span class="nx">tail</span> <span class="p">)</span> <span class="o">?</span> <span class="nx">tail</span> <span class="k">else</span> <span class="nx">head</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h5>merge</h5>
+<p>Creates and returns a monotonic ordered set of <code>State</code>s from the provided
+<code>lists</code>, where <code>lists</code> is an array of arrays, consisting of an array of
+“parent” states, preceded by arrays that represent, in order, the linearization
+of each “parent” state.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nv">merge = </span><span class="nf">( out, lists ) -&gt;</span>
+      <span class="k">return</span> <span class="nx">out</span> <span class="nx">unless</span> <span class="nx">lists</span><span class="p">.</span><span class="nx">length</span>
+      <span class="k">for</span> <span class="nx">headList</span><span class="p">,</span> <span class="nx">index</span> <span class="k">in</span> <span class="nx">lists</span> <span class="k">when</span> <span class="nx">headList</span><span class="o">?</span>
+        <span class="nv">head = </span><span class="nx">headList</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="nv">bad = </span><span class="kc">no</span>
+        <span class="k">for</span> <span class="nx">otherList</span> <span class="k">in</span> <span class="nx">lists</span> <span class="k">when</span> <span class="nx">otherList</span> <span class="o">isnt</span> <span class="nx">headList</span>
+          <span class="nv">i = </span><span class="mi">1</span><span class="p">;</span> <span class="k">while</span> <span class="nv">item = </span><span class="nx">otherList</span><span class="p">[</span> <span class="nx">i</span><span class="o">++</span> <span class="p">]</span>
+            <span class="k">if</span> <span class="nx">item</span> <span class="o">is</span> <span class="nx">head</span> <span class="k">then</span> <span class="nv">bad = </span><span class="kc">yes</span><span class="p">;</span> <span class="k">break</span>
+          <span class="k">break</span> <span class="k">if</span> <span class="nx">bad</span>
+        <span class="k">continue</span> <span class="k">if</span> <span class="nx">bad</span>
+        <span class="nx">out</span><span class="p">.</span><span class="nx">push</span> <span class="nx">head</span>
+        <span class="nv">remainingLists = </span><span class="p">[];</span> <span class="k">for</span> <span class="nx">list</span> <span class="k">in</span> <span class="nx">lists</span>
+          <span class="nx">do</span> <span class="nx">list</span><span class="p">.</span><span class="nx">shift</span> <span class="k">if</span> <span class="nx">list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">is</span> <span class="nx">head</span>
+          <span class="nx">remainingLists</span><span class="p">.</span><span class="nx">push</span> <span class="nx">list</span> <span class="k">if</span> <span class="nx">list</span><span class="p">.</span><span class="nx">length</span>
+        <span class="k">return</span> <span class="nx">merge</span> <span class="nx">out</span><span class="p">,</span> <span class="nx">remainingLists</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nx">TypeError</span> <span class="s2">&quot;Ambiguous resolution order for &#39;#{ out.pop() }&#39;&quot;</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<h5>linearize</h5>
+<p>Computes the linearization of <code>this</code> from its named parastates and referenced
+superstate, and saves this array as <code>this.order</code>.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="nv">linearize = </span><span class="nf">( via = VIA_NONE ) -&gt;</span>
+      <span class="k">if</span> <span class="k">this</span> <span class="o">is</span> <span class="nx">@root</span> <span class="k">then</span> <span class="nv">order = </span><span class="p">[</span><span class="k">this</span><span class="p">]</span> <span class="k">else</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>Determine the ordered set of <code>State</code>s from which <code>this</code> inherits. By rule any
+parastates precede the superstate. Declarations of parastates include those
+inherited from protostates; all parastates are resolved to unique <code>own</code>
+<code>State</code>s of the prevailing <code>owner</code>’s state tree.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>        <span class="nv">parents = </span><span class="p">[]</span>
+        <span class="k">if</span> <span class="nv">paths = </span><span class="nx">getParastateDeclarations</span><span class="p">.</span><span class="nx">call</span> <span class="k">this</span>
+          <span class="p">{</span> <span class="nx">owner</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+          <span class="k">for</span> <span class="nx">path</span> <span class="k">in</span> <span class="nx">paths</span>
+            <span class="nx">unless</span> <span class="nv">parastate = </span><span class="nx">state</span><span class="p">.</span><span class="nx">own</span> <span class="nx">owner</span><span class="p">,</span> <span class="nx">path</span>
+              <span class="k">throw</span> <span class="k">new</span> <span class="nx">ReferenceError</span> <span class="s2">&quot;Unresolvable parastate &#39;#{ path }&#39;&quot;</span>
+            <span class="nx">parents</span><span class="p">.</span><span class="nx">push</span> <span class="nx">parastate</span> <span class="nx">unless</span> <span class="nx">parastate</span> <span class="k">in</span> <span class="nx">parents</span>
+        <span class="nx">parents</span><span class="p">.</span><span class="nx">push</span> <span class="nx">@superstate</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>Create an array of the linearizations for each <code>parent</code>, followed by a list of
+the <code>parents</code> themselves, then <code>merge</code> each of these <code>lists</code> to create a single
+ordered set that defines the monotonic linearization of <code>this</code>.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>        <span class="nv">lists = </span><span class="p">[]</span>
+        <span class="k">for</span> <span class="nx">parent</span> <span class="k">in</span> <span class="nx">parents</span>
+          <span class="nx">lists</span><span class="p">.</span><span class="nx">push</span> <span class="p">(</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">order</span> <span class="o">?</span> <span class="nx">parent</span><span class="p">.</span><span class="nx">linearize</span><span class="p">()</span> <span class="p">)[..]</span>
+        <span class="nx">lists</span><span class="p">.</span><span class="nx">push</span> <span class="nx">parents</span>
+        <span class="nv">order = </span><span class="nx">merge</span> <span class="p">[</span><span class="k">this</span><span class="p">],</span> <span class="nx">lists</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>Set the determined <code>order</code>, then recurse downward if so directed (e.g., this is
+instigated from the root state as the last step of realization, after all of
+its substates and descendants are in place).</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>      <span class="vi">@order = </span><span class="nx">order</span>
+      <span class="nx">s</span><span class="p">.</span><span class="nx">linearize</span> <span class="nx">via</span> <span class="k">for</span> <span class="nx">own</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">s</span> <span class="k">of</span> <span class="nx">@_</span><span class="p">.</span><span class="nx">substates</span> <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUB</span>
+      <span class="nx">order</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
 <h4><a href="#state--prototype--express">express</a></h4>
 <p>Returns an <strong>expression</strong> of <code>this</code> state — a data structure that contains an
 exported snapshot of the state’s own contents.</p>
@@ -542,7 +725,7 @@ is truthy, the expression is a formally typed <code>StateExpression</code>.</p>
         <span class="nx">out</span><span class="p">[</span> <span class="nx">name</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">substate</span><span class="p">.</span><span class="nx">express</span> <span class="nx">typed</span>
       <span class="nx">out</span>
 
-    <span class="nf">( typed ) -&gt;</span>
+    <span class="k">return</span> <span class="nv">express = </span><span class="nf">( typed ) -&gt;</span>
       <span class="k">if</span> <span class="nv">_ = </span><span class="nx">@_</span> <span class="k">then</span> <span class="nv">expression = </span><span class="nx">edit</span> <span class="p">{},</span> <span class="p">{</span>  <span class="c1"># Why `edit`???</span>
         <span class="nx">@attributes</span>
         <span class="nv">data        : </span><span class="nx">cloneCategory</span>   <span class="nx">_</span><span class="p">.</span><span class="nx">data</span>
@@ -574,7 +757,7 @@ specified by the expression provided in <code>expr</code>.</p>
         <span class="k">else</span> <span class="k">if</span> <span class="nx">value</span> <span class="o">and</span> <span class="nx">value</span> <span class="o">isnt</span> <span class="nx">items</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span>
           <span class="nx">emitter</span><span class="p">.</span><span class="nx">set</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span>
 
-    <span class="nf">( expr ) -&gt;</span>
+    <span class="k">return</span> <span class="nv">mutate = </span><span class="nf">( expr ) -&gt;</span>
       <span class="p">{</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">Expression</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span></pre></div>
     </div>
   
@@ -736,7 +919,7 @@ corresponding substates.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>      <span class="k">for</span> <span class="nx">own</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">stateExpr</span> <span class="k">of</span> <span class="nx">expr</span><span class="p">.</span><span class="nx">states</span>
+      <div class="highlight"><pre>      <span class="k">for</span> <span class="nx">own</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">stateExpr</span> <span class="k">of</span> <span class="nx">expr</span><span class="p">.</span><span class="nx">substates</span>
         <span class="k">if</span> <span class="nx">substates</span> <span class="o">and</span> <span class="nx">name</span> <span class="k">of</span> <span class="nx">substates</span>
           <span class="k">if</span> <span class="nx">stateExpr</span> <span class="o">is</span> <span class="nx">NIL</span>
           <span class="k">then</span> <span class="nx">@removeSubstate</span> <span class="nx">name</span>
@@ -868,6 +1051,19 @@ owner’s accessor method.</p>
     
     <div class="text">
       
+<p>The metaobject should be cleared explicitly, as it may contain a cyclical
+reference to <code>this</code> at the head of its <code>linearization</code> array. This should be
+sufficient to allow garbage-collection since only <code>this</code> should ever hold a
+reference to the metaobject.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>    <span class="vi">@_ = </span><span class="kc">null</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
 <p>A flag is set that can be observed later by anything retaining a reference to
 this state (e.g. a memoization) which would be withholding it from being
 garbage-collected.</p>
@@ -968,7 +1164,7 @@ returned.</p>
 is <code>true</code>, any active virtual epistates will be included as well.</p>
 <blockquote>
 <p><a href="/api/#state--methods--substates">substates</a>
-<a href="/docs/#concepts--inheritance--virtual-epistates">Virtual epistates</a></p>
+<a href="/docs/#concepts--object-model--virtual-epistates">Virtual epistates</a></p>
 </blockquote>
 
     </div>
@@ -1680,7 +1876,7 @@ change to the state’s data, a <code>mutate</code> event is emitted for this st
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>  <span class="nv">data: </span><span class="nf">( via = VIA_ALL ) -&gt;</span></pre></div>
+      <div class="highlight"><pre>  <span class="nv">data: </span><span class="nf">( via = VIA_ALL, out ) -&gt;</span></pre></div>
     </div>
   
     
@@ -1697,8 +1893,8 @@ the parameter as <code>mutation</code>.</p>
       <span class="p">{</span> <span class="nx">attributes</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
       <span class="k">if</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">INCIPIENT_OR_MUTABLE</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">isEmpty</span> <span class="nx">mutation</span>
         <span class="k">return</span> <span class="nx">@realize</span><span class="p">().</span><span class="nx">data</span> <span class="nx">mutation</span> <span class="k">if</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span>
-        <span class="nv">residue = </span><span class="nx">delta</span> <span class="nx">@_</span><span class="p">.</span><span class="nx">data</span> <span class="o">or</span> <span class="o">=</span> <span class="p">{},</span> <span class="nx">mutation</span>
-        <span class="k">if</span> <span class="o">not</span> <span class="p">(</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">ATOMIC</span> <span class="p">)</span> <span class="o">and</span> <span class="nx">residue</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">isEmpty</span> <span class="nx">residue</span>
+        <span class="nv">residue = </span><span class="nx">delta</span> <span class="nx">@_</span><span class="p">.</span><span class="nx">data</span> <span class="o">?=</span> <span class="p">{},</span> <span class="nx">mutation</span>
+        <span class="k">if</span> <span class="o">~</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">ATOMIC</span> <span class="o">and</span> <span class="nx">residue</span> <span class="o">and</span> <span class="o">not</span> <span class="nx">isEmpty</span> <span class="nx">residue</span>
           <span class="nx">@emit</span> <span class="s1">&#39;mutate&#39;</span><span class="p">,</span> <span class="p">[</span> <span class="nx">mutation</span><span class="p">,</span> <span class="nx">residue</span> <span class="p">],</span> <span class="nx">VIA_PROTO</span>
       <span class="k">this</span></pre></div>
     </div>
@@ -1711,43 +1907,56 @@ inherited <code>via</code> superstates and protostates, unless directed otherwis
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>    <span class="k">else</span> <span class="nx">clone</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUPER</span> <span class="o">and</span> <span class="nx">@superstate</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span><span class="p">(),</span>
-               <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span> <span class="o">and</span> <span class="nx">@protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span> <span class="nx">VIA_PROTO</span><span class="p">,</span>
-               <span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span></pre></div>
+      <div class="highlight"><pre>    <span class="k">else</span>
+      <span class="nx">out</span> <span class="o">?=</span> <span class="p">{}</span>
+      <span class="k">for</span> <span class="nx">relative</span> <span class="k">in</span> <span class="nx">@order</span> <span class="o">?</span> <span class="nx">@linearize</span><span class="p">()</span> <span class="k">by</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">continue</span> <span class="nx">unless</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUPER</span> <span class="o">or</span> <span class="nx">relative</span> <span class="o">is</span> <span class="k">this</span>
+        <span class="nx">edit</span> <span class="s1">&#39;deep all&#39;</span><span class="p">,</span> <span class="nx">out</span><span class="p">,</span>
+          <span class="p">(</span> <span class="nx">relative</span><span class="p">.</span><span class="nx">protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span> <span class="nx">VIA_PROTO</span><span class="p">,</span> <span class="nx">out</span> <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span> <span class="p">),</span>
+          <span class="nx">relative</span><span class="p">.</span><span class="nx">_</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span>
+      <span class="nx">out</span></pre></div>
     </div>
   
     
     <div class="text">
       
 <h4><a href="#state--prototype--has">has</a></h4>
+<p>Determines whether a property with the given <code>key</code> is contained within <code>this</code>
+state’s <code>data</code> storage, or that of an ancestral protostate, parastate, or
+superstate, unless directed otherwise by <code>via</code>.</p>
 
     </div>
     <div class="code">
       <div class="highlight"><pre>  <span class="nv">has: </span><span class="nf">( key, via = VIA_ALL ) -&gt;</span>
     <span class="nv">viaSuper = </span><span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUPER</span>
     <span class="nv">viaProto = </span><span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span>
-
-    <span class="o">!!</span><span class="p">(</span>
-      <span class="p">(</span> <span class="nv">data = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span> <span class="p">)</span> <span class="o">and</span> <span class="nx">has</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span> <span class="p">)</span> <span class="o">or</span>
-      <span class="nx">viaProto</span> <span class="o">and</span> <span class="nx">@protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">VIA_PROTO</span> <span class="p">)</span> <span class="o">or</span>
-      <span class="nx">viaSuper</span> <span class="o">and</span> <span class="nx">@superstate</span><span class="o">?</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">VIA_SUPER</span> <span class="o">|</span> <span class="nx">viaProto</span> <span class="p">)</span>
-    <span class="p">)</span></pre></div>
+    <span class="k">for</span> <span class="nx">relative</span> <span class="k">in</span> <span class="nx">@order</span> <span class="o">?</span> <span class="nx">@linearize</span><span class="p">()</span>
+      <span class="nv">s = </span><span class="nx">relative</span><span class="p">;</span> <span class="k">while</span> <span class="nx">s</span><span class="o">?</span>
+        <span class="k">return</span> <span class="kc">yes</span> <span class="k">if</span> <span class="p">(</span> <span class="nv">data = </span><span class="nx">s</span><span class="p">.</span><span class="nx">_</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span> <span class="p">)</span><span class="o">?</span> <span class="o">and</span> <span class="nx">hasOwn</span><span class="p">.</span><span class="nx">call</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span>
+        <span class="k">if</span> <span class="nx">viaProto</span> <span class="k">then</span> <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">protostate</span> <span class="k">else</span> <span class="k">break</span>
+        <span class="k">continue</span> <span class="k">if</span> <span class="nx">viaSuper</span>
+    <span class="kc">no</span></pre></div>
     </div>
   
     
     <div class="text">
       
 <h4><a href="#state--prototype--get">get</a></h4>
+<p>Retrieves the value of a <code>key</code> within <code>this</code> state’s <code>data</code> storage, or from
+that of an ancestral protostate, parastate, or superstate, unless directed
+otherwise by <code>via</code>.</p>
 
     </div>
     <div class="code">
       <div class="highlight"><pre>  <span class="nv">get: </span><span class="nf">( key, via = VIA_ALL ) -&gt;</span>
     <span class="nv">viaSuper = </span><span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUPER</span>
     <span class="nv">viaProto = </span><span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span>
-
-    <span class="p">(</span> <span class="nv">data = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span> <span class="p">)</span> <span class="o">and</span> <span class="nx">lookup</span><span class="p">(</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span> <span class="p">)</span> <span class="o">or</span>
-    <span class="nx">viaProto</span> <span class="o">and</span> <span class="nx">@protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">VIA_PROTO</span> <span class="p">)</span> <span class="o">or</span>
-    <span class="nx">viaSuper</span> <span class="o">and</span> <span class="nx">@superstate</span><span class="o">?</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">VIA_SUPER</span> <span class="o">|</span> <span class="nx">viaProto</span> <span class="p">)</span></pre></div>
+    <span class="k">for</span> <span class="nx">relative</span> <span class="k">in</span> <span class="nx">@order</span> <span class="o">?</span> <span class="nx">@linearize</span><span class="p">()</span>
+      <span class="nv">s = </span><span class="nx">relative</span><span class="p">;</span> <span class="k">while</span> <span class="nx">s</span><span class="o">?</span>
+        <span class="k">if</span> <span class="p">(</span> <span class="nv">data = </span><span class="nx">s</span><span class="p">.</span><span class="nx">_</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span> <span class="p">)</span><span class="o">?</span> <span class="o">and</span> <span class="nx">hasOwn</span><span class="p">.</span><span class="nx">call</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span>
+          <span class="k">return</span> <span class="nx">data</span><span class="p">[</span> <span class="nx">key</span> <span class="p">]</span>
+        <span class="k">if</span> <span class="nx">viaProto</span> <span class="k">then</span> <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">protostate</span> <span class="k">else</span> <span class="k">break</span>
+      <span class="k">continue</span> <span class="k">if</span> <span class="nx">viaSuper</span></pre></div>
     </div>
   
     
@@ -1766,7 +1975,7 @@ key already exists, it is added.</p>
       <div class="highlight"><pre>  <span class="nv">let: </span><span class="nf">( key, value ) -&gt;</span>
     <span class="p">{</span> <span class="nx">attributes</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
     <span class="k">return</span> <span class="nx">unless</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">INCIPIENT_OR_MUTABLE</span>  <span class="c1"># should warn</span>
-    <span class="k">return</span> <span class="nx">@realize</span><span class="p">().</span><span class="nx">let</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">if</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span></pre></div>
+    <span class="nx">do</span> <span class="nx">@realize</span> <span class="k">if</span> <span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span></pre></div>
     </div>
   
     
@@ -1791,11 +2000,11 @@ key already exists, it is added.</p>
     <div class="text">
       
 <h4><a href="#state--prototype--set">set</a></h4>
-<p>Assigns a <code>value</code> to the nearest extant <code>key</code> within the <code>data</code> storage
-inherited along the superstate chain of <code>this</code>.</p>
-<p>For <code>let</code> versus <code>set</code>, the notion of a property’s <strong>scope</strong> along the
-superstate chain is comparable to the same at the language level for variable
-bindings within functions being shadowed versus unshadowed, respectively.</p>
+<p>Assigns a <code>value</code> to an existing <code>key</code> within the <code>data</code> storage of the nearest
+mutable ancestral parastate or superstate of <code>this</code>. Returns the equivalent of
+a <code>let</code> operation on <code>this</code> if no such ancestor can be affected.</p>
+<p>Only <code>State</code>s that belong to <code>this.owner</code> can be affected by <code>set</code>; their
+protostates cannot.</p>
 <blockquote>
 <p><a href="/api/#state--methods--let">let</a>
 <a href="/api/#state--methods--set">set</a></p>
@@ -1812,31 +2021,26 @@ bindings within functions being shadowed versus unshadowed, respectively.</p>
     
     <div class="text">
       
-<p>Find the superstate that holds the inherited property and mutate it.</p>
+<p>Find the nearest <code>State</code> along the linearization path of <code>this</code> whose <code>data</code>
+storage contains a property with the given <code>key</code>, and mutate that property with
+the given <code>value</code> if allowed to do so. If these steps do not complete, delegate
+to <code>let</code>.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>    <span class="nv">s = </span><span class="k">this</span><span class="p">;</span> <span class="k">while</span> <span class="nx">s</span>
-      <span class="k">if</span> <span class="nx">s</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span> <span class="o">and</span> <span class="p">(</span> <span class="nv">data = </span><span class="nx">s</span><span class="p">.</span><span class="nx">_</span><span class="p">.</span><span class="nx">data</span> <span class="p">)</span> <span class="o">and</span> <span class="nx">key</span> <span class="k">of</span> <span class="nx">data</span>
-        <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">let</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span>
-      <span class="nv">s = </span><span class="nx">s</span><span class="p">.</span><span class="nx">superstate</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>If no mutable property already exists along the superstate chain, then default
-to a <code>let</code>.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>    <span class="nx">@let</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span></pre></div>
+      <div class="highlight"><pre>    <span class="k">for</span> <span class="nx">relative</span> <span class="k">in</span> <span class="nx">@order</span> <span class="o">?</span> <span class="nx">@linearize</span><span class="p">()</span>
+      <span class="k">if</span> <span class="p">(</span> <span class="nv">data = </span><span class="nx">relative</span><span class="p">.</span><span class="nx">_</span><span class="o">?</span><span class="p">.</span><span class="nx">data</span> <span class="p">)</span><span class="o">?</span> <span class="o">and</span> <span class="nx">hasOwn</span><span class="p">.</span><span class="nx">call</span> <span class="nx">data</span><span class="p">,</span> <span class="nx">key</span>
+        <span class="k">return</span> <span class="nx">relative</span><span class="p">.</span><span class="nx">let</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">if</span> <span class="nx">relative</span><span class="p">.</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">MUTABLE</span>
+        <span class="k">break</span>
+    <span class="nx">@let</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span></pre></div>
     </div>
   
     
     <div class="text">
       
 <h4><a href="#state--prototype--delete">delete</a></h4>
+<p>Removes a property from <code>this</code> state’s <code>data</code> storage, provided that <code>this</code> is
+mutable.</p>
 
     </div>
     <div class="code">
@@ -1859,8 +2063,9 @@ property of <code>out</code>; if included, <code>context</code> is confined to t
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>  <span class="nv">method: </span><span class="nf">( methodName, via = VIA_ALL, out, boxed ) -&gt;</span>
-    <span class="nv">realized = </span><span class="o">~</span><span class="nx">@attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span></pre></div>
+      <div class="highlight"><pre>  <span class="nv">method: </span><span class="nf">( methodName, via = VIA_ALL, out, returnBoxed ) -&gt;</span>
+    <span class="p">{</span> <span class="nx">attributes</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+    <span class="nv">realized = </span><span class="o">~</span><span class="nx">attributes</span> <span class="o">&amp;</span> <span class="nx">VIRTUAL</span></pre></div>
     </div>
   
     
@@ -1870,8 +2075,8 @@ property of <code>out</code>; if included, <code>context</code> is confined to t
 <p>During the pseudo-loop block, the <code>context</code> reference should be considered
   provisional, because its potential value is in part a product of the manner
   in which its accompanying <code>method</code> was retrieved. After <code>break</code>ing out of the
-  block, <code>method</code> can be type-checked and <code>context</code> may be kept or discarded as
-  appropriate.</p>
+  block, if <code>method</code> is a state-bound function, then <code>context</code> will be either
+  kept and exported via <code>out</code>, or discarded otherwise.</p>
 </blockquote>
 
     </div>
@@ -1882,52 +2087,57 @@ property of <code>out</code>; if included, <code>context</code> is confined to t
     
     <div class="text">
       
-<p>First seek the named method locally.</p>
+<p>First seek a local or memoized inherited implementation of the named method.</p>
 
     </div>
     <div class="code">
       <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">realized</span>
-        <span class="nv">method = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">methods</span><span class="o">?</span><span class="p">[</span> <span class="nx">methodName</span> <span class="p">]</span>
-        <span class="k">if</span> <span class="nx">method</span><span class="o">?</span> <span class="k">then</span> <span class="nv">context = </span><span class="k">this</span>
-        <span class="k">else</span> <span class="k">if</span> <span class="nv">record = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">__dispatch_table__</span><span class="o">?</span><span class="p">[</span> <span class="nx">methodName</span> <span class="p">]</span>
+        <span class="k">if</span> <span class="nv">method = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">methods</span><span class="o">?</span><span class="p">[</span> <span class="nx">methodName</span> <span class="p">]</span>
+          <span class="nv">context = </span><span class="k">this</span>
+          <span class="k">break</span>
+        <span class="k">if</span> <span class="nv">record = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">__dispatch_table__</span><span class="o">?</span><span class="p">[</span> <span class="nx">methodName</span> <span class="p">]</span>
           <span class="p">[</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">context</span> <span class="p">]</span> <span class="o">=</span> <span class="nx">record</span>
+          <span class="k">break</span> <span class="k">if</span> <span class="nx">method</span><span class="o">?</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>If an implementation is not available locally, seek an inherited method along
+the protostate chain. If this succeeds, the provisional <code>context</code> will be the
+<em>epistate</em> that inherits the method.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>      <span class="k">if</span> <span class="nv">viaProto = </span><span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span>
+        <span class="k">if</span> <span class="nv">method = </span><span class="nx">@protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">method</span> <span class="nx">methodName</span><span class="p">,</span> <span class="nx">VIA_PROTO</span><span class="p">,</span> <span class="nx">out</span><span class="p">,</span> <span class="kc">yes</span>
+          <span class="nv">context = </span><span class="k">this</span>
+          <span class="nv">inherited = </span><span class="kc">yes</span>
+          <span class="k">break</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
+<p>If no local or protostatic method exists, seek an inherited method along the
+linearization path. If this succeeds, the provisional <code>context</code> will be the
+<em>superstate or parastate</em> from which the method is inherited.</p>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUPER</span>
+        <span class="k">for</span> <span class="nx">relative</span> <span class="k">in</span> <span class="nx">@order</span> <span class="o">?</span> <span class="nx">@linearize</span><span class="p">()</span> <span class="k">when</span> <span class="nx">relative</span> <span class="o">isnt</span> <span class="k">this</span>
+          <span class="k">if</span> <span class="nv">method = </span><span class="nx">relative</span><span class="p">.</span><span class="nx">method</span> <span class="nx">methodName</span><span class="p">,</span> <span class="nx">viaProto</span><span class="p">,</span> <span class="nx">out</span><span class="p">,</span> <span class="kc">yes</span>
+            <span class="nv">context = </span><span class="nx">out</span><span class="o">?</span><span class="p">.</span><span class="nx">context</span> <span class="o">?</span> <span class="kc">null</span>
+            <span class="nv">inherited = </span><span class="kc">yes</span>
+            <span class="k">break</span>
         <span class="k">break</span> <span class="k">if</span> <span class="nx">method</span><span class="o">?</span></pre></div>
     </div>
   
     
     <div class="text">
       
-<p>If no method is held locally, start traversing, first up the protostate chain.
-If this succeeds, the provisional <code>context</code> <em>must be the epistate</em> inheriting
-the method (constrast with the <code>VIA_SUPER</code> case).</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>      <span class="k">if</span> <span class="p">(</span> <span class="nv">viaProto = </span><span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span> <span class="p">)</span> <span class="o">and</span>
-          <span class="nv">method = </span><span class="nx">@protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">method</span> <span class="nx">methodName</span><span class="p">,</span> <span class="nx">VIA_PROTO</span><span class="p">,</span> <span class="nx">out</span><span class="p">,</span> <span class="kc">yes</span>
-        <span class="nv">context = </span><span class="k">this</span>
-        <span class="nv">inherited = </span><span class="kc">yes</span><span class="p">;</span> <span class="k">break</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>If no method is found yet, continue traversing up the superstate chain. If this
-succeeds, the provisional <code>context</code> <em>must be the superstate</em> from which the
-method is inherited.</p>
-
-    </div>
-    <div class="code">
-      <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUPER</span> <span class="o">and</span> <span class="nv">method = </span><span class="nx">@superstate</span><span class="o">?</span><span class="p">.</span><span class="nx">method</span> <span class="o">\</span>
-          <span class="nx">methodName</span><span class="p">,</span> <span class="nx">VIA_SUPER</span> <span class="o">|</span> <span class="nx">viaProto</span><span class="p">,</span> <span class="nx">out</span><span class="p">,</span> <span class="kc">yes</span>
-        <span class="p">{</span> <span class="nx">context</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">out</span> <span class="k">if</span> <span class="nx">out</span><span class="o">?</span>
-        <span class="nv">inherited = </span><span class="kc">yes</span><span class="p">;</span> <span class="k">break</span></pre></div>
-    </div>
-  
-    
-    <div class="text">
-      
-<p>The method cannot be found.</p>
+<p>The method does not exist.</p>
 
     </div>
     <div class="code">
@@ -1957,7 +2167,7 @@ the local dispatch table.</p>
     </div>
     <div class="code">
       <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">realized</span> <span class="o">and</span> <span class="nx">inherited</span> <span class="o">and</span> <span class="nx">useDispatchTables</span>
-        <span class="nv">table = </span><span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">__dispatch_table__</span> <span class="o">or</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="nv">table = </span><span class="nx">@_</span><span class="p">.</span><span class="nx">__dispatch_table__</span> <span class="o">?=</span> <span class="p">{}</span>
         <span class="nx">table</span><span class="p">[</span> <span class="nx">methodName</span> <span class="p">]</span> <span class="o">=</span> <span class="p">[</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">context</span> <span class="p">]</span></pre></div>
     </div>
   
@@ -1968,8 +2178,8 @@ the local dispatch table.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>      <span class="k">if</span> <span class="o">not</span> <span class="nx">boxed</span> <span class="o">and</span> <span class="nx">method</span><span class="p">.</span><span class="nx">type</span> <span class="o">is</span> <span class="s1">&#39;state-bound-function&#39;</span>
-        <span class="nv">method = </span><span class="nx">method</span><span class="p">.</span><span class="nx">fn</span></pre></div>
+      <div class="highlight"><pre>      <span class="nx">unless</span> <span class="nx">returnBoxed</span>
+        <span class="nv">method = </span><span class="nx">method</span><span class="p">.</span><span class="nx">fn</span> <span class="k">if</span> <span class="nx">method</span><span class="p">.</span><span class="nx">type</span> <span class="o">is</span> <span class="s1">&#39;state-bound-function&#39;</span></pre></div>
     </div>
   
     
@@ -2298,13 +2508,13 @@ identifier for the listener.</p>
       
 <h4><a href="#state--prototype--emit">emit</a></h4>
 <p>Invokes all listeners bound to the given event type. Callbacks inherited from
-superstates and protostates are also invoked, unless otherwise directed by the
-traversal flags of <code>via</code>.</p>
+protostates, parastates, and superstates are also invoked, unless otherwise
+directed by the traversal flags of <code>via</code>.</p>
 <p>Arguments to be supplied to callbacks can be passed as an array to <code>args</code>.</p>
 <p>Unless <code>context</code> is provided explicitly, a provisional <code>State</code> <code>context</code> is
 determined for event callbacks that are state-bound functions. This <code>context</code>
 will be either <code>this</code> or an <em>epistate</em> that inherits events from <code>this</code>.</p>
-<p>Normal, unbound callbacks are invoked in the conventional context of <code>@owner</code>.</p>
+<p>Normal, unbound callbacks are invoked in the context of <code>this.owner</code> as usual.</p>
 <p><em>Alias:</em> <strong>trigger</strong></p>
 <blockquote>
 <p><a href="/api/#state--methods--emit">emit</a></p>
@@ -2326,17 +2536,17 @@ will be either <code>this</code> or an <em>epistate</em> that inherits events fr
     
     <div class="text">
       
-<p>Provisional <code>context</code> is confined to the local state tree of <code>@owner</code> at the
-recursive origin; i.e., <code>State</code> context is inherited transparently via
-protostates, but is dynamic along the superstate chain.</p>
+<p>Provisional <code>context</code> is flattened onto <code>this.owner</code>’s state tree.</p>
 
     </div>
     <div class="code">
-      <div class="highlight"><pre>    <span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">events</span><span class="o">?</span><span class="p">[</span> <span class="nx">eventType</span> <span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">emit</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span> <span class="o">or</span> <span class="k">this</span>
+      <div class="highlight"><pre>    <span class="nx">@_</span><span class="o">?</span><span class="p">.</span><span class="nx">events</span><span class="o">?</span><span class="p">[</span> <span class="nx">eventType</span> <span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="nx">emit</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span> <span class="o">?</span> <span class="k">this</span>
     <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_PROTO</span>
-      <span class="nx">@protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">emit</span> <span class="nx">eventType</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span> <span class="o">or</span> <span class="k">this</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
+      <span class="nx">@protostate</span><span class="o">?</span><span class="p">.</span><span class="nx">emit</span> <span class="nx">eventType</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span> <span class="o">?</span> <span class="k">this</span><span class="p">,</span> <span class="nx">VIA_PROTO</span>
     <span class="k">if</span> <span class="nx">via</span> <span class="o">&amp;</span> <span class="nx">VIA_SUPER</span>
-      <span class="p">(</span> <span class="nv">ss = </span><span class="nx">@superstate</span> <span class="p">)</span><span class="o">?</span><span class="p">.</span><span class="nx">emit</span> <span class="nx">eventType</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span> <span class="o">or</span> <span class="nx">ss</span>
+      <span class="k">for</span> <span class="nx">relative</span> <span class="k">in</span> <span class="nx">@order</span> <span class="o">?</span> <span class="nx">@linearize</span><span class="p">()</span> <span class="k">when</span> <span class="nx">relative</span> <span class="o">isnt</span> <span class="k">this</span>
+        <span class="nx">relative</span><span class="p">.</span><span class="nx">emit</span> <span class="nx">eventType</span><span class="p">,</span> <span class="nx">args</span><span class="p">,</span> <span class="nx">context</span> <span class="o">?</span> <span class="nx">relative</span>
+
     <span class="k">return</span>
 
   <span class="nv">trigger: </span><span class="err">@</span><span class="o">::</span><span class="nx">emit</span></pre></div>
@@ -2351,7 +2561,7 @@ protostates, but is dynamic along the superstate chain.</p>
 will be evaluated during a transition to determine whether an owner’s currency
 will be <em>admitted</em> into or <em>released</em> from the <code>State</code> to which the guard is
 applied.</p>
-<p>Guards are inherited from protostates, but not from superstates.</p>
+<p>Guards are inherited from protostates, but not from parastates or superstates.</p>
 <blockquote>
 <p><a href="#state--private--evaluate-guard"><code>evaluateGuard</code></a>
 <a href="/api/#state--methods--guard">guard</a></p>

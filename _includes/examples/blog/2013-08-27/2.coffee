@@ -1,8 +1,8 @@
 state owner = {}, 'abstract',
-  m: -> 'beep!'
+  m: -> "beep!"
 
   A: state 'initial',
-    m: -> 'boop!'
+    m: -> "boop!"
   B: state
   C: state 'concurrent',
 
@@ -23,8 +23,8 @@ state owner = {}, 'abstract',
     CA: state
       CAA: state 'initial'
       CAB: state
-        m: -> 'bleep!'
+        m: -> "bleep!"
     CB: state
       CBA: state 'initial',
-        m: -> 'blorp!'
+        m: -> "blorp!"
       CBB: state

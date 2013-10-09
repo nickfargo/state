@@ -19,15 +19,15 @@ state( attributes )
 
 ###### PARAMETERS
 
-* [`owner`] : object
-* [`attributes`] : string
-* [`expression`] : ( object | `StateExpression` )
+* `owner`*<sub>opt</sub>* : object
+* `attributes`*<sub>opt</sub>* : string
+* `expression`*<sub>opt</sub>* : ( object | `StateExpression` )
 
 ###### RETURNS
 
-If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new state implementation based on the supplied `expression` and [`attributes`](#state--attributes), and returns the owner’s initial `State`.
+1. If an arbitrary `owner` object is provided, `state()` bestows `owner` with a new state implementation based on the supplied `expression` and [`attributes`](#state--attributes), and returns the owner’s initial `State`.
 
-If no `owner` is provided, `state()` creates and returns a formal `StateExpression` based on the contents of `expression` and `attributes`.
+2. If no `owner` is provided, `state()` creates and returns a formal `StateExpression` based on the contents of `expression` and `attributes`.
 
 ###### EXAMPLE
 
@@ -111,7 +111,7 @@ state.fix( fn )
 
 ###### PARAMETERS
 
-* `fn` : function :: ( `autostate`, [`protostate`] ) → function
+* `fn` : ( `autostate`, `protostate`*<sub>opt</sub>* ) → function
 
 ###### RETURNS
 
@@ -148,6 +148,7 @@ Ensures that, for a given `owner`, the `State` returned by a queried `selector` 
 ###### SYNTAX
 
 {% highlight javascript %}
+state.own( owner, selector )
 state.own( owner, selector, expr )
 {% endhighlight %}
 
@@ -155,7 +156,7 @@ state.own( owner, selector, expr )
 
 * `owner` : object
 * `selector` : string
-* [`expr`] : object | `StateExpression`
+* `expr`*<sub>opt</sub>* : ( object | `StateExpression` )
 
 ###### RETURNS
 
@@ -181,8 +182,46 @@ Causes the inherited protostate or virtual epistate identified by `selector` to 
 
 ###### SEE ALSO
 
-> [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
-> [Virtual epistates](/docs/#concepts--inheritance--virtual-epistates)
+> [Protostates and epistates](/docs/#concepts--object-model--protostates-and-epistates)
+> [Virtual epistates](/docs/#concepts--object-model--virtual-epistates)
+
+
+#### [extend](#state-function--extend)
+
+Defines a **state expression** that declares one or more paths to **parastates** from which the expressed `State` will inherit.
+
+###### SYNTAX
+
+{% highlight javascript %}
+state.extend( parastates )
+state.extend( parastates, expression )
+state.extend( parastates, attributes )
+state.extend( parastates, attributes, expression )
+{% endhighlight %}
+
+###### PARAMETERS
+
+* `parastates` : string — Comma separated list of selector paths to parastates.
+* `attributes`*<sub>opt</sub>* : string
+* `expression`*<sub>opt</sub>* : ( object | `StateExpression` )
+
+###### RETURNS
+
+A `StateExpression` with a corresponding `parastates` property.
+
+###### EXAMPLE
+
+{% highlight javascript %}
+{% include examples/api/state-function--extend.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/api/state-function--extend.coffee %}
+{% endhighlight %}
+
+###### SEE ALSO
+
+> [Parastates and composition](/docs/#concepts--object-model--parastates-and-composition)
 
 
 * * *

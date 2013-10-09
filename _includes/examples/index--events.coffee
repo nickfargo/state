@@ -8,15 +8,12 @@ class Mover
       Running:
         Sprinting: state
 
-    # Use the root state’s `construct` event to programmatically
-    # set up all of the states to log their transitional events.
-    construct: state.bind ->
-      events = ['depart', 'exit', 'enter', 'arrive']
-      for substate in [this].concat @descendants()
-        for event in events
-          do ( substate, event ) ->
-            substate.on event, state.bind ->
-              console.log "#{ event } #{ @name }"
+  # Set up each state to log its transitional events.
+  eventNames = ['depart', 'exit', 'enter', 'arrive']
+  for substate in @::state().root.descendants()
+    for eventName in eventNames
+      do ( substate, eventName ) -> substate.on eventName, ->
+        console.log "#{ eventName } #{ substate.name }"
 
 
 m = new Mover

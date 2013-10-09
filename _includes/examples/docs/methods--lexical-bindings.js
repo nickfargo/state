@@ -11,9 +11,8 @@ state( q, {
   }
 });
 
-var p = Object.create( q, {
-  baz: { value: "BAZ" }
-});
+var p = Object.create( q );
+p.baz = "BAZ";
 state( p, {
   A: {
     m: state.fix( function ( autostate, protostate ) {

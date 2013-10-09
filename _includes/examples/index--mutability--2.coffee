@@ -1,14 +1,3 @@
-# A bit of predefined behavior.
-theRomansDo =
-  Casual:
-    greet: -> "Salve!"
-  Formal:
-    greet: -> "Quid agis?"
-
-# Returns a boxed function that instills an enclosed behavior.
-doAs = ( behavior ) -> state.bind -> @mutate behavior; return
-
-
 class Traveler extends Actor
   state @::, 'mutable abstract',
     travelTo: state.bind ( place ) -> @emit "in#{ place }"

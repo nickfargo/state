@@ -1,9 +1,9 @@
 function Avenger ( name ) {
     this.name = name;
 }
-Avenger.prototype.greet = function () {
-    return "Hello.";
-};
+
+Avenger.prototype.greet = function () { return "Hello."; };
+
 state( Avenger.prototype, 'abstract', {
     Terse: state('default'),
     Verbose: state({
@@ -15,9 +15,10 @@ state( Avenger.prototype, 'abstract', {
 });
 
 
-var person = new Avenger('Inigo');
-person.state();                   // >>> State 'Terse'
-person.greet();                   // >>> "Hello."
+var inigo = new Avenger('Inigo');
 
-person.state('-> Verbose');       // >>> State 'Verbose'
-person.greet();                   // >>> "Hello. My name is Inigo..."
+inigo.state();              // >>> State 'Terse'
+inigo.greet();              // >>> "Hello."
+
+inigo.state('-> Verbose');  // >>> State 'Verbose'
+inigo.greet();              // >>> "Hello. My name is Inigo..."

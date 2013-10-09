@@ -132,14 +132,14 @@ h1 {
 }
 h2 {
   margin: 0.5em 0;
-  font-size: 30px;
+  font-size: 32px;
   line-height: 40px;
 }
 h3 {
-  font-size: 24px;
+  font-size: 26px;
 }
 h4 {
-  font-size: 20px;
+  font-size: 22px;
 }
 h5 {
   font-size: 18px;
@@ -211,7 +211,11 @@ a strong {
 .weak {
   font-weight: 300;
 }
-
+sup, sub {
+  font-size: 70.71%;
+  font-style: inherit;
+  font-weight: inherit;
+}
 a {
   color: #295888;
   font-weight: inherit;
@@ -1231,13 +1235,19 @@ body.index p {
   line-height: 27px;
 }
 body.index pre {
-  padding: 0.5em 0em 3em 30px;
+  margin-top: 0;
   background: transparent;
   border: none;
   font-size: 13px;
   line-height: 19px;
 }
-
+body.index blockquote {
+  margin-bottom: 0;
+}
+body.index blockquote p {
+  font-size: 16px;
+  line-height: 22px;
+}
 
 body.blog .index {
 }
@@ -1807,6 +1817,10 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   body.index p {
     font-size: 13px;
     line-height: 18px;
+  }
+  body.index blockquote p {
+    font-size: 12px;
+    line-height: 16px;
   }
   body.index pre {
     padding: 0.5em 0em 3em 6px;

@@ -15,7 +15,7 @@
 
     </div>
     <div class="code">
-      <div class="highlight"><pre><span class="nv">module.exports = </span><span class="o">-&gt;</span></pre></div>
+      <div class="highlight"><pre><span class="nv">module.exports = </span><span class="nf">( state = this ) -&gt;</span></pre></div>
     </div>
   
     
@@ -181,6 +181,22 @@ augmented with any <code>StateExpression</code> content supplied by the optional
     
     <div class="text">
       
+<h4><a href="#utility-functions--extend">extend</a></h4>
+
+    </div>
+    <div class="code">
+      <div class="highlight"><pre>  <span class="vi">@extend = </span><span class="nf">( parastates, attributes, expression ) -&gt;</span>
+    <span class="k">if</span> <span class="k">typeof</span> <span class="nx">attributes</span> <span class="o">isnt</span> <span class="s1">&#39;string&#39;</span>
+      <span class="nv">expression = </span><span class="nx">attributes</span>
+      <span class="nv">attributes = </span><span class="s1">&#39;&#39;</span>
+    <span class="nx">expression</span> <span class="o">?=</span> <span class="p">{}</span>
+    <span class="nv">expression.parastates = </span><span class="nx">parastates</span>
+    <span class="nx">state</span> <span class="nx">attributes</span><span class="p">,</span> <span class="nx">expression</span></pre></div>
+    </div>
+  
+    
+    <div class="text">
+      
 <h3><a href="#miscellaneous-constants">Miscellaneous constants</a></h3>
 
     </div>
@@ -211,7 +227,12 @@ exported <code>state()</code> function.</p>
 <span class="s2">  &quot;&quot;&quot;</span>
 
   <span class="vi">@STATE_EXPRESSION_CATEGORIES =</span>
-    <span class="s1">&#39;data methods events guards states transitions&#39;</span>
+    <span class="s1">&#39;parastates data methods events guards substates transitions&#39;</span>
+
+  <span class="vi">@STATE_EXPRESSION_CATEGORY_SYNONYMS =</span>
+    <span class="nv">extend: </span> <span class="s1">&#39;parastates&#39;</span>
+    <span class="k">extends</span><span class="o">:</span> <span class="s1">&#39;parastates&#39;</span>
+    <span class="nv">states: </span> <span class="s1">&#39;substates&#39;</span>
 
   <span class="vi">@STATE_EVENT_TYPES =</span>
     <span class="s1">&#39;construct depart exit enter arrive destroy mutate noSuchMethod&#39;</span>
@@ -244,6 +265,7 @@ of which are included in the constants enumerated here.</p>
 <span class="s2">    ATOMIC</span>
 <span class="s2">    DESTROYED</span>
 <span class="s2">    VIRTUAL</span>
+<span class="s2">    PARASTATIC</span>
 <span class="s2">  &quot;&quot;&quot;</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="nx">@STATE_ATTRIBUTE_MODIFIERS</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span></pre></div>
     </div>
   

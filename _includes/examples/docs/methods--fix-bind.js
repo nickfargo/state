@@ -1,6 +1,5 @@
-var p = Object.create( q, {
-  baz: { value: "BAZ" }
-});
+var p = Object.create( q );
+p.baz = "BAZ";
 state( p, {
   A: {
     m: function () { return this.baz; },

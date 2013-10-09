@@ -3,10 +3,10 @@ owner.m;               // >>> undefined
 
 
 state( owner, 'abstract', {
-  m: function () { return 'beep!'; },
+  m: function () { return "beep!"; },
 
   A: state( 'initial', {
-    m: function () { return 'boop!'; }
+    m: function () { return "boop!"; }
   })
 });
 

@@ -48,7 +48,7 @@ function () {}
 {% endhighlight %}
 
 {% highlight coffeescript %}
-() ->
+->
 {% endhighlight %}
 
 ###### DESCRIPTION
@@ -244,7 +244,7 @@ function ( arg0, arg1, ... ) {}
 
 ###### PARAMETERS
 
-* `argN` : `var`
+* `args...` : `var`
 
 ###### DESCRIPTION
 

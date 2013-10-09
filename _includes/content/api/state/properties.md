@@ -3,7 +3,7 @@
 
 #### [name](#state--properties--name)
 
-The string name of `this` state.
+The string name of `this` state. For the unique case of a `RootState`, this value will be the empty string `''`.
 
 ###### SYNTAX
 
@@ -75,7 +75,7 @@ this.root
 
 ###### SEE ALSO
 
-> [The root state](/docs/#concepts--inheritance--the-root-state)
+> [The root state](/docs/#concepts--object-model--the-root-state)
 > [`State` constructor](/source/state.html#state--constructor)
 
 
@@ -101,7 +101,7 @@ this.superstate
 
 ###### SEE ALSO
 
-> [Superstates and substates](/docs/#concepts--inheritance--superstates-and-substates)
+> [Superstates and substates](/docs/#concepts--object-model--superstates-and-substates)
 > [`State` constructor](/source/state.html#state--constructor)
 
 
@@ -127,5 +127,5 @@ this.protostate
 
 ###### SEE ALSO
 
-> [Protostates and epistates](/docs/#concepts--inheritance--protostates-and-epistates)
+> [Protostates and epistates](/docs/#concepts--object-model--protostates-and-epistates)
 > [`State` constructor](/source/state.html#state--constructor)

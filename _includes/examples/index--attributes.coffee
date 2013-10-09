@@ -1,17 +1,24 @@
 class Developer
   state @::, 'abstract',
+    develop: -> @state '-> Mature'
+
     Juvenile: state 'initial',
       greet: -> "Sup."
-    Mature: state 'default final',
+    Mature: state 'final',
       greet: -> "Hello."
 
 
-person = new Developer
-person.state()                    # >>> State 'Juvenile'
-person.greet()                    # >>> "Sup."
+dev = new Developer
 
-person.state '->'                 # >>> State 'Mature'
-person.greet()                    # >>> "Hello."
+dev.state()                    # >>> State 'Juvenile'
+dev.greet()                    # >>> "Sup."
 
-person.state '-> Juvenile'        # >>> State 'Mature'
-person.greet()                    # >>> "Hello."
+do dev.develop
+
+dev.state()                    # >>> State 'Mature'
+dev.greet()                    # >>> "Hello."
+
+dev.state '-> Juvenile'        # (No effect)
+
+dev.state()                    # >>> State 'Mature'
+dev.greet()                    # >>> "Hello."
