@@ -104,7 +104,9 @@ A `State` and its parastates must share a common `owner`, however, parastate dec
 
 #### [Protostates and epistates](#concepts--object-model--protostates-and-epistates)
 
-**State** also recognizes the relationship between an owner object and its prototype. When a state implementation exists on a prototype, it is completely extended to that prototype’s inheritors, each of which views the inherited **protostates** as if they were its own.
+**State** also recognizes the relationship between an owner object and its prototype. When a state implementation exists on a prototype, the prototype’s inheritors view its `State`s as their **protostates**; conversely, an inheritor’s own `State`s may be **epistates** of a matching protostate.
+
+This *indirect prototypal relation* defined by protostates and epistates confers many of the benefits of language-level prototypal reuse patterns to `State`s without entangling them in any direct prototypal relationships themselves.
 
 ![Protostates and epistates][diagram--model--proto]
 
@@ -112,7 +114,7 @@ A `State` and its parastates must share a common `owner`, however, parastate dec
 
 > In this diagram the inheriting owner `o` defines no *real states* of its own, other than the root, however it still views states `pA` and `pAA` as its protostates, and may inherit these as [virtual epistates](#concepts--object-model--virtual-epistates), indicated by the faded appearance of `oA` and `oAA`. In this manner, state content, behavior, etc. defined for `p` and `q` will also be exhibited by `o`, just as if those states had been defined directly on `o` itself.
 
-The next example considers the case of an object that, rather than applying the [`state()`](#getting-started--the-state-function) function directly to the object, instead inherits from a prototype which already bears a state implementation.
+The following example shows an object that, rather than being affected by the [`state()`](#getting-started--the-state-function) function directly, instead inherits from a prototype which already bears a state implementation.
 
 {% highlight javascript %}
 {% include examples/docs/object-model--protostates-and-epistates--1.js %}
@@ -122,7 +124,7 @@ The next example considers the case of an object that, rather than applying the 
 {% include examples/docs/object-model--protostates-and-epistates--1.coffee %}
 {% endhighlight %}
 
-Here `person`, lacking a state implementation of its own, inherits the `state` method from its prototype. When `person.state()` is invoked, a new state implementation is automatically created for `person`, which is given its own `state` method and an empty `RootState`.
+> Here `person`, lacking a state implementation of its own, inherits the `state` method from its prototype. When `person.state()` is invoked, a new state implementation is automatically created for `person`, which is given its own `state` method and an empty `RootState`.
 
 {% highlight javascript %}
 {% include examples/docs/object-model--protostates-and-epistates--2.js %}
@@ -132,7 +134,7 @@ Here `person`, lacking a state implementation of its own, inherits the `state` m
 {% include examples/docs/object-model--protostates-and-epistates--2.coffee %}
 {% endhighlight %}
 
-Henceforth `person` will automatically inherit all content from its protostates, but will independently maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
+> Henceforth `person` will automatically inherit all content from its protostates, but will independently maintain its own currency and transitions over the inherited protostates, leaving the currency of the prototype unaffected.
 
 {% highlight javascript %}
 {% include examples/docs/object-model--protostates-and-epistates--3.js %}
@@ -141,8 +143,6 @@ Henceforth `person` will automatically inherit all content from its protostates,
 {% highlight coffeescript %}
 {% include examples/docs/object-model--protostates-and-epistates--3.coffee %}
 {% endhighlight %}
-
-This *indirect prototypal relation* defined by protostates and epistates confers the benefits of language-level prototypal reuse patterns to an object’s `State`s, but without entangling them in any direct prototypal relationships themselves.
 
 > [protostate](/api/#state--properties--protostate)
 > [getProtostate](/api/#state--methods--get-protostate)
