@@ -4,7 +4,7 @@
 
 A formal `StateExpression` is created by calling the [`state()`](#getting-started--the-state-function) function with no `owner` argument, providing it only a plain object map for its `expression` argument, optionally preceded by a string of whitespace-delimited `attributes` to be encoded into the returned `StateExpression`.
 
-Internally, the contents of a state expression are shaped according to a set of **categories**: `data`, `methods`, `events`, `guards`, `substates`, and `transitions`, along with the encoded `attributes`. The object map supplied to the `state()` call can be structured according to these categories, or it may be pared down to a more convenient shorthand, which, by making certain type inferences, the `state()` call will interpret into a formal `StateExpression`.
+Internally, the contents of a state expression are shaped according to a set of objects that represent **categories**, which include `data`, `methods`, `events`, `guards`, `substates`, and `transitions`. The object map supplied to the `state()` call can be structured according to these categories, or it may be pared down to a more convenient shorthand, which, by making certain type inferences, the `state()` call will interpret into a properly shaped `StateExpression`.
 
 > [express](/api/#state--methods--express)
 > [`state()`](/source/state-function.html)
