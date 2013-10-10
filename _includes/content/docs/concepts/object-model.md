@@ -1,6 +1,6 @@
 ### [Object model](#concepts--object-model)
 
-The [`State`](/api/#state) model is fundamentally hierarchical, and describes a rooted tree of `State`s belonging to a unique **owner** object. Each `State`, starting with the owner’s unique **root state**, may serve as a **superstate** from which one or more **substates** inherit.
+The [`State`](/api/#state) model is fundamentally hierarchical, describing a rooted tree of `State`s belonging to a unique **owner** object. Each `State`, starting with the owner’s unique **root state**, may serve as a **superstate** from which one or more **substates** inherit.
 
 A `State` may also inherit from zero or more **parastates**, from which its contents are *composed*, in a manner similar to the concepts of dynamic mixins or multiple inheritance.
 
