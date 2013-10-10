@@ -6,6 +6,8 @@ A `State` may also inherit from zero or more **parastates**, from which its cont
 
 An owner’s state tree is further heritable by any prototypal inheritors of that owner, which view their prototype’s `State`s as **protostates** from which their own **epistates** inherit.
 
+![State object model][diagram--model]
+
 <div class="local-toc"></div>
 
 
@@ -167,6 +169,7 @@ When an inheritor adopts a protostate as its current state, the currency is born
 
 
 
-[diagram--model--super]: /img/model-1.png "Superstates and substates"
-[diagram--model--proto]: /img/model-2.png "Protostates and epistates"
-[diagram--model--para]: /img/model-3.png "Parastates"
+[diagram--model]:         /img/model-4.png "State object model"
+[diagram--model--super]:  /img/model-1.png "Superstates and substates"
+[diagram--model--proto]:  /img/model-2.png "Protostates and epistates"
+[diagram--model--para]:   /img/model-3.png "Parastates"
