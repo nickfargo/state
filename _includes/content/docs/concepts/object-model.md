@@ -50,7 +50,9 @@ An **owner** object’s expressed behavior is *specified* by **substates**, and 
 
 > **The superstate axis** — A stateful **owner** bears a rooted state tree. Each `State` in the tree may bear zero or more **substates**, and accordingly trace a **superstate** chain up to the unique `RootState`. Most of a `State`’s content, including methods, data, events, etc. may be inherited from superstates and extended or overridden by substates.
 
-A notable distinction of **State** is that an owner’s **currency** is not necessarily confined to “leaf” states — the owner is free both to exhibit specific behavior by transitioning to a state nested deep within the tree, and to exhibit more generic behavior by transitioning to a [concrete](#concepts--attributes--abstraction) interior superstate.
+A notable distinction of **State** from other hierarchical state implementations is that an owner’s **currency** is not necessarily confined to “leaf” states. The owner is free both to exhibit specific behavior by transitioning to a state nested deeper in the tree, and also to exhibit more generic behavior by transitioning to a **concrete** interior superstate.
+
+> [Abstraction](#concepts--attributes--abstraction)
 
 
 #### [Parastates and composition](#concepts--object-model--parastates-and-composition)
@@ -93,10 +95,6 @@ A `State` and its parastates must share a common `owner`, however, parastate dec
 
 * As *O* contains no `State` with path `'A'`, the **protostate** *A* belonging to *P* will be automatically [`virtualize`](/source/state.html#state--prototype--virtualize)d and [`realize`](/api/#state--methods--realize)d — effectively flattening it — into the state tree of *O* as an **epistate** *Aʹ*, with path `'A'`, such that *S* may inherit from parastate *Aʹ*.
 
-###### SEE ALSO
-
-[Protostates and epistates](#concepts--object-model--protostates-and-epistates)
-
 ##### Miscellanea
 
 * The progression of a **transition** is conceptually orthogonal to the parastate relation, and traversal proceeds only over the state tree defined by the superstate–substate relations.
@@ -106,7 +104,7 @@ A `State` and its parastates must share a common `owner`, however, parastate dec
 
 #### [Protostates and epistates](#concepts--object-model--protostates-and-epistates)
 
-**State** also recognizes the relationship between an owner object and its prototype. When a state implementation exists on a prototype, the prototype’s inheritors view its `State`s as their **protostates**; conversely, an inheritor’s own `State`s may be **epistates** of a matching protostate.
+The relation between an object and its prototype is reflected throughout the **State** implementation of each. Inheritors of a **State**–affected prototype view its `State`s as their **protostates**; conversely, matching `State`s of an inheritor are **epistates** of their respective protostates.
 
 This *indirect prototypal relation* defined by protostates and epistates confers many of the benefits of language-level prototypal reuse patterns to `State`s without entangling them in any direct prototypal relationships themselves.
 
