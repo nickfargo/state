@@ -6,6 +6,14 @@ A `State` may also inherit from zero or more **parastates**, from which its cont
 
 An owner’s state tree is further heritable by any prototypal inheritors of that owner, which view their prototype’s `State`s as **protostates** from which their own **epistates** inherit.
 
+{% highlight javascript %}
+{% include examples/docs/object-model--intro.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/docs/object-model--intro.coffee %}
+{% endhighlight %}
+
 ![State object model][diagram--model]
 
 <div class="local-toc"></div>
