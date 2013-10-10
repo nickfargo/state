@@ -21,18 +21,6 @@ Apart from the addition of the `object.state()` method, a call to `state()` must
 
 #### [Proposed features](#about--roadmap--proposed-features)
 
-##### [Composition](#about--roadmap--proposed-features--composition)
-
-To state expressions, add two properties whose value is an array of selectors:
-
-* `imports` — names `State`s to be statically included as part of the realized `State`, equivalent to:
-
-{% highlight javascript %}
-O.clone( expr, expr.imports[0].express(), expr.imports[1].express(), ... )
-{% endhighlight %}
-
-* `include` — names `State`s that are to be dynamic state mixins for the realized `State`. These are highest-priority multiple-inheritance targets (in order: mixins, protostates, superstates). Whereas the current, strictly dual protostate–superstate model is intrinsically linearized and acyclic, mixins will require an explicit linearization of the full set of inheritance relationships to terminate cycles and compute definitive resolution order for methods, events, etc.
-
 ##### [Concurrency](#about--roadmap--proposed-features--concurrency)
 
 Whereas an object’s state is most typically conceptualized as an exclusive-OR operation (i.e., its current state is always fixed to exactly one state), a state may instead be defined as **concurrent**, relating its substates in an “AND” composition, where occupation of the concurrent state implies simultaneous occupation of each of its immediate substates.
