@@ -53,7 +53,7 @@ Exactly one `State` is designated as the owner’s **current state**, whose own 
 {% include examples/index--states--1.coffee %}
 {% endhighlight %}
 
-The owner may alter its exhibited behavior by undergoing **transitions**, which carry the current state reference to a different `State`.
+The owner may alter its behavior by undergoing **transitions**, which carry the current state reference, or **currency**, to a different `State`.
 
 {% highlight javascript %}
 {% include examples/index--states--2.js %}
