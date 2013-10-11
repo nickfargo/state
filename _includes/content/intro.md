@@ -41,7 +41,9 @@
 {% include examples/index--states--0.coffee %}
 {% endhighlight %}
 
-Internally, exactly one `State` is referenced as the owner’s **current state**, whose own and inherited behavior is exhibited by the owner.
+![States][diagram--states]
+
+Exactly one `State` is designated as the owner’s **current state**, whose own and inherited behavior is exhibited by the owner.
 
 {% highlight javascript %}
 {% include examples/index--states--1.js %}
@@ -64,7 +66,11 @@ The owner may alter its exhibited behavior by undergoing **transitions**, which 
 
 ### [Object model](#object-model)
 
-A `State` and its contents may be [inherited and composed](/docs/#concepts--object-model) from other `State`s. The **State** object model provides for both [hierarchical single-inheritance](/docs/#concepts--object-model--superstates-and-substates) and [compositional multiple-inheritance](/docs/#concepts--object-model--parastates-and-composition) among `State`s that share a common owner. It also provides [indirect prototypal inheritance](/docs/#concepts--object-model--protostates-and-epistates) from `State`s that belong to the owner’s prototypes.
+A `State` and its contents may be [inherited and composed](/docs/#concepts--object-model) from other `State`s.
+
+![State object model][diagram--object-model]
+
+The **State** object model provides for both [hierarchical single-inheritance](/docs/#concepts--object-model--superstates-and-substates) and [compositional multiple-inheritance](/docs/#concepts--object-model--parastates-and-composition) among `State`s that share a common owner. It also provides [indirect prototypal inheritance](/docs/#concepts--object-model--protostates-and-epistates) from `State`s that belong to the owner’s prototypes.
 
 {% highlight javascript %}
 {% include examples/index--object-model--0.js %}
@@ -243,3 +249,9 @@ A [`Transition`](/api/#transition) instance is an ephemeral type of [`State`](/a
 ### [Annotated source](/source/)
 
 ### [View on GitHub](http://github.com/nickfargo/state)
+
+
+
+
+[diagram--states]: /img/model-5.png "States"
+[diagram--object-model]: /img/model-4-75pct.png "State object model"

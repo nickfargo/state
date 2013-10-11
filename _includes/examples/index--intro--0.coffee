@@ -1,1 +1,1 @@
-state = require 'state'
+state = require 'state'          # >>> [Function]

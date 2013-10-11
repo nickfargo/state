@@ -3,7 +3,7 @@
 <a class="download" target="_blank" href="/state.js"><strong>state.js</strong> {{ site.packages.state.version }} <span class="weak">({{ site.packages.state.size }})</span></a><a class="download" target="_blank" href="/state-min.js"><strong>{{ site.packages.state.size_gz }}</strong> min/gz</a>
 
 
-#### In Node.js
+##### In Node.js
 
 **State** can be installed as a [**Node.js**](http://nodejs.org) module via [**npm**](http://npmjs.org/):
 
@@ -20,7 +20,7 @@ state = require 'state'
 {% endhighlight %}
 
 
-#### In the browser
+##### In the browser
 
 **State** can be included using your favorite package manager, or directly:
 

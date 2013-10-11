@@ -1,1 +1,1 @@
-var state = require('state');
+var state = require('state');      // >>> [Function]

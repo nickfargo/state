@@ -1,10 +1,10 @@
 ### [Object model](#concepts--object-model)
 
-The [`State`](/api/#state) model is fundamentally hierarchical, describing a rooted tree of `State`s belonging to a unique **owner** object. Each `State`, starting with the owner’s unique **root state**, may serve as a **superstate** from which one or more **substates** inherit.
+The [`State`](/api/#state) model is fundamentally hierarchical, describing a rooted tree of `State`s belonging to a unique **owner** object. Starting with the owner’s unique [**root state**](#concepts--object-model--the-root-state), each `State` may serve as a [**superstate**](#concepts--object-model--superstates-and-substates) from which any number of [**substates**](#concepts--object-model--superstates-and-substates) inherit.
 
-A `State` may also inherit from zero or more **parastates**, from which its contents are *composed*, in a manner similar to the concepts of dynamic mixins or multiple inheritance.
+A `State` may also inherit from zero or more [**parastates**](#concepts--object-model--parastates-and-composition), providing a means for composition, implemented via linearized multiple inheritance.
 
-An owner’s state tree is further heritable by any prototypal inheritors of that owner, which view their prototype’s `State`s as **protostates** from which their own **epistates** inherit.
+An owner’s state tree is further heritable by any prototypal inheritors of that owner, which view their prototype’s `State`s as [**protostates**](#concepts--object-model--protostates-and-epistates) from which their own [**epistates**](#concepts--object-model--protostates-and-epistates) inherit.
 
 {% highlight javascript %}
 {% include examples/docs/object-model--intro.js %}
@@ -15,6 +15,14 @@ An owner’s state tree is further heritable by any prototypal inheritors of tha
 {% endhighlight %}
 
 ![State object model][diagram--model]
+
+Resolving inherited content for a given `State` *S* follows the fundamental **relation precedence**, via:
+
+0. the **protostate** chain of *S*
+0. the **parastates** of *S*, in declared order
+0. the **superstate** of *S*
+
+where the full depth of all parastate and superstate ancestors of *S* are linearized into a simple resolution order, or “parastate–superstate chain”.
 
 <div class="local-toc"></div>
 
@@ -91,7 +99,7 @@ The order in which a `State` inherits from its lineage of parastate and supersta
 
 ![Parastates][diagram--model--para]
 
-> **Parastate–superstate graph** and **linearization** — from the example code above, parastates `X` and `Y` of `State` `AA` are depicted to the left of its superstate `A`, indicating the superstate’s role as the “final parent” of a `State`. The linearization of `AA` determines the precedence, or *resolution order*, by which the `State` will inherit methods, data, and events defined in its ancestors.
+> **Parastate–superstate graph** and **linearization** — from the example code above, parastates `X` and `Y` of `State` `AA` are depicted to the left of its superstate `A`, indicating the superstate’s intrinsic position as the “final parent” of a `State`. The linearization of `AA` determines the precedence, or *resolution order*, by which the `State` will inherit methods, data, and events defined in its ancestors.
 
 Attempting to implement an expression that produces a `State` graph which does not conform to the **C3** restrictions will throw a `TypeError`.
 
