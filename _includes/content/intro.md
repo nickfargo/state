@@ -18,7 +18,7 @@
 {% include examples/index--intro--1.coffee %}
 {% endhighlight %}
 
-> The implementing form causes a `state` method to be added to the owner; this function closes over the new state tree, and will serve as the **accessor** to the owner’s `State`s.
+> The *implementing* form has two effects: **(1)** the owner is given a new `state` method, which closes over the owner’s new state tree and serves as the **accessor** to its `State`s; and **(2)** for any method defined at least once in the state tree, a corresponding **dispatcher** method is created and added to the owner.
 
 {% highlight javascript %}
 {% include examples/index--intro--2.js %}
@@ -31,7 +31,7 @@
 
 ### [States and currency](#states-and-currency)
 
-[`State`](/api/#state) objects are heritable, composable modules of behavior to be exhibited by their **owner** object. The contents of a [`State`](/api/#state) may include [method](#methods) overrides, arbitrary [data](/docs/#concepts--data), [event](#events) listeners, [substates](/docs/#concepts--object-model--superstates-and-substates), [guards](/docs/#concepts--guards), and [transition expressions](/docs/#concepts--transitions).
+[`State`](/api/#state) objects are heritable, composable modules of behavior, to be exhibited interchangeably over time by their **owner** object. [`State`](/api/#state)s may define [method](#methods) overrides, arbitrary [data](/docs/#concepts--data), [event](#events) listeners, [guards](/docs/#concepts--guards), [substates](/docs/#concepts--object-model--superstates-and-substates), and [transition expressions](/docs/#concepts--transitions).
 
 {% highlight javascript %}
 {% include examples/index--states--0.js %}
@@ -70,7 +70,7 @@ A `State` and its contents may be [inherited and composed](/docs/#concepts--obje
 
 ![State object model][diagram--object-model]
 
-The **State** object model provides for both [hierarchical single-inheritance](/docs/#concepts--object-model--superstates-and-substates) and [compositional multiple-inheritance](/docs/#concepts--object-model--parastates-and-composition) among `State`s that share a common owner. It also provides [indirect prototypal inheritance](/docs/#concepts--object-model--protostates-and-epistates) from `State`s that belong to the owner’s prototypes.
+Among `State`s that share a common **owner**, the **State** object model provides both hierarchical single-inheritance from [superstates](/docs/#concepts--object-model--superstates-and-substates), and compositional multiple-inheritance with [parastates](/docs/#concepts--object-model--parastates-and-composition). Indirect prototypal inheritance is also provided implicitly via [protostates](/docs/#concepts--object-model--protostates-and-epistates).
 
 {% highlight javascript %}
 {% include examples/index--object-model--0.js %}
@@ -148,7 +148,7 @@ The **State** object model provides for both [hierarchical single-inheritance](/
 
 [State methods](/docs/#concepts--methods) express or override behavior of the **owner**. Method calls received by the owner are dispatched to its **current state**’s own or inherited implementation of the corresponding method.
 
-By default, state methods are invoked in the context of the owner, just like normal methods. To provide insight into its place in the owner’s state tree, a method definition can instead be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which the method acts.
+By default, state methods are invoked in the context of the owner, just like normal methods. To provide insight into its place in the owner’s state tree, a method definition can instead be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which the method acts. (If the method is inherited from a protostate, this context will be the inheriting epistate.)
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}
@@ -158,7 +158,7 @@ By default, state methods are invoked in the context of the owner, just like nor
 {% include examples/index--methods.coffee %}
 {% endhighlight %}
 
-A state method can also be wrapped in a decorator that [fixes the method](/docs/#concepts--methods--lexical-bindings) with bindings to the precise `State` where it is defined.
+A state method can also be wrapped in a decorator that [fixes the method](/docs/#concepts--methods--lexical-bindings) with bindings to the precise `State` where it is defined, invariant across the protostate–epistate relation.
 
 
 ### [Events](#events)
@@ -180,7 +180,7 @@ A state method can also be wrapped in a decorator that [fixes the method](/docs/
 
 Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--attributes--mutable), such that modular pieces of behavior may be inserted and implemented dynamically into a live `State`, thereby allowing changes in behavior to be exhibited via **mutations** as well.
 
-> A plain object is sufficient to define a loose bit of behavior.
+> A plain object is sufficient to define a loose expression of behavior.
 
 {% highlight javascript %}
 {% include examples/index--mutability--0.js %}
@@ -200,7 +200,7 @@ Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--a
 {% include examples/index--mutability--1.coffee %}
 {% endhighlight %}
 
-> A `traveler` adapts to its new surroundings by overwriting any previously defined behavior with the appropriately chosen new behavior.
+> A `traveler` assimilates into the local culture by overwriting its previously defined behavior with the appropriately chosen new behavior. (Recall `Actor` defined above.)
 
 {% highlight javascript %}
 {% include examples/index--mutability--2.js %}

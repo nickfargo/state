@@ -1,7 +1,11 @@
 var owner = {};
 state( owner, {
-    A: state,
-    B: state
+    A: state({
+        aMethod: function () { return "alpha"; }
+    }),
+    B: state({
+        aMethod: function () { return "beta"; }
+    })
 });
 
 var root   = owner.state('');      // >>> RootState

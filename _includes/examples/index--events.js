@@ -33,15 +33,15 @@ state( Mover.prototype, {
 }() );
 
 
-var m = new Mover;
+var mover = new Mover;
 
-m.state('-> Alert');
+mover.state('-> Alert');
 // log <<< "depart Idle"
 // log <<< "exit Idle"
 // log <<< "enter Alert"
 // log <<< "arrive Alert"
 
-m.state('-> Sprinting');
+mover.state('-> Sprinting');
 // log <<< "depart Alert"
 // log <<< "exit Alert"
 // log <<< "exit Stationary"
