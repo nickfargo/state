@@ -1240,11 +1240,15 @@ body.index pre {
   margin-top: 0;
   background: transparent;
   border: none;
-  font-size: 13px;
-  line-height: 19px;
+  font-size: 15px;
+  line-height: 21px;
 }
 body.index blockquote {
   margin-bottom: 0;
+  opacity: 0.4;
+}
+body.index .content .body:hover blockquote {
+  opacity: 1;
 }
 body.index blockquote p {
   font-size: 16px;
