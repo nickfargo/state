@@ -1,12 +1,12 @@
 function Developer () {}
 
 state( Developer.prototype, 'abstract', {
-    develop: function () { this.state('-> Mature'); },
+    develop: function () { this.state('-> Seasoned'); },
 
     Juvenile: state( 'initial', {
-        greet: function () { return "Sup."; }
+        greet: function () { return "Sup brah"; }
     }),
-    Mature: state( 'final', {
+    Seasoned: state( 'final', {
         greet: function () { return "Hello."; }
     })
 });
@@ -15,14 +15,14 @@ state( Developer.prototype, 'abstract', {
 var dev = new Developer;
 
 dev.state();                   // >>> State 'Juvenile'
-dev.greet();                   // >>> "Sup."
+dev.greet();                   // >>> "Sup brah"
 
 dev.develop();
 
-dev.state();                   // >>> State 'Mature'
+dev.state();                   // >>> State 'Seasoned'
 dev.greet();                   // >>> "Hello."
 
 dev.state('-> Juvenile');      // (No effect)
 
-dev.state();                   // >>> State 'Mature'
+dev.state();                   // >>> State 'Seasoned'
 dev.greet();                   // >>> "Hello."

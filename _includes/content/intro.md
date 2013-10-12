@@ -8,7 +8,7 @@
 {% include examples/index--intro--0.coffee %}
 {% endhighlight %}
 
-> The exported `state` function will be used here in two ways: **(1)** to *define* behavior in formal structures called **state expressions**; and **(2)** to *implement* a composite state expression on an `owner`, producing a tree of [`State`](#states-and-currency)s that belong to the owner.
+> The exported `state` function will be used here in two ways: **(1)** to *define* behavior — in terms of methods, data, events, etc. — as formal structures called **state expressions**; and **(2)** to *implement* a composite state expression on an `owner`, producing a tree of [`State`](#states-and-currency)s that belong to the owner.
 
 {% highlight javascript %}
 {% include examples/index--intro--1.js %}
@@ -90,7 +90,7 @@ Among `State`s that share a common **owner**, the **State** object model provide
 {% include examples/index--object-model--1.coffee %}
 {% endhighlight %}
 
-> Instances of a **State**–affected prototype such as this commonly do not bear a tree of `State`s themselves, but will inherit the prototype’s `State`s as the instances’ **protostates**.
+> Instances of a **State**–affected prototype such as this commonly do not bear a tree of `State`s themselves, but will inherit the prototype’s `State`s as the instances’ **protostates**, to which the instances’ `State`s relate back as **epistates**.
 
 {% highlight javascript %}
 {% include examples/index--object-model--2.js %}
@@ -148,7 +148,7 @@ Among `State`s that share a common **owner**, the **State** object model provide
 
 [State methods](/docs/#concepts--methods) express or override behavior of the **owner**. Method calls received by the owner are dispatched to its **current state**’s own or inherited implementation of the corresponding method.
 
-By default, state methods are invoked in the context of the owner, just like normal methods. To provide insight into its place in the owner’s state tree, a method definition can instead be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) in which the method acts. (If the method is inherited from a protostate, this context will be the inheriting epistate.)
+By default, state methods are invoked in the context of the owner, just like normal methods. To gain insight into its place in the owner’s state tree, a method definition can instead be [contextually bound](/docs/#concepts--methods--context) to the [`State`](/api/#state) for which the method acts. (This will be the `State` in which the method is defined, unless the method is inherited from a protostate, in which case the context will be the inheriting epistate.)
 
 {% highlight javascript %}
 {% include examples/index--methods.js %}
@@ -158,12 +158,12 @@ By default, state methods are invoked in the context of the owner, just like nor
 {% include examples/index--methods.coffee %}
 {% endhighlight %}
 
-A state method can also be wrapped in a decorator that [fixes the method](/docs/#concepts--methods--lexical-bindings) with bindings to the precise `State` where it is defined, invariant across the protostate–epistate relation.
+A state method can also be wrapped in a decorator that [fixes the method](/docs/#concepts--methods--lexical-bindings) with bindings to the precise `State` where it is defined (invariant across the protostate–epistate relation).
 
 
 ### [Events](#events)
 
-**State** provides built-in [events](/docs/#concepts--events) that relate the [progress of a transition](/docs/#concepts--events--transitional) as it traverses the state hierarchy, and that signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state). Events can also be emitted for any [custom event type](/docs/#concepts--events--custom).
+**State** provides built-in [events](/docs/#concepts--events) that relate the [progress of a transition](/docs/#concepts--events--transitional) as it traverses the state hierarchy, along with events that signal the [construction, destruction](/docs/#concepts--events--existential), or [mutation](/docs/#concepts--events--mutation) of a [`State`](/api/#state). Events can also be emitted for any [custom event type](/docs/#concepts--events--custom).
 
 {% highlight javascript %}
 {% include examples/index--events.js %}
