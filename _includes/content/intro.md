@@ -31,7 +31,7 @@
 
 ### [States and currency](#states-and-currency)
 
-[`State`](/api/#state) objects are heritable, composable modules of behavior, to be exhibited interchangeably over time by their **owner** object. [`State`](/api/#state)s may define [method](#methods) overrides, arbitrary [data](/docs/#concepts--data), [event](#events) listeners, [guards](/docs/#concepts--guards), [substates](/docs/#concepts--object-model--superstates-and-substates), and [transition expressions](/docs/#concepts--transitions).
+[`State`](/api/#state) objects are heritable, composable modules of behavior, to be exhibited interchangeably over time by their **owner** object. `State`s may define [method](#methods) overrides, arbitrary [data](/docs/#concepts--data), [event](#events) listeners, [guards](/docs/#concepts--guards), [substates](/docs/#concepts--object-model--superstates-and-substates), and [transition expressions](/docs/#concepts--transitions).
 
 {% highlight javascript %}
 {% include examples/index--states--0.js %}
@@ -66,7 +66,7 @@ The owner may alter its behavior by undergoing **transitions**, which carry the 
 
 ### [Object model](#object-model)
 
-A `State` and its contents may be [inherited and composed](/docs/#concepts--object-model) from other `State`s.
+A [`State`](/api/#state) and its contents may be [inherited and composed](/docs/#concepts--object-model) from other `State`s.
 
 ![State object model][diagram--object-model]
 
