@@ -16,13 +16,13 @@ An owner’s state tree is further heritable by any prototypal inheritors of tha
 
 ![State object model][diagram--model]
 
-Resolving inherited content for a given `State` *S* follows the fundamental **relation precedence**, via:
+Resolving inherited content for a given `State` *S* follows the fundamental **relation precedence**:
 
 0. the **protostate** chain of *S*
 0. the **parastates** of *S*, in declared order
 0. the **superstate** of *S*
 
-where the full depth of all parastate and superstate ancestors of *S* are linearized into a simple resolution order, or “parastate–superstate chain”.
+where the full depth of all parastate and superstate ancestors of *S* is linearized into a resolution order, or “parastate–superstate chain”, and the protostate chain of each `State` in this list is traversed in turn, thereby covering the entire ancestry of *S*, in all dimensions, and in regular, monotonic order.
 
 <div class="local-toc"></div>
 

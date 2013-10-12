@@ -3,7 +3,7 @@ class Developer
     develop: -> @state '-> Seasoned'
 
     Juvenile: state 'initial',
-      greet: -> "Sup brah"
+      greet: -> "sup"
     Seasoned: state 'final',
       greet: -> "Hello."
 
@@ -11,7 +11,7 @@ class Developer
 dev = new Developer
 
 dev.state()                    # >>> State 'Juvenile'
-dev.greet()                    # >>> "Sup brah"
+dev.greet()                    # >>> "sup"
 
 do dev.develop
 

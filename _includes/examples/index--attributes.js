@@ -4,7 +4,7 @@ state( Developer.prototype, 'abstract', {
     develop: function () { this.state('-> Seasoned'); },
 
     Juvenile: state( 'initial', {
-        greet: function () { return "Sup brah"; }
+        greet: function () { return "sup"; }
     }),
     Seasoned: state( 'final', {
         greet: function () { return "Hello."; }
@@ -15,7 +15,7 @@ state( Developer.prototype, 'abstract', {
 var dev = new Developer;
 
 dev.state();                   // >>> State 'Juvenile'
-dev.greet();                   // >>> "Sup brah"
+dev.greet();                   // >>> "sup"
 
 dev.develop();
 
