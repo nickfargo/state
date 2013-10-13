@@ -22,7 +22,7 @@ state( Mover.prototype, {
         s.on( e, log );
     }
 
-    states = Mover.prototype.state().root.descendants();
+    states = Mover.prototype.state('**');
     eventNames = ['depart', 'exit', 'enter', 'arrive'];
 
     for ( i = 0; i < states.length; i++ ) {

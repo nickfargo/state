@@ -1245,9 +1245,15 @@ body.index pre {
 }
 body.index blockquote {
   margin-bottom: 0;
-  opacity: 0.4;
+  opacity: 0.6;
+}
+body.index:hover blockquote {
+  opacity: 0.2;
 }
 body.index .content .body:hover blockquote {
+  opacity: 0.8;
+}
+body.index .content .body blockquote:hover {
   opacity: 1;
 }
 body.index blockquote p {

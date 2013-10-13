@@ -1,11 +1,15 @@
-class Traveler extends Actor
-  state @::, 'mutable abstract',
-    travelTo: state.bind ( place ) -> @emit "in#{ place }"
+class Actor
+  state @::, 'abstract',
+    Casual: state
+      greet: -> "Hi!"
+    Formal: state 'default',
+      greet: -> "How do you do?"
 
+class Traveler extends Actor
+  state @::, 'mutable',
+    travelTo: state.bind ( place ) -> @emit "in#{ place }"
     events:
       inRome: doAs theRomansDo
-
-    Formal: state 'default'
 
 
 traveler = new Traveler

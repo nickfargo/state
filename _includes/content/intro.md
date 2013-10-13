@@ -31,7 +31,7 @@
 
 ### [States and currency](#states-and-currency)
 
-[`State`](/api/#state) objects are heritable, composable modules of behavior, to be exhibited interchangeably over time by their **owner** object. `State`s may define [method](#methods) overrides, arbitrary [data](/docs/#concepts--data), [event](#events) listeners, [guards](/docs/#concepts--guards), [substates](/docs/#concepts--object-model--superstates-and-substates), and [transition expressions](/docs/#concepts--transitions).
+[`State`](/api/#state) objects are modules of behavior that may be exhibited interchangeably by their **owner** object. `State`s may define [method](#methods) overrides, arbitrary [data](/docs/#concepts--data), [event](#events) listeners, [guards](/docs/#concepts--guards), [substates](/docs/#concepts--object-model--superstates-and-substates), and [transition expressions](/docs/#concepts--transitions).
 
 {% highlight javascript %}
 {% include examples/index--states--0.js %}
@@ -66,69 +66,19 @@ The owner may alter its behavior by undergoing **transitions**, which carry the 
 
 ### [Object model](#object-model)
 
-A [`State`](/api/#state) and its contents may be [inherited and composed](/docs/#concepts--object-model) from other `State`s.
+[`State`](/api/#state)s are modeled as a rooted tree, where each `State` may [inherit and be composed](/docs/#concepts--object-model) from other `State`s.
+
+The **State** model provides hierarchical single-inheritance with the [**superstate–substate**](/docs/#concepts--object-model--superstates-and-substates) relation, starting with an **owner**’s unique **root state**. At the same time, the [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relation models compositional multiple-inheritance. Indirect prototypal inheritance is also provided implicitly along the [**protostate–epistate**](/docs/#concepts--object-model--protostates-and-epistates) relation.
+
+{% highlight javascript %}
+{% include examples/docs/object-model--intro.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/docs/object-model--intro.coffee %}
+{% endhighlight %}
 
 ![State object model][diagram--object-model]
-
-Among `State`s that share a common **owner**, the **State** object model provides both hierarchical single-inheritance from [superstates](/docs/#concepts--object-model--superstates-and-substates), and compositional multiple-inheritance with [parastates](/docs/#concepts--object-model--parastates-and-composition). Indirect prototypal inheritance is also provided implicitly via [protostates](/docs/#concepts--object-model--protostates-and-epistates).
-
-{% highlight javascript %}
-{% include examples/index--object-model--0.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/index--object-model--0.coffee %}
-{% endhighlight %}
-
-> A **state tree** is implemented on the prototype of a constructor. Here, the **root state** is the **superstate** of its **substates** `Casual` and `Formal`.
-
-{% highlight javascript %}
-{% include examples/index--object-model--1.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/index--object-model--1.coffee %}
-{% endhighlight %}
-
-> Instances of a **State**–affected prototype such as this commonly do not bear a tree of `State`s themselves, but will inherit the prototype’s `State`s as the instances’ **protostates**, to which the instances’ `State`s relate back as **epistates**.
-
-{% highlight javascript %}
-{% include examples/index--object-model--2.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/index--object-model--2.coffee %}
-{% endhighlight %}
-
-> Unless specified otherwise, an owner’s initial **current state** will be the root state. The root state defines the owner’s most generic behavior, and as such also subsumes the owner’s default method implementations.
-
-{% highlight javascript %}
-{% include examples/index--object-model--3.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/index--object-model--3.coffee %}
-{% endhighlight %}
-
-> Even though its `State`s are defined on the prototype, each instance independently executes transitions that may target these inherited protostates.
-
-{% highlight javascript %}
-{% include examples/index--object-model--4.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/index--object-model--4.coffee %}
-{% endhighlight %}
-
-> Method calls received by the owner are dispatched to implementations defined on (or inherited by) its current state.
-
-{% highlight javascript %}
-{% include examples/index--object-model--5.js %}
-{% endhighlight %}
-
-{% highlight coffeescript %}
-{% include examples/index--object-model--5.coffee %}
-{% endhighlight %}
 
 
 ### [Attributes](#attributes)
@@ -180,7 +130,7 @@ A state method can also be wrapped in a decorator that [fixes the method](/docs/
 
 Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--attributes--mutable), such that modular pieces of behavior may be inserted and implemented dynamically into a live `State`, thereby allowing changes in behavior to be exhibited via **mutations** as well.
 
-> A plain object is sufficient to define a loose expression of behavior.
+> A free bit of behavior can be expressed with just a plain object.
 
 {% highlight javascript %}
 {% include examples/index--mutability--0.js %}
@@ -200,7 +150,7 @@ Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--a
 {% include examples/index--mutability--1.coffee %}
 {% endhighlight %}
 
-> A `traveler` assimilates into the local culture by overwriting its previously defined behavior with the appropriately chosen new behavior. (Recall `Actor` defined above.)
+> A `traveler` assimilates into the local culture by overwriting its previously defined behavior with the appropriately chosen new behavior.
 
 {% highlight javascript %}
 {% include examples/index--mutability--2.js %}
