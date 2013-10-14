@@ -1421,7 +1421,11 @@ body.source .text blockquote p {
 body.source .text a code {
   font-weight: bold;
 }
+body.source .text h2 {
+  margin-top: 1em;
+}
 body.source .text h3 {
+  margin-top: 2.5em;
   font-size: 21px;
 }
 body.source .text h3 code {
@@ -1429,6 +1433,11 @@ body.source .text h3 code {
 }
 body.source .text h4 {
   font-size: 18px;
+  font-weight: normal;
+  background: rgba(0, 0, 0, 0.1);
+  margin-left: -0.75em;
+  padding: 0.25em 0.75em;
+  border-radius: 12px 12px 0 0;
 }
 body.source .text h5 {
   font-size: 16px;
