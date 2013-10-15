@@ -1227,8 +1227,8 @@ body.index .content .body.markdown {
 body.index .logo {
   width: 640px;
   height: 640px;
-  margin: -120px auto -160px;
-  background-image: url(/img/dodecagem-glow-640px.png);
+  margin: -80px auto -120px;
+  background-image: url(/img/dodecagem-640px.png);
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -1470,7 +1470,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     background-size: auto 100%;
   }
   body.index .logo {
-    background-image: url(/img/dodecagem-glow-1280px.png);
+    background-image: url(/img/dodecagem-1280px.png);
   }
 }
 
@@ -1688,14 +1688,14 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   body.index .logo {
     width: 440px;
     height: 440px;
-    margin: -108px auto;
+    margin: -72px auto;
   }
   body.index p {
     font-size: 18px;
     line-height: 24px;
   }
   body.index pre {
-    padding: 0.5em 0em 3em 6px;
+    padding: 0.5em 0em 1em 6px;
     background: transparent;
     border: none;
     font-size: 13px;
@@ -1849,7 +1849,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
   body.index .logo {
     width: 300px;
     height: 300px;
-    margin: -60px auto;
+    margin: -48px auto;
   }
   body.index p {
     font-size: 13px;
@@ -1860,7 +1860,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     line-height: 16px;
   }
   body.index pre {
-    padding: 0.5em 0em 3em 6px;
+    padding: 0.5em 0em 1em 6px;
     background: transparent;
     border: none;
     font-size: 10px;
@@ -1885,7 +1885,15 @@ only screen and (     -o-min-device-pixel-ratio: 2/1) {
     font-size: 11px;
   }
 }
-
+@media
+only screen and (max-width: 400px) and (-webkit-min-device-pixel-ratio: 2),
+only screen and (max-width: 400px) and (   min--moz-device-pixel-ratio: 2),
+only screen and (max-width: 400px) and (     -o-min-device-pixel-ratio: 2/1) {
+  html {}
+  body.index .logo {
+    background-image: url(/img/dodecagem-640px.png);
+  }
+}
 @media (max-width: 400px) {
   body, p, li {
     font-size: 12px;
