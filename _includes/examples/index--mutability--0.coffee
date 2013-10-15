@@ -1,5 +1,6 @@
-theRomansDo =
-  Casual:
-    greet: -> "Salve!"
-  Formal:
-    greet: -> "Quid agis?"
+class Actor
+  state @::, 'abstract',
+    Casual: state
+      greet: -> "Hi!"
+    Formal: state 'default',
+      greet: -> "How do you do?"

@@ -1,1 +1,5 @@
-doAs = ( behavior ) -> state.bind -> @mutate behavior
+theRomansDo =
+  Casual:
+    greet: -> "Salve!"
+  Formal:
+    greet: -> "Quid agis?"

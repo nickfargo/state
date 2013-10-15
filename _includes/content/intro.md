@@ -134,8 +134,6 @@ A state method can also be wrapped in a decorator that [fixes the method](/docs/
 
 Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--attributes--mutable), such that modular pieces of behavior may be inserted and implemented dynamically into a live `State`, thereby allowing changes in behavior to be exhibited via **mutations** as well.
 
-> A free bit of behavior can be expressed with just a plain object.
-
 {% highlight javascript %}
 {% include examples/index--mutability--0.js %}
 {% endhighlight %}
@@ -144,7 +142,7 @@ Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--a
 {% include examples/index--mutability--0.coffee %}
 {% endhighlight %}
 
-> This factory produces a boxed function that will instill an enclosed `behavior` into a receiving `State`.
+> A free bit of behavior can be expressed with just a plain object.
 
 {% highlight javascript %}
 {% include examples/index--mutability--1.js %}
@@ -154,7 +152,7 @@ Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--a
 {% include examples/index--mutability--1.coffee %}
 {% endhighlight %}
 
-> A `traveler` assimilates itself by overwriting previously defined behavior with the appropriately chosen new behavior.
+> This factory produces a boxed function that will instill an enclosed `behavior` into a receiving `State`.
 
 {% highlight javascript %}
 {% include examples/index--mutability--2.js %}
@@ -162,6 +160,16 @@ Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--a
 
 {% highlight coffeescript %}
 {% include examples/index--mutability--2.coffee %}
+{% endhighlight %}
+
+> A `traveler` assimilates itself by overwriting previously defined behavior with the appropriately chosen new behavior.
+
+{% highlight javascript %}
+{% include examples/index--mutability--3.js %}
+{% endhighlight %}
+
+{% highlight coffeescript %}
+{% include examples/index--mutability--3.coffee %}
 {% endhighlight %}
 
 

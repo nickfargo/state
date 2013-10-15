@@ -1,5 +1,8 @@
-function doAs ( behavior ) {
-    return state.bind( function () {
-        this.mutate( behavior );
-    });
-}
+var theRomansDo = {
+    Casual: {
+        greet: function () { return "Salve!"; }
+    },
+    Formal: {
+        greet: function () { return "Quid agis?"; }
+    }
+};
