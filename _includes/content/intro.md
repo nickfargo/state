@@ -70,7 +70,7 @@ The owner may alter its behavior by undergoing **transitions**, which carry the 
 
 * Hierarchical single-inheritance is provided by the [**superstate–substate**](/docs/#concepts--object-model--superstates-and-substates) relation, which defines a **state tree** rooted from the **owner**’s unique **root state**.
 
-* Compositional multiple-inheritance is provided simultaneously by [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relations.
+* Compositional multiple-inheritance is provided simultaneously by [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relations, which are *linearized* alongside superstates within a state tree.
 
 * Indirect prototypal inheritance is also defined along the [**protostate–epistate**](/docs/#concepts--object-model--protostates-and-epistates) relation, an implication of the owner’s prototype chain.
 
