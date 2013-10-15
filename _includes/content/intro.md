@@ -154,7 +154,7 @@ Alternatively, a `State` may be explicitly expressed as [mutable](/api/#state--a
 {% include examples/index--mutability--1.coffee %}
 {% endhighlight %}
 
-> A `traveler` assimilates into the local culture by overwriting its previously defined behavior with the appropriately chosen new behavior.
+> A `traveler` assimilates itself by overwriting previously defined behavior with the appropriately chosen new behavior.
 
 {% highlight javascript %}
 {% include examples/index--mutability--2.js %}
