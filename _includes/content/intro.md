@@ -1,4 +1,4 @@
-**State.js** is a JavaScript library for implementing **first-class states** on arbitrary **owner** objects.
+**State.js** is a JavaScript library for embedding **first-class states** into arbitrary **owner** objects.
 
 {% highlight javascript %}
 {% include examples/index--intro--0.js %}
@@ -66,9 +66,13 @@ The owner may alter its behavior by undergoing **transitions**, which carry the 
 
 ### [Object model](#object-model)
 
-[`State`](/api/#state)s may [inherit and be composed](/docs/#concepts--object-model) from other `State`s in any of three distinct ways.
+[`State`](/api/#state) objects may [inherit and be composed](/docs/#concepts--object-model) from other `State`s.
 
-The **State** model provides *hierarchical* single-inheritance with the [**superstate–substate**](/docs/#concepts--object-model--superstates-and-substates) relation, starting from an **owner**’s unique **root state**. At the same time, a *compositional* model is defined by the [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relation. Indirect *prototypal* inheritance is also provided along the [**protostate–epistate**](/docs/#concepts--object-model--protostates-and-epistates) relation, defined as an implication of the owner’s prototype chain.
+* Hierarchical single-inheritance is provided by the [**superstate–substate**](/docs/#concepts--object-model--superstates-and-substates) relation, which defines a **state tree** rooted from the **owner**’s unique **root state**.
+
+* Compositional multiple-inheritance is provided simultaneously by [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relations.
+
+* Indirect prototypal inheritance is also defined along the [**protostate–epistate**](/docs/#concepts--object-model--protostates-and-epistates) relation, an implication of the owner’s prototype chain.
 
 {% highlight javascript %}
 {% include examples/docs/object-model--intro.js %}
