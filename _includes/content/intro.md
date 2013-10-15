@@ -66,9 +66,9 @@ The owner may alter its behavior by undergoing **transitions**, which carry the 
 
 ### [Object model](#object-model)
 
-[`State`](/api/#state)s are modeled as a rooted tree, where each `State` may [inherit and be composed](/docs/#concepts--object-model) from other `State`s.
+[`State`](/api/#state)s may [inherit and be composed](/docs/#concepts--object-model) from other `State`s in any of three distinct ways.
 
-The **State** model provides hierarchical single-inheritance with the [**superstate–substate**](/docs/#concepts--object-model--superstates-and-substates) relation, starting with an **owner**’s unique **root state**. At the same time, the [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relation models compositional multiple-inheritance. Indirect prototypal inheritance is also provided implicitly along the [**protostate–epistate**](/docs/#concepts--object-model--protostates-and-epistates) relation.
+The **State** model provides *hierarchical* single-inheritance with the [**superstate–substate**](/docs/#concepts--object-model--superstates-and-substates) relation, starting from an **owner**’s unique **root state**. At the same time, a *compositional* model is defined by the [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relation. Indirect *prototypal* inheritance is also provided along the [**protostate–epistate**](/docs/#concepts--object-model--protostates-and-epistates) relation, defined as an implication of the owner’s prototype chain.
 
 {% highlight javascript %}
 {% include examples/docs/object-model--intro.js %}

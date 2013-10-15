@@ -1,10 +1,12 @@
 ### [Object model](#concepts--object-model)
 
-The [`State`](/api/#state) model is fundamentally hierarchical, describing a rooted tree of `State`s belonging to a unique **owner** object. Starting with the owner’s unique [**root state**](#concepts--object-model--the-root-state), each `State` may serve as a [**superstate**](#concepts--object-model--superstates-and-substates) from which any number of [**substates**](#concepts--object-model--superstates-and-substates) inherit.
+[`State`](/api/#state) objects are modeled by a set of relational references that define three distinct dimensions or “axes”.
 
-A `State` may also inherit from zero or more [**parastates**](#concepts--object-model--parastates-and-composition), providing a means for composition, implemented via linearized multiple inheritance.
+Fundamentally the `State` model is *hierarchical*, describing a rooted tree of `State`s belonging to a unique **owner** object. Starting with the owner’s unique [**root state**](#concepts--object-model--the-root-state), each `State` may serve as a [**superstate**](#concepts--object-model--superstates-and-substates) from which any number of [**substates**](#concepts--object-model--superstates-and-substates) inherit.
 
-An owner’s state tree is further heritable by any prototypal inheritors of that owner, which view their prototype’s `State`s as [**protostates**](#concepts--object-model--protostates-and-epistates) from which their own [**epistates**](#concepts--object-model--protostates-and-epistates) inherit.
+A `State` may also inherit from zero or more [**parastates**](#concepts--object-model--parastates-and-composition), providing a means to define *compositional* relations, implemented via **C3 linearized** multiple inheritance.
+
+An owner’s state tree is further heritable by any *prototypal* inheritors of that owner, which view their prototype’s `State`s as [**protostates**](#concepts--object-model--protostates-and-epistates) from which their own [**epistates**](#concepts--object-model--protostates-and-epistates) inherit.
 
 {% highlight javascript %}
 {% include examples/docs/object-model--intro.js %}
