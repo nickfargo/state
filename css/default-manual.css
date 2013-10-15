@@ -1434,7 +1434,7 @@ body.source .text h3 code {
 body.source .text h4 {
   font-size: 18px;
   font-weight: normal;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.05);
   margin-left: -0.75em;
   padding: 0.25em 0.75em;
   border-radius: 12px 12px 0 0;
