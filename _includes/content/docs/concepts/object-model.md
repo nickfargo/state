@@ -70,7 +70,11 @@ An **owner** object’s expressed behavior is *specified* by **substates**, and 
 
 A notable distinction of **State** from other hierarchical state implementations is that an owner’s **currency** is not necessarily confined to “leaf” states. The owner is free both to exhibit specific behavior by transitioning to a state nested deeper in the tree, and also to exhibit more generic behavior by transitioning to a **concrete** interior superstate.
 
+###### SEE ALSO
+
 > [Abstraction](#concepts--attributes--abstraction)
+
+> [superstate](/api/#state--properties--superstate)
 
 
 #### [Parastates and composition](#concepts--object-model--parastates-and-composition)
@@ -118,6 +122,10 @@ A `State` and its parastates must share a common `owner`, however, parastate dec
 * The progression of a **transition** is conceptually orthogonal to the parastate relation, and traversal proceeds only over the state tree defined by the superstate–substate relations.
 
 * Parastates provide for compositional reuse of their own or inherited **methods, data, and custom events**. Built-in events, guards, substates, transitions, and attributes are not heritable via parastate.
+
+###### SEE ALSO
+
+> [`State::linearize`](/source/state.html#state--prototype--linearize)
 
 
 #### [Protostates and epistates](#concepts--object-model--protostates-and-epistates)
