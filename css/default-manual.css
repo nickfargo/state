@@ -213,6 +213,10 @@ a strong {
 .weak {
   font-weight: 300;
 }
+.lede {
+  font-size: 120%;
+  line-height: 1.33;
+}
 sup, sub {
   font-size: 70.71%;
   font-style: inherit;
