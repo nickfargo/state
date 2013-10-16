@@ -95,9 +95,15 @@ Parastates are declared with the [`state.extend`](/api/#state-function--extend) 
 
 > State `AA` inherits conventionally from superstate `A`, but not before inheriting *compositionally* from parastates `X` and `Y`.
 
-##### Linearization, order, and monotonicity
+##### Linearization, inheriting precedence, and monotonicity
 
-The order in which a `State` inherits from its lineage of parastate and superstate ancestors is guaranteed to be unambiguous and monotonic. This is enforced by an implementation of the **C3 linearization algorithm** (Dylan, Perl, Python), with the **State**–specific stipulations that:
+The **resolution order** by which a `State` inherits from its lineage of parastate and superstate ancestors is guaranteed to be unambiguous. It is also guaranteed to be *monotonic* relative to the resolution order for any descendants of the `State`:
+
+* Given `State` *S* with ancestor `State`s *A* and *B* (either parastates or superstates), where *A* precedes *B* in the resolution order of *S*;
+
+* A `State` *T*, to which *S* is related as either a parastate or superstate of *T*, is guaranteed to encounter *A* before *B* in its own resolution order.
+
+These assertions are enforced by an implementation of the **C3 linearization algorithm** (Dylan, Perl, Python) — with the **State**–specific stipulations that:
 
 * A `State`’s “parents” are defined and ordered by its immediate parastates, in declared order, followed by its immediate superstate.
 
