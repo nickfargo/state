@@ -1,4 +1,4 @@
-<span class="lede">**State.js** is a JavaScript library for embedding heritable, composable **first-class states** into arbitrary **owner** objects.</span>
+<span class="lede">**State.js** is a JavaScript library for embedding composable, heritable **first-class states** into arbitrary **owner** objects.</span>
 
 {% highlight javascript %}
 {% include examples/index--intro--0.js %}
