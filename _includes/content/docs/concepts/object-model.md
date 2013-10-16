@@ -111,7 +111,7 @@ Attempting to implement an expression that produces a `State` graph which does n
 
 ##### Prototypal flattening
 
-A `State` and its parastates must share a common `owner`, however, parastate declarations may include paths that resolve to `State`s belonging to a prototype of the `owner`. In such a case these “proto-parastates” are automatically *flattened* onto the `owner`’s state tree:
+In the **State** model, a `State` and its parastates must share a common `owner`. However, parastate declarations may include paths that resolve to `State`s belonging to a prototype of the `owner`. In such a case these “proto-parastates” are automatically *flattened* onto the `owner`’s state tree:
 
 * Given `State` *S* with `owner` *O*, which has prototype *P*, where *P* bears a `State` *A* whose path is `'A'`, and given that *S* declares path `'A'` as a parastate relation;
 
@@ -121,7 +121,7 @@ A `State` and its parastates must share a common `owner`, however, parastate dec
 
 * The progression of a **transition** is conceptually orthogonal to the parastate relation, and traversal proceeds only over the state tree defined by the superstate–substate relations.
 
-* Parastates provide for compositional reuse of their own or inherited **methods, data, and custom events**. Built-in events, guards, substates, transitions, and attributes are not heritable via parastate.
+* Parastates provide for compositional reuse of only their own or inherited **methods, data, and custom events**. Built-in events, guards, substates, transitions, and attributes are not heritable via parastate.
 
 ###### SEE ALSO
 

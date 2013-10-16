@@ -8,7 +8,7 @@
 {% include examples/index--intro--0.coffee %}
 {% endhighlight %}
 
-> The exported `state` function will be used here in two ways: **(1)** to *define* structures called **state expressions**, which describe behavior in terms of methods, data, events, etc.; and **(2)** to *implement* a composite state expression on an `owner`, producing a tree of [`State`](#states-and-currency)s that belong to the owner and describe its potential exhibited behaviors.
+> The exported `state` function will be used here in two ways: **(1) to define** structures called **state expressions**, which describe behavior in terms of methods, data, events, etc.; and **(2) to implement** a composite state expression on an `owner`, producing a tree of [`State`](#states-and-currency)s that belong to the owner and describe its potential exhibited behaviors.
 
 {% highlight javascript %}
 {% include examples/index--intro--1.js %}
@@ -70,7 +70,7 @@ The owner may alter its behavior by undergoing **transitions**, which carry the 
 
 * Hierarchical single-inheritance is provided by the [**superstate–substate**](/docs/#concepts--object-model--superstates-and-substates) relation, which defines a **state tree** rooted from the **owner**’s unique **root state**.
 
-* Compositional multiple-inheritance is provided simultaneously by [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relations, which are *linearized* alongside superstates over a state tree.
+* Compositional multiple-inheritance is provided simultaneously by [**parastate**](/docs/#concepts--object-model--parastates-and-composition) relations, which are *C3–linearized* alongside superstates over a state tree.
 
 * Indirect prototypal inheritance is also defined along the [**protostate–epistate**](/docs/#concepts--object-model--protostates-and-epistates) relation, an implication of the owner’s prototype chain.
 
