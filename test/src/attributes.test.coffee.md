@@ -387,9 +387,9 @@
       describe "Retained:", ->
         class Class
           state @::,
-            A: state 'retained',
+            A: state 'abstract retained',
               AA: state 'initial'
-              AB: state
+              AB: state 'default'
             B: state
 
         it "initializes to own state", ->
