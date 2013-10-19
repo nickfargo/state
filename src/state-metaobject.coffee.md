@@ -27,6 +27,10 @@ The host `State`s intrinsic contents.
         @substates      = null
         @transitions    = null
 
+A `retained` state will store a path to its retained internal substate here.
+
+        @retaineePath   = null
+
 If enabled, a dispatch table may be used to cache method resolutions.
 
         @__dispatch_table__ = null if useDispatchTables

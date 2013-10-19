@@ -21,7 +21,7 @@ of **transitions** that traverse its **state tree**.
       { env, hasOwn, trim, type, isEmpty, isArray } = O
       { slice } = Array::
 
-      { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL } = this
+      { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL, RETAINED } = this
       { VIA_NONE, VIA_PROTO } = this
 
 
@@ -260,6 +260,12 @@ Extract `args` from `options` and resolve `options` to an object if necessary.
           else options.args
           args = slice.call args if args?
 
+If `target` is a `retained` state, restore its currency by redirecting to its
+retained internal substate.
+
+        if target.attributes & RETAINED
+          target = retainee if retainee = target.query target._.retaineePath
+
 A transition cannot target an abstract state directly, so `target` must be
 reassigned to the appropriate concrete substate.
 
@@ -327,6 +333,8 @@ Walk up to the top of the domain, emitting `exit` events for each state along
 the way.
 
         s = source; while transition and s isnt domain
+          if s.attributes & RETAINED
+            s._.retaineePath = transition.origin.path()
           s.emit 'exit', eventArgs, VIA_PROTO
           transition.superstate = s = s.superstate
           @_transition = transition = null if transition.aborted

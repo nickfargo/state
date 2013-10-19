@@ -81,6 +81,8 @@ A bit mask indicates the attributes that can be inherited via protostates.
         CONCURRENT  |
         NORMAL
 
+      VIRTUAL_EXPRESSION = attributes: VIRTUAL
+
 
 
 ### [Supporting classes](#state--supporting-classes)
@@ -124,7 +126,7 @@ is not set.
 
         @order = null
 
-###### Attribute inheritance masking
+###### Attribute inheritance masking and validation
 
 Explicitly defined *literal* attributes for `this` state are encoded as a bit
 field integer within `expression`, and then superimposed atop the *inherited*
@@ -171,7 +173,10 @@ Literal or inherited `immutable` contradicts `mutable` absolutely, and implies
 
 ###### Offloaded initialization
 
-        @initialize expression unless attributes & VIRTUAL
+A `retained` state must be `realize`d.
+
+        if ~attributes & VIRTUAL or attributes & RETAINED
+          @initialize expression
 
 ###### Debug properties
 
@@ -218,9 +223,6 @@ Builds out the state’s members based on the expression provided.
 > [Constructor](#state--constructor)
 
       initialize: ( expression ) ->
-        { attributes } = this
-        return if attributes & VIRTUAL
-
         @attributes |= INCIPIENT
         @realize expression
         @attributes &= ~INCIPIENT
@@ -321,19 +323,14 @@ Get the `derivation` list for `this`.
 
         return null unless ( derivation = @derivation yes ).length
 
-Traverse the real states of the inheriting state tree to their furthest depth.
+Virtual states are added to `inheritor`’s state tree until there is an epistate
+for each state in the superstate chain of `this`.
 
-        i = 0; s = inheritor.root
-        while name = derivation[ i++ ]
+        i = 0; s = inheritor.root; while name = derivation[ i++ ]
           break unless real = s.substate name, VIA_NONE
           s = real
-
-If `derivation` extends beyond the inheriting state tree’s real states, then
-add virtual states to it until the whole superstate chain is represented.
-
-        expr = attributes: VIRTUAL
         while name
-          s = new State s, name, expr
+          s = new State s, name, VIRTUAL_EXPRESSION
           name = derivation[ i++ ]
         s
 

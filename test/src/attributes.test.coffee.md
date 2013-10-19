@@ -384,6 +384,40 @@
             testImmutabilityOf o.state ''
 
 
+      describe "Retained:", ->
+        class Class
+          state @::,
+            A: state 'retained',
+              AA: state 'initial'
+              AB: state
+            B: state
+
+        it "initializes to own state", ->
+          o = new Class
+          AA = o.state()
+          expect( AA.name ).to.equal 'AA'
+          expect( AA.owner ).to.equal o
+          expect( AA.superstate.owner ).to.equal o
+          expect( o.state('AA') ).to.equal AA
+
+        it "applies the retained attribute", ->
+          o = new Class
+          expect( o.state('A').isRetained() ).to.equal yes
+
+        it "autorealizes the retained state", ->
+          o = new Class
+          expect( o.state('A').isVirtual() ).to.equal no
+
+        it "stores retainee path upon exit", ->
+          o = new Class
+          o.state '-> B'
+          expect( o.state('A')._.retaineePath ).to.equal 'A.AA'
+
+        it "restores currency of state upon arrival", ->
+          o = new Class
+          o.state '-> B'
+          o.state '-> A'
+          expect( o.state().name ).to.equal 'AA'
 
 
 
