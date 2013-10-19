@@ -15,6 +15,7 @@ state( owner, expression )
 state( attributes, expression )
 state( expression )
 state( attributes )
+state()
 {% endhighlight %}
 
 ###### PARAMETERS
@@ -41,7 +42,24 @@ state( attributes )
 
 ###### DISCUSSION
 
-When expressing a substate within a state expression, calling `state` with a lone object literal as `expression` evaluates identically to including just the object itself. It follows then that calling `state` with no arguments expresses an empty `StateExpression`, as would an empty object literal `{}` reference; however, the ideal way to express “empty state” is simply a reference to the `state` function, which is interpreted equivalently while avoiding the extra invocation and/or allocation.
+Inside the definition of a `StateExpression`, the following uses of `state` are effectively equivalent, each defining a nested empty `StateExpression`:
+
+{% highlight javascript %}
+expr = state({
+  A: state({}),
+  B: state(),
+  C: state
+});
+{% endhighlight %}
+
+{% highlight coffeescript %}
+expr = state
+  A: state({})
+  B: state()
+  C: state
+{% endhighlight %}
+
+The latter case (`C`) is the preferred usage.
 
 ###### SEE ALSO
 
