@@ -117,6 +117,11 @@ or an `owner` for which to act as a new `root` state.
 
         @owner = owner
         @root = root
+        @region =
+          if superstate
+            if superstate.attributes & CONCURRENT then this # verify Region
+            else superstate.region
+          else root
         @superstate = superstate
         @protostate = protostate = @getProtostate() or null
 

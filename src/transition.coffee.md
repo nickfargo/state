@@ -7,10 +7,10 @@
 ## [Transition](#transition)
 
 A `Transition` is a transient `State` which acts as a “vehicle” for the
-`RootState`’s currency, carrying it from one proper `State` to another.
+`Region`’s currency, carrying it from one proper `State` to another.
 
 When a transition is instigated, e.g. with a call to `State::change`, the
-`RootState` sets its `_current` reference to a new `Transition`, which then
+`Region` sets its `_current` reference to a new `Transition`, which then
 traverses the state tree from its `origin` to its `target`, adopting each
 `State` along the way as its `superstate`.
 
@@ -24,7 +24,7 @@ events in the familiar fashion, until the `action` is concluded, upon which the
 
 > [Transitions](/docs/#concepts--transitions)
 > [Transition](/api/#transition)
-> [`RootState::change`](/source/root-state.html#root-state--prototype--change)
+> [`Region::change`](/source/region.html#region--prototype--change)
 
     class Transition extends State
 
