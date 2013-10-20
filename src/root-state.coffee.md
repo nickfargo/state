@@ -54,7 +54,7 @@ Assign to `owner` an **accessor** to its state implementation.
 
 A root state’s `name` by definition is the empty-string.
 
-        super owner, '', expression
+        super owner, '', expression, initialState
 
 
 

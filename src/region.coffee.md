@@ -27,7 +27,7 @@ are confined. The set of all `Region`s in a state tree is defined as the
 
 ### [Constructor](#region--constructor)
 
-      constructor: ( base, name, expression ) ->
+      constructor: ( base, name, expression, initialState ) ->
         super
 
 Determine the initial state, and set the `current` state to that.
