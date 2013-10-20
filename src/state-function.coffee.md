@@ -79,7 +79,7 @@ If `owner` is absent, the inferred intent is only to return the formalized
 
       if owner
         { name, initial } = options if options
-        ( new RootState owner, expression, name, initial )._current
+        ( new RootState owner, name, expression, initial )._current
       else expression
 
 

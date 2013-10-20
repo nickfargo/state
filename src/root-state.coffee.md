@@ -28,11 +28,11 @@ provided `owner`.
 
 * `owner` : object
 
-* `expression` : `StateExpression` | object — A plain object will be coerced
-  and interpreted if necessary into a formal `StateExpression`.
+* `accessorName` : string — The property name on `owner` at which the generated
+  **accessor** function will appear. Defaults to `'state'`.
 
-* `accessorName` : string — The property name on `owner` at which the
-  generated **accessor** function will appear. Defaults to `'state'`.
+* `expression` : ( object | `StateExpression` ) — A plain object will be
+  coerced and interpreted, if necessary, into a formal `StateExpression`.
 
 * `initialState` : string — A state name or path. If present, supersedes the
   `initial` attribute of substates or inherited protostates.
@@ -45,7 +45,7 @@ the exported `state` function.
 
 ###### SOURCE
 
-      constructor: ( owner = {}, expression, accessorName, initialState ) ->
+      constructor: ( owner = {}, accessorName, expression, initialState ) ->
 
 Assign to `owner` an **accessor** to its state implementation.
 
@@ -88,7 +88,7 @@ also creating the object’s new accessor, to which the call is then forwarded.
 
           else if ( owner.isPrototypeOf this ) and
               ( ( not hasOwn.call this, name ) or @[ name ] is owner[ name ] )
-            new RootState this, null, name, current.path()
+            new RootState this, name, null, current.path()
             return @[ name ].apply this, arguments
 
         accessor.isAccessor = true
