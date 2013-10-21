@@ -1167,10 +1167,10 @@ the behavior of the object’s accessor method.
           return @change.apply this, [ expr ].concat args if expr = expr()
         else if typeof expr is 'string' and
             ( match = expr.match rxTransitionArrow ) and
-              method = transitionArrowMethods[ match[1] ]
+              method = transitionArrowMethods[ match[2] ]
           return if args.length
-          then @[ method ].apply this, [ match[2] ].concat args
-          else @[ method ] match[2]
+          then @[ method ].apply this, [ match[3] ].concat args
+          else @[ method ] match[3]
 
 
 

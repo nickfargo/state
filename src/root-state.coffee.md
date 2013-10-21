@@ -76,10 +76,10 @@ to its state implementation.
             return current.change input.call this if typeof input is 'function'
             if typeof input is 'string' and
                 ( match = input.match rxTransitionArrow ) and
-                  method = transitionArrowMethods[ match[1] ]
+                  method = transitionArrowMethods[ match[2] ]
               return if args.length
-              then current[ method ].apply current, [ match[2] ].concat args
-              else current[ method ] match[2]
+              then current[ method ].apply current, [ match[3] ].concat args
+              else current[ method ] match[3]
             return current.query.apply current, arguments
 
 Calling the accessor of a prototype means that `this` requires its own accessor
