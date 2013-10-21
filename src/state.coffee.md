@@ -1181,21 +1181,21 @@ Methods that inspect or affect the owner’s current state.
 
 #### [current](#state--prototype--current)
 
-Gets the local state tree’s current state, which is authoritatively determined
-by the root state.
+Gets the current state of the local `region` of `this`.
 
 > [current](/api/#state--methods--current)
 
-      current: -> @root._current
+      current: -> @region._current
 
 
 #### [isCurrent](#state--prototype--is-current)
 
-Returns a `Boolean` indicating whether `this` is the owner’s current state.
+Returns a `Boolean` indicating whether `this` is the current state of the local
+`region` of `this`.
 
 > [isCurrent](/api/#state--methods--is-current)
 
-      isCurrent: -> this is @current()
+      isCurrent: -> this is @region._current
 
 
 #### [isActive](#state--prototype--is-active)
@@ -1205,20 +1205,23 @@ owner’s current state.
 
 > [isActive](/api/#state--methods--is-active)
 
-      isActive: -> this is ( current = @current() ) or @isSuperstateOf current
+      isActive: ->
+        current = @region._current
+        this is current or @isSuperstateOf current
 
 
 #### [change](#state--prototype--change)
 
-Forwards a `change` command to `root` and returns its result. Calling with no
-arguments implicitly directs the root to change to `this` state.
+Forwards a `change` command to the local `region` of `this`, and returns its
+result. Calling with no arguments implicitly directs the region to change to
+`this` state.
 
 *Aliases:* **go**, **be**
 
 > [change](/api/#state--methods--change)
 
       change: ( target, options ) ->
-        ( root = @root ).change.apply root, arguments
+        ( region = @region ).change.apply region, arguments
 
       go: @::change
       be: @::change
