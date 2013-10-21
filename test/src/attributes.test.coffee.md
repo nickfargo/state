@@ -2,7 +2,7 @@
     state = require 'state'
 
     { NIL } = state.O
-    { State, RootState, TransitionExpression } = state
+    { State, Region, RootState, TransitionExpression } = state
     { ABSTRACT, CONCRETE } = State
 
 
@@ -420,4 +420,19 @@
           expect( o.state().name ).to.equal 'AA'
 
 
+      describe "Concurrent:", ->
+        class Class
+          state @::,
+            A: state 'concurrent',
+              AA: state
+                AAA: state
 
+        it "sets concurrent attribute", ->
+          o = new Class
+          expect( o.state('A').isConcurrent() ).to.equal yes
+
+        it "produces `Region` substates", ->
+          o = new Class
+          expect( o.state('A') ).to.not.be.instanceof Region
+          expect( o.state('AA') ).to.be.instanceof Region
+          expect( o.state('AAA') ).to.not.be.instanceof Region

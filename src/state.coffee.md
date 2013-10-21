@@ -809,9 +809,12 @@ first destroyed and then displaced.
         substates = @_.substates or = {}
         do substate.destroy if substate = substates[ name ]
 
-        substate = if expression instanceof State
-        then expression.realize() if expression.superstate is this
-        else new State this, name, expression
+        if expression instanceof State
+          substate = expression.realize() if expression.superstate is this
+        else
+          { Region } = state # :(
+          StateConstructor = if attributes & CONCURRENT then Region else State
+          substate = new StateConstructor this, name, expression
 
         return null unless substate
 
