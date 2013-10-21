@@ -40,28 +40,33 @@ the deletion or nonexistence of a property.
 ### [Utility functions](#utility-functions)
 
 
-#### [noConflict](#utility-functions--no-conflict)
+#### [define](#utility-functions--define)
 
-      @noConflict = do ->
-        original = global.state
-        -> global.state = original; this
-
-
-#### [bitfield](#utility-functions--bitfield)
-
-Creates a bit field map on a given `object` by associating each string in a
-list of `names` as a key to a single-bit integer value. Bit values are applied
-to keys in order, increasing from `1 << offset` onward.
-
-      @bitfield = ( object = {}, names, offset = 0 ) ->
-        names = names.split /\s+/ if typeof names is 'string'
-        object[ key ] = 1 << index + offset for key, index in names
-        object
+      @define = ( attributes, expression ) ->
+        state attributes, expression
 
 
-#### [debug](#utility-functions--debug)
+#### [implement](#utility-functions--implement)
 
-      @debug = => console.log.apply console, arguments if @env.debug
+      @implement = ( owner, attributes, expression ) ->
+        state owner, attributes, expression
+
+
+#### [region](#utility-functions--region)
+
+      @region = ( attributes, expression ) ->
+        state attributes, expression
+
+
+#### [extend](#utility-functions--extend)
+
+      @extend = ( parastates, attributes, expression ) ->
+        if typeof attributes isnt 'string'
+          expression = attributes
+          attributes = ''
+        expression ?= {}
+        expression.parastates = parastates
+        state attributes, expression
 
 
 #### [bind](#utility-functions--bind)
@@ -124,15 +129,28 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
           else instated.virtualize( owner[ accessorName ] '' ).realize expr
 
 
-#### [extend](#utility-functions--extend)
+#### [noConflict](#utility-functions--no-conflict)
 
-      @extend = ( parastates, attributes, expression ) ->
-        if typeof attributes isnt 'string'
-          expression = attributes
-          attributes = ''
-        expression ?= {}
-        expression.parastates = parastates
-        state attributes, expression
+      @noConflict = do ->
+        original = global.state
+        -> global.state = original; this
+
+
+#### [bitfield](#utility-functions--bitfield)
+
+Creates a bit field map on a given `object` by associating each string in a
+list of `names` as a key to a single-bit integer value. Bit values are applied
+to keys in order, increasing from `1 << offset` onward.
+
+      @bitfield = ( object = {}, names, offset = 0 ) ->
+        names = names.split /\s+/ if typeof names is 'string'
+        object[ key ] = 1 << index + offset for key, index in names
+        object
+
+
+#### [debug](#utility-functions--debug)
+
+      @debug = => console.log.apply console, arguments if @env.debug
 
 
 
@@ -141,7 +159,6 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
       @rxTransitionArrow = /^\s*([\w$]*?)\s*([\-=]>)\s*([\w$]*?)\s*$/
       @transitionArrowMethods =
         '->': 'change'
-        '=>': 'changeTo'
 
 
 
