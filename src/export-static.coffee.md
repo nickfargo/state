@@ -43,19 +43,19 @@ the deletion or nonexistence of a property.
 #### [define](#utility-functions--define)
 
       @define = ( attributes, expression ) ->
-        state attributes, expression
+        state.apply this, arguments
 
 
 #### [implement](#utility-functions--implement)
 
       @implement = ( owner, attributes, expression ) ->
-        state owner, attributes, expression
+        state.apply this, arguments
 
 
 #### [region](#utility-functions--region)
 
       @region = ( attributes, expression ) ->
-        state attributes, expression
+        state.apply this, arguments
 
 
 #### [extend](#utility-functions--extend)
