@@ -173,8 +173,10 @@ exported `state()` function.
         initial conclusive final
         abstract concrete default
         reflective
-        history retained shallow versioned
-        concurrent
+        retained history shallow
+        immediate
+        concurrent orthogonal
+        permanent autonomous volatile
       """
 
       @STATE_EXPRESSION_CATEGORIES =
@@ -229,6 +231,18 @@ Tree-traversal operations use these flags to restrict their recursive scope.
         VIA_PROTO
       """
 
+
+#### [Region states]()
+
+Primitive states that describe the condition of a `Region`’s currency.
+
+      @REGION_STATES = @bitfield {}, """
+        NASCENT
+        ACTIVE
+        TRANSITIONING
+        SUSPENDED
+        TERMINATED
+      """
 
 
       return

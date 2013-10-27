@@ -50,8 +50,10 @@ and methods, so make them available as free variables.
         INITIAL, CONCLUSIVE, FINAL
         ABSTRACT, CONCRETE, DEFAULT
         REFLECTIVE
-        HISTORY, RETAINED, SHALLOW
-        CONCURRENT
+        RETAINED, HISTORY, SHALLOW
+        IMMEDIATE
+        CONCURRENT, ORTHOGONAL
+        PERMANENT, AUTONOMOUS, VOLATILE
         NORMAL
       } =
           assign this, STATE_ATTRIBUTES
@@ -77,8 +79,10 @@ A bit mask indicates the attributes that can be inherited via protostates.
         INITIAL     |  CONCLUSIVE  |  FINAL      |
         ABSTRACT    |  CONCRETE    |  DEFAULT    |
         REFLECTIVE  |
-        HISTORY     |  RETAINED    |  SHALLOW    |
-        CONCURRENT  |
+        RETAINED    |  HISTORY     |  SHALLOW    |
+        IMMEDIATE   |
+        CONCURRENT  |  ORTHOGONAL  |
+        PERMANENT   |  AUTONOMOUS  |  VOLATILE   |
         NORMAL
 
       VIRTUAL_EXPRESSION = attributes: VIRTUAL
