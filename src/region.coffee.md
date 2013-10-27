@@ -5,6 +5,8 @@
     Transition            = null
     TransitionExpression  = null
 
+    { STATE_ATTRIBUTES, REGION_STATES } = state
+
     module.exports =
 
 
@@ -21,8 +23,12 @@ are confined. The set of all `Region`s in a state tree is defined as the
       { trim, type, isEmpty, isArray } = O
       { slice } = Array::
 
-      { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL, RETAINED } = this
+      { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL, RETAINED, IMMEDIATE } = this
+      { CONCURRENT, ORTHOGONAL, PERMANENT, AUTONOMOUS, VOLATILE } = this
       { VIA_NONE, VIA_PROTO } = this
+
+      { NASCENT, ACTIVE, TRANSITIONING, SUSPENDED, TERMINATED } = REGION_STATES
+
 
 
 ### [Constructor](#region--constructor)
