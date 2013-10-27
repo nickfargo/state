@@ -256,7 +256,8 @@ Initialization of a `State`’s contents is offloaded from the
         { attributes, name } = this
         return this unless attributes & INCIPIENT_OR_VIRTUAL
 
-Begin realization higher in the superstate chain if necessary, adding each
+A realized (non-root) `State` must become a substate of a real `superstate`. So
+if necessary, begin realization higher in the superstate chain, adding each
 newly realized state to the `substates` collection of its real superstate.
 
         if attributes & VIRTUAL
@@ -272,9 +273,8 @@ existence of `_` in `this` implies that `this` must be a realized state.
 
         @_ ?= new @Metaobject
 
-Normalize any declarations of `parastates`. These will be used later in the
-outer `realize` function to recursively compute a `linearization` for `this`
-state and for its descendant substates.
+Normalize any declarations of `parastates`. These will be used by `linearize`
+to compute the respective resolution orders for `this` and its descendants.
 
         if parastates = expression?.parastates
           if isArray parastates then parastates = parastates.join ','
