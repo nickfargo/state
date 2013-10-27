@@ -142,9 +142,8 @@ Attempts to execute a state **transition**.
 
 ###### SYNOPSIS
 
-A `change`/`go`/`be` operation conducts asynchronous transitions, generation of
-relevant transitional **events**, and construction of any necessary temporary
-**virtual states** for prototypal inheritors.
+Conducts sync/async transitions, emits relevant transitional **events**, and
+creates any necessary temporary **virtual states** for prototypal inheritors.
 
 Rules imposed by all **guards** held on both the origin and `target` states are
 respected, and if these are not satisfied the transition will be denied.
