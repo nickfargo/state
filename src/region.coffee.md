@@ -33,8 +33,29 @@ are confined. The set of all `Region`s in a state tree is defined as the
 
 ### [Constructor](#region--constructor)
 
-      constructor: ( base, name, expression, initialState ) ->
+      constructor: ( base, name, expression ) ->
         super
+
+        @_state = NASCENT
+
+        @_current = null
+
+While a `Transition` is underway, `_current` will be a reference to that
+transition. To further distinguish this condition, an identical reference is
+also held at `_transition`.
+
+        @_transition = null
+
+
+
+### [Private functions](#region--private)
+
+
+#### [activate]()
+
+      activate: ( initialState ) ->
+        if @_state & TERMINATED and @attributes & PERMANENT
+          throw Error "'#{@path()}': cannot reactivate terminated currency"
 
 Determine the initial state, and set the `current` state to that.
 
@@ -55,16 +76,18 @@ which case a virtual state must be created in `this` root’s tree.
 With `current` now resolved, the authoritative reference to it is held here.
 
         @_current = current
-
-While a `Transition` is underway, `_current` will be a reference to that
-transition. To further distinguish this condition, an identical reference is
-also held at `_transition`.
-
-        @_transition = null
+        @_state = ACTIVE
+        current
 
 
+#### [suspend]()
 
-### [Private functions](#region--private)
+      suspend: ->
+        if @_state & ACTIVE
+          @_state = SUSPENDED
+        else
+          throw Error "'#{@path()}': cannot suspend inactive currency"
+        return
 
 
 #### [evaluateGuard](#region--private--evaluate-guard)
