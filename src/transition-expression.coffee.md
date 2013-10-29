@@ -48,15 +48,15 @@ appropriate type inferences for any shorthand notation encountered.
         result = assign {}, properties, categories
 
         for own key, value of map
-          if key of properties
+          if properties[ key ]?
             result[ key ] = value
-          else if key of categories
+          else if categories[ key ]?
             result[ key ] = clone result[ key ], value
           else
             category =
-              if key of eventTypes
+              if eventTypes[ key ]?
                 'events'
-              else if key of guardActions
+              else if guardActions[ key ]?
                 'guards'
               else if typeof value is 'functions'
                 'methods'
