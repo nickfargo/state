@@ -34,20 +34,24 @@ events in the familiar fashion, until the `action` is concluded, upon which the
 ### [Constructor](#transition--constructor)
 
       constructor: ( target, source, expression, callback ) ->
+        throw TypeError unless target.region is source.region
+
         @name = expression.name or null
 
 Unlike a proper `State`, a transition’s `superstate` is inherently dynamic, as
 it tracks the transition’s progression as it traverses from `source` through
 the domain and on to `target`.
 
+        @owner = source.owner
+        @root = source.root
+        @region = source.region
         @superstate = source
+        @protostate = null
+        @order = null
 
-        @root = root = source.root
-        throw ReferenceError unless target.root is root
-        @owner = root.owner
         @target = target
         @source = source
-        @origin = source.origin ? source
+        @origin = source.origin or source
         @callback = callback
 
 The `action`, if provided, is responsible for calling `end`, either in the same
@@ -56,8 +60,13 @@ an asynchronous transition.
 
         @action = expression.action or null
 
+The `fork` is a map of subtransition expressions for a `concurrent` `target`.
+
+        @fork = expression.fork or null
+
         @_ = new @Metaobject
         @aborted = no
+
         @initialize expression
 
 
@@ -100,13 +109,13 @@ delegated to a new `Transition`, in which case `this` will be retained as the
 #### [end](#transition--prototype--end)
 
 Indicates that `this` transition has completed and has reached its intended
-`target`. The transition is retired by its `root`, and any preceding aborted
+`target`. The transition is retired by its `region`, and any preceding aborted
 transitions along the `source` chain are discarded as well.
 
       end: ->
         unless @aborted
           @emit 'end', arguments, VIA_PROTO
-          @callback?.apply @root, arguments
+          @callback?.apply @region, arguments
         do @destroy
         @target
 
@@ -115,4 +124,4 @@ transitions along the `source` chain are discarded as well.
 
       destroy: ->
         do @source.destroy if @source instanceof Transition
-        @target = @superstate = @root = null
+        @source = @origin = @target = @superstate = @region = @root = null

@@ -5,7 +5,7 @@
     Transition            = null
     TransitionExpression  = null
 
-    { STATE_ATTRIBUTES, REGION_STATES } = state
+    { STATE_ATTRIBUTES, TRAVERSAL_FLAGS, REGION_STATES } = state
 
     module.exports =
 
@@ -14,20 +14,31 @@
 ## [Region](#region)
 
 A **region** is a subtree of the `owner`’s **state tree** over which a single
-**currency** is defined, and within which all **transitions** of this currency
-are confined. The set of all `Region`s in a state tree is defined as the
-**root state** plus all immediate substates of any `concurrent` `State`.
+**currency** is defined. A `Region` must be either a `RootState` or a direct
+substate of a `concurrent` `State`. The set of valid **transition** targets for
+a `Region`’s currency is bounded at the top by the `Region`, and at the bottom
+by any `concurrent` `State`, the substates of which define **subregions**.
 
     class Region extends State
 
-      { trim, type, isEmpty, isArray } = O
+      { trim, type, isEmpty, isArray, invert } = O
       { slice } = Array::
 
-      { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL, RETAINED, IMMEDIATE } = this
-      { CONCURRENT, ORTHOGONAL, PERMANENT, AUTONOMOUS, VOLATILE } = this
-      { VIA_NONE, VIA_PROTO } = this
+      { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL, RETAINED, IMMEDIATE } =
+      { CONCURRENT, ORTHOGONAL, PERMANENT, AUTONOMOUS, VOLATILE } =
+        STATE_ATTRIBUTES
 
-      { NASCENT, ACTIVE, TRANSITIONING, SUSPENDED, TERMINATED } = REGION_STATES
+      { VIA_NONE, VIA_SUB, VIA_SUPER, VIA_PROTO } =
+        TRAVERSAL_FLAGS
+
+      { VOID, ACTIVE, BACKGROUNDED, TRANSITIONING, SUSPENDED, JOINED } =
+      { TERMINATED, FINALIZED } =
+        REGION_STATES
+
+      regionStates = do ->
+        for key, value of object = invert REGION_STATES
+          object[ key ] = value.toLowerCase()
+        object
 
 
 
@@ -36,7 +47,7 @@ are confined. The set of all `Region`s in a state tree is defined as the
       constructor: ( base, name, expression ) ->
         super
 
-        @_state = NASCENT
+        @_state = VOID
 
         @_current = null
 
@@ -48,14 +59,32 @@ also held at `_transition`.
 
 
 
+### [Class methods]()
+
+      decodeState: ->
+        { _state } = this
+        ( value for key, value of regionStates when _state & key ).join ' '
+
+
+
 ### [Private functions](#region--private)
+
+
+#### [initialize]()
+
+      initialize: ->
+        super
+        do @activate
+        this
 
 
 #### [activate]()
 
       activate: ( initialState ) ->
-        if @_state & TERMINATED and @attributes & PERMANENT
-          throw Error "'#{@path()}': cannot reactivate terminated currency"
+        { _state, attributes } = this
+
+        if _state & FINALIZED
+          throw new Error "'#{@path()}': incoming currency cannot be FINALIZED"
 
 Determine the initial state, and set the `current` state to that.
 
@@ -68,25 +97,133 @@ snap to the abstract state’s default `concrete` substate.
         if current.attributes & ABSTRACT
           current = current.defaultSubstate() ? current
 
-The previous redirections may have left `current` pointing to a protostate, in
-which case a virtual state must be created in `this` root’s tree.
+If `current` references a protostate then it must be `virtualize`d locally.
 
-        current = current.virtualize this if current.root isnt this
+        current = current.virtualize this if current.owner isnt @owner
 
 With `current` now resolved, the authoritative reference to it is held here.
 
         @_current = current
         @_state = ACTIVE
+
+A `concurrent` initial state must be `fork`ed to `activate` its subregions.
+
+        @fork current if current.attributes & CONCURRENT
+
+        if _state is SUSPENDED then @emit 'resume', current, VIA_PROTO
+        else if _state is VOID then @emit 'initialize', current, VIA_PROTO
+
         current
+
+
+#### [concurrencyDeactivated]()
+
+      concurrencyDeactivated: ->
+        { attributes, _current, _state } = this
+        return if _state & FINALIZED
+        if attributes & AUTONOMOUS
+          @_state = ACTIVE | BACKGROUNDED
+        else if attributes & PERMANENT
+          do @terminate
+        else if attributes & VOLATILE
+          do @_transition?.abort
+          do _current.destroy if _current.attributes & VIRTUAL
+          @_current = null
+          @_state = VOID
+        else
+          do @suspend
+        return
 
 
 #### [suspend]()
 
       suspend: ->
-        if @_state & ACTIVE
-          @_state = SUSPENDED
-        else
-          throw Error "'#{@path()}': cannot suspend inactive currency"
+        unless @_state & ACTIVE
+          throw new Error "'#{@path()}': incoming currency must be ACTIVE"
+
+        @_state = SUSPENDED
+        @emit 'suspend', @_current, VIA_PROTO
+        return
+
+
+#### [resume]()
+
+      resume: ->
+        unless @_state & SUSPENDED
+          throw new Error "'#{@path()}': incoming currency must be SUSPENDED"
+
+        @_state = ACTIVE
+        @emit 'resume', @_current, VIA_PROTO
+        return
+
+
+#### [terminate]()
+
+      terminate: ->
+        { _state, attributes, _current } = this
+
+        if _state & FINALIZED
+          throw new Error "'#{@path()}': FINALIZED currency already TERMINATED"
+
+        _state = TERMINATED
+        _state |= FINALIZED if attributes & PERMANENT
+        @_state = _state
+
+        @emit 'terminated', _current, VIA_PROTO
+        @emit 'frozen', _current, VIA_PROTO if _state & FINALIZED
+
+        return
+
+
+#### [fork]()
+
+Forks `this` region’s currency into each of the `concurrent` `target`’s
+subregions.
+
+> Called by `change` after a `transition` for `this` region has `arrive`d at a
+> `concurrent` `target`.
+
+      fork: ( target, transition ) ->
+        { owner } = this
+        # assert => target is @_current
+        targetAttributes = target.attributes
+
+        throw new TypeError unless targetAttributes & CONCURRENT
+        do target.realize if targetAttributes & VIRTUAL
+
+        for name, subregion of target.substates VIA_PROTO
+          if subregion.owner isnt owner
+            subregion = state.own owner, subregion.path()
+          subregionState = subregion._state
+          continue if subregionState & FINALIZED # should probably warn or throw
+
+A transition that bears an explicit `fork` expression will determine the
+subregion’s currency. Otherwise let the subregion determine for itself whether
+to initialize a nascent currency or resume an extant suspended currency.
+
+          if subtrex = transition?.fork?[ name ]
+            subregion.activate subtrex.target if subregionState & VOID
+            subregion.do subtrex
+          else
+            if subregionState & SUSPENDED
+            then do subregion.resume
+            else do subregion.activate
+
+        return
+
+
+#### [join]()
+
+Terminates the currency of `this` transition’s region, `final`izes the currency
+in place
+
+      join: ->
+        throw new TypeError if this is @root
+        transition = @_current if @_state & TRANSITIONING
+        if transition
+          ;
+        do @terminate
+        @_state |= JOINED
         return
 
 
@@ -186,11 +323,13 @@ The `options` parameter is an optional map that may include:
 ###### SOURCE
 
       change: ( target, options ) ->
+        return null unless @_state & ACTIVE
+
         { root, owner } = this
         current = @_current
         transition = @_transition
 
-The `origin` is defined as the controller’s most recently current state that is
+The `origin` is defined as the region’s most recently current `State` that is
 not a `Transition`.
 
         origin = transition?.origin or current
@@ -202,8 +341,8 @@ Departures are not allowed from a state that is `final`.
 Ensure that `target` is a valid `State`.
 
         unless target instanceof State
-          target = if target then origin.query target else root
-        return null unless target
+          target = if target is '' then root else origin.query target
+        return null unless target?
         targetOwner = target.owner
         return null if owner isnt targetOwner and
           not targetOwner.isPrototypeOf owner
@@ -238,10 +377,18 @@ states must consent to the transition.
             options?.failure?.call? this
             return null
 
+Deactivation of a `concurrent` `origin` is signaled to each of its subregions.
+
+        if origin.attributes & CONCURRENT
+          for name, subregion of origin._.substates
+            do subregion.concurrencyDeactivated
+
 If `target` is a protostate, then the protostate must be virtualized locally
 and `target` must be reassigned to the new virtual state.
 
-        target = target.virtualize this unless target?.root is root
+        unless target?.root is root
+          target = target.virtualize this
+          do target.realize if target.attributes & CONCURRENT
 
 A reference is held to the previously current state, or abortive transition.
 
@@ -262,7 +409,7 @@ Conclusivity is enforced by checking each state that will be exited against the
 If a previously initiated transition is still underway, it needs to be notified
 that it will not finish.
 
-        transition?.abort()
+        do transition?.abort
 
 Retrieve the appropriate transition expression for this origin/target pairing.
 If none is defined, then an actionless default transition will be created and
@@ -298,31 +445,33 @@ the way.
 A callback will be invoked from `transition.end()` to conclude the transition.
 
         transition?.callback = ->
-          transition = null if transition.aborted
+          loop
+            break unless transition? and not transition.aborted
 
 Trace a path from `target` up to `domain`, then walk down it, emitting `enter`
 events for each state along the way.
 
-          if transition
             s = target; pathToState = []; while s isnt domain
               pathToState.push s
               s = s.superstate
-          s = domain; while transition and substate = pathToState.pop()
-            transition.superstate = substate
-            substate.emit 'enter', eventArgs, VIA_PROTO
-            transition = null if transition.aborted
-            s = substate
+            while substate = pathToState.pop()
+              transition.superstate = substate
+              substate.emit 'enter', eventArgs, VIA_PROTO
+              if substate.attributes & CONCLUSIVE
+                @emit 'conclude', substate, VIA_PROTO
+              break if transition.aborted
 
 Exit from the transition state.
 
-          if transition
             transition.emit 'exit', VIA_NONE
-            transition = null if transition.aborted
+            break if transition.aborted
 
-Terminate the transition with an `arrive` event on the targeted state.
+End the transition.
 
-          if transition
             @_current = target
+            if target.attributes & FINAL
+              @_state = TERMINATED |
+                ( if @attributes & PERMANENT then FINALIZED else 0 )
             target.emit 'arrive', eventArgs, VIA_PROTO
 
 Any virtual states that were previously active may now be discarded.
@@ -332,21 +481,24 @@ Any virtual states that were previously active may now be discarded.
               do s.destroy
               s = ss
 
+Arriving at a `concurrent` state implies a fork into each of its subregions.
+
+            @fork target, transition if target.attributes & CONCURRENT
+
 Now complete, the `Transition` instance can be discarded.
 
             do transition.destroy
-            @_transition = transition = null
-
+            @_transition = null
             options?.success?.call? this
-
             return target
 
-          return null
+          return @_transition = null
 
 At this point the transition is attached to the `domain` state and is ready to
 proceed.
 
         return transition?.start.apply( transition, args ) or @_current
+
 
 
 

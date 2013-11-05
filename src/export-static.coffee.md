@@ -165,7 +165,7 @@ to keys in order, increasing from `1 << offset` onward.
 ### [Name sets](#name-sets)
 
 The **state attribute modifiers** are the subset of attribute names that are
-valid or reserved keywords for the `attributes` argument in a call to the
+recognized as valid keywords for the `attributes` argument in a call to the
 exported `state()` function.
 
       @STATE_ATTRIBUTE_MODIFIERS = """
@@ -174,9 +174,8 @@ exported `state()` function.
         abstract concrete default
         reflective
         retained history shallow
-        immediate
         concurrent orthogonal
-        permanent autonomous volatile
+        immediate interruptible permanent autonomous volatile
       """
 
       @STATE_EXPRESSION_CATEGORIES =
@@ -227,9 +226,12 @@ Tree-traversal operations use these flags to restrict their recursive scope.
 
       @TRAVERSAL_FLAGS = @bitfield { VIA_NONE: 0, VIA_ALL: ~0 }, """
         VIA_SUB
+        VIA_PARA
         VIA_SUPER
         VIA_PROTO
+        VIA_VIRTUAL
       """
+      ( -> @VIA_HYPER = @VIA_PARA | @VIA_SUPER ).apply @TRAVERSAL_FLAGS
 
 
 #### [Region states]()
@@ -237,11 +239,14 @@ Tree-traversal operations use these flags to restrict their recursive scope.
 Primitive states that describe the condition of a `Region`’s currency.
 
       @REGION_STATES = @bitfield {}, """
-        NASCENT
+        VOID
         ACTIVE
+        BACKGROUNDED
         TRANSITIONING
         SUSPENDED
+        JOINED
         TERMINATED
+        FINALIZED
       """
 
 

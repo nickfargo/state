@@ -1,8 +1,31 @@
 ## changelog
 
 
+### edge *(on branch `concurrency-regions`, tentative 0.3.0)*
 
-### *edge — (tentative 0.2.0)*
+* First implementation of concurrency and regions …
+
+* Added to `@TRAVERSAL_FLAGS`:
+
+  * `VIA_VIRTUAL` (used by `State::substates`)
+
+  * `VIA_PARA` and `VIA_HYPER = VIA_PARA | VIA_SUPER`
+
+* **(breaking)** — Changed parameters and return type for `State::substates` from `( virtual:boolean, deep:boolean ) -> array` to `( via:number, out:object ) -> object`. (Avoids boolean params; requires fewer allocations, since recursive operations write to same `out` value, rather than `concat`enating arrays.)
+
+  * Corresponding changes made also to `State::descendants`.
+
+  * `State::query` with input of `*` or `**` returns object (not array).
+
+
+
+### 0.2.1 *(on branch `master`)*
+
+* Implemented `retained` attribute; when a transition `arrive`s at a targeted `retained` state the most recent interior currency of that state is restored.
+
+
+
+### 0.2.0 *(released)*
 
 * **(breaking)** — Renamed `State::protostate` method to `getProtostate`, changed it to a pure “getter” (with no memoization side-effects), and renamed the pseudo-private `this._protostate` to simply `this.protostate`. This achieves API consistency with the related property `this.superstate`.
 
@@ -22,7 +45,7 @@
 
 
 
-### 0.1.2 *(released)*
+### 0.1.2
 
 * Allow raw arguments to be passed in with (or as) `options` parameter of `change`.
 
