@@ -53,7 +53,7 @@ and methods, so make them available as free variables.
         RETAINED, HISTORY, SHALLOW
         IMMEDIATE
         CONCURRENT, ORTHOGONAL
-        PERMANENT, AUTONOMOUS, VOLATILE
+        SINGULAR, AUTONOMOUS, VOLATILE
         NORMAL
       } =
           assign this, STATE_ATTRIBUTES
@@ -82,7 +82,7 @@ A bit mask indicates the attributes that can be inherited via protostates.
         RETAINED    |  HISTORY     |  SHALLOW    |
         IMMEDIATE   |
         CONCURRENT  |  ORTHOGONAL  |
-        PERMANENT   |  AUTONOMOUS  |  VOLATILE   |
+        SINGULAR    |  AUTONOMOUS  |  VOLATILE   |
         NORMAL
 
       VIRTUAL_EXPRESSION = attributes: VIRTUAL

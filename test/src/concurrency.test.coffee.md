@@ -29,7 +29,7 @@
               BB: state.region 'abstract volatile',
                 BBA: state
                 BBB: state 'default'
-              BC: state.region 'abstract permanent',
+              BC: state.region 'abstract singular',
                 BCA: state 'default'
                 BCB: state 'final'
               BD: state.region 'autonomous',
@@ -90,8 +90,8 @@
           #print o.state ''
           expect( o.state('BC').current() ).to.equal o.state 'BCB'
           expect( o.state('BC').current().isFinal() ).to.equal yes
-          expect( o.state('BC')._state & TERMINATED ).to.be.ok
           expect( o.state('BC')._state & FINALIZED ).to.be.ok
+          expect( o.state('BC')._state & TERMINATED ).to.be.ok
           o.state 'BC -> BCA'
           #print o.state ''
           expect( o.state('BC').current() ).to.equal o.state 'BCB'
@@ -99,19 +99,20 @@
         it "enforces extrinsic permanence", ->
           o = new Class
           #print o.state ''
-          o.state '-> A' # extrinsic: concurrency of `B` deactviated
+          o.state '-> A' # extrinsic: concurrency of `B` deactivated
           #print o.state ''
           o.state '-> B'
           #print o.state ''
           expect( o.state('BC').current() ).to.equal o.state 'BCA'
-          expect( o.state('BC')._state & TERMINATED ).to.be.ok
           expect( o.state('BC')._state & FINALIZED ).to.be.ok
+          expect( o.state('BC')._state & TERMINATED ).to.be.ok
           o.state 'BC -> BCB'
           #print o.state ''
           expect( o.state('BC').current() ).to.equal o.state 'BCA'
 
         it "allows backgrounded autonomous transitions", ->
           o = new Class
+          print o.state ''
           o.state '-> A'
           print o.state ''
           o.state 'BD -> BDA'

@@ -25,14 +25,14 @@ by any `concurrent` `State`, the substates of which define **subregions**.
       { slice } = Array::
 
       { VIRTUAL, ABSTRACT, CONCLUSIVE, FINAL, RETAINED, IMMEDIATE } =
-      { CONCURRENT, ORTHOGONAL, PERMANENT, AUTONOMOUS, VOLATILE } =
+      { CONCURRENT, ORTHOGONAL, SINGULAR, AUTONOMOUS, VOLATILE } =
         STATE_ATTRIBUTES
 
       { VIA_NONE, VIA_SUB, VIA_SUPER, VIA_PROTO } =
         TRAVERSAL_FLAGS
 
       { VOID, ACTIVE, BACKGROUNDED, TRANSITIONING, SUSPENDED, JOINED } =
-      { TERMINATED, FINALIZED } =
+      { FINALIZED, TERMINATED } =
         REGION_STATES
 
       regionStates = do ->
@@ -83,8 +83,8 @@ also held at `_transition`.
       activate: ( initialState ) ->
         { _state, attributes } = this
 
-        if _state & FINALIZED
-          throw new Error "'#{@path()}': incoming currency cannot be FINALIZED"
+        if _state & TERMINATED
+          throw new Error "'#{@path()}': incoming currency already TERMINATED"
 
 Determine the initial state, and set the `current` state to that.
 
@@ -120,11 +120,11 @@ A `concurrent` initial state must be `fork`ed to `activate` its subregions.
 
       concurrencyDeactivated: ->
         { attributes, _current, _state } = this
-        return if _state & FINALIZED
+        return if _state & TERMINATED
         if attributes & AUTONOMOUS
           @_state = ACTIVE | BACKGROUNDED
-        else if attributes & PERMANENT
-          do @terminate
+        else if attributes & SINGULAR
+          do @finalize
         else if attributes & VOLATILE
           do @_transition?.abort
           do _current.destroy if _current.attributes & VIRTUAL
@@ -157,20 +157,20 @@ A `concurrent` initial state must be `fork`ed to `activate` its subregions.
         return
 
 
-#### [terminate]()
+#### [finalize]()
 
-      terminate: ->
+      finalize: ->
         { _state, attributes, _current } = this
 
-        if _state & FINALIZED
-          throw new Error "'#{@path()}': FINALIZED currency already TERMINATED"
+        if _state & TERMINATED
+          throw new Error "'#{@path()}': incoming currency already TERMINATED"
 
-        _state = TERMINATED
-        _state |= FINALIZED if attributes & PERMANENT
+        _state = FINALIZED
+        _state |= TERMINATED if attributes & SINGULAR
         @_state = _state
 
-        @emit 'terminated', _current, VIA_PROTO
-        @emit 'frozen', _current, VIA_PROTO if _state & FINALIZED
+        @emit 'finalize', _current, VIA_PROTO
+        @emit 'terminate', _current, VIA_PROTO if _state & TERMINATED
 
         return
 
@@ -195,7 +195,7 @@ subregions.
           if subregion.owner isnt owner
             subregion = state.own owner, subregion.path()
           subregionState = subregion._state
-          continue if subregionState & FINALIZED # should probably warn or throw
+          continue if subregionState & TERMINATED # should warn or throw
 
 A transition that bears an explicit `fork` expression will determine the
 subregion’s currency. Otherwise let the subregion determine for itself whether
@@ -222,7 +222,7 @@ in place
         transition = @_current if @_state & TRANSITIONING
         if transition
           ;
-        do @terminate
+        do @finalize
         @_state |= JOINED
         return
 
@@ -470,8 +470,8 @@ End the transition.
 
             @_current = target
             if target.attributes & FINAL
-              @_state = TERMINATED |
-                ( if @attributes & PERMANENT then FINALIZED else 0 )
+              @_state = FINALIZED |
+                ( if @attributes & SINGULAR then TERMINATED else 0 )
             target.emit 'arrive', eventArgs, VIA_PROTO
 
 Any virtual states that were previously active may now be discarded.

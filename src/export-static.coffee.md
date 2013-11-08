@@ -175,7 +175,7 @@ exported `state()` function.
         reflective
         retained history shallow
         concurrent orthogonal
-        immediate interruptible permanent autonomous volatile
+        immediate interruptible singular autonomous volatile
       """
 
       @STATE_EXPRESSION_CATEGORIES =
@@ -245,8 +245,8 @@ Primitive states that describe the condition of a `Region`’s currency.
         TRANSITIONING
         SUSPENDED
         JOINED
-        TERMINATED
         FINALIZED
+        TERMINATED
       """
 
 
