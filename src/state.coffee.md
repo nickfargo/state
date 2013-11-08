@@ -1862,7 +1862,7 @@ Removes a transition expression from this state.
         out +=
           @owner isnt context.owner and '◌ ' or
           @isCurrent() and '● ' or
-          @isActive() and '◒ ' or
+          @isActive() and '◍ ' or
           '○ '
         out += "#{@name}: #{@constructor.name}"
         out += " '#{attributes}'" if attributes
