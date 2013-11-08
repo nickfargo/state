@@ -1215,12 +1215,28 @@ Returns a `Boolean` indicating whether `this` is the current state of the local
 
 #### [isActive](#state--prototype--is-active)
 
+> Deprecated; use `isOccupied`
+
 Returns a `Boolean` indicating whether `this` or one of its substates is the
 owner’s current state.
 
 > [isActive](/api/#state--methods--is-active)
 
       isActive: ->
+        return no unless current = @region._current
+        this is current or @isSuperstateOf current
+
+
+#### [isOccupied](#state--prototype--is-active)
+
+> Will replace `isActive`
+
+Returns a `Boolean` indicating whether `this` or one of its substates is the
+owner’s current state.
+
+> [isOccupied](/api/#state--methods--is-occupied)
+
+      isOccupied: ->
         return no unless current = @region._current
         this is current or @isSuperstateOf current
 
@@ -1862,7 +1878,7 @@ Removes a transition expression from this state.
         out +=
           @owner isnt context.owner and '◌ ' or
           @isCurrent() and '● ' or
-          @isActive() and '◍ ' or
+          @isOccupied() and '◍ ' or
           '○ '
         out += "#{@name}: #{@constructor.name}"
         out += " '#{attributes}'" if attributes

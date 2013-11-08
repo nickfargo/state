@@ -248,6 +248,21 @@ as evaluated `against` another `State`. Defaults to `true` if no guard exists.
 
 
 
+### [Internal state methods](#region--internal-state-methods)
+
+Methods that inspect a region’s internal state.
+
+      isVoid:           -> !!( @_state & VOID )
+      isActive:         -> !!( @_state & ACTIVE )
+      isBackgrounded:   -> !!( @_state & BACKGROUNDED )
+      isTransitioning:  -> !!( @_state & TRANSITIONING )
+      isSuspended:      -> !!( @_state & SUSPENDED )
+      isJoined:         -> !!( @_state & JOINED )
+      isFinalized:      -> !!( @_state & FINALIZED )
+      isTerminated:     -> !!( @_state & TERMINATED )
+
+
+
 ### [Methods](#region--methods)
 
 
