@@ -67,10 +67,14 @@
           o.state '-> A'
           #print o.state ''
           o.state '-> B'
-          #print o.state ''
           expect( o.state('BA').current() ).to.equal o.state 'BAB'
+          #print o.state ''
 
-        it "is not persisted if volatile", ->
+        it "is not persisted if `volatile`", ->
+
+> Should `VOID` immediately but not `null` the `_current` reference until the
+> region recurs (?)
+
           o = new Class
           #print o.state ''
           o.state '-> B'
@@ -80,48 +84,65 @@
           o.state '-> A'
           #print o.state ''
           o.state '-> B'
-          #print o.state ''
           expect( o.state('BB').current() ).to.equal o.state 'BBB'
+          #print o.state ''
 
-        it "enforces intrinsic permanence", ->
+        it "`singular` region enforces intrinsic permanence", ->
           o = new Class
           #print o.state ''
+
           o.state 'BC -> BCB' # intrinsic: arrives at `final` state
-          #print o.state ''
           expect( o.state('BC').current() ).to.equal o.state 'BCB'
           expect( o.state('BC').current().isFinal() ).to.equal yes
-          expect( o.state('BC')._state & FINALIZED ).to.be.ok
-          expect( o.state('BC')._state & TERMINATED ).to.be.ok
-          o.state 'BC -> BCA'
+          expect( o.state('BC')._state ).to.equal FINALIZED | TERMINATED
           #print o.state ''
-          expect( o.state('BC').current() ).to.equal o.state 'BCB'
 
-        it "enforces extrinsic permanence", ->
+          o.state 'BC -> BCA'
+          expect( o.state('BC').current() ).to.equal o.state 'BCB'
+          #print o.state ''
+
+        it "`singular` region enforces extrinsic permanence", ->
           o = new Class
           #print o.state ''
+
           o.state '-> A' # extrinsic: concurrency of `B` deactivated
           #print o.state ''
-          o.state '-> B'
-          #print o.state ''
-          expect( o.state('BC').current() ).to.equal o.state 'BCA'
-          expect( o.state('BC')._state & FINALIZED ).to.be.ok
-          expect( o.state('BC')._state & TERMINATED ).to.be.ok
-          o.state 'BC -> BCB'
-          #print o.state ''
-          expect( o.state('BC').current() ).to.equal o.state 'BCA'
 
-        it "allows backgrounded autonomous transitions", ->
-          o = new Class
-          print o.state ''
-          o.state '-> A'
-          print o.state ''
-          o.state 'BD -> BDA'
-          print o.state ''
-          o.state 'BD -> BDB'
-          print o.state ''
           o.state '-> B'
-          print o.state ''
+          expect( o.state('BC').current() ).to.equal o.state 'BCA'
+          expect( o.state('BC')._state ).to.equal FINALIZED | TERMINATED
+          #print o.state ''
+
+          o.state 'BC -> BCB'
+          expect( o.state('BC').current() ).to.equal o.state 'BCA'
+          #print o.state ''
+
+        it "`autonomous` region allows backgrounded transitions", ->
+          o = new Class
+          #print o.state ''
+
+          o.state '-> A'
+          expect( o.state('BD')._state ).to.equal ACTIVE | BACKGROUNDED
+          #print o.state ''
+
           o.state 'BD -> BDA'
-          print o.state ''
+          expect( o.state('BD').current() ).to.equal o.state 'BDA'
+          expect( o.state('BD')._state ).to.equal ACTIVE | BACKGROUNDED
+          #print o.state ''
+
+          o.state 'BD -> BDB'
+          expect( o.state('BD').current() ).to.equal o.state 'BDB'
+          expect( o.state('BD')._state ).to.equal FINALIZED
+          #print o.state ''
+
+          o.state '-> B'
+          expect( o.state('BD')._state ).to.equal ACTIVE
+          #print o.state ''
+
+          o.state 'BD -> BDA'
+          expect( o.state('BD')._state ).to.equal ACTIVE
+          #print o.state ''
+
           o.state 'BD ->'
-          print o.state ''
+          expect( o.state('BD')._state ).to.equal ACTIVE
+          #print o.state ''
