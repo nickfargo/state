@@ -86,9 +86,12 @@ Returns the set of `id` strings associated with all bound callbacks.
 
 Binds a callback and optional context object.
 
-      add: ( callback, context ) ->
+      add: ( callback, context, selector ) ->
         id = guid += 1
-        @items[ id ] = if context? then [ callback, context ] else callback
+        @items[ id ] =
+          if context? or selector?
+          then [ callback, context, selector ]
+          else callback
         @length += 1
         id
 
@@ -128,14 +131,14 @@ Removes all callbacks, and returns the number removed.
 Invokes all bound callbacks with the provided array of `args`. Callbacks
 registered with an explicit context are invoked with that stored context.
 Callbacks that are state-bound functions are invoked in the context of the
-provided `autostate`, while unbound functions are invoked in the context of
+provided `clientState`, while unbound callbacks are invoked in the context of
 its `owner`.
 
-      emit: ( args, autostate = @state ) ->
-        throw TypeError unless owner = autostate?.owner
+      emit: ( args, clientState = @state, origin ) ->
+        throw TypeError unless ( owner = clientState?.owner )?
 
         for own key, item of @items
-          fn = context = null
+          fn = context = selector = null
 
 Interpret a string or `State` as an order to transition to the implicated
 `State` after all the callbacks have been invoked.
@@ -144,14 +147,41 @@ Interpret a string or `State` as an order to transition to the implicated
             eventualTarget = item
             continue
 
-          if typeof item is 'function' then fn = item
-          else if isArray item then [ fn, context ] = item
+Extract the components of a listener that binds a `context` or `selector`.
+
+          [ item, context, selector ] = item if isArray item
+
+          if selector?
+            if clientState.query selector, origin
+              #throw new Error "HAHA"
+            else
+              console.log '\n' + """
+              clientState: '#{clientState}' [#{clientState.owner.constructor.name}]
+              selector: '#{selector}'
+              origin: '#{origin}' [#{origin.owner.constructor.name}]
+              virtual?: #{origin.isVirtual()}
+              current?: #{origin.isCurrent()}
+              equal?: #{clientState is origin}
+              superstate?: #{clientState.isSuperstateOf origin}
+              protostate?: #{clientState.isProtostateOf origin}
+              query!!!: #{clientState.query(selector)}
+              bingo?: #{clientState.query(selector).isProtostateOf origin}
+              """
+
+Listeners with an associated `selector` that does not match the `origin` state
+from which this event was `emit`ted will be skipped.
+
+          if selector?
+          then continue unless clientState.query selector, origin
+          else continue unless clientState is origin
 
 Unbox any state-bound functions.
 
+          if typeof item is 'function'
+            fn = item
           else if item?.type is 'state-bound-function'
             { fn } = item
-            context or = autostate
+            context or = clientState
 
           fn.apply context or owner, args
 

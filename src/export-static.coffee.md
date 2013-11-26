@@ -208,9 +208,12 @@ Tree-traversal operations use these flags to restrict their recursive scope.
 
       @TRAVERSAL_FLAGS = @bitfield { VIA_NONE: 0, VIA_ALL: ~0 }, """
         VIA_SUB
+        VIA_PARA
         VIA_SUPER
         VIA_PROTO
+        VIA_VIRTUAL
       """
+      ( -> @VIA_HYPER = @VIA_PARA | @VIA_SUPER ).apply @TRAVERSAL_FLAGS
 
 
 

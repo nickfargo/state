@@ -101,7 +101,7 @@
           @log "#{ transition.superstate.name }:#{e}"
 
         addEvents = ( root, callbackFactory = callback ) ->
-          for s in [root].concat root.descendants()
+          for name, s of root.descendants null, { '': root }
             for e in ['depart', 'exit', 'enter', 'arrive']
               s.on e, callbackFactory e
 

@@ -319,7 +319,7 @@ Preparation for the transition begins by emitting a `depart` event on the
 `source` state.
 
         eventArgs = [ transition, args ]
-        source.emit 'depart', eventArgs, VIA_PROTO
+        source.emit 'depart', eventArgs
         @_transition = transition = null if transition.aborted
 
 Enter into the transition state.
@@ -335,7 +335,7 @@ the way.
         s = source; while transition and s isnt domain
           if s.attributes & RETAINED
             s._.retaineePath = transition.origin.path()
-          s.emit 'exit', eventArgs, VIA_PROTO
+          s.emit 'exit', eventArgs
           transition.superstate = s = s.superstate
           @_transition = transition = null if transition.aborted
 
@@ -353,7 +353,7 @@ events for each state along the way.
               s = s.superstate
           s = domain; while transition and substate = pathToState.pop()
             transition.superstate = substate
-            substate.emit 'enter', eventArgs, VIA_PROTO
+            substate.emit 'enter', eventArgs
             transition = null if transition.aborted
             s = substate
 
@@ -367,7 +367,7 @@ Terminate the transition with an `arrive` event on the targeted state.
 
           if transition
             @_current = target
-            target.emit 'arrive', eventArgs, VIA_PROTO
+            target.emit 'arrive', eventArgs
 
 Any virtual states that were previously active may now be discarded.
 

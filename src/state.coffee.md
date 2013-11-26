@@ -59,7 +59,7 @@ and methods, so make them available as free variables.
 For methods that query related states, the default behavior is to recurse
 through substates, superstates, and protostates.
 
-      { VIA_NONE, VIA_SUB, VIA_SUPER, VIA_PROTO, VIA_ALL } =
+      { VIA_NONE, VIA_SUB, VIA_SUPER, VIA_PROTO, VIA_VIRTUAL, VIA_ALL } =
           assign this, TRAVERSAL_FLAGS
 
 Precompute certain useful attribute combinations.
@@ -749,41 +749,44 @@ Otherwise retrieve a real substate, either locally or from a protostate.
 
 #### [substates](#state--prototype--substates)
 
-Returns an array of this state’s immediate substates. If the boolean `virtual`
-is `true`, any active virtual epistates will be included as well.
+Returns an object containing this state’s immediate substates, mapped from
+their `path`s.
 
 > [substates](/api/#state--methods--substates)
 > [Virtual epistates](/docs/#concepts--object-model--virtual-epistates)
 
-      substates: ( virtual, deep ) ->
-        result = []
+      substates: ( via = VIA_NONE, out = {} ) ->
+        viaSub = via & VIA_SUB
+
+        @protostate?.substates VIA_PROTO, out if via & VIA_PROTO
 
 Include virtual substates in the returned set, if any are present.
 
-        if virtual and ( s = @root._current ) and s.attributes & VIRTUAL and
-            @isSuperstateOf s
-          while s and s isnt this and s.attributes & VIRTUAL and
-              ss = s.superstate
-            result.unshift s if deep or ss is this
+        if via & VIA_VIRTUAL and ( s = @root._current ) and
+            s.attributes & VIRTUAL and @isSuperstateOf s
+          while s isnt this and s.attributes & VIRTUAL and ss = s.superstate
+            if viaSub then out[ s.path() ] = s
+            else if ss is this then out[ s.name ] = s
             s = ss
 
 Include real substates.
 
         for own name, substate of @_?.substates
-          result.push substate
-          result = result.concat substate.substates undefined, yes if deep
+          name = substate.path() if viaSub
+          out[ name ] = substate
+          substate.substates via, out if viaSub
 
-        result
+        out
 
 
 #### [descendants](#state--prototype--descendants)
 
-Returns a depth-first flattened array containing all of this state’s descendant
-substates.
+Returns an object containing this state’s descendant substates, mapped from
+their `path`s.
 
 > [descendants](/api/#state--methods--descendants)
 
-      descendants: ( virtual ) -> @substates virtual, yes
+      descendants: ( via, out ) -> @substates via | VIA_SUB, out
 
 
 #### [addSubstate](#state--prototype--add-substate)
@@ -945,9 +948,9 @@ Recursion continues into the protostate only if no local substates are marked
 > [defaultSubstate](/api/#state--methods--default-substate)
 
       defaultSubstate: ( via = VIA_PROTO, first ) ->
-        for s in substates = @substates()
-          return s if s.attributes & DEFAULT
-        first or substates.length and first = substates[0]
+        for name, substate of substates = @substates()
+          return substate if substate.attributes & DEFAULT
+        break for name, first of substates unless first?
         if via & VIA_PROTO and protostate = @protostate
           return protostate.defaultSubstate VIA_PROTO
         first
@@ -963,13 +966,14 @@ states are marked `initial`.
 > [initialSubstate](/api/#state--methods--initial-substate)
 
       initialSubstate: ( via = VIA_PROTO ) ->
-        i = 0; queue = [ this ]
-        while subject = queue[ i++ ]
-          for s in substates = subject.substates undefined, !!VIA_PROTO
-            return s.initialSubstate( VIA_NONE ) or s if s.attributes & INITIAL
-            queue.push s
-        if via & VIA_PROTO and protostate = @protostate
-          return protostate.initialSubstate VIA_PROTO
+        i = 0; queue = [this]; while subject = queue[ i++ ]
+          for name, substate of subject.substates VIA_VIRTUAL
+            { attributes } = substate
+            if attributes & INITIAL
+              return substate if attributes & CONCURRENT
+              return ( substate.initialSubstate VIA_NONE ) or substate
+            else queue.push substate
+        return @protostate?.initialSubstate VIA_PROTO if via & VIA_PROTO
 
 
 #### [getProtostate](#state--prototype--get-protostate)
@@ -1091,7 +1095,7 @@ Interpret a **single wildcard** as any *immediate* substate of the `cursor`
 state parsed thus far.
 
           if name is '*'
-            return cursor.substates() unless against
+            return cursor.substates VIA_NONE unless against
             return yes if cursor is against.superstate
             break
 
@@ -1099,7 +1103,7 @@ Interpret a **double wildcard** as any descendant state of the `cursor` state
 parsed thus far.
 
           if name is '**'
-            return cursor.substates undefined, yes unless against
+            return cursor.substates VIA_SUB unless against
             return yes if cursor.isSuperstateOf against
             break
 
@@ -1121,9 +1125,9 @@ Recursively descend the tree, breadth-first, and retry the query with a
 different context.
 
         if via & VIA_SUB
-          i = 0; queue = [ this ]
+          i = 0; queue = [this]
           while subject = queue[ i++ ]
-            for substate in subject.substates yes
+            for name, substate of subject.substates VIA_VIRTUAL
               continue if substate is toBeSkipped
               result = substate.query selector, against, VIA_NONE
               return result if result
