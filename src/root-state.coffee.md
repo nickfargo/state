@@ -138,15 +138,15 @@ also creating the object’s new accessor, to which the call is then forwarded.
 Returns the boolean result of a `guard` function in the `context` of a `State`,
 as evaluated `against` another `State`. Defaults to `true` if no guard exists.
 
-      evaluateGuard = ( context, guard, against ) ->
-        guard = context.guard guard if typeof guard is 'string'
+      evaluateGuard = ( guard, against ) ->
+        guard = @guard guard if typeof guard is 'string'
         return true unless guard
 
         for own key, value of guard
           valueIsFn = typeof value is 'function'
           selectors = trim( key ).split /\s*,+\s*/
-          for selector in selectors when context.query selector, against
-            result = if valueIsFn then value.call context, against else value
+          for selector in selectors when @query selector, against
+            result = if valueIsFn then value.call this, against else value
             break
           break unless result
         !!result
@@ -275,8 +275,8 @@ If any guards are in place for the given `origin` and `target`, both of those
 states must consent to the transition.
 
         unless options?.forced
-          released = evaluateGuard origin, 'release', target
-          admitted = evaluateGuard target, 'admit', origin
+          released = evaluateGuard.call origin, 'release', target
+          admitted = evaluateGuard.call target, 'admit', origin
           unless released and admitted
             options?.failure?.call? this
             return null
