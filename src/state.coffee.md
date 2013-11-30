@@ -1091,20 +1091,31 @@ Consume a token.
 
           name = parts[i]
 
-Interpret a **single wildcard** as any *immediate* substate of the `cursor`
-state parsed thus far.
+Interpret a **single wildcard** as the selection of all *immediate* substates
+of the `cursor` state parsed thus far.
 
           if name is '*'
             return cursor.substates VIA_NONE unless against
             return yes if cursor is against.superstate
             break
 
-Interpret a **double wildcard** as any descendant state of the `cursor` state
-parsed thus far.
+Interpret a **double wildcard** as the selection of all descendant states of
+`cursor`.
 
           if name is '**'
             return cursor.substates VIA_SUB unless against
             return yes if cursor.isSuperstateOf against
+            break
+
+Interpret a **triple wildcard** as the selection of the union of `cursor` plus
+all of its descendant states.
+
+          if name is '***'
+            unless against
+              out = {}
+              out[ cursor.path() ] = cursor
+              return cursor.substates VIA_SUB, out
+            return yes if cursor is against or cursor.isSuperstateOf against
             break
 
 Empty string, the product of leading/consecutive `.`s, implies `cursor`’s
