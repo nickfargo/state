@@ -37,6 +37,17 @@ the deletion or nonexistence of a property.
 
 
 
+### [Constants](#constants)
+
+      @rxAccessor = /([$_A-Za-z][$\w]*)::(.*)/
+      @rxDelegatedEvent = /^(.*)\:([\w$]+)\s*$/
+      @rxTransitionArrow = /^\s*([\-=]>)\s*(.*)/
+      @transitionArrowMethods =
+        '->': 'change'
+        '=>': 'changeTo'
+
+
+
 ### [Utility functions](#utility-functions)
 
 
@@ -110,8 +121,8 @@ Causes `owner` to realize and take ownership of the protostate or virtual
 epistate returned by `selector`. Returns the incipient or extant “own” state,
 augmented with any `StateExpression` content supplied by the optional `expr`.
 
-      @own = do ->
-        rxAccessor = /([$_A-Za-z][$\w]*)::(.*)/
+      @own = do =>
+        { rxAccessor } = this
 
         ( owner, selector, expr ) ->
           if rxAccessor.test selector
@@ -133,16 +144,6 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
         expression ?= {}
         expression.parastates = parastates
         state attributes, expression
-
-
-
-### [Miscellaneous constants](#miscellaneous-constants)
-
-      @rxDelegatedEvent = /^(.*)\:([\w$]+)\s*$/
-      @rxTransitionArrow = /^\s*([\-=]>)\s*(.*)/
-      @transitionArrowMethods =
-        '->': 'change'
-        '=>': 'changeTo'
 
 
 
