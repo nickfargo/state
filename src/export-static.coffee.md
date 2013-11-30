@@ -138,6 +138,7 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
 
 ### [Miscellaneous constants](#miscellaneous-constants)
 
+      @rxDelegatedEvent = /^(.*)\:([\w$]+)\s*$/
       @rxTransitionArrow = /^\s*([\-=]>)\s*(.*)/
       @transitionArrowMethods =
         '->': 'change'

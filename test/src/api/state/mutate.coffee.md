@@ -2,7 +2,7 @@
     { expect } = require 'chai'
 
 
-    describe "`State::mutate`", ->
+    describe "State::mutate", ->
       { NIL } = O
 
 `mutations` and `expectations` are iterated synchronously

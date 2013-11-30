@@ -31,6 +31,7 @@ that is used internally to create `State` instances.
 
       { NIL, isNumber, isPlainObject, isArray } = O
       { assign, edit, clone, invert } = O
+      { rxDelegatedEvent } = state
       { NORMAL } = STATE_ATTRIBUTES
 
       attributeMap = do ->
@@ -47,6 +48,7 @@ that is used internally to create `State` instances.
       synonymMap   = STATE_EXPRESSION_CATEGORY_SYNONYMS
       eventTypes   = assign STATE_EVENT_TYPES
       guardActions = assign GUARD_ACTIONS
+
 
 
 ### [Constructor](#state-expression--constructor)
@@ -97,11 +99,11 @@ Start with a null-valued `result` object keyed with the category names.
 **Priority 2:** Do a nominative type match for explicit expression instances.
 The `state` function serves as a sentinel `value` indicating empty-expression.
 
-          category =
-            if value is state or value instanceof StateExpression
-              'substates'
-            else if value instanceof TransitionExpression
-              'transitions'
+          if value is state or value instanceof StateExpression
+            category = 'substates'
+          else if value instanceof TransitionExpression
+            category = 'transitions'
+
           if category?
             item = result[ category ] or = {}
             item[ key ] = value
@@ -109,17 +111,19 @@ The `state` function serves as a sentinel `value` indicating empty-expression.
 
 **Priority 3:** Use keys and value types to infer implicit categorization.
 
-          category =
-            if eventTypes[ key ]? or typeof value is 'string'
-              'events'
-            else if guardActions[ key ]?
-              'guards'
-            else if typeof value is 'function' or ( type = value?.type ) and
-                ( type is 'state-bound-function' or
-                  type is 'state-fixed-function' )
-              'methods'
-            else if value is NIL or isPlainObject value
-              'substates'
+          if eventTypes[ key ]? or rxDelegatedEvent.test key
+            category = 'events'
+          else if guardActions[ key ]?
+            category = 'guards'
+          else if typeof value is 'function' or ( type = value?.type ) and
+              ( type is 'state-bound-function' or
+                type is 'state-fixed-function' )
+            category = 'methods'
+          else if value is NIL or isPlainObject value
+            category = 'substates'
+          else if typeof value is 'string'
+            category = 'events'
+
           if category?
             item = result[ category ] or = {}
             item[ key ] = value
@@ -133,11 +137,15 @@ Event values are coerced into an array.
           object[ key ] = [ value ]
 
 Guards are represented as an object keyed by selector, so non-object values are
-coerced into a single-element object with the value keyed to the wildcard
-selector `*`.
+coerced into a single-element object with the value keyed to the any-state
+selector `***`.
 
         for own key, value of object = result.guards
-          object[ key ] = '*': value unless isPlainObject value
+          if typeof value is 'string'
+            item = object[ key ] = {}
+            item[ value ] = yes
+          else unless isPlainObject value
+            object[ key ] = '***': value
 
 Transition values must be a `TransitionExpression`.
 

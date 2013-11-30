@@ -1,7 +1,7 @@
     { expect } = require 'chai'
     state = require 'state'
 
-    { O, env, State, RootState } = state
+    { O, env, State, RootState, bind } = state
 
 
 
@@ -93,6 +93,158 @@
 
           describe "with a fixed and bound function", ->
             instance.state '->', ['one', 'two', 'three']
+
+      describe "Delegation:", ->
+
+        recordEvent = ->
+          @owner.eventRecords.push @name
+
+        recordEventWithPrefix = ( prefix = '' ) -> ->
+          @owner.eventRecords.push prefix + @name
+
+
+        it "emits events on behalf of a substate", ->
+          o = eventRecords: []
+          state o,
+            A: state 'initial'
+            B: state
+
+          o.state('').on 'enter', bind recordEvent
+          o.state('').on ':enter', bind recordEvent
+          o.state('').on 'B:enter', bind recordEvent
+          o.state('A').on '..B:enter', bind recordEvent # impossible
+
+          o.state '-> B'
+          expect( o.eventRecords ).to.have.length 1
+          expect( o.eventRecords[0] ).to.equal 'B'
+
+        it "can be expressed as a structured `StateExpression`", ->
+          o = eventRecords: []
+          state o,
+            A: state 'initial'
+            B: state
+            events:
+              enter: bind recordEvent
+              ':enter': bind recordEvent
+              'B:enter': bind recordEvent
+
+          o.state '-> B'
+          expect( o.eventRecords ).to.have.length 1
+          expect( o.eventRecords[0] ).to.equal 'B'
+
+        it "can be expressed as a shorthand `StateExpression`", ->
+          o = eventRecords: []
+          state o,
+            A: state 'initial'
+            B: state
+            enter: bind recordEvent
+            ':enter': bind recordEvent
+            'B:enter': bind recordEvent
+
+          o.state '-> B'
+          expect( o.eventRecords ).to.have.length 1
+          expect( o.eventRecords[0] ).to.equal 'B'
+
+        it "traverses the protostate–epistate relation", ->
+          class Superclass
+            constructor: ->
+              @eventRecords = []
+
+            state @::,
+              A: state 'initial'
+              B: state
+              enter: bind recordEvent
+              ':enter': bind recordEvent
+              'B:enter': bind recordEvent
+
+          class Class extends Superclass
+
+          o = new Class
+          o.state '-> B'
+          expect( o.eventRecords ).to.have.length 1
+          expect( o.eventRecords[0] ).to.equal 'B'
+
+        it "emits events on behalf of arbitrary substates", ->
+          class Superclass
+            constructor: ->
+              @eventRecords = []
+
+            state @::,
+              A: state 'initial'
+              B: state
+              '*:enter': bind recordEvent
+
+          class Class extends Superclass
+
+          o = new Class
+          o.state '-> B'
+          o.state '-> A'
+          o.state '-> B'
+          expect( o.eventRecords.join ' ' ).to.equal "B A B"
+
+        it "emits events on behalf of arbitrary substate descendants", ->
+          class Superclass
+            constructor: ->
+              @eventRecords = []
+
+            state @::,
+              A: state 'initial',
+                AA: state
+              B: state
+                BA: state
+                BB: state
+                  BBA: state
+              '**:enter': bind recordEvent
+
+          class Class extends Superclass
+            state @::,
+              'B.***:enter': bind recordEventWithPrefix '^'
+              C: state
+
+          o = new Class
+          o.state '-> AA'
+          o.state '-> BA'
+          o.state '-> BBA'
+          o.state '-> C'
+          expect( o.eventRecords.join ' ' ).to.equal """
+            AA
+            ^B B ^BA BA
+            ^BB BB ^BBA BBA
+            C
+          """.split('\n').join(' ')
+
+        it "emits delegated events inherited via parastate and superstate", ->
+          class Superclass
+            constructor: ->
+              @eventRecords = []
+
+            state @::, 'abstract',
+              A: state 'abstract',
+                '*:enter': bind recordEventWithPrefix '(A)'
+              B: state 'abstract',
+                '**:enter': bind recordEventWithPrefix '(B)'
+
+          class Class extends Superclass
+            state @::,
+              '**:enter': bind recordEvent
+
+              C: state.extend 'A, B', 'default',
+                CA: state
+                  CAA: state
+                  CAB: state
+                CB: state
+              D: state.extend 'B, A'
+
+          o = new Class
+          o.state '-> CAA'
+          o.state '-> D'
+          o.state '-> CAB'
+          expect( o.eventRecords.join ' ' ).to.equal """
+            (B)CA CA (B)CAA CAA
+            (B)D (A)D D
+            (A)C (B)C C (B)CA CA (B)CAB CAB
+          """.split('\n').join(' ')
+
 
 
       describe "Each transitional event (`depart`, `exit`, `enter`, `arrive`)", ->

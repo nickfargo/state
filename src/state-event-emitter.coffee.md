@@ -151,25 +151,8 @@ Extract the components of a listener that binds a `context` or `selector`.
 
           [ item, context, selector ] = item if isArray item
 
-          if selector?
-            if clientState.query selector, origin
-              #throw new Error "HAHA"
-            else
-              console.log '\n' + """
-              clientState: '#{clientState}' [#{clientState.owner.constructor.name}]
-              selector: '#{selector}'
-              origin: '#{origin}' [#{origin.owner.constructor.name}]
-              virtual?: #{origin.isVirtual()}
-              current?: #{origin.isCurrent()}
-              equal?: #{clientState is origin}
-              superstate?: #{clientState.isSuperstateOf origin}
-              protostate?: #{clientState.isProtostateOf origin}
-              query!!!: #{clientState.query(selector)}
-              bingo?: #{clientState.query(selector).isProtostateOf origin}
-              """
-
-Listeners with an associated `selector` that does not match the `origin` state
-from which this event was `emit`ted will be skipped.
+Skip listeners with an associated `selector` that does not match the `origin`
+state from which this event was `emit`ted.
 
           if selector?
           then continue unless clientState.query selector, origin
@@ -181,7 +164,7 @@ Unbox any state-bound functions.
             fn = item
           else if item?.type is 'state-bound-function'
             { fn } = item
-            context or = clientState
+            context or = if selector? then origin else clientState
 
           fn.apply context or owner, args
 

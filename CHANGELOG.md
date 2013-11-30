@@ -2,7 +2,25 @@
 
 
 
-### *edge — (tentative 0.2.0)*
+### edge
+
+> tentative **0.3.0** on `master`
+
+* **(breaking)** — Reduced/fixed parameters for guard predicate
+
+* **(breaking)** — In `StateExpression`, lowered type-inference priority for events expressed as string values. Change causes e.g. `admit: 'fromState'` to be interpreted as a guard rather than an event.
+
+* Added guard syntax allowing selector-only as a value, e.g. `admit: 'fromState'` rather than `admit: { fromState: true }`
+
+* Added event delegation, heritable via superstates and parastates, and across protostates; e.g. `AA:enter`, `A.AA.***:exit`
+
+* Added triple wildcard selector `***` to signify selection of the union of a `State` and all its descendants (compare to `**` which selects only the descendants, and `*` which selects only the immediate substates).
+
+* Implemented `retained` attribute; when a transition `arrive`s at a targeted `retained` state the most recent interior currency of that state is restored.
+
+
+
+### 0.2.0 *(released)*
 
 * **(breaking)** — Renamed `State::protostate` method to `getProtostate`, changed it to a pure “getter” (with no memoization side-effects), and renamed the pseudo-private `this._protostate` to simply `this.protostate`. This achieves API consistency with the related property `this.superstate`.
 
@@ -22,7 +40,7 @@
 
 
 
-### 0.1.2 *(released)*
+### 0.1.2
 
 * Allow raw arguments to be passed in with (or as) `options` parameter of `change`.
 

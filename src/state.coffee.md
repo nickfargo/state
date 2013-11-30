@@ -34,6 +34,7 @@ and instigate transitions independently of the prototype.
 
     class State
 
+      { rxDelegatedEvent } = state
       { memoizeProtostates, useDispatchTables } = state.options
 
       { env, NIL, isArray, isEmpty, has, hasOwn } = O
@@ -736,8 +737,8 @@ returned.
 
 First scan for any virtual active substates in the local state tree.
 
-        s = @root._current
-        while s?.attributes & VIRTUAL and ss = s.superstate
+        s = @root._transition?.superstate or @root._current
+        while s? and s.attributes & VIRTUAL and ss = s.superstate
           return s if ss is this and s.name is name
           s = ss
 
@@ -749,8 +750,8 @@ Otherwise retrieve a real substate, either locally or from a protostate.
 
 #### [substates](#state--prototype--substates)
 
-Returns an object containing this state’s immediate substates, mapped from
-their `path`s.
+Returns an object `out` containing `this` state’s immediate substates mapped by
+`name`, or if directed to traverse `VIA_SUB`, its descendants mapped by `path`.
 
 > [substates](/api/#state--methods--substates)
 > [Virtual epistates](/docs/#concepts--object-model--virtual-epistates)
@@ -758,16 +759,19 @@ their `path`s.
       substates: ( via = VIA_NONE, out = {} ) ->
         viaSub = via & VIA_SUB
 
-        @protostate?.substates VIA_PROTO, out if via & VIA_PROTO
+        @protostate?.substates via, out if via & VIA_PROTO
 
 Include virtual substates in the returned set, if any are present.
 
         if via & VIA_VIRTUAL and ( s = @root._current ) and
             s.attributes & VIRTUAL and @isSuperstateOf s
+          virtualDescendants = []
           while s isnt this and s.attributes & VIRTUAL and ss = s.superstate
-            if viaSub then out[ s.path() ] = s
-            else if ss is this then out[ s.name ] = s
+            virtualDescendants.push s
             s = ss
+          while s = virtualDescendants.pop()
+            if viaSub then out[ s.path() ] = s
+            else out[ s.name ] = s; break
 
 Include real substates.
 
@@ -781,7 +785,7 @@ Include real substates.
 
 #### [descendants](#state--prototype--descendants)
 
-Returns an object containing this state’s descendant substates, mapped from
+Returns an object `out` containing this state’s descendant substates, mapped by
 their `path`s.
 
 > [descendants](/api/#state--methods--descendants)
@@ -1048,11 +1052,11 @@ name alone from anywhere in the state tree.
 A few exceptional cases may be resolved early.
 
         unless selector?
-          return if against is undefined then null else no
+          return if against? then no else null
         if selector is '.'
-          return if against is undefined then this else against is this
+          return if against? then against is this else this
         if selector is ''
-          return if against is undefined then @root else against is @root
+          return if against? then against is @root else @root
 
 Absolute wildcard expressions compared against the root state pass immediately.
 
@@ -1085,7 +1089,8 @@ each token is consumed.
 Upon reaching the end of token stream, return the `State` currently referenced
 by `cursor`.
 
-          return ( if against then against is cursor else cursor ) if i >= l
+          if i >= l
+            return ( if against then against is cursor else cursor )
 
 Consume a token.
 
@@ -1126,7 +1131,7 @@ superstate.
 Interpret any other token as an identifier that names a specific substate of
 `cursor`.
 
-          else if next = cursor.substate name then cursor = next
+          else if next = cursor.substate name, VIA_NONE then cursor = next
 
 If no matching substate exists, the query fails for this context.
 
@@ -1657,6 +1662,9 @@ identifier for the listener.
       addEvent: ( eventType, fn, context ) ->
         do @realize if @attributes & VIRTUAL
 
+        if rxDelegatedEvent.test eventType
+          [ match, selector, eventType ] = rxDelegatedEvent.exec eventType
+
         events = @_.events or = {}
         unless hasOwn.call events, eventType
           events[ eventType ] = new StateEventEmitter this
@@ -1664,7 +1672,7 @@ identifier for the listener.
         if fn.type is 'state-fixed-function'
           fn = fn.fn this, @protostate
 
-        events[ eventType ].add fn, context
+        events[ eventType ].add fn, context, selector
 
       on: @::addEvent
 
@@ -1702,26 +1710,37 @@ Normal, unbound callbacks are invoked in the context of `this.owner` as usual.
 
 > [emit](/api/#state--methods--emit)
 
-      emit: ( eventType, args, context, via = VIA_ALL ) ->
-        return if typeof eventType isnt 'string'
+      emit: do ->
 
-        if typeof args is 'number'
-          via = context; context = args; args = undefined
-        if typeof context is 'number'
-          via = context; context = undefined
+        emit = ( eventType, args, context, via = VIA_ALL ) ->
+          return if typeof eventType isnt 'string'
+          if typeof args is 'number'
+            via = context; context = args; args = undefined
+          if typeof context is 'number'
+            via = context; context = undefined
+          args = [args] if args? and not isArray args
+          recur.call this, eventType, args, context, via, this
 
-        args = [args] if args? and not isArray args
+Provisional `context` is flattened along the protostate axis onto the state
+tree of `this.owner`; this ensures that state-bound listeners inherited from a
+protostate will be invoked in the context of the inheriting epistate.
 
-Provisional `context` is flattened onto `this.owner`’s state tree.
+        recur = ( eventType, args, context, via, origin ) ->
+          @_?.events?[ eventType ]?.emit args, context ? this, origin
 
-        @_?.events?[ eventType ]?.emit args, context ? this
-        if via & VIA_PROTO
-          @protostate?.emit eventType, args, context ? this, VIA_PROTO
-        if via & VIA_SUPER
-          for relative in @order ? @linearize() when relative isnt this
-            relative.emit eventType, args, context ? relative
+          if via & VIA_PROTO and protostate = @protostate
+            recur.call protostate,
+              eventType, args, context ? this, VIA_PROTO, origin
 
-        return
+          if via & VIA_SUPER
+            notViaSuper = via & ~VIA_SUPER
+            for relative in @order ? @linearize() when relative isnt this
+              recur.call relative,
+                eventType, args, context ? relative, notViaSuper, origin
+
+          return
+
+        emit
 
       trigger: @::emit
 
@@ -1739,7 +1758,7 @@ applied.
 
 Guards are inherited from protostates, but not from parastates or superstates.
 
-> [`evaluateGuard`](#state--private--evaluate-guard)
+> [`evaluateGuard`](#root-state--private--evaluate-guard)
 > [guard](/api/#state--methods--guard)
 
       guard: ( guardType ) ->

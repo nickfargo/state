@@ -142,12 +142,11 @@ as evaluated `against` another `State`. Defaults to `true` if no guard exists.
         guard = context.guard guard if typeof guard is 'string'
         return true unless guard
 
-        args = slice.call arguments, 1
         for own key, value of guard
           valueIsFn = typeof value is 'function'
           selectors = trim( key ).split /\s*,+\s*/
           for selector in selectors when context.query selector, against
-            result = if valueIsFn then value.apply context, args else value
+            result = if valueIsFn then value.call context, against else value
             break
           break unless result
         !!result
@@ -351,11 +350,10 @@ events for each state along the way.
             s = target; pathToState = []; while s isnt domain
               pathToState.push s
               s = s.superstate
-          s = domain; while transition and substate = pathToState.pop()
+          while transition and substate = pathToState.pop()
             transition.superstate = substate
             substate.emit 'enter', eventArgs
             transition = null if transition.aborted
-            s = substate
 
 Exit from the transition state.
 
