@@ -6,6 +6,8 @@
 
 > tentative **0.3.0** on `master`
 
+* Added `state.define` and `state.implement` functions
+
 * **(breaking)** — Reduced/fixed parameters for guard predicate
 
 * **(breaking)** — In `StateExpression`, lowered type-inference priority for events expressed as string values. Change causes e.g. `admit: 'fromState'` to be interpreted as a guard rather than an event.
