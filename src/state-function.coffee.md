@@ -68,19 +68,33 @@ The `attributes` argument may include any of the words defined in
           expression = attributes
           attributes = undefined
 
-Formalize the provided `expression` (even if `expression` is already a formal
-`StateExpression`), incorporating any provided `attributes`.
+      if owner?
+      then implement owner, attributes, expression, options
+      else define attributes, expression
 
-      expression = new StateExpression attributes, expression
 
-If `owner` is absent, the inferred intent is only to return the formalized
-`expression`; otherwise the inference is to implement `expression` into
-`owner`.
 
-      if owner
-        { name, initial } = options if options
-        ( new RootState owner, expression, name, initial )._current
-      else expression
+### [Accessory functions](#state-function--accessory-functions)
+
+
+#### [define](#state-function--accessory-functions--define)
+
+    state.define =
+
+    define = ( attributes, expression ) ->
+      new StateExpression attributes, expression
+
+
+
+#### [implement](#state-function--accessory-functions--implement)
+
+    state.implement =
+
+    implement = ( owner, attributes, expression, options ) ->
+      { name, initial } = options if options?
+      stateExpression = new StateExpression attributes, expression
+      root = new RootState owner, stateExpression, name, initial
+      root._current
 
 
 
