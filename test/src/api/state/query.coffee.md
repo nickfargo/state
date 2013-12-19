@@ -34,6 +34,14 @@
         o.state '-> AA'
         expect( root.query 'AA', o.state() ).to.equal yes
 
+      it "queries and matches against prototypal states", ->
+        o = new Class
+        A = o.state()
+        expect( A.query 'AB' ).to.equal Class::state 'AB'
+        expect( A.query 'B' ).to.equal Superclass::state 'B'
+        expect( A.query 'AB', Class::state 'AB' ).to.equal yes
+        expect( A.query 'B', Superclass::state 'B' ).to.equal yes
+
       it "recognizes virtual states in inclusion test", ->
         o = new Class
         root = o.state().root
