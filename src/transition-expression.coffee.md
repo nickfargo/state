@@ -58,7 +58,7 @@ appropriate type inferences for any shorthand notation encountered.
                 'events'
               else if key of guardActions
                 'guards'
-              else if typeof value is 'functions'
+              else if typeof value is 'function'
                 'methods'
             if category
               item = result[ category ]

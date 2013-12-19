@@ -92,7 +92,7 @@ Start with a null-valued `result` object keyed with the category names.
           if category? and value?
             result[ category ] =
               if typeof value is 'string' then value
-              else if isArray value then value.slice 0
+              else if isArray value then value[..]
               else clone result[ category ], value
             continue
 
@@ -129,7 +129,7 @@ The `state` function serves as a sentinel `value` indicating empty-expression.
             item[ key ] = value
             continue
 
-###### Coersion
+###### Normalization
 
 Event values are coerced into an array.
 
@@ -161,7 +161,7 @@ to a formal `StateExpression`.
           if value is state
             object[ key ] = new StateExpression
           else if value instanceof State
-            object[ key ] = value.express true
+            object[ key ] = value.express yes
           else unless value is NIL or value instanceof StateExpression
             object[ key ] = new StateExpression value
 
