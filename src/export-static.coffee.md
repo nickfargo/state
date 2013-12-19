@@ -5,6 +5,7 @@
 This function will be applied to the package’s exported `state` function.
 
     module.exports = ( state = this ) ->
+      { define } = this
 
 
 ### [Package metadata](#package-metadata)
@@ -143,7 +144,7 @@ augmented with any `StateExpression` content supplied by the optional `expr`.
           attributes = ''
         expression ?= {}
         expression.parastates = parastates
-        state attributes, expression
+        define attributes, expression
 
 
 
