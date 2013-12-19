@@ -17,7 +17,8 @@
               AC: state
             B: state
               admit: 'A.*'
-              release: '.*'
+              release:
+                '.*': ( toState ) -> yes
               BA: state
 
           o.state '-> AA'
@@ -41,7 +42,7 @@
           class Class extends Superclass
 
           o = new Class
-          o.state '-> B'
+          o.state '-> B' ; expect( o.state().name ).to.equal 'B'
           o.state '-> A' ; expect( o.state().name ).to.equal 'B'
           o.state '-> C' ; expect( o.state().name ).to.equal 'B'
           o.state '-> D' ; expect( o.state().name ).to.equal 'D'

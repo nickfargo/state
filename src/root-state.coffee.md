@@ -133,25 +133,6 @@ also creating the object’s new accessor, to which the call is then forwarded.
         accessor
 
 
-#### [evaluateGuard](#root-state--private--evaluate-guard)
-
-Returns the boolean result of a `guard` function in the `context` of a `State`,
-as evaluated `against` another `State`. Defaults to `true` if no guard exists.
-
-      evaluateGuard = ( guard, against ) ->
-        guard = @guard guard if typeof guard is 'string'
-        return true unless guard
-
-        for own key, value of guard
-          valueIsFn = typeof value is 'function'
-          selectors = trim( key ).split /\s*,+\s*/
-          for selector in selectors when @query selector, against
-            result = if valueIsFn then value.call this, against else value
-            break
-          break unless result
-        !!result
-
-
 
 ### [Methods](#root-state--methods)
 
@@ -172,22 +153,26 @@ ancestors, a generic actionless transition expression for the pair is returned.
       getTransitionExpression: do ->
 
         search = ( target, origin, subject, ceiling ) ->
-          while subject and subject isnt ceiling
-            for own key, expr of subject.transitions()
-              return expr if (
-                not ( guards = expr.guards ) or (
-                  not ( admit = guards.admit ) or
-                  isEmpty( admit ) or
-                  evaluateGuard.call origin, admit, target, origin
-                ) and (
-                  not ( release = guards.release ) or
-                  isEmpty( release ) or
-                  evaluateGuard.call target, release, origin, target
-                )
-              ) and (
-                if expr.target then subject.query expr.target, target
+          while subject? and subject isnt ceiling
+            for own name, expr of subject._?.transitions when expr?
+              { guards } = expr
+              { admit, release } = guards if guards?
+
+              disallowedByGuard =
+                ( not admit?.evaluate target, origin ) or
+                ( not release?.evaluate origin, target )
+
+              targetMatches =
+                if expr.target
+                then subject.query expr.target, target
                 else subject is target
-              ) and ( not expr.origin or subject.query expr.origin, origin )
+
+              originMatches =
+                not expr.origin or subject.query expr.origin, origin
+
+              if targetMatches and originMatches and not disallowedByGuard
+                return expr
+
             break unless ceiling?
             subject = subject.superstate
 
@@ -275,8 +260,8 @@ If any guards are in place for the given `origin` and `target`, both of those
 states must consent to the transition.
 
         unless options?.forced
-          released = evaluateGuard.call origin, 'release', target
-          admitted = evaluateGuard.call target, 'admit', origin
+          released = origin.evaluateGuards 'release', target
+          admitted = target.evaluateGuards 'admit', origin
           unless released and admitted
             options?.failure?.call? this
             return null

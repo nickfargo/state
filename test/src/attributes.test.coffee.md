@@ -217,9 +217,9 @@
 
           it "allows mutation of guards", ->
             s.addGuard 'admit', ->
-            expect( s.guard 'admit' ).to.be.ok
+            expect( s.guards 'admit' ).to.be.ok
             s.removeGuard 'admit'
-            expect( s.guard 'admit' ).to.be.undefined
+            expect( s.guards 'admit' ).to.be.undefined
 
           it "allows mutation of substates", ->
             s.addSubstate 'A', {}
@@ -257,9 +257,9 @@
 
           it "allows mutation of guards", ->
             s.addGuard 'admit', ->
-            expect( s.guard 'admit' ).to.be.ok
+            expect( s.guards 'admit' ).to.be.ok
             s.removeGuard 'admit'
-            expect( s.guard 'admit' ).to.be.undefined
+            expect( s.guards 'admit' ).to.be.undefined
 
           it "prohibits mutation of substates", ->
             s.addSubstate 'A', {}

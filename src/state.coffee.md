@@ -1,6 +1,7 @@
     O                     = require 'omicron'
     state                 = require './state-function'
     StateEventEmitter     = null
+    GuardMap              = null
     StateExpression       = null
     TransitionExpression  = null
 
@@ -575,12 +576,11 @@ for this event type, then one must be created.
 
 ###### Guard mutations
 
-Guards are stored as simple objects, and altering them causes no side-effects,
-so a deep `edit` is sufficient.
+          if mutable then for own type, map of expr.guards
+            if map is NIL
+            then @removeGuards type
+            else @addGuards type, map
 
-          if mutable and expr.guards
-            guards or = @_.guards or = {}
-            edit 'deep', guards, expr.guards
 
 ###### Substate mutations
 
@@ -1762,56 +1762,167 @@ protostate will be invoked in the context of the inheriting epistate.
 
 ### [Guard methods](#state--guard-methods)
 
+A **guard** is a triple that associates a list of **predicates** with a
+particular **guard type** and **selector**. A guard effectively evaluates to
+`true` if the boolean coercion of each of its constituent predicate functions
+evaluates to `true`, and `false` otherwise.
+
+Guard predicates are evaluated against a particular complementary `State` as
+defined by the guard type, *iff* the complementary `State` is a match for the
+guard’s associated selector.
+
+**State guards** further associate a guard with a particular `State`, and in
+this capacity govern the viability of any **transition** that would involve the
+`State`, such that:
+
+* Prior to execution of a transition from an **origin** `State` to a **target**
+  `State`, all matching guards for each `State` that would be traversed during
+  the transition are evaluated to determine whether the transition will be
+  allowed to proceed.
+
+* Guards of `State`s from which the currency would *depart* and *exit* identify
+  the transition’s *target* as the complementary `State` to be matched against
+  the guard’s selector, and guards of `State`s into which the currency would
+  *enter* and *arrive* identify the transition’s *origin* as the complementary
+  `State` to be matched against the guard’s selector.
+
+* Transition candidates that do not satisfy each applicable state guard are
+  rejected.
+
+State guards are inherited from protostates by default, but are not heritable
+via parastates or superstates.
+
+> [`evaluateGuards`](#state--methods--evaluate-guards)
+
 
 #### [guard](#state--prototype--guard)
 
-Gets a **guard** entity for this state. A guard is a value or function that
-will be evaluated during a transition to determine whether an owner’s currency
-will be *admitted* into or *released* from the `State` to which the guard is
-applied.
+Returns a list of predicate functions, registered to `this` state or any of its
+protostates, and associated with the provided `guardType` and `selector`.
 
-Guards are inherited from protostates, but not from parastates or superstates.
-
-> [`evaluateGuard`](#root-state--private--evaluate-guard)
 > [guard](/api/#state--methods--guard)
 
-      guard: ( guardType ) ->
-        if guard = @_?.guards?[ guardType ] then clone guard
-        else @protostate?.guard( guardType ) or undefined
+      guard: ( guardType, selector, via = VIA_PROTO, out = [] ) ->
+        if via & VIA_PROTO
+          @protostate?.guard guardType, selector, via, out
+
+        predicates = @_?.guards?[ guardType ]?.map?[ selector ]
+        if predicates? then out.push predicate for predicate in predicates
+
+        out if out.length
+
+
+#### [guards](#state--prototype--guards)
+
+Returns an object map containing all guards of the given `guardType` affecting
+`this` state, where each key is a `selector` that maps to a list of
+`predicates`.
+
+      guards: ( guardType, via = VIA_PROTO, out = {} ) ->
+        if via & VIA_PROTO
+          @protostate?.guards guardType, via, out
+
+        for own selector, predicates of @_?.guards?[ guardType ]?.map
+          continue unless predicates?.length
+          predicatesOut = out[ selector ] or = []
+          predicatesOut.push predicate for predicate in predicates
+
+        out unless isEmpty out
 
 
 #### [addGuard](#state--prototype--add-guard)
 
-Adds a guard to this state, or augments an existing guard with additional
-entries.
+Adds a guard of the specified `guardType` to `this` state, in the form of a
+`selector` key associated with a `predicateList` array of functions. If a guard
+for the specified `guardType` and `selector` already exists, then the provided
+predicates are concatenated onto the existing guard.
 
 > [addGuard](/api/#state--methods--add-guard)
 
-      addGuard: ( guardType, guard ) ->
+      addGuard: ( guardType, selector, predicateList ) ->
         { attributes } = this
         return unless attributes & INCIPIENT_OR_MUTABLE
         do @realize if attributes & VIRTUAL
-        guards = @_.guards or = {}
-        edit guards[ guardType ] or = {}, guard
+
+        if typeof selector isnt 'string' and not predicateList?
+          predicateList = selector; selector = '***'
+
+        predicateList =
+          if isArray predicateList then predicateList[..] else [predicateList]
+
+        for predicate, index in predicateList
+          if predicate?.type is 'state-fixed-function'
+            predicateList[ index ] = predicate.fn this, @protostate
+
+        guardsComponent = @_.guards ?= {}
+        guardMap = guardsComponent[ guardType ] ?= new GuardMap guardType
+        guardMap.add selector, predicateList
+
+
+#### [addGuards](#state--prototype--add-guards)
+
+Adds a guard of the specified `guardType` to `this` state by accepting a
+`guardMap` object whose properties each map a `selector` string to a
+list of predicate functions.
+
+      addGuards: ( guardType, guardMap ) ->
+        return unless guardMap?
+
+        { attributes } = this
+        return unless attributes & INCIPIENT_OR_MUTABLE
+        do @realize if attributes & VIRTUAL
+
+        if guardMap instanceof GuardMap or
+            guardMap.guardType? and guardMap.map?
+          guardMap = guardMap.map
+
+        for own selector, predicateList of guardMap when predicateList?
+          if predicateList is NIL
+            @removeGuard guardType, selector unless attributes & INCIPIENT
+          else
+            @addGuard guardType, selector, predicateList
+        return
 
 
 #### [removeGuard](#state--prototype--remove-guard)
 
-Removes a guard from this state, or removes specific entries from an existing
-guard.
+Removes a guard of the specified `guardType` from `this` state by deleting the
+predicate list associated with the provided `selector`.
 
 > [removeGuard](/api/#state--methods--remove-guard)
 
-      removeGuard: ( guardType, args... ) ->
-        { attributes } = this
-        return if attributes & VIRTUAL
-        return unless attributes & MUTABLE and guards = @_.guards
-        return null unless guard = guards[ guardType ]
-        return ( guard if delete guards[ guardType ] ) unless args.length
+      removeGuard: ( guardType, selector ) ->
+        return unless @attributes & MUTABLE
+        if not selector? then return @removeGuards guardType
+        return null unless removed = @_?.guards?[ guardType ]?.remove selector
+        delete @_.guards[ guardType ] if isEmpty guardMap
+        return removed
 
-        for key in flatten args when typeof key is 'string'
-          entry = guard[ key ]
-          return entry if delete guard[ key ]
+
+#### [removeGuards](#state--prototype--remove-guards)
+
+Removes all guards of the specified `guardType` from `this` state.
+
+      removeGuards: ( guardType ) ->
+        return unless @attributes & MUTABLE
+        return null unless removed = @_?.guards?[ guardType ]
+        delete @_.guards[ guardType ]
+        return removed
+
+
+#### [evaluateGuards](#state--prototype--evaluate-guards)
+
+Evaluates `this` state’s collection of guards for the specified guard type
+against the specified `State`, and propagates the evaluation up the protostate
+chain, returning `true` if all such guards evaluate to `true`, and `false`
+otherwise.
+
+      evaluateGuards: ( guardType, againstState, via = VIA_PROTO ) ->
+        s = this; while s?
+          if guardMap = s._?.guards?[ guardType ]
+            return no unless guardMap.evaluate againstState, this
+          if via & VIA_PROTO then s = s.protostate else break
+        return yes
 
 
 
@@ -1908,4 +2019,5 @@ Removes a transition expression from this state.
     State::Expression =
     StateExpression       = require './state-expression'
     StateEventEmitter     = require './state-event-emitter'
+    GuardMap              = require './guard-map'
     TransitionExpression  = require './transition-expression'

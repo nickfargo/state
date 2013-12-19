@@ -1,6 +1,7 @@
     O                    = require 'omicron'
     state                = require './state-function'
     State                = require './state'
+    GuardMap             = require './guard-map'
     TransitionExpression = require './transition-expression'
 
     {
@@ -136,16 +137,11 @@ Event values are coerced into an array.
         for own key, value of object = result.events when not isArray value
           object[ key ] = [ value ]
 
-Guards are represented as an object keyed by selector, so non-object values are
-coerced into a single-element object with the value keyed to the any-state
-selector `***`.
+Guard values must be represented within a `GuardMap`.
 
         for own key, value of object = result.guards
-          if typeof value is 'string'
-            item = object[ key ] = {}
-            item[ value ] = yes
-          else unless isPlainObject value
-            object[ key ] = '***': value
+          unless value is NIL or value instanceof GuardMap
+            object[ key ] = new GuardMap key, value
 
 Transition values must be a `TransitionExpression`.
 

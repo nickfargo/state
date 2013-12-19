@@ -9,6 +9,7 @@ Copyright (C) 2011-2013 Nick Fargo. [License][] MIT.
     exports = ->
       @State                = require './state'
       @StateExpression      = require './state-expression'
+      @GuardMap             = require './guard-map'
       @RootState            = require './root-state'
       @Transition           = require './transition'
       @TransitionExpression = require './transition-expression'
