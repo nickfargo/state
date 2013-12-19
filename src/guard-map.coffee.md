@@ -162,8 +162,6 @@ is at the prototypal level of `asState`, and `queryAgainst` that.
         until queryAgainst.root is asState.root or
               queryAgainst.root.isProtostateOf asState.root
           unless queryAgainst = queryAgainst.protostate
-            0 and console.log againstState.root.print againstState
-            0 and console.log asState.root.print asState
             throw new Error "Unrelated: '#{againstState}', '#{asState}'"
 
         for own selectors, predicates of @map when predicates?.length > 0
