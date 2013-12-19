@@ -1220,6 +1220,20 @@ owner’s current state.
       isActive: -> this is ( current = @current() ) or @isSuperstateOf current
 
 
+#### [isOccupied](#state--prototype--is-occupied)
+
+> Will supplant present implementation of `isActive`.
+
+Returns a `Boolean` indicating whether the owner’s current state is `this` or
+one of the descendant substates of `this`.
+
+> [isOccupied](/api/#state--methods--is-occupied)
+
+      isOccupied: ->
+        return no unless current = @root._current
+        this is current or @isSuperstateOf current
+
+
 #### [change](#state--prototype--change)
 
 Forwards a `change` command to `root` and returns its result. Calling with no
@@ -1856,6 +1870,35 @@ Removes a transition expression from this state.
         delete transitions[ name ] if transition
         transition
 
+
+
+### [Diagnostics]()
+
+
+#### [decodeAttributes]()
+
+      decodeAttributes: ( mask = ~0 ) ->
+        StateExpression.decodeAttributes @attributes & mask
+
+
+#### [print]()
+
+      print: ( mark, context = this, indent = 0 ) ->
+        attributes = @decodeAttributes ~CONCRETE
+        out = ''; i = 0; out += '  ' while i++ < indent
+        out += ( if mark? and this is mark then '▷ ' else '  ' )
+        out +=
+          @owner isnt context.owner and '◌ ' or
+          @isCurrent() and '● ' or
+          @isOccupied() and '◍ ' or
+          '○ '
+        out += this is @root and "<#{@owner.constructor.name}>" or "#{@name}"
+        out += ": #{@constructor.name}"
+        out += " '#{attributes}'" if attributes
+        out += '\n'
+        for path, substate of @substates VIA_VIRTUAL | VIA_PROTO
+          out += substate.print mark, context, indent + 1
+        out
 
 
 
