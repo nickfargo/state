@@ -1,4 +1,2 @@
 build/
-src/
 test/
-*.coffee.md
