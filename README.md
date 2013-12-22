@@ -4,6 +4,8 @@
 
 A `State` is a module of behavior — **[expressed][2]** as definitions of **[methods][3]**, **[data][4]**, and/or **[events][5]** — that can be exhibited by its owner. The **State** **[object model][6]** provides for **[hierarchical][7]**, **[compositional][8]**, and **[indirect prototypal][9]** relations between `State`s, facilitating a variety of patterns for reuse and modularity.
 
+![State object model](http://statejs.org/img/model-4-75pct.png)
+
 An owner object exhibits the behavior expressed by its **current state** — method calls the owner receives are automatically dispatched to methods defined or inherited by that `State`. Behavior of the owner is altered by executing **[transitions][10]** that carry its current state reference from one of its `State`s to another.
 
 * * *
