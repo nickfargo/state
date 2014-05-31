@@ -2,7 +2,6 @@ meta:
   site_title: "state.js"
   site_subtitle: "well-behaved JavaScript"
   site_language: "en"
-  baseurl: /state
   author:
     full_name: Nick Fargo
     short_name: nickfargo
@@ -14,6 +13,7 @@ meta:
 
 tag_dir: tag
 pygments: true
+baseurl: /state
 markdown: rdiscount
 permalink: /blog/:year/:month/:day/:title
 exclude: [ art, diagrams ]
