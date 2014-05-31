@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Octicons Regular';
-  src: url("/font/octicons-regular-webfont.eot?v=2#iefix") format("embedded-opentype"), url("/font/octicons-regular-webfont.woff?v=2") format("woff"), url("/font/octicons-regular-webfont.ttf?v=2") format("truetype"), url("/font/octicons-regular-webfont.svg?v=2#newFontRegular") format("svg");
+  src: url("../font/octicons-regular-webfont.eot?v=2#iefix") format("embedded-opentype"), url("../font/octicons-regular-webfont.woff?v=2") format("woff"), url("../font/octicons-regular-webfont.ttf?v=2") format("truetype"), url("../font/octicons-regular-webfont.svg?v=2#newFontRegular") format("svg");
   font-weight: normal;
   font-style: normal; }
 

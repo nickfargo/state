@@ -199,7 +199,7 @@ When an inheritor adopts a protostate as its current state, the currency is born
 
 
 
-[diagram--model]:         /img/model-4.png "State object model"
-[diagram--model--super]:  /img/model-1.png "Superstates and substates"
-[diagram--model--proto]:  /img/model-2.png "Protostates and epistates"
-[diagram--model--para]:   /img/model-3.png "Parastates"
+[diagram--model]:         ../img/model-4.png "State object model"
+[diagram--model--super]:  ../img/model-1.png "Superstates and substates"
+[diagram--model--proto]:  ../img/model-2.png "Protostates and epistates"
+[diagram--model--para]:   ../img/model-3.png "Parastates"
