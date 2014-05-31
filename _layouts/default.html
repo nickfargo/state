@@ -38,22 +38,22 @@
         <div class="bg"></div>
         <div class="fg">
           <div class="container">
-            <a class="brand" href="/">state<span class="tail">js</span></a>
+            <a class="brand" href="{{ site.baseurl }}/">state<span class="tail">js</span></a>
             <ul class="nav">
               <li{% if page.section == 'blog' %} class="active"{% endif %}>
-                <a href="/blog">blog</a>
+                <a href="{{ site.baseurl }}/blog">blog</a>
                 <div class="lightstick"></div>
               </li>
               <li{% if page.section == 'docs' %} class="active"{% endif %}>
-                <a href="/docs">docs</a>
+                <a href="{{ site.baseurl }}/docs">docs</a>
                 <div class="lightstick"></div>
               </li>
               <li{% if page.section == 'api' %} class="active"{% endif %}>
-                <a href="/api">api</a>
+                <a href="{{ site.baseurl }}/api">api</a>
                 <div class="lightstick"></div>
               </li>
               <li{% if page.section == 'source' %} class="active"{% endif %}>
-                <a href="/source">source</a>
+                <a href="{{ site.baseurl }}/source">source</a>
                 <div class="lightstick"></div>
               </li>
               <li>
