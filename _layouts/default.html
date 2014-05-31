@@ -8,7 +8,7 @@
     <link rel="stylesheet" media="screen" href="qunit.css">
     <link rel="stylesheet" media="screen" href="mocha.css">
     {% endif %}
-    <link rel="stylesheet" href="/css/default-manual.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/css/default-manual.css">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
@@ -26,7 +26,7 @@
 
     <noscript><style> .highlight pre { display: block; } </style></noscript>
 
-    <script src="/js/preload.js"></script>
+    <script src="{{ site.baseurl }}/js/preload.js"></script>
   </head>
 
   <body class="{{ page.section }}">
@@ -94,7 +94,7 @@
     <section id="javascript">
       <script src="/state.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-      <script src="/js/ui.js"></script>
+      <script src="{{ site.baseurl }}/js/ui.js"></script>
 
       {% if page.section == 'tests' %}
       {% include content/tests/scripts.html %}
