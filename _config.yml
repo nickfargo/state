@@ -2,8 +2,6 @@ meta:
   site_title: "state.js"
   site_subtitle: "well-behaved JavaScript"
   site_language: "en"
-  absolute_baseurl: http://statejs.org
-  domain: statejs.org
   author:
     full_name: Nick Fargo
     short_name: nickfargo
