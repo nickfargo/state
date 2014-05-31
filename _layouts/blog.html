@@ -16,7 +16,7 @@ section: blog
     {% for post in site.posts limit:10 %}
     {% if forloop.index > 1 %}
     <div class="preview secondary">
-      <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+      <h2><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></h2>
       <div class="date">{{ post.date | date: "%B %d, %Y" }}</div>
       {% if post.lede %}
         <div class="lede">{{ post.lede | markdownify }}</div>
