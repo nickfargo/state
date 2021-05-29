@@ -215,5 +215,5 @@ A [`Transition`](/api/#transition) instance is an ephemeral type of [`State`](/a
 
 
 
-[diagram--states]: /img/model-5.png "States"
-[diagram--object-model]: /img/model-4-75pct.png "State object model"
+[diagram--states]: img/model-5.png "States"
+[diagram--object-model]: img/model-4-75pct.png "State object model"

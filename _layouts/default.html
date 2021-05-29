@@ -8,7 +8,7 @@
     <link rel="stylesheet" media="screen" href="qunit.css">
     <link rel="stylesheet" media="screen" href="mocha.css">
     {% endif %}
-    <link rel="stylesheet" href="/css/default-manual.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/css/default-manual.css">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
@@ -17,8 +17,8 @@
 
     <meta name="description" content="">
     <meta name="author" content="{{ site.meta.author.full_name }}">
-    <link href="/atom.xml" rel="alternate" title="{{ site.meta.site_title }} (Atom)" type="application/atom+xml">
-    <link href="/rss.xml" rel="alternate" title="{{ site.meta.site_title }} (RSS)" type="application/rss+xml">
+    <link href="atom.xml" rel="alternate" title="{{ site.meta.site_title }} (Atom)" type="application/atom+xml">
+    <link href="rss.xml" rel="alternate" title="{{ site.meta.site_title }} (RSS)" type="application/rss+xml">
 
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16px.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32px.png">
@@ -26,7 +26,7 @@
 
     <noscript><style> .highlight pre { display: block; } </style></noscript>
 
-    <script src="/js/preload.js"></script>
+    <script src="{{ site.baseurl }}/js/preload.js"></script>
   </head>
 
   <body class="{{ page.section }}">
@@ -38,22 +38,22 @@
         <div class="bg"></div>
         <div class="fg">
           <div class="container">
-            <a class="brand" href="/">state<span class="tail">js</span></a>
+            <a class="brand" href="{{ site.baseurl }}/">state<span class="tail">js</span></a>
             <ul class="nav">
               <li{% if page.section == 'blog' %} class="active"{% endif %}>
-                <a href="/blog/">blog</a>
+                <a href="{{ site.baseurl }}/blog">blog</a>
                 <div class="lightstick"></div>
               </li>
               <li{% if page.section == 'docs' %} class="active"{% endif %}>
-                <a href="/docs/">docs</a>
+                <a href="{{ site.baseurl }}/docs">docs</a>
                 <div class="lightstick"></div>
               </li>
               <li{% if page.section == 'api' %} class="active"{% endif %}>
-                <a href="/api/">api</a>
+                <a href="{{ site.baseurl }}/api">api</a>
                 <div class="lightstick"></div>
               </li>
               <li{% if page.section == 'source' %} class="active"{% endif %}>
-                <a href="/source/">source</a>
+                <a href="{{ site.baseurl }}/source">source</a>
                 <div class="lightstick"></div>
               </li>
               <li>
@@ -92,9 +92,9 @@
     </div>
 
     <section id="javascript">
-      <script src="/state.js"></script>
+      <script src="{{ site.baseurl }}/state.js"></script>
       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
-      <script src="/js/ui.js"></script>
+      <script src="{{ site.baseurl }}/js/ui.js"></script>
 
       {% if page.section == 'tests' %}
       {% include content/tests/scripts.html %}
